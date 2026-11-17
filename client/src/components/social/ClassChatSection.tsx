@@ -28,12 +28,14 @@ import ConfirmDialog from '../ConfirmDialog';
 import { useUserProfileModal } from '../../context/UserProfileModalContext';
 import { useChat } from '../../context/ChatContext';
 import { useData } from '../../context/DataContext';
+import { InlineDirectChat } from './InlineDirectChat';
 
 interface MemberActionTarget {
     userId: string;
     name: string;
     avatar?: AvatarConfig | null;
     role?: 'leader' | 'elder' | 'member';
+    anchor?: { x: number; y: number };
     equippedBadge?: {
         id: string;
         name: string;
@@ -72,7 +74,7 @@ export const ClanChatSection: React.FC<ClanChatSectionProps> = ({
 }) => {
     const { confirm, confirmState, handleCancel } = useConfirm();
     const { openUserProfile, isOpen: isProfileModalOpen } = useUserProfileModal();
-    const { openChat, isOpen: isGlobalChatOpen, onlineUserIds } = useChat();
+    const { markFriendAsRead, isOpen: isGlobalChatOpen, onlineUserIds } = useChat();
     const { allUsers } = useData();
     const [inputContent, setInputContent] = useState('');
     const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
@@ -84,6 +86,14 @@ export const ClanChatSection: React.FC<ClanChatSectionProps> = ({
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [memberActionTarget, setMemberActionTarget] = useState<MemberActionTarget | null>(null);
+    const [dmTarget, setDmTarget] = useState<UserData | null>(null);
+    const lastPointerRef = useRef({ x: 16, y: 80 });
+
+    useEffect(() => {
+        const onDown = (e: PointerEvent) => { lastPointerRef.current = { x: e.clientX, y: e.clientY }; };
+        window.addEventListener('pointerdown', onDown, true);
+        return () => window.removeEventListener('pointerdown', onDown, true);
+    }, []);
 
     const messagesContainerRef = useRef<HTMLDivElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -309,7 +319,8 @@ export const ClanChatSection: React.FC<ClanChatSectionProps> = ({
         };
         setMemberActionTarget(null);
         setShowMobileRoster(false);
-        openChat('direct', targetUser, { returnToLabel: 'Class Chat' });
+        markFriendAsRead(targetUser.userId);
+        setDmTarget(targetUser);
     };
 
     const renderMemberRow = (m: ClanMember) => {
@@ -557,6 +568,7 @@ export const ClanChatSection: React.FC<ClanChatSectionProps> = ({
 
             {/* Main Chat Column */}
             <div className="flex-1 min-w-0 flex flex-col h-full">
+                {dmTarget ? (<InlineDirectChat friend={dmTarget} isBento={isBento} isFullscreen={isFullscreen} onBack={() => setDmTarget(null)} onOpenProfile={openUserProfile} />) : (<>
                 {/* Sleek Single-Bar Header */}
                 <header className={`px-4 sm:px-6 py-3 border-b flex items-center justify-between gap-3 shrink-0 ${
                     isBento
@@ -1138,6 +1150,7 @@ export const ClanChatSection: React.FC<ClanChatSectionProps> = ({
                         </form>
                     </div>
                 </div>
+                </>)}
             </div>
 
             <ConfirmDialog
@@ -1155,162 +1168,74 @@ export const ClanChatSection: React.FC<ClanChatSectionProps> = ({
 
     const isTargetOnline = memberActionTarget ? onlineUserIds.has(memberActionTarget.userId) : false;
 
+    const popoverWidth = 248;
+    const popoverLeft = memberActionTarget?.anchor
+        ? Math.max(8, Math.min(memberActionTarget.anchor.x, (typeof window !== 'undefined' ? window.innerWidth : 1200) - popoverWidth - 8))
+        : 16;
+    const popoverTop = memberActionTarget?.anchor
+        ? Math.max(8, Math.min(memberActionTarget.anchor.y + 10, (typeof window !== 'undefined' ? window.innerHeight : 800) - 200))
+        : 80;
+
     const memberActionModal =
         memberActionTarget && typeof document !== 'undefined'
             ? createPortal(
-                <div className="fixed inset-0 z-[9950] flex items-center justify-center p-4 animate-in fade-in duration-150">
+                <div className="fixed inset-0 z-[9950]" onClick={() => setMemberActionTarget(null)}>
                     <div
-                        className="absolute inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm modal-backdrop"
-                        onClick={() => setMemberActionTarget(null)}
-                        aria-hidden="true"
-                    />
-                    <div
-                        role="dialog"
-                        aria-modal="true"
+                        role="menu"
                         aria-label={`Actions for ${memberActionTarget.name}`}
-                        className={`relative z-10 w-full max-w-sm rounded-3xl overflow-hidden animate-in zoom-in-95 duration-150 ${
+                        onClick={(e) => e.stopPropagation()}
+                        style={{ left: popoverLeft, top: popoverTop, width: popoverWidth }}
+                        className={`absolute rounded-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-100 ${
                             isBento
-                                ? 'bg-white text-black border-3 border-black shadow-[8px_8px_0px_#000]'
-                                : 'bg-white dark:bg-[#13141f] text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 shadow-2xl'
+                                ? 'bg-white text-black border-2 border-black shadow-[4px_4px_0px_#000]'
+                                : 'bg-white dark:bg-[#13141f] text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 shadow-xl'
                         }`}
                     >
-                        {/* Header */}
-                        <div className={`p-4 border-b flex items-center justify-between gap-3 ${
-                            isBento
-                                ? 'bg-[#fef08a] border-b-[2.5px] border-black text-black'
-                                : 'bg-slate-50 dark:bg-white/[0.04] border-slate-200 dark:border-white/10'
+                        <div className={`px-3 py-2.5 flex items-center gap-2.5 border-b ${
+                            isBento ? 'bg-[#fef08a] border-b-2 border-black' : 'bg-slate-50 dark:bg-white/[0.04] border-slate-200 dark:border-white/10'
                         }`}>
-                            <div className="flex items-center gap-3 min-w-0">
-                                <div className="relative shrink-0">
-                                    <div className={`w-11 h-11 rounded-2xl overflow-hidden flex items-center justify-center text-sm font-black ${
-                                        isBento
-                                            ? 'bg-[#fde047] border-2 border-black shadow-[2px_2px_0px_#000] text-black'
-                                            : 'bg-gradient-to-br from-violet-500 to-indigo-600 text-white'
-                                    }`}>
-                                        {memberActionTarget.avatar ? (
-                                            <Avatar config={memberActionTarget.avatar} size="sm" className="w-full h-full object-cover" />
-                                        ) : (
-                                            (memberActionTarget.name || 'M').substring(0, 2).toUpperCase()
-                                        )}
-                                    </div>
-                                    <span
-                                        className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white dark:border-[#13141f] ${
-                                            isTargetOnline ? 'bg-emerald-500' : 'bg-slate-400'
-                                        }`}
-                                        title={isTargetOnline ? 'Online' : 'Offline'}
-                                    />
+                            <div className="relative shrink-0">
+                                <div className={`w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center text-[11px] font-black ${
+                                    isBento ? 'bg-[#fde047] border-2 border-black text-black' : 'bg-gradient-to-br from-violet-500 to-indigo-600 text-white'
+                                }`}>
+                                    {memberActionTarget.avatar ? (
+                                        <Avatar config={memberActionTarget.avatar} size="sm" className="w-full h-full object-cover" />
+                                    ) : (
+                                        (memberActionTarget.name || 'M').substring(0, 2).toUpperCase()
+                                    )}
                                 </div>
-
-                                <div className="min-w-0">
-                                    <div className="flex items-center gap-1.5 flex-wrap">
-                                        <h3 className="text-sm font-black truncate">{memberActionTarget.name}</h3>
-                                        {memberActionTarget.role === 'leader' && (
-                                            <span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase ${
-                                                isBento ? 'bg-[#facc15] text-black border border-black' : 'bg-amber-500/20 text-amber-600 dark:text-amber-300'
-                                            }`}>
-                                                Teacher
-                                            </span>
-                                        )}
-                                        {memberActionTarget.role === 'elder' && (
-                                            <span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase ${
-                                                isBento ? 'bg-[#93c5fd] text-black border border-black' : 'bg-blue-500/20 text-blue-600 dark:text-blue-300'
-                                            }`}>
-                                                Assistant
-                                            </span>
-                                        )}
-                                    </div>
-                                    <p className={`text-[11px] font-semibold truncate ${
-                                        isBento ? 'text-black/65' : 'text-slate-500 dark:text-slate-400'
-                                    }`}>
-                                        {memberActionTarget.equippedBadge
-                                            ? `${memberActionTarget.equippedBadge.icon} ${memberActionTarget.equippedBadge.title || memberActionTarget.equippedBadge.name}`
-                                            : isTargetOnline
-                                                ? 'Online now'
-                                                : `[${clan.tag}] Class Member`}
-                                    </p>
-                                </div>
+                                <span className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white ${isTargetOnline ? 'bg-emerald-500' : 'bg-slate-400'}`} />
                             </div>
-
-                            <button
-                                type="button"
-                                onClick={() => setMemberActionTarget(null)}
-                                className={`btn-unstyled p-1.5 rounded-xl transition-all cursor-pointer shrink-0 ${
-                                    isBento
-                                        ? 'bg-white hover:bg-rose-400 text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]'
-                                        : 'hover:bg-slate-200 dark:hover:bg-white/10 text-slate-500 dark:text-slate-300'
-                                }`}
-                                aria-label="Close"
-                            >
-                                <X className="w-4 h-4" />
-                            </button>
+                            <div className="min-w-0 flex-1">
+                                <p className="text-xs font-black truncate">{memberActionTarget.name}</p>
+                                <p className="text-[10px] font-semibold opacity-60 truncate">
+                                    {memberActionTarget.role === 'leader' ? 'Teacher' : memberActionTarget.role === 'elder' ? 'Assistant' : 'Class Member'}
+                                    {isTargetOnline ? ' • Online' : ''}
+                                </p>
+                            </div>
                         </div>
-
-                        {/* Body */}
-                        <div className="p-4 space-y-2.5">
-                            <p className={`text-xs font-bold ${
-                                isBento ? 'text-black/75' : 'text-slate-600 dark:text-slate-300'
-                            }`}>
-                                Choose what you want to do — you&apos;ll return right back to this class chat when you close it.
-                            </p>
-
+                        <div className="p-1.5 space-y-1">
                             <button
                                 type="button"
+                                role="menuitem"
                                 onClick={handleStartPrivateChat}
-                                className={`btn-unstyled w-full flex items-center gap-3 p-3.5 rounded-2xl text-left transition-all cursor-pointer ${
-                                    isBento
-                                        ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[3px_3px_0px_#000] active:translate-y-0.5'
-                                        : 'bg-violet-600 hover:bg-violet-700 text-white shadow-md'
+                                className={`btn-unstyled w-full flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs font-black text-start cursor-pointer transition-colors ${
+                                    isBento ? 'hover:bg-[#bef264]' : 'hover:bg-violet-500/10'
                                 }`}
                             >
-                                <span className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
-                                    isBento ? 'bg-white border-2 border-black text-black' : 'bg-white/15 text-white'
-                                }`}>
-                                    <MessageCircle className="w-4 h-4" />
-                                </span>
-                                <span className="min-w-0 flex-1">
-                                    <span className="block text-xs font-black uppercase tracking-wider">Chat Privately</span>
-                                    <span className={`block text-[11px] font-semibold ${
-                                        isBento ? 'text-black/70' : 'text-white/80'
-                                    }`}>
-                                        Open direct private message
-                                    </span>
-                                </span>
+                                <MessageCircle className="w-4 h-4 shrink-0" />
+                                <span>Chat privately</span>
                             </button>
-
                             <button
                                 type="button"
+                                role="menuitem"
                                 onClick={handleOpenSelectedProfile}
-                                className={`btn-unstyled w-full flex items-center gap-3 p-3.5 rounded-2xl text-left transition-all cursor-pointer ${
-                                    isBento
-                                        ? 'bg-[#bae6fd] hover:bg-[#7dd3fc] text-black border-2 border-black shadow-[3px_3px_0px_#000] active:translate-y-0.5'
-                                        : 'bg-slate-100 hover:bg-slate-200 dark:bg-white/[0.06] dark:hover:bg-white/10 text-slate-900 dark:text-white border border-slate-200 dark:border-white/10'
+                                className={`btn-unstyled w-full flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs font-black text-start cursor-pointer transition-colors ${
+                                    isBento ? 'hover:bg-[#bae6fd]' : 'hover:bg-indigo-500/10'
                                 }`}
                             >
-                                <span className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
-                                    isBento ? 'bg-white border-2 border-black text-black' : 'bg-indigo-500/15 text-indigo-600 dark:text-indigo-300'
-                                }`}>
-                                    <UserIcon className="w-4 h-4" />
-                                </span>
-                                <span className="min-w-0 flex-1">
-                                    <span className="block text-xs font-black uppercase tracking-wider">Open Profile</span>
-                                    <span className={`block text-[11px] font-semibold ${
-                                        isBento ? 'text-black/70' : 'text-slate-500 dark:text-slate-400'
-                                    }`}>
-                                        View achievements, activity & stats
-                                    </span>
-                                </span>
-                            </button>
-
-                            <button
-                                type="button"
-                                onClick={() => setMemberActionTarget(null)}
-                                className={`btn-unstyled w-full py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer text-center ${
-                                    isBento
-                                        ? 'bg-neutral-100 hover:bg-neutral-200 text-black border-2 border-black'
-                                        : 'bg-transparent hover:bg-slate-100 dark:hover:bg-white/5 text-slate-500 dark:text-slate-400'
-                                }`}
-                            >
-                                Stay in Class Chat
+                                <UserIcon className="w-4 h-4 shrink-0" />
+                                <span>View profile</span>
                             </button>
                         </div>
                     </div>

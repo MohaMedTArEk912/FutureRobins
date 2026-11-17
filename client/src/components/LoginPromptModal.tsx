@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LogIn, UserPlus, X, Sparkles, Award, Target, Trophy } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
+import { useLanguage } from '../context/LanguageContext';
 
 interface LoginPromptModalProps {
     isOpen: boolean;
@@ -14,14 +15,21 @@ interface LoginPromptModalProps {
 export const LoginPromptModal: React.FC<LoginPromptModalProps> = ({
     isOpen,
     onClose,
-    title = "Let's Log In",
-    description = "Create an account or log in to start quiz attempts, track your progress, earn certificates, and climb the leaderboard.",
+    title,
+    description,
     redirectPath
 }) => {
     const { isBento } = useTheme();
+    const { tx } = useLanguage();
     const navigate = useNavigate();
 
     if (!isOpen) return null;
+
+    const resolvedTitle = title ?? tx("Let's Log In", 'يلا نسجل دخول');
+    const resolvedDescription = description ?? tx(
+        'Create an account or log in to start quiz attempts, track your progress, earn certificates, and climb the leaderboard.',
+        'اعمل حساب أو سجل دخول عشان تبدأ تحل الكويزات، تتابع مستواك، تاخد شهادات وتطلع في الترتيب.'
+    );
 
     const handleLogin = () => {
         if (redirectPath) {
@@ -81,16 +89,16 @@ export const LoginPromptModal: React.FC<LoginPromptModalProps> = ({
                     </div>
                     <div>
                         <h3 className={`text-xl sm:text-2xl font-black ${isBento ? 'text-black' : 'text-gray-900 dark:text-white'}`}>
-                            {title}
+                            {resolvedTitle}
                         </h3>
                         <p className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black/70' : 'text-indigo-600 dark:text-indigo-400'}`}>
-                            Unlock Full Experience
+                            {tx('Unlock Full Experience', 'افتح كل المميزات')}
                         </p>
                     </div>
                 </div>
 
                 <p className={`text-sm leading-relaxed mb-6 font-medium ${isBento ? 'text-gray-700' : 'text-gray-600 dark:text-gray-300'}`}>
-                    {description}
+                    {resolvedDescription}
                 </p>
 
                 {/* Value Props */}
@@ -101,15 +109,15 @@ export const LoginPromptModal: React.FC<LoginPromptModalProps> = ({
                 }`}>
                     <div className="flex items-center gap-2.5">
                         <Target className={`w-4 h-4 shrink-0 ${isBento ? 'text-black' : 'text-indigo-500'}`} />
-                        <span>Take interactive quizzes &amp; exam simulations</span>
+                        <span>{tx('Take interactive quizzes & exam simulations', 'حل كويزات تفاعلية وامتحانات تجريبية')}</span>
                     </div>
                     <div className="flex items-center gap-2.5">
                         <Award className={`w-4 h-4 shrink-0 ${isBento ? 'text-black' : 'text-emerald-500'}`} />
-                        <span>Solve Question Pools 100% and earn Certificates</span>
+                        <span>{tx('Solve Question Pools 100% and earn Certificates', 'خلص بنوك الأسئلة 100% واكسب شهادات')}</span>
                     </div>
                     <div className="flex items-center gap-2.5">
                         <Trophy className={`w-4 h-4 shrink-0 ${isBento ? 'text-black' : 'text-amber-500'}`} />
-                        <span>Climb rank tiers &amp; preserve daily streak</span>
+                        <span>{tx('Climb rank tiers & preserve daily streak', 'ارفع مستواك وحافظ على الستريك اليومي')}</span>
                     </div>
                 </div>
 
@@ -125,7 +133,7 @@ export const LoginPromptModal: React.FC<LoginPromptModalProps> = ({
                         }`}
                     >
                         <LogIn className="w-4 h-4" />
-                        <span>Log In</span>
+                        <span>{tx('Log In', 'تسجيل الدخول')}</span>
                     </button>
 
                     <button
@@ -138,7 +146,7 @@ export const LoginPromptModal: React.FC<LoginPromptModalProps> = ({
                         }`}
                     >
                         <UserPlus className={`w-4 h-4 ${isBento ? 'text-black' : 'text-purple-500'}`} />
-                        <span>Create Free Account</span>
+                        <span>{tx('Create Free Account', 'إنشاء حساب مجاني')}</span>
                     </button>
 
                     <button
@@ -148,7 +156,7 @@ export const LoginPromptModal: React.FC<LoginPromptModalProps> = ({
                             isBento ? 'text-gray-600 hover:text-black' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
                         }`}
                     >
-                        Continue Browsing as Guest
+                        {tx('Continue Browsing as Guest', 'كمل تصفح كزائر')}
                     </button>
                 </div>
             </div>

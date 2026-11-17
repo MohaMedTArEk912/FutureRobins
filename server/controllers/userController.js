@@ -46,6 +46,12 @@ export const updateUser = async (req, res) => {
       }
     }
 
+    if (updates.preferredLanguage !== undefined && updates.preferredLanguage !== null) {
+      if (!['en', 'ar-EG'].includes(updates.preferredLanguage)) {
+        return res.status(400).json({ message: 'Invalid preferredLanguage specified' });
+      }
+    }
+
     const query = {
       $or: [
         { userId },

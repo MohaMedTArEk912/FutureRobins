@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { Mail, Lock, ArrowLeft, Eye, EyeOff, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
 import { api } from '../lib/api';
 import { useTheme } from '../context/ThemeContext';
+import { useLanguage } from '../context/LanguageContext';
+import LanguageToggle from './LanguageToggle';
 
 interface ForgotPasswordProps {
     onBack: () => void;
@@ -16,6 +18,7 @@ interface PasswordStrength {
 
 const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) => {
     const { isBento } = useTheme();
+    const { isArabic, tx } = useLanguage();
     const [step, setStep] = useState<'email' | 'reset'>('email');
     const [email, setEmail] = useState('');
     const [verificationCode, setVerificationCode] = useState('');
@@ -38,9 +41,9 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
         if (paramEmail && paramCode) {
             setVerificationCode(paramCode.trim());
             setStep('reset');
-            setSuccess('Verification link detected. Enter your new password below.');
+            setSuccess(tx('Verification link detected. Enter your new password below.', 'تم التحقق من الرابط. اكتب كلمة السر الجديدة تحت.'));
         }
-    }, []);
+    }, [tx]);
 
     useEffect(() => {
         if (resendCooldown <= 0) return;
@@ -55,13 +58,19 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
         setSuccess(null);
         setPreviewUrl(null);
         if (!isValidEmail(email)) {
-            setError('Please enter a valid email address');
+            setError(tx('Please enter a valid email address', 'لو سمحت اكتب إيميل صحيح'));
             return;
         }
         setLoading(true);
         try {
             const res = await api.forgotPassword(email);
-            setSuccess(res.message || `A 6-digit verification code was sent to ${email}. Check your inbox or spam folder.`);
+            setSuccess(
+                res.message ||
+                    tx(
+                        `A 6-digit verification code was sent to ${email}. Check your inbox or spam folder.`,
+                        `بعتنالك كود من 6 أرقام على ${email}. شوف صندوق الوارد أو الـ Spam.`
+                    )
+            );
             if (res.previewUrl) setPreviewUrl(res.previewUrl);
             setResendCooldown(60);
             setStep('reset');
@@ -105,13 +114,13 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
         if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) score += 1;
 
         if (score <= 2) {
-            return { score, label: 'Weak', color: isBento ? 'text-red-600 font-black' : 'text-red-500 dark:text-red-400' };
+            return { score, label: tx('Weak', 'ضعيفة'), color: isBento ? 'text-red-600 font-black' : 'text-red-500 dark:text-red-400' };
         } else if (score <= 4) {
-            return { score, label: 'Medium', color: isBento ? 'text-amber-600 font-black' : 'text-yellow-500 dark:text-yellow-400' };
+            return { score, label: tx('Medium', 'متوسطة'), color: isBento ? 'text-amber-600 font-black' : 'text-yellow-500 dark:text-yellow-400' };
         } else {
-            return { score, label: 'Strong', color: isBento ? 'text-green-700 font-black' : 'text-green-500 dark:text-green-400' };
+            return { score, label: tx('Strong', 'قوية'), color: isBento ? 'text-green-700 font-black' : 'text-green-500 dark:text-green-400' };
         }
-    }, [isBento]);
+    }, [isBento, tx]);
 
     // Update password strength when password changes
     useEffect(() => {
@@ -137,7 +146,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
         setSuccess(null);
 
         if (!isValidEmail(email)) {
-            setError('Please enter a valid email address');
+            setError(tx('Please enter a valid email address', 'لو سمحت اكتب إيميل صحيح'));
             return;
         }
 
@@ -145,7 +154,13 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
 
         try {
             const res = await api.forgotPassword(email);
-            setSuccess(res.message || `A 6-digit verification code was sent to ${email}. Check your inbox or spam folder.`);
+            setSuccess(
+                res.message ||
+                    tx(
+                        `A 6-digit verification code was sent to ${email}. Check your inbox or spam folder.`,
+                        `بعتنالك كود من 6 أرقام على ${email}. شوف صندوق الوارد أو الـ Spam.`
+                    )
+            );
             if (res && res.previewUrl) setPreviewUrl(res.previewUrl);
             setResendCooldown(60);
             setStep('reset');
@@ -162,17 +177,17 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
         setSuccess(null);
 
         if (newPassword.length < 6) {
-            setError('Password must be at least 6 characters long');
+            setError(tx('Password must be at least 6 characters long', 'كلمة السر لازم تكون 6 حروف على الأقل'));
             return;
         }
 
         if (passwordStrength && passwordStrength.score <= 2) {
-            setError('Please choose a stronger password');
+            setError(tx('Please choose a stronger password', 'اختار كلمة سر أقوى شوية'));
             return;
         }
 
         if (newPassword !== confirmPassword) {
-            setError('Passwords do not match');
+            setError(tx('Passwords do not match', 'كلمتي السر مش متطابقين'));
             return;
         }
 
@@ -180,7 +195,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
 
         try {
             await api.resetPassword(email, newPassword, verificationCode);
-            setSuccess('Password reset successfully! Redirecting to login...');
+            setSuccess(tx('Password reset successfully! Redirecting to login...', 'اتغيرت كلمة السر بنجاح! بنحولك لتسجيل الدخول...'));
             setTimeout(() => {
                 onSuccess();
             }, 2000);
@@ -191,7 +206,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
         }
     };
 
-    const fieldLabelClass = `block text-xs ml-0.5 mb-1.5 ${
+    const fieldLabelClass = `block text-xs ms-0.5 mb-1.5 ${
         isBento ? 'font-black uppercase tracking-wider text-black' : 'font-semibold text-slate-700 dark:text-slate-300'
     }`;
 
@@ -199,7 +214,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
         isBento ? 'text-black' : 'text-slate-400 dark:text-slate-500 group-focus-within:text-indigo-500 dark:group-focus-within:text-indigo-400'
     }`;
 
-    const eyeToggleClass = `btn-unstyled absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-lg transition-colors cursor-pointer ${
+    const eyeToggleClass = `btn-unstyled absolute end-2 top-1/2 -translate-y-1/2 p-1.5 rounded-lg transition-colors cursor-pointer ${
         isBento ? 'text-slate-700 hover:text-black hover:bg-slate-100' : 'text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/5'
     }`;
 
@@ -249,6 +264,10 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
                 </div>
             )}
 
+            <div className="fixed top-4 end-4 z-50">
+                <LanguageToggle compact />
+            </div>
+
             <div className={`forgot-password-card relative z-10 w-full max-w-4xl overflow-hidden grid grid-cols-1 md:grid-cols-12 transition-all duration-300 ${
                 isBento
                     ? 'bg-white border-[3px] border-black rounded-3xl shadow-[8px_8px_0px_#000]'
@@ -257,8 +276,8 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
                 {/* Left Identity & Progress Column */}
                 <div className={`md:col-span-5 p-5 sm:p-6 md:p-7 flex flex-col justify-between gap-4 md:gap-6 ${
                     isBento
-                        ? 'bg-[#faf8f1] border-b-[3px] md:border-b-0 md:border-r-[3px] border-black'
-                        : 'bg-slate-50/90 dark:bg-white/[0.025] border-b md:border-b-0 md:border-r border-slate-200/80 dark:border-white/[0.08]'
+                        ? 'bg-[#faf8f1] border-b-[3px] md:border-b-0 md:border-e-[3px] border-black'
+                        : 'bg-slate-50/90 dark:bg-white/[0.025] border-b md:border-b-0 md:border-e border-slate-200/80 dark:border-white/[0.08]'
                 }`}>
                     <div className="flex items-center justify-between gap-2">
                         <button
@@ -270,8 +289,8 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
                                     : 'bg-white dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 font-semibold border border-slate-200 dark:border-white/10'
                             }`}
                         >
-                            <ArrowLeft className="w-3.5 h-3.5 shrink-0" />
-                            <span>Back to Login</span>
+                            <ArrowLeft className={`w-3.5 h-3.5 shrink-0 ${isArabic ? 'rotate-180' : ''}`} />
+                            <span>{tx('Back to Login', 'رجوع للدخول')}</span>
                         </button>
 
                         <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] uppercase tracking-wider ${
@@ -279,7 +298,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
                                 ? `border-2 border-black font-black shadow-[2px_2px_0px_#000] ${step === 'email' ? 'bg-[#bae6fd] text-black' : 'bg-[#bef264] text-black'}`
                                 : 'border border-indigo-200 dark:border-indigo-500/25 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold'
                         }`}>
-                            {step === 'email' ? 'Step 1 of 2' : 'Step 2 of 2'}
+                            {step === 'email' ? tx('Step 1 of 2', 'خطوة 1 من 2') : tx('Step 2 of 2', 'خطوة 2 من 2')}
                         </span>
                     </div>
 
@@ -297,12 +316,12 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
                                     ? 'text-black'
                                     : 'bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400 bg-clip-text text-transparent'
                             }`}>
-                                {step === 'email' ? 'Forgot Password' : 'Reset Password'}
+                                {step === 'email' ? tx('Forgot Password', 'نسيت كلمة السر') : tx('Reset Password', 'تغيير كلمة السر')}
                             </h1>
                             <p className={`text-xs sm:text-sm leading-snug mt-1 ${isBento ? 'text-slate-700 font-semibold' : 'text-slate-500 dark:text-slate-400'}`}>
                                 {step === 'email'
-                                    ? 'Verify your account email to receive a 6-digit recovery code.'
-                                    : 'Enter the code from your email and choose a new password.'}
+                                    ? tx('Verify your account email to receive a 6-digit recovery code.', 'اكتب إيميلك عشان نبعتلك كود استرجاع من 6 أرقام.')
+                                    : tx('Enter the code from your email and choose a new password.', 'اكتب الكود اللي وصلك واختار كلمة سر جديدة.')}
                             </p>
                         </div>
                     </div>
@@ -328,9 +347,9 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
                                 {step === 'reset' ? <CheckCircle2 className="w-3.5 h-3.5" /> : '1'}
                             </div>
                             <div className="min-w-0">
-                                <div className="text-xs font-black leading-tight">Verify Email</div>
+                                <div className="text-xs font-black leading-tight">{tx('Verify Email', 'تأكيد الإيميل')}</div>
                                 <div className={`text-[11px] truncate ${isBento ? 'text-black/80 font-bold' : 'text-slate-500 dark:text-slate-400'}`}>
-                                    {step === 'reset' && email ? email : 'Send 6-digit code'}
+                                    {step === 'reset' && email ? email : tx('Send 6-digit code', 'إرسال كود من 6 أرقام')}
                                 </div>
                             </div>
                         </div>
@@ -354,9 +373,9 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
                                 2
                             </div>
                             <div className="min-w-0">
-                                <div className="text-xs font-black leading-tight">New Password</div>
+                                <div className="text-xs font-black leading-tight">{tx('New Password', 'كلمة السر الجديدة')}</div>
                                 <div className={`text-[11px] truncate ${isBento ? (step === 'reset' ? 'text-black/80 font-bold' : 'text-slate-400 font-semibold') : 'text-slate-500 dark:text-slate-400'}`}>
-                                    Set &amp; confirm password
+                                    {tx('Set & confirm password', 'اكتب وأكد كلمة السر')}
                                 </div>
                             </div>
                         </div>
@@ -390,15 +409,15 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
                     {step === 'email' ? (
                         <form onSubmit={handleVerifyEmail} className="space-y-4">
                             <div>
-                                <label className={fieldLabelClass}>Email Address</label>
+                                <label className={fieldLabelClass}>{tx('Email Address', 'البريد الإلكتروني')}</label>
                                 <div className="relative group">
-                                    <Mail className={`absolute left-3.5 top-1/2 -translate-y-1/2 ${fieldIconClass}`} />
+                                    <Mail className={`absolute start-3.5 top-1/2 -translate-y-1/2 ${fieldIconClass}`} />
                                     <input
                                         type="email"
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                         placeholder="alex.dev@quizplatform.com"
-                                        className={getInputClass('pl-11 pr-4 py-3')}
+                                        className={getInputClass('ps-11 pe-4 py-3')}
                                         required
                                         autoComplete="email"
                                     />
@@ -410,19 +429,19 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
                                 disabled={loading || !isValidEmail(email)}
                                 className={submitBtnClass}
                             >
-                                {loading ? renderSpinnerLabel('Verifying...') : 'Verify Email'}
+                                {loading ? renderSpinnerLabel(tx('Verifying...', 'جاري التحقق...')) : tx('Verify Email', 'إرسال كود التحقق')}
                             </button>
 
                             <p className={`text-[11px] text-center ${isBento ? 'text-slate-600 font-semibold' : 'text-slate-500 dark:text-slate-400'}`}>
-                                Check your inbox or spam folder after submitting your email.
+                                {tx('Check your inbox or spam folder after submitting your email.', 'بعد الإرسال، راجع صندوق الوارد أو الرسائل غير المرغوب فيها (Spam).')}
                             </p>
                         </form>
                     ) : (
                         <form onSubmit={handleResetPassword} className="space-y-3.5">
                             <div>
                                 <div className="flex items-center justify-between gap-2 mb-1.5">
-                                    <label className={`block text-xs ml-0.5 ${isBento ? 'font-black uppercase tracking-wider text-black' : 'font-semibold text-slate-700 dark:text-slate-300'}`}>
-                                        6-Digit Verification Code
+                                    <label className={`block text-xs ms-0.5 ${isBento ? 'font-black uppercase tracking-wider text-black' : 'font-semibold text-slate-700 dark:text-slate-300'}`}>
+                                        {tx('6-Digit Verification Code', 'كود التحقق (6 أرقام)')}
                                     </label>
                                     <div className="flex items-center gap-3 text-xs font-bold shrink-0">
                                         <button
@@ -434,7 +453,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
                                             }}
                                             className={`btn-unstyled transition-colors cursor-pointer underline underline-offset-2 ${isBento ? 'text-slate-600 hover:text-black' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'}`}
                                         >
-                                            Change Email
+                                            {tx('Change Email', 'تغيير الإيميل')}
                                         </button>
                                         <button
                                             type="button"
@@ -442,7 +461,9 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
                                             onClick={dispatchResetEmail}
                                             className={`btn-unstyled transition-colors underline underline-offset-2 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed ${isBento ? 'text-indigo-700 hover:text-black' : 'text-indigo-600 dark:text-purple-400 hover:text-indigo-700'}`}
                                         >
-                                            {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend Code'}
+                                            {resendCooldown > 0
+                                                ? tx(`Resend in ${resendCooldown}s`, `إعادة إرسال بعد ${resendCooldown}ث`)
+                                                : tx('Resend Code', 'ابعت الكود تاني')}
                                         </button>
                                     </div>
                                 </div>
@@ -463,7 +484,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
                                 {previewUrl && (
                                     <div className="mt-1.5 text-xs text-center">
                                         <a href={previewUrl} target="_blank" rel="noopener noreferrer" className="text-indigo-600 dark:text-indigo-400 underline font-bold">
-                                            Open Dev Test Email Preview →
+                                            {tx('Open Dev Test Email Preview →', 'فتح معاينة الإيميل التجريبية →')}
                                         </a>
                                     </div>
                                 )}
@@ -471,15 +492,15 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <div>
-                                    <label className={fieldLabelClass}>New Password</label>
+                                    <label className={fieldLabelClass}>{tx('New Password', 'كلمة السر الجديدة')}</label>
                                     <div className="relative group">
-                                        <Lock className={`absolute left-3 top-1/2 -translate-y-1/2 ${fieldIconClass}`} />
+                                        <Lock className={`absolute start-3 top-1/2 -translate-y-1/2 ${fieldIconClass}`} />
                                         <input
                                             type={showPassword ? 'text' : 'password'}
                                             value={newPassword}
                                             onChange={(e) => setNewPassword(e.target.value)}
-                                            placeholder="New password"
-                                            className={getInputClass('pl-9 pr-10 py-2.5')}
+                                            placeholder={tx('New password', 'كلمة السر الجديدة')}
+                                            className={getInputClass('ps-9 pe-10 py-2.5')}
                                             required
                                             minLength={6}
                                         />
@@ -487,7 +508,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
                                             type="button"
                                             onClick={() => setShowPassword(!showPassword)}
                                             className={eyeToggleClass}
-                                            aria-label={showPassword ? 'Hide password' : 'Show password'}
+                                            aria-label={showPassword ? tx('Hide password', 'إخفاء كلمة السر') : tx('Show password', 'إظهار كلمة السر')}
                                         >
                                             {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                         </button>
@@ -495,15 +516,15 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
                                 </div>
 
                                 <div>
-                                    <label className={fieldLabelClass}>Confirm Password</label>
+                                    <label className={fieldLabelClass}>{tx('Confirm Password', 'تأكيد كلمة السر')}</label>
                                     <div className="relative group">
-                                        <Lock className={`absolute left-3 top-1/2 -translate-y-1/2 ${fieldIconClass}`} />
+                                        <Lock className={`absolute start-3 top-1/2 -translate-y-1/2 ${fieldIconClass}`} />
                                         <input
                                             type={showConfirmPassword ? 'text' : 'password'}
                                             value={confirmPassword}
                                             onChange={(e) => setConfirmPassword(e.target.value)}
-                                            placeholder="Confirm password"
-                                            className={getInputClass('pl-9 pr-10 py-2.5', passwordsMatch)}
+                                            placeholder={tx('Confirm password', 'أكّد كلمة السر')}
+                                            className={getInputClass('ps-9 pe-10 py-2.5', passwordsMatch)}
                                             required
                                             minLength={6}
                                         />
@@ -511,7 +532,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
                                             type="button"
                                             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                                             className={eyeToggleClass}
-                                            aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                                            aria-label={showConfirmPassword ? tx('Hide password', 'إخفاء كلمة السر') : tx('Show password', 'إظهار كلمة السر')}
                                         >
                                             {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                         </button>
@@ -530,7 +551,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
                                         {passwordStrength?.label && (
                                             <div className="flex items-center gap-2 flex-1 min-w-[160px]">
                                                 <span className={`text-[11px] uppercase tracking-wider shrink-0 ${isBento ? 'font-black text-black' : 'font-semibold text-slate-600 dark:text-slate-400'}`}>
-                                                    Strength: <span className={passwordStrength.color}>{passwordStrength.label}</span>
+                                                    {tx('Strength:', 'القوة:')} <span className={passwordStrength.color}>{passwordStrength.label}</span>
                                                 </span>
                                                 <div className={`flex-1 rounded-full h-2 overflow-hidden ${isBento ? 'bg-white border border-black' : 'bg-slate-200 dark:bg-slate-700'}`}>
                                                     <div
@@ -554,12 +575,12 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
                                                 {passwordsMatch ? (
                                                     <>
                                                         <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
-                                                        <span>Passwords match</span>
+                                                        <span>{tx('Passwords match', 'متطابقين')}</span>
                                                     </>
                                                 ) : (
                                                     <>
                                                         <XCircle className="w-3.5 h-3.5 shrink-0" />
-                                                        <span>Do not match</span>
+                                                        <span>{tx('Do not match', 'مش متطابقين')}</span>
                                                     </>
                                                 )}
                                             </span>
@@ -569,10 +590,10 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
                                     {passwordStrength?.label && (
                                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 mt-2">
                                             {[
-                                                { ok: newPassword.length >= 8, label: '8+ chars' },
-                                                { ok: /[A-Z]/.test(newPassword) && /[a-z]/.test(newPassword), label: 'Aa case' },
-                                                { ok: /\d/.test(newPassword), label: 'Number' },
-                                                { ok: /[!@#$%^&*(),.?":{}|<>]/.test(newPassword), label: 'Symbol' },
+                                                { ok: newPassword.length >= 8, label: tx('8+ chars', '8+ حروف') },
+                                                { ok: /[A-Z]/.test(newPassword) && /[a-z]/.test(newPassword), label: tx('Aa case', 'كبير وصغير') },
+                                                { ok: /\d/.test(newPassword), label: tx('Number', 'رقم') },
+                                                { ok: /[!@#$%^&*(),.?":{}|<>]/.test(newPassword), label: tx('Symbol', 'رمز') },
                                             ].map((rule) => (
                                                 <span
                                                     key={rule.label}
@@ -596,7 +617,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
                                 disabled={loading || !passwordsMatch || (passwordStrength !== null && passwordStrength.score <= 2)}
                                 className={submitBtnClass}
                             >
-                                {loading ? renderSpinnerLabel('Resetting...') : 'Reset Password'}
+                                {loading ? renderSpinnerLabel(tx('Resetting...', 'جاري التغيير...')) : tx('Reset Password', 'تغيير كلمة السر')}
                             </button>
                         </form>
                     )}

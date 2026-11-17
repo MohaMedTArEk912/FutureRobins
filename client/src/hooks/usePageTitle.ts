@@ -78,44 +78,144 @@ const ROUTE_METADATA: Record<string, RouteMetadata> = {
 };
 
 import { useOptionalAuth } from '../context/AuthContext';
+import { useOptionalLanguage } from '../context/LanguageContext';
+
+const ROUTE_METADATA_AR: Record<string, RouteMetadata> = {
+    '/': {
+        title: 'منصة الكويزات | اختبر نفسك وتعلم برمجة بطريقة ممتعة',
+        description: 'طور مستواك في البرمجة وعلوم الحاسب من خلال كويزات تفاعلية ومسارات تعلم وتحديات يومية.'
+    },
+    '/leaderboard': {
+        title: 'لوحة المتصدرين | منصة الكويزات',
+        description: 'شوف ترتيبك بين كل الطلاب والسكور وسلسلة الانتصارات.'
+    },
+    '/tracks': {
+        title: 'مسارات التعلم والمهارات | منصة الكويزات',
+        description: 'استكشف مسارات البرمجة خطوة بخطوة من الأساسيات لحد الاحتراف.'
+    },
+    '/study': {
+        title: 'كروت المذاكرة | منصة الكويزات',
+        description: 'راجع المفاهيم السريعة والملخصات عشان تثبت المعلومة في دماغك.'
+    },
+    '/tournaments': {
+        title: 'البطولات والتحديات المباشرة | منصة الكويزات',
+        description: 'نافس زمايلك في بطولات كويزات مباشرة واكسب شارات وجوائز.'
+    },
+    '/daily': {
+        title: 'تحدي النهارده | منصة الكويزات',
+        description: 'حل تحدي النهارده وحافظ على الستريك بتاعك واكسب XP إضافي.'
+    },
+    '/shop': {
+        title: 'متجر الجوائز والقدرات | منصة الكويزات',
+        description: 'اصرف عملاتك في أشكال أفاتار جديدة وشارات ومساعدات.'
+    },
+    '/clans': {
+        title: 'كلاسي واستوديو الحصة | منصة الكويزات',
+        description: 'افتح الكلاس بتاعك وتابع السيشنات والواجبات والشات المباشر.'
+    },
+    '/classes': {
+        title: 'كلاسي واستوديو الحصة | منصة الكويزات',
+        description: 'افتح الكلاس بتاعك وتابع السيشنات والواجبات والشات المباشر.'
+    },
+    '/social': {
+        title: 'الأصدقاء والمواجهات 1v1 | منصة الكويزات',
+        description: 'ضيف أصحابك وتحداهم في ماتشات مباشرة 1 ضد 1.'
+    },
+    '/profile': {
+        title: 'ملفي الشخصي وإنجازاتي | منصة الكويزات',
+        description: 'شوف إحصائياتك وشهاداتك وشاراتك وإعدادات حسابك.'
+    },
+    '/login': {
+        title: 'تسجيل الدخول | منصة الكويزات',
+        description: 'سجل دخول عشان تحفظ تقدمك وتنافس مع زمايلك.'
+    },
+    '/register': {
+        title: 'إنشاء حساب جديد | منصة الكويزات',
+        description: 'اعمل حساب مجاني وابدأ رحلتك في تعلم البرمجة دلوقتي.'
+    },
+    '/forgot-password': {
+        title: 'استعادة كلمة السر | منصة الكويزات',
+        description: 'رجع كلمة السر لحسابك بأمان.'
+    },
+    '/admin': {
+        title: 'لوحة تحكم الإدارة | منصة الكويزات',
+        description: 'إدارة الكويزات والأسئلة والمستخدمين والكلاسات.'
+    },
+    '/game/vs': {
+        title: 'مواجهة مباشرة 1 ضد 1 | منصة الكويزات',
+        description: 'مباراة كويز مباشرة بينك وبين منافسك.'
+    },
+    '/results': {
+        title: 'نتيجة الكويز والتحليل | منصة الكويزات',
+        description: 'راجع إجاباتك ودرجتك والـ XP اللي كسبته بالتفصيل.'
+    }
+};
 
 export const usePageTitle = () => {
     const location = useLocation();
     const auth = useOptionalAuth();
+    const langCtx = useOptionalLanguage();
+    const isArabic = langCtx?.isArabic ?? false;
     const currentUser = auth?.currentUser;
 
     useEffect(() => {
         const pathname = location.pathname;
 
-        let meta = ROUTE_METADATA[pathname];
+        const baseMeta = isArabic ? (ROUTE_METADATA_AR[pathname] || ROUTE_METADATA[pathname]) : ROUTE_METADATA[pathname];
+        let meta = baseMeta;
 
         // Match dynamic routes
         if (!meta) {
             if (pathname.startsWith('/quiz/')) {
-                meta = {
-                    title: 'Quiz Session | Quiz Platform',
-                    description: 'Interactive computer science quiz session. Test your speed and accuracy.'
-                };
+                meta = isArabic
+                    ? {
+                        title: 'جلسة الكويز | منصة الكويزات',
+                        description: 'كويز برمجة تفاعلي — اختبر سرعتك ودقتك.'
+                    }
+                    : {
+                        title: 'Quiz Session | Quiz Platform',
+                        description: 'Interactive computer science quiz session. Test your speed and accuracy.'
+                    };
             } else if (pathname.startsWith('/challenge/')) {
-                meta = {
-                    title: 'Quiz Challenge Duel | Quiz Platform',
-                    description: 'Take on a custom quiz challenge invited by a fellow programmer.'
-                };
+                meta = isArabic
+                    ? {
+                        title: 'تحدي كويز خاص | منصة الكويزات',
+                        description: 'اقبل التحدي وحل الكويز بأعلى سكور.'
+                    }
+                    : {
+                        title: 'Quiz Challenge Duel | Quiz Platform',
+                        description: 'Take on a custom quiz challenge invited by a fellow programmer.'
+                    };
             } else if (pathname.startsWith('/badge-tree/')) {
-                meta = {
-                    title: 'Skill Tree Progression | Quiz Platform',
-                    description: 'Interactive visual tech tree and skill mastery road.'
-                };
+                meta = isArabic
+                    ? {
+                        title: 'شجرة المهارات والشارات | منصة الكويزات',
+                        description: 'خريطة تفاعلية للشارات ومهارات التعلم.'
+                    }
+                    : {
+                        title: 'Skill Tree Progression | Quiz Platform',
+                        description: 'Interactive visual tech tree and skill mastery road.'
+                    };
             } else if (pathname.startsWith('/profile/')) {
-                meta = {
-                    title: 'User Profile | Quiz Platform',
-                    description: 'View public dossier, achievements, study activity, and challenges.'
-                };
+                meta = isArabic
+                    ? {
+                        title: 'الملف الشخصي للاعب | منصة الكويزات',
+                        description: 'شوف ملف اللاعب وإنجازاته ونشاطه.'
+                    }
+                    : {
+                        title: 'User Profile | Quiz Platform',
+                        description: 'View public dossier, achievements, study activity, and challenges.'
+                    };
             } else {
-                meta = {
-                    title: 'Quiz Platform - Test Your Knowledge',
-                    description: 'Interactive computer science quiz platform with gamified learning tracks and 1v1 duels.'
-                };
+                meta = isArabic
+                    ? {
+                        title: 'منصة الكويزات - اختبر معلوماتك',
+                        description: 'منصة تعليمية تفاعلية لتعلم البرمجة والكويزات.'
+                    }
+                    : {
+                        title: 'Quiz Platform - Test Your Knowledge',
+                        description: 'Interactive computer science quiz platform with gamified learning tracks and 1v1 duels.'
+                    };
             }
         }
 
@@ -123,9 +223,13 @@ export const usePageTitle = () => {
         let finalTitle = meta.title;
         if (currentUser && currentUser.userId !== 'guest' && currentUser.name) {
             if (pathname === '/profile') {
-                finalTitle = `${currentUser.name}'s Profile | Quiz Platform`;
+                finalTitle = isArabic
+                    ? `ملف ${currentUser.name} | منصة الكويزات`
+                    : `${currentUser.name}'s Profile | Quiz Platform`;
             } else if (pathname === '/admin' && currentUser.role === 'admin') {
-                finalTitle = `Admin Console (${currentUser.name}) | Quiz Platform`;
+                finalTitle = isArabic
+                    ? `لوحة الإدارة (${currentUser.name}) | منصة الكويزات`
+                    : `Admin Console (${currentUser.name}) | Quiz Platform`;
             }
         }
 
@@ -159,7 +263,7 @@ export const usePageTitle = () => {
         if (twitterDescription) {
             twitterDescription.setAttribute('content', meta.description);
         }
-    }, [location.pathname, currentUser]);
+    }, [location.pathname, currentUser, isArabic]);
 };
 
 export default usePageTitle;

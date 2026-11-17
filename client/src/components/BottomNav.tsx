@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { User, Shield } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { useLanguage } from '../context/LanguageContext';
 import { useNavArrangement } from '../context/NavArrangementContext';
 
 export const BottomNav: React.FC = () => {
@@ -10,6 +11,7 @@ export const BottomNav: React.FC = () => {
     const location = useLocation();
     const { currentUser } = useAuth();
     const { isBento } = useTheme();
+    const { tx } = useLanguage();
     const { bottomNavItems } = useNavArrangement();
 
     const isGuest = !currentUser || currentUser.userId === 'guest' || !currentUser.email;
@@ -30,13 +32,13 @@ export const BottomNav: React.FC = () => {
         currentUser?.role === 'admin' && !bottomNavItems.some(i => i.path === '/admin')
             ? {
                 path: '/admin',
-                label: 'Admin',
+                label: tx('Admin', 'الإدارة'),
                 icon: Shield,
                 isActive: location.pathname === '/admin'
             }
             : {
                 path: isGuest ? '/login' : '/profile',
-                label: isGuest ? 'Sign In' : 'Profile',
+                label: isGuest ? tx('Sign In', 'دخول') : tx('Profile', 'حسابي'),
                 icon: User,
                 isActive: location.pathname === '/profile' || location.pathname === '/login' || location.pathname === '/register'
             }
@@ -44,7 +46,7 @@ export const BottomNav: React.FC = () => {
 
     return (
         <nav
-            aria-label="Mobile Bottom Navigation"
+            aria-label={tx('Mobile Bottom Navigation', 'شريط التنقل السفلي')}
             className={`fixed bottom-0 left-0 right-0 z-40 xl:hidden pb-safe border-t transition-colors ${
                 isBento
                     ? 'bg-white border-t-2 border-black shadow-[0_-2px_0px_#000]'
@@ -61,7 +63,7 @@ export const BottomNav: React.FC = () => {
                             key={item.path}
                             type="button"
                             onClick={() => navigate(item.path)}
-                            aria-label={`Navigate to ${item.label}`}
+                            aria-label={tx(`Navigate to ${item.label}`, `الانتقال إلى ${item.label}`)}
                             className={`flex flex-col items-center justify-center min-h-[44px] min-w-[54px] py-1 px-2 rounded-xl transition-all cursor-pointer relative touch-target active:scale-95 ${
                                 isBento
                                     ? (active

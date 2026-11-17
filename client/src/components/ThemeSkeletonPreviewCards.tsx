@@ -1,12 +1,16 @@
 import React from 'react';
 import { Check, Sun, Moon, LayoutGrid } from 'lucide-react';
 import { useTheme, type AppTheme } from '../context/ThemeContext';
+import { useLanguage } from '../context/LanguageContext';
 
 interface ThemePreviewOption {
     id: AppTheme;
     title: string;
+    arTitle: string;
     subtitle: string;
+    arSubtitle: string;
     tag: string;
+    arTag: string;
     icon: React.ComponentType<{ className?: string }>;
     accentColor: string;
 }
@@ -15,24 +19,33 @@ const THEMES: ThemePreviewOption[] = [
     {
         id: 'light',
         title: 'Modern Light',
+        arTitle: 'الوضع الفاتح (لايت)',
         subtitle: 'Clean daylight aesthetic with vibrant indigo accents',
+        arSubtitle: 'شكل نهاري مريح للعين بألوان نيلي رايقة وواضحة',
         tag: 'Clean & Crisp',
+        arTag: 'هادي ومريح',
         icon: Sun,
         accentColor: '#6366f1'
     },
     {
         id: 'dark',
         title: 'Cyber Dark',
+        arTitle: 'الوضع الليلي (دارك)',
         subtitle: 'Deep slate night palette with glowing indicators',
+        arSubtitle: 'خلفية غامقة مريحة للمذاكرة بالليل وإضاءة هادية',
         tag: 'Focus & Contrast',
+        arTag: 'تركيز بالليل',
         icon: Moon,
         accentColor: '#818cf8'
     },
     {
         id: 'bento',
         title: 'Neo-Brutalist',
+        arTitle: 'بينتو العصري (Bento)',
         subtitle: 'Playful pop palette with bold borders & hard shadows',
+        arSubtitle: 'تصميم مميز بحدود واضحة وألوان مبهجة وحية',
         tag: 'Pop & Bold',
+        arTag: 'جريء ومميز',
         icon: LayoutGrid,
         accentColor: '#bef264'
     }
@@ -46,6 +59,7 @@ export const ThemeSkeletonPreviewCards: React.FC<ThemeSkeletonPreviewCardsProps>
     onThemeSelect
 }) => {
     const { theme: currentTheme, setTheme } = useTheme();
+    const { tx } = useLanguage();
 
     const handleSelect = (selectedTheme: AppTheme) => {
         setTheme(selectedTheme);
@@ -92,7 +106,7 @@ export const ThemeSkeletonPreviewCards: React.FC<ThemeSkeletonPreviewCardsProps>
                                         : 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
                                 }`}>
                                     <Check className="w-3.5 h-3.5 stroke-[3]" />
-                                    Active
+                                    {tx('Active', 'مفعل')}
                                 </div>
                             )}
 
@@ -111,10 +125,10 @@ export const ThemeSkeletonPreviewCards: React.FC<ThemeSkeletonPreviewCardsProps>
                                         </div>
                                         <div>
                                             <h4 className="text-sm font-black tracking-tight leading-none mb-1">
-                                                {item.title}
+                                                {tx(item.title, item.arTitle)}
                                             </h4>
                                             <span className="text-[10px] uppercase font-bold opacity-60 tracking-wider">
-                                                {item.tag}
+                                                {tx(item.tag, item.arTag)}
                                             </span>
                                         </div>
                                     </div>
@@ -236,7 +250,7 @@ export const ThemeSkeletonPreviewCards: React.FC<ThemeSkeletonPreviewCardsProps>
                                 </div>
 
                                 <p className="text-xs opacity-75 font-medium leading-relaxed">
-                                    {item.subtitle}
+                                    {tx(item.subtitle, item.arSubtitle)}
                                 </p>
                             </div>
 
@@ -251,7 +265,7 @@ export const ThemeSkeletonPreviewCards: React.FC<ThemeSkeletonPreviewCardsProps>
                                             ? 'bg-slate-100 hover:bg-slate-200 text-black border border-black/30'
                                             : 'bg-slate-200/70 dark:bg-white/10 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-white/15'
                                 }`}>
-                                    {isSelected ? 'Current Theme' : 'Select Theme'}
+                                    {isSelected ? tx('Current Theme', 'الثيم الحالي') : tx('Select Theme', 'اختار الثيم ده')}
                                 </div>
                             </div>
                         </div>
@@ -261,7 +275,7 @@ export const ThemeSkeletonPreviewCards: React.FC<ThemeSkeletonPreviewCardsProps>
 
             {/* Mobile swipe hint */}
             <div className="flex md:hidden items-center justify-center gap-1.5 text-[11px] font-bold text-slate-400 dark:text-slate-500 mt-1">
-                <span>Swipe horizontally to preview all 3 themes</span>
+                <span>{tx('Swipe horizontally to preview all 3 themes', 'اسحب يمين وشمال عشان تشوف الـ 3 أشكال')}</span>
             </div>
         </div>
     );

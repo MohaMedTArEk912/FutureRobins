@@ -16,8 +16,10 @@ import Avatar from './Avatar';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { useChat } from '../context/ChatContext';
+import { useLanguage } from '../context/LanguageContext';
 import { useNavArrangement } from '../context/NavArrangementContext';
 import { NavbarCustomizerModal } from './nav/NavbarCustomizerModal';
+import LanguageToggle from './LanguageToggle';
 
 interface NavbarProps {
     user?: UserData | null;
@@ -41,6 +43,7 @@ const Navbar: React.FC<NavbarProps> = ({
     showActions = true
 }) => {
     const { isBento } = useTheme();
+    const { isArabic, tx } = useLanguage();
     const { logout: authLogout } = useAuth();
     const { isOpen: isChatOpen, openChat, closeChat, unreadCount: chatUnreadCount } = useChat();
     const { primaryItems, secondaryItems } = useNavArrangement();
@@ -160,11 +163,11 @@ const Navbar: React.FC<NavbarProps> = ({
                                         ? 'bg-[#fde047] text-black font-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000]'
                                         : 'bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 font-semibold border border-slate-200/60 dark:border-white/5'
                                 }`}
-                                title="Go back to previous page"
-                                aria-label="Go back"
+                                title={tx('Go back to previous page', 'الرجوع للصفحة اللي فاتت')}
+                                aria-label={tx('Go back', 'رجوع')}
                             >
-                                <ArrowLeft className={`w-4 h-4 ${isBento ? 'stroke-[2.5]' : ''}`} />
-                                <span>Back</span>
+                                <ArrowLeft className={`w-4 h-4 ${isBento ? 'stroke-[2.5]' : ''} ${isArabic ? 'rotate-180' : ''}`} />
+                                <span>{tx('Back', 'رجوع')}</span>
                             </button>
                         )}
 
@@ -178,8 +181,8 @@ const Navbar: React.FC<NavbarProps> = ({
                                     navigate('/');
                                 }
                             }}
-                            className="btn-unstyled flex items-center gap-2.5 min-w-0 cursor-pointer hover:opacity-90 transition-opacity text-left select-none"
-                            aria-label="Quiz Platform Home"
+                            className="btn-unstyled flex items-center gap-2.5 min-w-0 cursor-pointer hover:opacity-90 transition-opacity text-start select-none"
+                            aria-label={tx('Quiz Platform Home', 'الرئيسية - منصة الكويزات')}
                         >
                             <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm shrink-0 transition-transform active:scale-95 ${
                                 isBento
@@ -191,7 +194,7 @@ const Navbar: React.FC<NavbarProps> = ({
                             <div className="flex items-center gap-1.5 min-w-0">
                                 <h1 className="text-sm sm:text-base font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-1.5 min-w-0">
                                     <span className="whitespace-nowrap font-black">
-                                        Quiz Platform
+                                        {tx('Quiz Platform', 'منصة الكويزات')}
                                     </span>
                                     {(isRoot || !title || title === "Quiz Platform") && (
                                         <span className={`w-1.5 h-1.5 rounded-full animate-pulse hidden sm:inline-block shrink-0 ${isBento ? 'bg-black' : 'bg-indigo-500'}`} />
@@ -261,19 +264,19 @@ const Navbar: React.FC<NavbarProps> = ({
                                     }`}
                                 >
                                     <Sparkles className={`w-3.5 h-3.5 shrink-0 ${isBento ? 'stroke-[2.5]' : (isSecondaryActive ? 'text-indigo-600 dark:text-white' : '')}`} />
-                                    <span>{isSecondaryActive && activeSecondaryItem ? activeSecondaryItem.shortLabel : 'More'}</span>
+                                    <span>{isSecondaryActive && activeSecondaryItem ? activeSecondaryItem.shortLabel : tx('More', 'المزيد')}</span>
                                     {isSecondaryActive && (
                                         <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isBento ? 'bg-black' : 'bg-indigo-600 dark:bg-white'}`} />
                                     )}
                                     <ChevronDown className={`w-3 h-3 shrink-0 transition-transform duration-200 ${isMoreOpen ? 'rotate-180' : ''}`} />
                                     {hasClanInvites && (
-                                        <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white dark:ring-black"></span>
+                                        <span className="absolute -top-0.5 -end-0.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white dark:ring-black"></span>
                                     )}
                                 </button>
 
                                 {/* Dropdown Floating Menu */}
                                 {isMoreOpen && (
-                                    <div className={`absolute top-full mt-2 right-0 w-64 p-2 rounded-2xl z-50 space-y-1 animate-in fade-in zoom-in-95 duration-150 ${
+                                    <div className={`absolute top-full mt-2 end-0 w-64 p-2 rounded-2xl z-50 space-y-1 animate-in fade-in zoom-in-95 duration-150 ${
                                         isBento
                                             ? 'bg-white border-2.5 border-black shadow-[5px_5px_0px_#000]'
                                             : 'bg-white/95 dark:bg-[#0f1422]/95 backdrop-blur-xl border border-slate-200/80 dark:border-white/10 shadow-2xl'
@@ -282,7 +285,7 @@ const Navbar: React.FC<NavbarProps> = ({
                                             <div className={`p-3 text-center rounded-xl text-xs font-bold ${
                                                 isBento ? 'text-black/70 bg-[#fef9c3]' : 'text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-white/5'
                                             }`}>
-                                                All tabs are pinned to top bar!
+                                                {tx('All tabs are pinned to top bar!', 'كل الأقسام متثبتة فوق بالفعل!')}
                                             </div>
                                         ) : (
                                             secondaryItems.map((item) => {
@@ -352,7 +355,7 @@ const Navbar: React.FC<NavbarProps> = ({
                                                     ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#fef9c3] font-black'
                                                     : 'bg-slate-100/80 dark:bg-white/5 border border-slate-200/80 dark:border-white/5 text-slate-700 dark:text-slate-300 hover:border-indigo-500/40 hover:text-indigo-600 dark:hover:text-white'
                                             }`}
-                                            title="Profile"
+                                            title={tx('Profile', 'ملفي الشخصي')}
                                         >
                                             <div className={`w-5 h-5 rounded-full overflow-hidden flex items-center justify-center shrink-0 ${
                                                 isBento ? 'border border-black bg-white' : 'ring-1 ring-indigo-500/40 bg-slate-100 dark:bg-[#090d16]'
@@ -365,7 +368,7 @@ const Navbar: React.FC<NavbarProps> = ({
                                                     </div>
                                                 )}
                                             </div>
-                                            <span className="truncate max-w-[100px]">{user?.name || 'Profile'}</span>
+                                            <span className="truncate max-w-[100px]">{user?.name || tx('Profile', 'حسابي')}</span>
                                         </button>
 
                                         <button
@@ -376,8 +379,8 @@ const Navbar: React.FC<NavbarProps> = ({
                                                     ? 'bg-[#fecdd3] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000]'
                                                     : 'text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 border border-transparent hover:border-rose-200 dark:hover:border-rose-500/20'
                                             }`}
-                                            title="Logout"
-                                            aria-label="Logout"
+                                            title={tx('Logout', 'تسجيل الخروج')}
+                                            aria-label={tx('Logout', 'تسجيل الخروج')}
                                         >
                                             <LogOut className={`w-4 h-4 ${isBento ? 'stroke-[2.5]' : ''}`} />
                                         </button>
@@ -393,7 +396,7 @@ const Navbar: React.FC<NavbarProps> = ({
                                                     : 'text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-white'
                                             }`}
                                         >
-                                            Log In
+                                            {tx('Log In', 'دخول')}
                                         </button>
                                         <button
                                             type="button"
@@ -404,12 +407,13 @@ const Navbar: React.FC<NavbarProps> = ({
                                                     : 'bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-sm shadow-indigo-600/25'
                                             }`}
                                         >
-                                            Sign Up
+                                            {tx('Sign Up', 'حساب جديد')}
                                         </button>
                                     </div>
                                 )}
                             </>
                         )}
+                        <LanguageToggle compact />
                         {!isGuest && (
                             <button
                                 type="button"
@@ -419,12 +423,12 @@ const Navbar: React.FC<NavbarProps> = ({
                                         ? 'bg-[#fde047] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000]'
                                         : 'text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white bg-slate-100/80 dark:bg-white/5 border border-slate-200/80 dark:border-white/5 hover:border-indigo-500/40'
                                 }`}
-                                title="Chat Hub (Clans & Friends)"
-                                aria-label="Open Chat Hub"
+                                title={tx('Chat Hub (Clans & Friends)', 'مركز الشات (الكلاسات والأصدقاء)')}
+                                aria-label={tx('Open Chat Hub', 'فتح الشات')}
                             >
                                 <MessageSquare className={`w-4 h-4 ${isBento ? 'stroke-[2.5]' : ''}`} />
                                 {chatUnreadCount > 0 && (
-                                    <span className={`absolute -top-1.5 -right-1.5 min-w-[18px] h-4 px-1 rounded-full flex items-center justify-center text-[9px] font-black animate-bounce shadow-sm ${
+                                    <span className={`absolute -top-1.5 -end-1.5 min-w-[18px] h-4 px-1 rounded-full flex items-center justify-center text-[9px] font-black animate-bounce shadow-sm ${
                                         isBento ? 'bg-[#ef4444] text-white border border-black' : 'bg-rose-500 text-white ring-2 ring-white dark:ring-gray-900'
                                     }`}>
                                         {chatUnreadCount > 99 ? '99+' : chatUnreadCount}
@@ -449,11 +453,11 @@ const Navbar: React.FC<NavbarProps> = ({
                                         ? 'bg-[#fde047] text-black font-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000]'
                                         : 'bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 font-semibold border border-slate-200/60 dark:border-white/5'
                                 }`}
-                                title="Go back to previous page"
-                                aria-label="Go back"
+                                title={tx('Go back to previous page', 'الرجوع للصفحة اللي فاتت')}
+                                aria-label={tx('Go back', 'رجوع')}
                             >
-                                <ArrowLeft className={`w-4 h-4 ${isBento ? 'stroke-[2.5]' : ''}`} />
-                                <span className="hidden sm:inline">Back</span>
+                                <ArrowLeft className={`w-4 h-4 ${isBento ? 'stroke-[2.5]' : ''} ${isArabic ? 'rotate-180' : ''}`} />
+                                <span className="hidden sm:inline">{tx('Back', 'رجوع')}</span>
                             </button>
                         )}
 
@@ -467,8 +471,8 @@ const Navbar: React.FC<NavbarProps> = ({
                                     navigate('/');
                                 }
                             }}
-                            className="btn-unstyled flex items-center gap-2.5 min-w-0 cursor-pointer hover:opacity-90 transition-opacity text-left select-none"
-                            aria-label="Quiz Platform Home"
+                            className="btn-unstyled flex items-center gap-2.5 min-w-0 cursor-pointer hover:opacity-90 transition-opacity text-start select-none"
+                            aria-label={tx('Quiz Platform Home', 'الرئيسية - منصة الكويزات')}
                         >
                             <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm shrink-0 transition-transform active:scale-95 ${
                                 isBento
@@ -480,7 +484,7 @@ const Navbar: React.FC<NavbarProps> = ({
                             <div className="flex items-center gap-1.5 min-w-0">
                                 <h1 className="text-sm sm:text-base font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-1.5 min-w-0">
                                     <span className="whitespace-nowrap font-black">
-                                        Quiz Platform
+                                        {tx('Quiz Platform', 'منصة الكويزات')}
                                     </span>
                                 </h1>
                             </div>
@@ -489,6 +493,7 @@ const Navbar: React.FC<NavbarProps> = ({
 
                     {/* Mobile & Tablet Right Controls */}
                     <div className="flex items-center gap-2 shrink-0">
+                        <LanguageToggle compact />
                         {!isGuest && (
                             <button
                                 type="button"
@@ -498,12 +503,12 @@ const Navbar: React.FC<NavbarProps> = ({
                                         ? 'bg-[#fde047] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
                                         : 'text-slate-700 dark:text-white bg-slate-100 dark:bg-white/5 border border-slate-200/80 dark:border-white/10'
                                 }`}
-                                title="Chat Hub"
-                                aria-label="Open Chat Hub"
+                                title={tx('Chat Hub', 'الشات')}
+                                aria-label={tx('Open Chat Hub', 'فتح الشات')}
                             >
                                 <MessageSquare className={`w-4 h-4 ${isBento ? 'stroke-[2.5]' : ''}`} />
                                 {chatUnreadCount > 0 && (
-                                    <span className="absolute -top-1 -right-1 min-w-[15px] h-3.5 px-0.5 rounded-full flex items-center justify-center text-[8px] font-black bg-rose-500 text-white">
+                                    <span className="absolute -top-1 -end-1 min-w-[15px] h-3.5 px-0.5 rounded-full flex items-center justify-center text-[8px] font-black bg-rose-500 text-white">
                                         {chatUnreadCount > 99 ? '99+' : chatUnreadCount}
                                     </span>
                                 )}
@@ -518,7 +523,7 @@ const Navbar: React.FC<NavbarProps> = ({
                                     ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
                                     : 'text-slate-700 dark:text-white bg-slate-100 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 hover:bg-slate-200 dark:hover:bg-white/10'
                             }`}
-                            aria-label="Toggle navigation menu"
+                            aria-label={tx('Toggle navigation menu', 'فتح أو قفل القائمة')}
                         >
                             {isMenuOpen ? <X className={`w-5 h-5 ${isBento ? 'stroke-[2.5]' : ''}`} /> : <Menu className={`w-5 h-5 ${isBento ? 'stroke-[2.5]' : ''}`} />}
                         </button>
@@ -541,7 +546,7 @@ const Navbar: React.FC<NavbarProps> = ({
                             {/* Navigation Items Header */}
                             <div className="flex items-center justify-between pb-1">
                                 <span className={`text-[11px] font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-slate-500 dark:text-slate-400'}`}>
-                                    Navigation
+                                    {tx('Navigation', 'الأقسام')}
                                 </span>
                             </div>
 
@@ -608,8 +613,8 @@ const Navbar: React.FC<NavbarProps> = ({
                                             )}
                                         </div>
                                         <div className="min-w-0 flex-1">
-                                            <p className={`text-[10px] uppercase font-bold tracking-wider ${isBento ? 'text-slate-600' : 'text-slate-400'}`}>Signed in as</p>
-                                            <p className={`text-xs truncate ${isBento ? 'font-black text-black' : 'font-semibold text-slate-900 dark:text-white'}`}>{user?.name || 'User'}</p>
+                                            <p className={`text-[10px] uppercase font-bold tracking-wider ${isBento ? 'text-slate-600' : 'text-slate-400'}`}>{tx('Signed in as', 'مسجل باسم')}</p>
+                                            <p className={`text-xs truncate ${isBento ? 'font-black text-black' : 'font-semibold text-slate-900 dark:text-white'}`}>{user?.name || tx('User', 'مستخدم')}</p>
                                         </div>
                                     </div>
 
@@ -627,7 +632,7 @@ const Navbar: React.FC<NavbarProps> = ({
                                             }`}
                                         >
                                             <MessageSquare className={`w-4 h-4 ${isBento ? 'stroke-[2.5]' : ''}`} />
-                                            <span>Chat</span>
+                                            <span>{tx('Chat', 'الشات')}</span>
                                             {chatUnreadCount > 0 && (
                                                 <span className="px-1.5 py-0.2 bg-rose-500 text-white rounded-full text-[9px] font-black">
                                                     {chatUnreadCount}
@@ -648,7 +653,7 @@ const Navbar: React.FC<NavbarProps> = ({
                                             }`}
                                         >
                                             <User className={`w-4 h-4 ${isBento ? 'text-black stroke-[2.5]' : 'text-indigo-500'}`} />
-                                            Profile
+                                            {tx('Profile', 'حسابي')}
                                         </button>
 
                                         <button
@@ -664,7 +669,7 @@ const Navbar: React.FC<NavbarProps> = ({
                                             }`}
                                         >
                                             <LogOut className={`w-4 h-4 ${isBento ? 'stroke-[2.5]' : ''}`} />
-                                            Logout
+                                            {tx('Logout', 'خروج')}
                                         </button>
                                     </div>
                                 </>
@@ -682,7 +687,7 @@ const Navbar: React.FC<NavbarProps> = ({
                                                 : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-md'
                                         }`}
                                     >
-                                        Log In
+                                        {tx('Log In', 'تسجيل الدخول')}
                                     </button>
                                     <button
                                         type="button"
@@ -696,7 +701,7 @@ const Navbar: React.FC<NavbarProps> = ({
                                                 : 'bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200'
                                         }`}
                                     >
-                                        Create Free Account
+                                        {tx('Create Free Account', 'اعمل حساب مجاني')}
                                     </button>
                                 </div>
                             )}

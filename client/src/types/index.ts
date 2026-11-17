@@ -147,6 +147,7 @@ export interface UserData {
     primaryTrackId?: string;
     unlockedTracks?: string[];
     clanId?: string;
+    preferredLanguage?: 'en' | 'ar-EG' | null;
     clanInvites?: {
         clanId: string;
         clanName: string;

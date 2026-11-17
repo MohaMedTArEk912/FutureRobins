@@ -55,11 +55,29 @@ const BadgeTreeDetailPage = lazy(() => import('./pages/BadgeTreeDetailPage'));
 const ClassroomPage = lazy(() => import('./pages/ClassroomPage'));
 
 import ScrollToTop from './components/ScrollToTop';
+import { useAuth } from './context/AuthContext';
+import { useLanguage } from './context/LanguageContext';
+import PlatformLanguageModal from './components/PlatformLanguageModal';
 
 // Helper to keep page titles updated as route changes
 const PageTitleManager: React.FC = () => {
   usePageTitle();
   return null;
+};
+
+// Sync account language preference and ask first-login / legacy users cleanly
+const LanguageAccountSync: React.FC = () => {
+  const { currentUser, isLoading, updateUser } = useAuth();
+  const { registerAccountSync } = useLanguage();
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      registerAccountSync(currentUser, isLoading, updateUser);
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [currentUser, isLoading, updateUser, registerAccountSync]);
+
+  return <PlatformLanguageModal />;
 };
 
 
@@ -87,6 +105,7 @@ const App: React.FC = () => {
       <Router>
         <ScrollToTop />
         <AuthProvider>
+          <LanguageAccountSync />
           <PageTitleManager />
           <NotificationProvider>
             <SocketProvider>

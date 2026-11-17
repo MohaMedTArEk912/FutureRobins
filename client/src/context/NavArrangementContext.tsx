@@ -15,15 +15,111 @@ import {
     BarChart3
 } from 'lucide-react';
 import { useAuth } from './AuthContext';
+import { useLanguage } from './LanguageContext';
 
 export interface NavItemDef {
     path: string;
     label: string;
     shortLabel: string;
+    arLabel?: string;
+    arShortLabel?: string;
     icon: React.ComponentType<{ className?: string }>;
     description: string;
+    arDescription?: string;
     category?: 'core' | 'learning' | 'multiplayer' | 'social' | 'system';
 }
+
+export const NAV_AR_TRANSLATIONS: Record<string, { label: string; shortLabel: string; description: string }> = {
+    '/': {
+        label: 'الرئيسية',
+        shortLabel: 'الرئيسية',
+        description: 'لوحة التحكم، نظرة عامة وبداية سريعة'
+    },
+    '/tracks': {
+        label: 'مسارات التعلم',
+        shortLabel: 'المسارات',
+        description: 'خريطة المسارات التعليمية خطوة بخطوة'
+    },
+    '/study': {
+        label: 'كروت المذاكرة',
+        shortLabel: 'المذاكرة',
+        description: 'بطاقات مراجعة سريعة لتثبيت المعلومات'
+    },
+    '/tournaments': {
+        label: 'البطولات والساحات',
+        shortLabel: 'البطولات',
+        description: 'مسابقات وجداول بطولات وتحديات مباشرة'
+    },
+    '/leaderboard': {
+        label: 'المتصدرين',
+        shortLabel: 'المتصدرين',
+        description: 'الترتيب العالمي وأعلى النقاط'
+    },
+    '/classroom': {
+        label: 'الكلاس لايف',
+        shortLabel: 'الكلاس لايف',
+        description: 'منافسات مباشرة جوه الكلاس مع المدرس'
+    },
+    '/daily': {
+        label: 'تحدي النهارده',
+        shortLabel: 'يومي',
+        description: 'أسئلة يومية ومكافآت الستريك'
+    },
+    '/clans': {
+        label: 'كلاساتي',
+        shortLabel: 'الكلاسات',
+        description: 'الكلاسات، السيشنات، الشرايح والواجبات'
+    },
+    '/classes': {
+        label: 'كلاساتي',
+        shortLabel: 'الكلاسات',
+        description: 'الكلاسات والسيشنات والسبورة التفاعلية'
+    },
+    '/quizzes': {
+        label: 'بنك الكويزات',
+        shortLabel: 'الكويزات',
+        description: 'تصفح وتجربة الكويزات قبل إرسالها للكلاس'
+    },
+    '/shop': {
+        label: 'متجر الجوائز',
+        shortLabel: 'المتجر',
+        description: 'أفاتار، ألقاب، شارات ومساعدات'
+    },
+    '/social': {
+        label: 'الأصدقاء والمواجهات',
+        shortLabel: 'السوشيال',
+        description: 'أصحابك وتحديات 1 ضد 1 المباشرة'
+    },
+    '/analytics': {
+        label: 'التحليلات والإحصائيات',
+        shortLabel: 'الإحصائيات',
+        description: 'رادار مستواك وتطور الدرجات والدقة'
+    },
+    '/admin': {
+        label: 'لوحة الإدارة',
+        shortLabel: 'الإدارة',
+        description: 'إدارة النظام والكويزات والأسئلة والأعضاء'
+    }
+};
+
+export const NAV_PRESET_AR: Record<PresetKey, { title: string; description: string }> = {
+    default: {
+        title: 'المتوازن (الافتراضي)',
+        description: 'توازن مثالي بين المسارات والمذاكرة والبطولات والترتيب'
+    },
+    competitor: {
+        title: '⚔️ البطولات والتحديات',
+        description: 'مخصص للتركيز على البطولات والمواجهات والمنافسة'
+    },
+    scholar: {
+        title: '📚 المذاكرة والدراسة',
+        description: 'يركز على المسارات وكروت المذاكرة والكلاس لايف والتحليلات'
+    },
+    completionist: {
+        title: '⭐ التحديات اليومية والجوائز',
+        description: 'مظبوط لمتابعة الستريك اليومي والمتجر والمكافآت'
+    }
+};
 
 export const ALL_NAV_REGISTRY: Record<string, NavItemDef> = {
     '/': {
@@ -216,6 +312,7 @@ export const useNavArrangement = () => {
 
 export const NavArrangementProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const { currentUser } = useAuth();
+    const { isArabic } = useLanguage();
     const isAdmin = currentUser?.role === 'admin';
     const isTeacher = currentUser?.role === 'teacher';
     const roleSuffix = isTeacher ? 'teacher' : isAdmin ? 'admin' : 'student';
@@ -273,14 +370,27 @@ export const NavArrangementProvider: React.FC<{ children: ReactNode }> = ({ chil
         if (isTeacher && path === '/') {
             return {
                 ...base,
-                label: 'Teacher Studio',
-                shortLabel: 'Studio',
+                label: isArabic ? 'استوديو المدرس' : 'Teacher Studio',
+                shortLabel: isArabic ? 'الاستوديو' : 'Studio',
                 icon: GraduationCap,
-                description: 'Teacher command center, assigned classes & AI studio'
+                description: isArabic
+                    ? 'لوحة تحكم المدرس والكلاسات وأدوات الذكاء الاصطناعي'
+                    : 'Teacher command center, assigned classes & AI studio'
             };
         }
+        if (isArabic) {
+            const ar = NAV_AR_TRANSLATIONS[path];
+            if (ar) {
+                return {
+                    ...base,
+                    label: ar.label,
+                    shortLabel: ar.shortLabel,
+                    description: ar.description
+                };
+            }
+        }
         return base;
-    }, [isTeacher]);
+    }, [isTeacher, isArabic]);
 
     // Available items filtered by role
     const allAvailableItems = useMemo(() => {
@@ -314,7 +424,8 @@ export const NavArrangementProvider: React.FC<{ children: ReactNode }> = ({ chil
 
         // Always ensure admin console appears if admin and not already placed
         if (isAdmin && !config.primaryPaths.includes('/admin') && !config.secondaryPaths.includes('/admin') && !config.hiddenPaths.includes('/admin')) {
-            explicitSecondary.push(ALL_NAV_REGISTRY['/admin']);
+            const adminItem = resolveNavItem('/admin');
+            if (adminItem) explicitSecondary.push(adminItem);
         }
 
         return explicitSecondary;
@@ -333,12 +444,9 @@ export const NavArrangementProvider: React.FC<{ children: ReactNode }> = ({ chil
     const bottomNavItems = useMemo(() => {
         if (!config.syncWithBottomNav) {
             // Default 4 core paths + profile
-            return [
-                ALL_NAV_REGISTRY['/'],
-                ALL_NAV_REGISTRY['/tracks'],
-                ALL_NAV_REGISTRY['/tournaments'],
-                ALL_NAV_REGISTRY['/leaderboard']
-            ].filter((i): i is NavItemDef => Boolean(i));
+            return ['/', '/tracks', '/tournaments', '/leaderboard']
+                .map(resolveNavItem)
+                .filter((i): i is NavItemDef => Boolean(i));
         }
 
         // Take the user's customized primary items (up to 4 items)
@@ -350,7 +458,7 @@ export const NavArrangementProvider: React.FC<{ children: ReactNode }> = ({ chil
             return [...userSelection, ...fillers];
         }
         return userSelection;
-    }, [config.syncWithBottomNav, primaryItems, secondaryItems]);
+    }, [config.syncWithBottomNav, primaryItems, secondaryItems, resolveNavItem]);
 
     // Reorder Primary Items (Left / Right)
     const movePrimaryItem = useCallback((index: number, direction: 'left' | 'right') => {

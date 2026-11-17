@@ -9,8 +9,10 @@ import { useSocket } from '../context/SocketContext';
 import { useNotification } from '../context/NotificationContext';
 import { api } from '../lib/api';
 import type { ChallengeData } from '../types';
+import { useLanguage } from '../context/LanguageContext';
 
 const SocialPage: React.FC = () => {
+    const { tx } = useLanguage();
     const { currentUser } = useAuth();
     const { allUsers, refreshData, challenges, availableQuizzes } = useData();
     const navigate = useNavigate();
@@ -53,7 +55,7 @@ const SocialPage: React.FC = () => {
                             quizId,
                             opponent: {
                                 id: selectedFriendId,
-                                name: opponent?.name || 'Opponent',
+                                name: opponent?.name || tx('Opponent', 'المنافس'),
                                 avatar: opponent?.avatar
                             },
                             roomId
@@ -76,11 +78,11 @@ const SocialPage: React.FC = () => {
                     senderId: currentUser.userId,
                     senderName: currentUser.name,
                     receiverId: selectedFriendId,
-                    content: 'I challenged you to a duel!',
+                    content: tx('I challenged you to a duel!', 'بتحداك في جولة لايف!'),
                     type: 'challenge',
                     challengeData: {
                         quizId,
-                        quizTitle: availableQuizzes.find(q => q.id === quizId)?.title || 'Quiz Challenge',
+                        quizTitle: availableQuizzes.find(q => q.id === quizId)?.title || tx('Quiz Challenge', 'تحدي كويز'),
                         roomId: 'pending_room_id'
                     },
                     createdAt: new Date().toISOString(),
@@ -88,15 +90,15 @@ const SocialPage: React.FC = () => {
                 });
 
                 // Trigger DirectChat callback to add message locally
-                const quizTitle = availableQuizzes.find(q => q.id === quizId)?.title || 'Quiz Challenge';
+                const quizTitle = availableQuizzes.find(q => q.id === quizId)?.title || tx('Quiz Challenge', 'تحدي كويز');
                 if (window.__pendingChallengeCallback) {
                     window.__pendingChallengeCallback(quizId, quizTitle);
                     delete window.__pendingChallengeCallback;
                 }
 
-                showNotification('success', `Challenge sent! Waiting for opponent...`);
+                showNotification('success', tx('Challenge sent! Waiting for opponent...', 'التحدي اتبعت! مستنيين المنافس...'));
             } else {
-                showNotification('error', 'Socket not connected. Cannot send challenge.');
+                showNotification('error', tx('Socket not connected. Cannot send challenge.', 'السيرفر مش متصل دلوقتي. مش قادرين نبعت التحدي.'));
             }
         } else if (challengeType === 'async') {
             try {
@@ -105,22 +107,22 @@ const SocialPage: React.FC = () => {
                 const link = `${window.location.origin}/challenge/${challenge.token}`;
 
                 // Trigger DirectChat callback for async challenge
-                const quizTitle = availableQuizzes.find(q => q.id === quizId)?.title || 'Quiz Challenge';
+                const quizTitle = availableQuizzes.find(q => q.id === quizId)?.title || tx('Quiz Challenge', 'تحدي كويز');
                 if (window.__pendingAsyncChallengeCallback) {
                     window.__pendingAsyncChallengeCallback(quizId, quizTitle);
                     delete window.__pendingAsyncChallengeCallback;
                 }
 
-                showNotification('success', `Link generated! Copy sent to clipboard.`);
+                showNotification('success', tx('Link generated! Copy sent to clipboard.', 'اللينك اتعمل واتنسخ!'));
                 try {
                     await navigator.clipboard.writeText(link);
-                    showNotification('success', 'Challenge link copied to clipboard!');
+                    showNotification('success', tx('Challenge link copied to clipboard!', 'لينك التحدي اتنسخ!'));
                 } catch {
-                    showNotification('info', `Share this link: ${link}`);
+                    showNotification('info', tx(`Share this link: ${link}`, `شارك اللينك ده: ${link}`));
                 }
             } catch (error) {
                 console.error(error);
-                showNotification('error', 'Failed to create challenge link.');
+                showNotification('error', tx('Failed to create challenge link.', 'حصل مشكلة في عمل لينك التحدي.'));
             }
         }
 
@@ -147,21 +149,21 @@ const SocialPage: React.FC = () => {
                 createdAt: new Date().toISOString()
             };
             setLiveChallenges(prev => [...prev, newChallenge]);
-            showNotification('success', `Live challenge received from ${data.fromName}!`);
+            showNotification('success', tx(`Live challenge received from ${data.fromName}!`, `وصلك تحدي لايف من ${data.fromName}!`));
         };
 
         socket.on('game_invite', handleInvite);
         return () => {
             socket.off('game_invite', handleInvite);
         };
-    }, [socket, userId, showNotification]);
+    }, [socket, userId, showNotification, tx]);
 
     const combinedChallenges = [...liveChallenges, ...challenges];
 
     if (!currentUser) return null;
 
     return (
-        <PageLayout title="Social">
+        <PageLayout title={tx('Social', 'الأصدقاء')}>
             <div className="p-6">
                 <div className="max-w-4xl mx-auto">
                     <FriendList
@@ -179,7 +181,7 @@ const SocialPage: React.FC = () => {
                                         quizId: c.quizId,
                                         opponent: {
                                             id: c.fromId,
-                                            name: opponent?.name || c.fromName || 'Challenger',
+                                            name: opponent?.name || c.fromName || tx('Challenger', 'المتحدي'),
                                             avatar: opponent?.avatar
                                         },
                                         roomId: c.roomId

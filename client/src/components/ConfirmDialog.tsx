@@ -2,6 +2,7 @@ import React from 'react';
 import { AlertTriangle, Info, AlertOctagon, Loader2 } from 'lucide-react';
 import Modal from './common/Modal';
 import { useTheme } from '../context/ThemeContext';
+import { useLanguage } from '../context/LanguageContext';
 
 export interface ConfirmDialogProps {
     title: string;
@@ -21,8 +22,8 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     title,
     message,
     description,
-    confirmText = 'Confirm',
-    cancelText = 'Cancel',
+    confirmText,
+    cancelText,
     onConfirm,
     onCancel,
     type = 'warning',
@@ -31,6 +32,9 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     showWarningBanner
 }) => {
     const { isBento } = useTheme();
+    const { tx } = useLanguage();
+    const resolvedConfirmText = confirmText ?? tx('Confirm', 'تأكيد');
+    const resolvedCancelText = cancelText ?? tx('Cancel', 'إلغاء');
 
     const getIcon = () => {
         switch (type) {
@@ -118,7 +122,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
                         disabled={isLoading}
                         className={`flex-1 min-h-[44px] py-2.5 px-4 rounded-xl font-black text-xs uppercase tracking-wider transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${getCancelButtonClass()}`}
                     >
-                        {cancelText}
+                        {cancelText === 'Cancel' ? resolvedCancelText : cancelText}
                     </button>
                     <button
                         type="button"
@@ -127,7 +131,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
                         className={`flex-1 min-h-[44px] py-2.5 px-4 rounded-xl font-black text-xs uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${getPrimaryButtonClass()}`}
                     >
                         {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-                        {confirmText}
+                        {confirmText === 'Confirm' ? resolvedConfirmText : confirmText}
                     </button>
                 </div>
             }
@@ -148,7 +152,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
                             : 'bg-red-500/10 dark:bg-red-500/15 border border-red-500/20 text-red-600 dark:text-red-400'
                     }`}>
                         <span className="text-base leading-none">⚠️</span>
-                        <span>This action is permanent and cannot be undone.</span>
+                        <span>{tx('This action is permanent and cannot be undone.', 'الإجراء ده نهائي وما ينفعش الرجوع فيه.')}</span>
                     </div>
                 )}
             </div>

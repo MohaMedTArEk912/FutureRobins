@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowRight, Palette } from 'lucide-react';
 import { useTheme, type AppTheme } from '../context/ThemeContext';
+import { useLanguage } from '../context/LanguageContext';
 import ThemeSkeletonPreviewCards from './ThemeSkeletonPreviewCards';
 
 interface ThemeSelectionModalProps {
@@ -13,8 +14,16 @@ export const ThemeSelectionModal: React.FC<ThemeSelectionModalProps> = ({
     onClose
 }) => {
     const { theme, isBento, setTheme } = useTheme();
+    const { isLanguageModalOpen, isArabic, tx } = useLanguage();
 
-    if (!isOpen) return null;
+    // Wait until first-login / legacy language modal finishes so they appear cleanly in order
+    if (!isOpen || isLanguageModalOpen) return null;
+
+    const themeLabels: Record<AppTheme, string> = {
+        light: tx('LIGHT', 'لايت (فاتح)'),
+        dark: tx('DARK', 'دارك (غامق)'),
+        bento: tx('BENTO', 'بينتو')
+    };
 
     const handleThemePick = (chosenTheme: AppTheme) => {
         setTheme(chosenTheme);
@@ -58,15 +67,18 @@ export const ThemeSelectionModal: React.FC<ThemeSelectionModalProps> = ({
                                 : 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20'
                         }`}>
                             <Palette className="w-3.5 h-3.5" />
-                            Personalize Your Workspace
+                            {tx('Personalize Your Workspace', 'ظبّط شكل منصتك على مزاجك')}
                         </span>
                     </div>
 
                     <h2 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight mb-2">
-                        Choose Your Preferred Theme
+                        {tx('Choose Your Preferred Theme', 'اختار الثيم اللي تحب تشتغل بيه')}
                     </h2>
                     <p className="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400 leading-relaxed">
-                        Select an interface theme that matches your learning style. You can adjust this anytime in your Profile or top navigation bar.
+                        {tx(
+                            'Select an interface theme that matches your learning style. You can adjust this anytime in your Profile or top navigation bar.',
+                            'اختار شكل الواجهة اللي يريح عينك في المذاكرة. وتقدر تغيره في أي وقت من صفحتك أو الشريط اللي فوق.'
+                        )}
                     </p>
                 </div>
 
@@ -77,8 +89,9 @@ export const ThemeSelectionModal: React.FC<ThemeSelectionModalProps> = ({
 
                 {/* Action Footer */}
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-slate-200/80 dark:border-white/10">
-                    <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 text-center sm:text-left">
-                        Active Selection: <span className="font-black text-slate-700 dark:text-slate-200 uppercase">{theme}</span>
+                    <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 text-center sm:text-start">
+                        {tx('Active Selection:', 'الاختيار الحالي:')}{' '}
+                        <span className="font-black text-slate-700 dark:text-slate-200 uppercase">{themeLabels[theme]}</span>
                     </p>
 
                     <button
@@ -90,8 +103,8 @@ export const ThemeSelectionModal: React.FC<ThemeSelectionModalProps> = ({
                                 : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-600/30'
                         }`}
                     >
-                        <span>Confirm & Continue</span>
-                        <ArrowRight className="w-4 h-4" />
+                        <span>{tx('Confirm & Continue', 'تأكيد والمتابعة')}</span>
+                        <ArrowRight className={`w-4 h-4 ${isArabic ? 'rotate-180' : ''}`} />
                     </button>
                 </div>
             </div>

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Eye, EyeOff, Mail, User as UserIcon, Lock, Check, AlertCircle, Sliders } from 'lucide-react';
+import { X, Eye, EyeOff, Mail, User as UserIcon, Lock, Check, AlertCircle, Sliders, Globe } from 'lucide-react';
 import type { UserData } from '../types/index.ts';
 import { api } from '../lib/api.ts';
 import { useTheme } from '../context/ThemeContext.tsx';
+import { useLanguage } from '../context/LanguageContext.tsx';
 import { useNavArrangement } from '../context/NavArrangementContext';
 
 interface UserSettingsProps {
@@ -15,6 +16,7 @@ interface UserSettingsProps {
 
 const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, embedded = false }) => {
     const { isBento } = useTheme();
+    const { language, setLanguage, tx } = useLanguage();
     const { openCustomizer, config } = useNavArrangement();
     const [name, setName] = useState(user.name);
     const [email, setEmail] = useState(user.email);
@@ -25,12 +27,37 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [isSavingLang, setIsSavingLang] = useState(false);
     const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
     useEffect(() => {
         setName(user.name || '');
         setEmail(user.email || '');
     }, [user.name, user.email]);
+
+    const handleLanguageSelect = async (nextLang: 'en' | 'ar-EG') => {
+        if (nextLang === language && user.preferredLanguage === nextLang) return;
+        setIsSavingLang(true);
+        setNotification(null);
+        try {
+            await setLanguage(nextLang, true);
+            onUpdate({ ...user, preferredLanguage: nextLang });
+            setNotification({
+                type: 'success',
+                message: nextLang === 'ar-EG'
+                    ? 'تم تحويل لغة المنصة للعربية المصرية بنجاح!'
+                    : 'Platform language switched to English!'
+            });
+        } catch (err) {
+            console.error('Failed to update language:', err);
+            setNotification({
+                type: 'error',
+                message: tx('Could not update language preference.', 'مقدرناش نحفظ اختيار اللغة، جرب تاني.')
+            });
+        } finally {
+            setIsSavingLang(false);
+        }
+    };
 
     const hasChanges = Boolean(
         name.trim() !== (user.name || '').trim() ||
@@ -55,36 +82,36 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
     const handleSave = async () => {
         // Validation
         if (!name.trim()) {
-            setNotification({ type: 'error', message: 'Name cannot be empty' });
+            setNotification({ type: 'error', message: tx('Name cannot be empty', 'الاسم ما ينفعش يكون فاضي') });
             return;
         }
 
         if (!email.trim()) {
-            setNotification({ type: 'error', message: 'Email cannot be empty' });
+            setNotification({ type: 'error', message: tx('Email cannot be empty', 'الإيميل ما ينفعش يكون فاضي') });
             return;
         }
 
         // Email format validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
-            setNotification({ type: 'error', message: 'Please enter a valid email address' });
+            setNotification({ type: 'error', message: tx('Please enter a valid email address', 'لو سمحت اكتب إيميل صحيح') });
             return;
         }
 
         // Password validation if changing password
         if (newPassword || confirmPassword) {
             if (!currentPassword) {
-                setNotification({ type: 'error', message: 'Please enter your current password to change it' });
+                setNotification({ type: 'error', message: tx('Please enter your current password to change it', 'اكتب كلمة السر الحالية الأول عشان تغيرها') });
                 return;
             }
 
             if (newPassword !== confirmPassword) {
-                setNotification({ type: 'error', message: 'New passwords do not match' });
+                setNotification({ type: 'error', message: tx('New passwords do not match', 'كلمة السر الجديدة والتأكيد مش متطابقين') });
                 return;
             }
 
             if (newPassword.length < 6) {
-                setNotification({ type: 'error', message: 'New password must be at least 6 characters long' });
+                setNotification({ type: 'error', message: tx('New password must be at least 6 characters long', 'كلمة السر الجديدة لازم تكون 6 حروف على الأقل') });
                 return;
             }
         }
@@ -110,7 +137,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
                 await api.changePassword(user.email, currentPassword, newPassword);
             }
 
-            setNotification({ type: 'success', message: 'Settings updated successfully!' });
+            setNotification({ type: 'success', message: tx('Settings updated successfully!', 'اتحفظت الإعدادات بنجاح!') });
 
             // Update parent component
             onUpdate(updatedUser);
@@ -123,7 +150,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
             }
         } catch (error) {
             console.error('Update error:', error);
-            const message = error instanceof Error ? error.message : 'Failed to update settings. Please try again.';
+            const message = error instanceof Error ? error.message : tx('Failed to update settings. Please try again.', 'حصلت مشكلة في حفظ الإعدادات، جرب تاني.');
             setNotification({
                 type: 'error',
                 message
@@ -153,44 +180,124 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
             <h3 className={`text-sm font-black uppercase tracking-wider flex items-center gap-2 ${
                 isBento ? 'text-black' : 'text-gray-500 dark:text-gray-400'
             }`}>
-                <UserIcon className={`w-4 h-4 ${isBento ? 'text-black' : 'text-purple-600 dark:text-purple-400'}`} /> Profile Info
+                <UserIcon className={`w-4 h-4 ${isBento ? 'text-black' : 'text-purple-600 dark:text-purple-400'}`} /> {tx('Profile Info', 'بيانات الحساب')}
             </h3>
 
             <div className="space-y-4">
                 <div>
-                    <label className="sr-only">Full Name</label>
+                    <label className="sr-only">{tx('Full Name', 'الاسم بالكامل')}</label>
                     <div className="relative">
-                        <UserIcon className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 ${isBento ? 'text-black' : 'text-gray-400 dark:text-gray-500'}`} />
+                        <UserIcon className={`absolute start-4 top-1/2 transform -translate-y-1/2 w-5 h-5 ${isBento ? 'text-black' : 'text-gray-400 dark:text-gray-500'}`} />
                         <input
                             type="text"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            className={`w-full pl-12 pr-4 py-3 rounded-xl font-medium transition-all ${
+                            className={`w-full ps-12 pe-4 py-3 rounded-xl font-medium transition-all ${
                                 isBento
                                     ? 'border-2 border-black bg-white text-black placeholder-gray-500 shadow-[2px_2px_0px_#000] focus:outline-none'
                                     : 'bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 focus:border-purple-500 focus:outline-none text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-500'
                             }`}
-                            placeholder="Full Name"
+                            placeholder={tx('Full Name', 'الاسم بالكامل')}
                         />
                     </div>
                 </div>
                 <div>
-                    <label className="sr-only">Email Address</label>
+                    <label className="sr-only">{tx('Email Address', 'البريد الإلكتروني')}</label>
                     <div className="relative">
-                        <Mail className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 ${isBento ? 'text-black' : 'text-gray-400 dark:text-gray-500'}`} />
+                        <Mail className={`absolute start-4 top-1/2 transform -translate-y-1/2 w-5 h-5 ${isBento ? 'text-black' : 'text-gray-400 dark:text-gray-500'}`} />
                         <input
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className={`w-full pl-12 pr-4 py-3 rounded-xl font-medium transition-all ${
+                            className={`w-full ps-12 pe-4 py-3 rounded-xl font-medium transition-all ${
                                 isBento
                                     ? 'border-2 border-black bg-white text-black placeholder-gray-500 shadow-[2px_2px_0px_#000] focus:outline-none'
                                     : 'bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 focus:border-purple-500 focus:outline-none text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600'
                             }`}
-                            placeholder="Email Address"
+                            placeholder={tx('Email Address', 'البريد الإلكتروني')}
                         />
                     </div>
                 </div>
+            </div>
+        </div>
+    );
+
+    const languageSection = (
+        <div className={`pt-5 space-y-3 border-t ${isBento ? 'border-black/20' : 'border-gray-200 dark:border-white/5'}`}>
+            <div className="flex items-center justify-between gap-2">
+                <h3 className={`text-sm font-black uppercase tracking-wider flex items-center gap-2 ${
+                    isBento ? 'text-black' : 'text-gray-500 dark:text-gray-400'
+                }`}>
+                    <Globe className={`w-4 h-4 ${isBento ? 'text-black' : 'text-indigo-600 dark:text-indigo-400'}`} /> {tx('Platform Language', 'لغة المنصة')}
+                </h3>
+                <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
+                    isBento ? 'bg-[#bae6fd] text-black border border-black' : 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400'
+                }`}>
+                    {language === 'ar-EG' ? 'العربية (مصري)' : 'English'}
+                </span>
+            </div>
+            <p className={`text-xs ${isBento ? 'text-gray-700 font-semibold' : 'text-gray-500 dark:text-gray-400'}`}>
+                {tx(
+                    'Switch all menus, buttons, and platform pages between English and Egyptian Arabic.',
+                    'حوّل كل القوائم والأزرار وصفحات المنصة بين العربية المصرية والإنجليزية.'
+                )}
+            </p>
+            <div className="grid grid-cols-2 gap-2.5">
+                <button
+                    type="button"
+                    disabled={isSavingLang}
+                    onClick={() => void handleLanguageSelect('ar-EG')}
+                    className={`btn-unstyled p-3 rounded-xl text-start transition-all cursor-pointer flex items-center justify-between gap-2 disabled:opacity-60 ${
+                        language === 'ar-EG'
+                            ? (isBento
+                                ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000]'
+                                : 'bg-indigo-600 text-white shadow-md')
+                            : (isBento
+                                ? 'bg-white hover:bg-[#fef9c3] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                : 'bg-white dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-white/10')
+                    }`}
+                >
+                    <span className="flex items-center gap-2 min-w-0">
+                        <span className="text-base leading-none shrink-0">🇪🇬</span>
+                        <span className="min-w-0">
+                            <span className="block text-xs font-black truncate">العربية (مصري)</span>
+                            <span className={`block text-[10px] font-semibold truncate ${
+                                language === 'ar-EG' ? (isBento ? 'text-black/75' : 'text-white/80') : 'text-gray-500'
+                            }`}>
+                                واجهة RTL
+                            </span>
+                        </span>
+                    </span>
+                    {language === 'ar-EG' && <Check className="w-4 h-4 shrink-0" />}
+                </button>
+
+                <button
+                    type="button"
+                    disabled={isSavingLang}
+                    onClick={() => void handleLanguageSelect('en')}
+                    className={`btn-unstyled p-3 rounded-xl text-start transition-all cursor-pointer flex items-center justify-between gap-2 disabled:opacity-60 ${
+                        language === 'en'
+                            ? (isBento
+                                ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000]'
+                                : 'bg-indigo-600 text-white shadow-md')
+                            : (isBento
+                                ? 'bg-white hover:bg-[#fef9c3] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                : 'bg-white dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-white/10')
+                    }`}
+                >
+                    <span className="flex items-center gap-2 min-w-0">
+                        <span className="text-base leading-none shrink-0">🇺🇸</span>
+                        <span className="min-w-0">
+                            <span className="block text-xs font-black truncate">English</span>
+                            <span className={`block text-[10px] font-semibold truncate ${
+                                language === 'en' ? (isBento ? 'text-black/75' : 'text-white/80') : 'text-gray-500'
+                            }`}>
+                                Default LTR
+                            </span>
+                        </span>
+                    </span>
+                    {language === 'en' && <Check className="w-4 h-4 shrink-0" />}
+                </button>
             </div>
         </div>
     );
@@ -201,16 +308,19 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
                 <h3 className={`text-sm font-black uppercase tracking-wider flex items-center gap-2 ${
                     isBento ? 'text-black' : 'text-gray-500 dark:text-gray-400'
                 }`}>
-                    <Sliders className={`w-4 h-4 ${isBento ? 'text-black' : 'text-indigo-600 dark:text-indigo-400'}`} /> Navigation &amp; Tabs
+                    <Sliders className={`w-4 h-4 ${isBento ? 'text-black' : 'text-indigo-600 dark:text-indigo-400'}`} /> {tx('Navigation & Tabs', 'شريط التنقل والأقسام')}
                 </h3>
                 <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
                     isBento ? 'bg-[#fde047] text-black border border-black' : 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400'
                 }`}>
-                    {config.primaryPaths.length} Pinned
+                    {tx(`${config.primaryPaths.length} Pinned`, `${config.primaryPaths.length} متثبتين`)}
                 </span>
             </div>
             <p className={`text-xs ${isBento ? 'text-gray-700' : 'text-gray-500 dark:text-gray-400'}`}>
-                Customize your top navigation pill, reorder buttons, choose curated presets, and sync with your mobile bottom bar.
+                {tx(
+                    'Customize your top navigation pill, reorder buttons, choose curated presets, and sync with your mobile bottom bar.',
+                    'رتب أزرار الشريط العلوي زي ما تحب واختار الترتيب الجاهز اللي يريحك مع المزامنة للموبايل.'
+                )}
             </p>
             <button
                 type="button"
@@ -218,14 +328,14 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
                     if (onClose) onClose();
                     openCustomizer();
                 }}
-                className={`w-full py-3 px-4 rounded-xl font-black text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                className={`btn-unstyled w-full py-3 px-4 rounded-xl font-black text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
                     isBento
                         ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[3px_3px_0px_#000] active:translate-x-0.5 active:translate-y-0.5'
                         : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-600/20 active:scale-[0.99]'
                 }`}
             >
-                <Sliders className="w-4 h-4" />
-                <span>Arrange Navigation Tabs &amp; Layout</span>
+                <Sliders className="w-4 h-4 shrink-0" />
+                <span>{tx('Arrange Navigation Tabs & Layout', 'ترتيب أقسام شريط التنقل')}</span>
             </button>
         </div>
     );
@@ -236,73 +346,75 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
                 <h3 className={`text-sm font-black uppercase tracking-wider flex items-center gap-2 ${
                     isBento ? 'text-black' : 'text-gray-500 dark:text-gray-400'
                 }`}>
-                    <Lock className={`w-4 h-4 ${isBento ? 'text-black' : 'text-purple-600 dark:text-purple-400'}`} /> Security
+                    <Lock className={`w-4 h-4 ${isBento ? 'text-black' : 'text-purple-600 dark:text-purple-400'}`} /> {tx('Security', 'الأمان وكلمة السر')}
                 </h3>
-                <p className={`text-xs font-bold mt-1 ${isBento ? 'text-gray-600' : 'text-gray-500'}`}>Leave blank to keep current password</p>
+                <p className={`text-xs font-bold mt-1 ${isBento ? 'text-gray-600' : 'text-gray-500'}`}>
+                    {tx('Leave blank to keep current password', 'سيبه فاضي لو مش عايز تغير كلمة السر الحالية')}
+                </p>
             </div>
 
             <div className="space-y-4">
                 <div className="relative">
-                    <Lock className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 ${isBento ? 'text-black' : 'text-gray-400 dark:text-gray-500'}`} />
+                    <Lock className={`absolute start-4 top-1/2 transform -translate-y-1/2 w-5 h-5 ${isBento ? 'text-black' : 'text-gray-400 dark:text-gray-500'}`} />
                     <input
                         type={showCurrentPassword ? 'text' : 'password'}
                         value={currentPassword}
                         onChange={(e) => setCurrentPassword(e.target.value)}
-                        className={`w-full pl-12 pr-12 py-3 rounded-xl font-medium transition-all ${
+                        className={`w-full ps-12 pe-12 py-3 rounded-xl font-medium transition-all ${
                             isBento
                                 ? 'border-2 border-black bg-white text-black placeholder-gray-500 shadow-[2px_2px_0px_#000] focus:outline-none'
                                 : 'bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 focus:border-purple-500 focus:outline-none text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600'
                         }`}
-                        placeholder="Current Password"
+                        placeholder={tx('Current Password', 'كلمة السر الحالية')}
                     />
                     <button
                         type="button"
                         onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                        className={`absolute right-4 top-1/2 transform -translate-y-1/2 ${isBento ? 'text-black' : 'text-gray-400 dark:text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
+                        className={`absolute end-4 top-1/2 transform -translate-y-1/2 ${isBento ? 'text-black' : 'text-gray-400 dark:text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
                     >
                         {showCurrentPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
                 </div>
 
                 <div className="relative">
-                    <Lock className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 ${isBento ? 'text-black' : 'text-gray-400 dark:text-gray-500'}`} />
+                    <Lock className={`absolute start-4 top-1/2 transform -translate-y-1/2 w-5 h-5 ${isBento ? 'text-black' : 'text-gray-400 dark:text-gray-500'}`} />
                     <input
                         type={showNewPassword ? 'text' : 'password'}
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
-                        className={`w-full pl-12 pr-12 py-3 rounded-xl font-medium transition-all ${
+                        className={`w-full ps-12 pe-12 py-3 rounded-xl font-medium transition-all ${
                             isBento
                                 ? 'border-2 border-black bg-white text-black placeholder-gray-500 shadow-[2px_2px_0px_#000] focus:outline-none'
                                 : 'bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 focus:border-purple-500 focus:outline-none text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600'
                         }`}
-                        placeholder="New Password"
+                        placeholder={tx('New Password', 'كلمة السر الجديدة')}
                     />
                     <button
                         type="button"
                         onClick={() => setShowNewPassword(!showNewPassword)}
-                        className={`absolute right-4 top-1/2 transform -translate-y-1/2 ${isBento ? 'text-black' : 'text-gray-400 dark:text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
+                        className={`absolute end-4 top-1/2 transform -translate-y-1/2 ${isBento ? 'text-black' : 'text-gray-400 dark:text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
                     >
                         {showNewPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
                 </div>
 
                 <div className="relative">
-                    <Lock className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 ${isBento ? 'text-black' : 'text-gray-400 dark:text-gray-500'}`} />
+                    <Lock className={`absolute start-4 top-1/2 transform -translate-y-1/2 w-5 h-5 ${isBento ? 'text-black' : 'text-gray-400 dark:text-gray-500'}`} />
                     <input
                         type={showConfirmPassword ? 'text' : 'password'}
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        className={`w-full pl-12 pr-12 py-3 rounded-xl font-medium transition-all ${
+                        className={`w-full ps-12 pe-12 py-3 rounded-xl font-medium transition-all ${
                             isBento
                                 ? 'border-2 border-black bg-white text-black placeholder-gray-500 shadow-[2px_2px_0px_#000] focus:outline-none'
                                 : 'bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 focus:border-purple-500 focus:outline-none text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600'
                         }`}
-                        placeholder="Confirm New Password"
+                        placeholder={tx('Confirm New Password', 'تأكيد كلمة السر الجديدة')}
                     />
                     <button
                         type="button"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className={`absolute right-4 top-1/2 transform -translate-y-1/2 ${isBento ? 'text-black' : 'text-gray-400 dark:text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
+                        className={`absolute end-4 top-1/2 transform -translate-y-1/2 ${isBento ? 'text-black' : 'text-gray-400 dark:text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
                     >
                         {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
@@ -323,13 +435,13 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
                         : 'bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white'
                 }`}
             >
-                Cancel
+                {tx('Cancel', 'إلغاء')}
             </button>
             <button
                 type="button"
                 onClick={handleSave}
                 disabled={isLoading}
-                className={`flex-1 px-4 py-3 rounded-xl font-black transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer ${
+                className={`btn-unstyled flex-1 px-4 py-3 rounded-xl font-black transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer ${
                     isBento
                         ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[3px_3px_0px_#000] active:translate-x-0.5 active:translate-y-0.5'
                         : 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-500 hover:to-indigo-500 shadow-lg shadow-purple-500/20'
@@ -338,17 +450,25 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
                 {isLoading ? (
                     <>
                         <div className={`w-4 h-4 border-2 rounded-full animate-spin ${isBento ? 'border-black/30 border-t-black' : 'border-white/30 border-t-white'}`} />
-                        Saving...
+                        <span>{tx('Saving...', 'جاري الحفظ...')}</span>
                     </>
                 ) : (
                     <>
-                        <Check className="w-4 h-4" />
-                        Save Changes
+                        <Check className="w-4 h-4 shrink-0" />
+                        <span>{tx('Save Changes', 'حفظ التغييرات')}</span>
                     </>
                 )}
             </button>
         </div>
     );
+
+    const roleLabel = user.role === 'teacher'
+        ? tx('Teacher', 'مدرس')
+        : user.role === 'admin'
+            ? tx('Admin', 'أدمن')
+            : user.role === 'student'
+                ? tx('Student', 'طالب')
+                : tx('Account', 'حساب');
 
     if (embedded) {
         return (
@@ -363,16 +483,16 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
                 }`}>
                     <div>
                         <h2 className={`text-xl sm:text-2xl font-black ${isBento ? 'text-black' : 'text-gray-900 dark:text-white'}`}>
-                            Account Settings
+                            {tx('Account Settings', 'إعدادات الحساب')}
                         </h2>
                         <p className={`text-xs sm:text-sm mt-0.5 ${isBento ? 'text-gray-700 font-bold' : 'text-gray-500 dark:text-gray-400 font-medium'}`}>
-                            Manage your personal details and account security
+                            {tx('Manage your personal details, language, and account security', 'عدل بياناتك ولغة المنصة وإعدادات الأمان')}
                         </p>
                     </div>
                     <span className={`px-3 py-1 rounded-full text-[11px] font-black uppercase self-start sm:self-center ${
                         isBento ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000]' : 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-300'
                     }`}>
-                        {user.role || 'Account'}
+                        {roleLabel}
                     </span>
                 </div>
 
@@ -381,13 +501,14 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
 
                     {/* Half-and-Half Split Grid */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-                        {/* Left Half: Profile Info (+ Nav Customization) */}
+                        {/* Left Half: Profile Info (+ Language + Nav Customization) */}
                         <div className={`p-5 sm:p-6 rounded-2xl space-y-6 h-full ${
                             isBento
                                 ? 'bg-slate-50 border-2 border-black shadow-[3px_3px_0px_#000]'
                                 : 'bg-gray-50/70 dark:bg-white/[0.02] border border-gray-200 dark:border-white/10'
                         }`}>
                             {profileInfoSection}
+                            {languageSection}
                             {navCustomizationSection}
                         </div>
 
@@ -431,24 +552,29 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
                     <button
                         type="button"
                         onClick={onClose}
-                        className={`absolute top-6 right-6 transition-all z-20 cursor-pointer ${
+                        className={`btn-unstyled absolute top-6 end-6 transition-all z-20 cursor-pointer ${
                             isBento
                                 ? 'p-1.5 rounded-lg border-2 border-black bg-white hover:bg-[#fed7aa] text-black shadow-[2px_2px_0px_#000] active:translate-x-0.5 active:translate-y-0.5'
                                 : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
                         }`}
-                        aria-label="Close settings"
+                        aria-label={tx('Close settings', 'قفل الإعدادات')}
                     >
                         <X className="w-5 h-5" />
                     </button>
                 )}
                 <div className="p-8">
                     <div className="mb-8">
-                        <h2 className={`text-2xl font-black mb-1 ${isBento ? 'text-black' : 'text-gray-900 dark:text-white'}`}>Account Settings</h2>
-                        <p className={`text-sm ${isBento ? 'text-gray-700 font-bold' : 'text-gray-500 dark:text-gray-400 font-medium'}`}>Manage your personal details and account security</p>
+                        <h2 className={`text-2xl font-black mb-1 ${isBento ? 'text-black' : 'text-gray-900 dark:text-white'}`}>
+                            {tx('Account Settings', 'إعدادات الحساب')}
+                        </h2>
+                        <p className={`text-sm ${isBento ? 'text-gray-700 font-bold' : 'text-gray-500 dark:text-gray-400 font-medium'}`}>
+                            {tx('Manage your personal details, language, and account security', 'عدل بياناتك ولغة المنصة وإعدادات الأمان')}
+                        </p>
                     </div>
                     {alertBanner}
                     <div className="space-y-6">
                         {profileInfoSection}
+                        {languageSection}
                         {navCustomizationSection}
                         <div className={`pt-6 border-t ${isBento ? 'border-black' : 'border-gray-200 dark:border-white/5'}`}>
                             {securitySection}
