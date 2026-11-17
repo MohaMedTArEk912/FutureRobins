@@ -36,8 +36,12 @@ const ROUTE_METADATA: Record<string, RouteMetadata> = {
         description: 'Redeem your earned coins for avatar items, streak freezes, double XP boosters, and profile frames.'
     },
     '/clans': {
-        title: 'Clans & Guilds | Quiz Platform',
-        description: 'Join forces with other developers, chat in real-time, share decks, and dominate clan leaderboards.'
+        title: 'My Class & Classroom Hub | Quiz Platform',
+        description: 'Open your class, join live interactive boards, review motion slides, and complete session homework.'
+    },
+    '/classes': {
+        title: 'My Class & Classroom Hub | Quiz Platform',
+        description: 'Open your class, join live interactive boards, review motion slides, and complete session homework.'
     },
     '/social': {
         title: 'Social Hub & 1v1 Duels | Quiz Platform',

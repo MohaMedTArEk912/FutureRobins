@@ -82,7 +82,7 @@ function resolveQuestionAttempt(q, idx, userAnswers) {
 /**
  * Helper to extract recent wrong answers and weak topic stats from user attempts
  */
-function extractUserMistakes(attempts, quizMap) {
+export function extractUserMistakes(attempts, quizMap) {
   const wrongAnswers = [];
   const topicErrors = new Map();
 
@@ -876,8 +876,8 @@ export const getData = async (req, res) => {
             .limit(100)
             .lean(),
       isAdmin
-        ? Attempt.find({}).sort({ completedAt: -1 }).limit(500).lean()
-        : Attempt.find({ userId }).sort({ completedAt: -1 }).lean(),
+        ? Attempt.find({}).select('-attemptQuestions').sort({ completedAt: -1 }).limit(500).lean()
+        : Attempt.find({ userId }).select('-attemptQuestions').sort({ completedAt: -1 }).lean(),
       Badge.find({}).lean(),
       Challenge.find({
         $or: [{ fromId: userId }, { toId: userId }]

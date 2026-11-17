@@ -205,7 +205,7 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
 
     const isRoadUnlocked = useCallback((subjectId: string) => {
         if (!subjectId) return false;
-        if (isGuest || user.role === 'admin' || user.isAdmin) return true;
+        if (isGuest || user.role === 'admin' || user.role === 'teacher' || user.isAdmin) return true;
         const unlocked = (user.unlockedTracks || []).map(id => id.toString());
         const primary = user.primaryTrackId?.toString();
         const idStr = subjectId.toString();
@@ -215,6 +215,7 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
     const isInitialTrackSelectionNeeded =
         !isGuest &&
         user.role !== 'admin' &&
+        user.role !== 'teacher' &&
         !user.isAdmin &&
         subjectsProp.length > 0 &&
         !user.primaryTrackId &&

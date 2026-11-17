@@ -36,7 +36,7 @@ const QuizTakingPage: React.FC = () => {
 
     // Guard: Check if quiz belongs to a locked road
     useEffect(() => {
-        if (baseQuiz?.subjectId && currentUser && currentUser.role !== 'admin') {
+        if (baseQuiz?.subjectId && currentUser && currentUser.role !== 'admin' && currentUser.role !== 'teacher') {
             const unlocked = (currentUser.unlockedTracks || []).map(id => id.toString());
             const primary = currentUser.primaryTrackId?.toString();
             const isAllowed = unlocked.includes(baseQuiz.subjectId.toString()) || primary === baseQuiz.subjectId.toString();

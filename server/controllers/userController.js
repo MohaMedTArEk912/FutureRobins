@@ -1,7 +1,7 @@
 import { User } from '../models/User.js';
 import { Attempt } from '../models/Attempt.js';
 import { Badge } from '../models/Badge.js';
-import { Clan } from '../models/Clan.js';
+import { Class as Clan } from '../models/Class.js';
 import { Challenge } from '../models/Challenge.js';
 import { ShopItem } from '../models/ShopItem.js';
 import { SkillTrackProgress } from '../models/SkillTrackProgress.js';
@@ -14,41 +14,67 @@ export const updateUser = async (req, res) => {
   try {
     const { userId } = req.params;
     const updates = { ...req.body };
+    const isAdminCaller = req.user?.role === 'admin' || req.user?.isAdmin === true;
 
     // RBAC: Enforce that user can only modify their own profile unless admin
-    if (req.user && req.user.userId !== userId && req.user.role !== 'admin') {
+    if (req.user && req.user.userId !== userId && !isAdminCaller) {
       return res.status(403).json({ message: 'Forbidden: You can only update your own profile' });
     }
     
     // SECURITY: Prevent privilege escalation & immutable ID tampering
-    delete updates.role;
     delete updates.userId;
     delete updates._id;
+    delete updates.password;
 
-    // For non-admin users, restrict arbitrary modification of game economy and stats
-    if (req.user?.role !== 'admin') {
+    // Only admins can assign/change roles (e.g. making a user a teacher)
+    if (!isAdminCaller) {
+      delete updates.role;
+      delete updates.isAdmin;
       delete updates.xp;
       delete updates.totalScore;
       delete updates.totalAttempts;
       delete updates.totalTime;
       delete updates.level;
       delete updates.rank;
+    } else if (updates.role !== undefined) {
+      const allowedRoles = ['user', 'student', 'teacher', 'admin'];
+      if (!allowedRoles.includes(updates.role)) {
+        return res.status(400).json({ message: 'Invalid role specified' });
+      }
     }
-    
+
+    const query = {
+      $or: [
+        { userId },
+        { email: userId },
+        ...(typeof userId === 'string' && /^[0-9a-fA-F]{24}$/.test(userId) ? [{ _id: userId }] : [])
+      ]
+    };
+
     const user = await User.findOneAndUpdate(
-      { userId },
+      query,
       { $set: updates },
       { new: true }
-    );
+    ).select('-password');
     
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-    
+
+    if (updates.role !== undefined) {
+      const io = req.app?.get?.('io');
+      if (io) {
+        io.to(user.userId).emit('user_role_updated', {
+          userId: user.userId,
+          role: user.role
+        });
+      }
+    }
+
     res.json(user);
   } catch (error) {
     res.status(500).json({
-      message: 'Error updating user',
+      message: error?.code === 11000 ? 'Email already in use by another user' : 'Error updating user',
       ...(process.env.NODE_ENV !== 'production' && { error: error.message })
     });
   }
@@ -173,7 +199,7 @@ export const searchUsers = async (req, res) => {
                 { name: { $regex: safeQuery, $options: 'i' } },
                 { userId: { $regex: safeQuery, $options: 'i' } }
             ]
-        }).limit(10).select('userId name email totalScore friends friendRequests clanId').lean();
+        }).limit(10).select('userId name email role avatar totalScore friends friendRequests clanId').lean();
         
         // Maps results to include relationship status relative to requester
         const results = users
@@ -199,6 +225,9 @@ export const searchUsers = async (req, res) => {
                     userId: u.userId,
                     name: u.name,
                     email: u.email,
+                    role: u.role,
+                    avatar: u.avatar,
+                    clanId: u.clanId,
                     totalScore: u.totalScore,
                     relationship: status
                 };

@@ -29,6 +29,7 @@ import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext';
 import Footer from './Footer';
 import ThemeSkeletonPreviewCards from './ThemeSkeletonPreviewCards';
+import WorkspaceThemeSwitcher from './WorkspaceThemeSwitcher';
 
 interface UserProfileProps {
     user: UserData;
@@ -844,6 +845,15 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                             <span className="opacity-75">Global Rank</span>
                             <span className="font-black text-indigo-600 dark:text-indigo-400">#{rank}</span>
                         </div>
+                    </div>
+
+                    {/* Quick Workspace Theme Switcher in Profile */}
+                    <div className={`p-4 rounded-2xl ${
+                        isBento
+                            ? 'bg-white text-black border-2 border-black shadow-[4px_4px_0px_#000]'
+                            : 'bg-white dark:bg-[#111625] border border-slate-200/90 dark:border-white/10 shadow-sm'
+                    }`}>
+                        <WorkspaceThemeSwitcher />
                     </div>
                 </aside>
 
@@ -2828,6 +2838,10 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                                 <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 font-medium max-w-xl">
                                     Preview and select your preferred visual style. Changes apply immediately to every screen and persist in your browser localStorage.
                                 </p>
+                            </div>
+
+                            <div className="max-w-sm mb-6">
+                                <WorkspaceThemeSwitcher />
                             </div>
 
                             <ThemeSkeletonPreviewCards />

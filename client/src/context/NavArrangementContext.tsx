@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, type ReactNode } from 'react';
 import {
     Home,
@@ -7,7 +8,7 @@ import {
     Award,
     Gamepad2,
     Calendar,
-    Shield,
+    GraduationCap,
     ShoppingBag,
     Users,
     Settings,
@@ -83,11 +84,27 @@ export const ALL_NAV_REGISTRY: Record<string, NavItemDef> = {
     },
     '/clans': {
         path: '/clans',
-        label: 'Clans & Guilds',
-        shortLabel: 'Clans',
-        icon: Shield,
-        description: 'Guild alliances, emblem studio & clan XP',
+        label: 'Classes',
+        shortLabel: 'Classes',
+        icon: GraduationCap,
+        description: 'Teacher classes, sessions, motion slides & homework',
         category: 'social'
+    },
+    '/classes': {
+        path: '/classes',
+        label: 'Classes',
+        shortLabel: 'Classes',
+        icon: GraduationCap,
+        description: 'Assigned classes, sessions & interactive boards',
+        category: 'social'
+    },
+    '/quizzes': {
+        path: '/quizzes',
+        label: 'Quiz Bank',
+        shortLabel: 'Quizzes',
+        icon: BookOpen,
+        description: 'Browse & test quizzes before assigning to classes',
+        category: 'learning'
     },
     '/shop': {
         path: '/shop',
@@ -125,6 +142,11 @@ export const ALL_NAV_REGISTRY: Record<string, NavItemDef> = {
 
 export const DEFAULT_PRIMARY_PATHS = ['/', '/tracks', '/study', '/tournaments', '/leaderboard'];
 export const DEFAULT_SECONDARY_PATHS = ['/classroom', '/daily', '/clans', '/shop', '/social', '/analytics'];
+
+export const TEACHER_PRIMARY_PATHS = ['/', '/classes', '/tracks', '/classroom', '/analytics'];
+export const TEACHER_SECONDARY_PATHS = ['/quizzes', '/leaderboard', '/social'];
+
+const TEACHER_HIDDEN_PATHS = new Set(['/shop', '/daily', '/tournaments', '/study', '/clans']);
 
 export interface NavArrangementConfig {
     primaryPaths: string[];
@@ -184,7 +206,6 @@ interface NavArrangementContextType {
 
 const NavArrangementContext = createContext<NavArrangementContextType | undefined>(undefined);
 
-// eslint-disable-next-line react-refresh/only-export-components
 export const useNavArrangement = () => {
     const context = useContext(NavArrangementContext);
     if (!context) {
@@ -196,14 +217,20 @@ export const useNavArrangement = () => {
 export const NavArrangementProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const { currentUser } = useAuth();
     const isAdmin = currentUser?.role === 'admin';
-    const storageKey = currentUser?.userId ? `quiz_nav_config_${currentUser.userId}` : 'quiz_nav_config_guest';
+    const isTeacher = currentUser?.role === 'teacher';
+    const roleSuffix = isTeacher ? 'teacher' : isAdmin ? 'admin' : 'student';
+    const storageKey = currentUser?.userId ? `quiz_nav_config_${currentUser.userId}_${roleSuffix}` : 'quiz_nav_config_guest';
 
-    const [isCustomizerOpen, setIsCustomizerOpen] = useState(false);
+    const getDefaultConfig = useCallback((): NavArrangementConfig => ({
+        primaryPaths: isTeacher ? [...TEACHER_PRIMARY_PATHS] : [...DEFAULT_PRIMARY_PATHS],
+        secondaryPaths: isTeacher ? [...TEACHER_SECONDARY_PATHS] : [...DEFAULT_SECONDARY_PATHS],
+        hiddenPaths: [],
+        syncWithBottomNav: true
+    }), [isTeacher]);
 
-    // Initial load from localStorage
-    const [config, setConfig] = useState<NavArrangementConfig>(() => {
+    const readConfigForKey = useCallback((key: string): NavArrangementConfig => {
         try {
-            const raw = localStorage.getItem(storageKey);
+            const raw = localStorage.getItem(key);
             if (raw) {
                 const parsed = JSON.parse(raw);
                 if (Array.isArray(parsed.primaryPaths) && Array.isArray(parsed.secondaryPaths)) {
@@ -218,14 +245,18 @@ export const NavArrangementProvider: React.FC<{ children: ReactNode }> = ({ chil
         } catch {
             // Ignore parse errors
         }
+        return getDefaultConfig();
+    }, [getDefaultConfig]);
 
-        return {
-            primaryPaths: DEFAULT_PRIMARY_PATHS,
-            secondaryPaths: DEFAULT_SECONDARY_PATHS,
-            hiddenPaths: [],
-            syncWithBottomNav: true
-        };
-    });
+    const [isCustomizerOpen, setIsCustomizerOpen] = useState(false);
+
+    // Initial load from localStorage
+    const [config, setConfig] = useState<NavArrangementConfig>(() => readConfigForKey(storageKey));
+
+    // Reload role-specific defaults/saved config when user or role changes
+    useEffect(() => {
+        setConfig(readConfigForKey(storageKey));
+    }, [storageKey, readConfigForKey]);
 
     // Save to localStorage whenever config or storageKey changes
     useEffect(() => {
@@ -236,23 +267,40 @@ export const NavArrangementProvider: React.FC<{ children: ReactNode }> = ({ chil
         }
     }, [config, storageKey]);
 
+    const resolveNavItem = useCallback((path: string): NavItemDef | undefined => {
+        const base = ALL_NAV_REGISTRY[path];
+        if (!base) return undefined;
+        if (isTeacher && path === '/') {
+            return {
+                ...base,
+                label: 'Teacher Studio',
+                shortLabel: 'Studio',
+                icon: GraduationCap,
+                description: 'Teacher command center, assigned classes & AI studio'
+            };
+        }
+        return base;
+    }, [isTeacher]);
+
     // Available items filtered by role
     const allAvailableItems = useMemo(() => {
         const paths = Object.keys(ALL_NAV_REGISTRY);
         return paths
             .filter(path => path !== '/admin' || isAdmin)
-            .map(path => ALL_NAV_REGISTRY[path])
+            .filter(path => !isTeacher ? (path !== '/classes' && path !== '/quizzes') : !TEACHER_HIDDEN_PATHS.has(path))
+            .map(resolveNavItem)
             .filter((item): item is NavItemDef => Boolean(item));
-    }, [isAdmin]);
+    }, [isAdmin, isTeacher, resolveNavItem]);
 
     // Resolve primary items
     const primaryItems = useMemo(() => {
         return config.primaryPaths
             .filter(path => !config.hiddenPaths.includes(path))
             .filter(path => path !== '/admin' || isAdmin)
-            .map(path => ALL_NAV_REGISTRY[path])
+            .filter(path => !isTeacher || !TEACHER_HIDDEN_PATHS.has(path))
+            .map(resolveNavItem)
             .filter((item): item is NavItemDef => Boolean(item));
-    }, [config.primaryPaths, config.hiddenPaths, isAdmin]);
+    }, [config.primaryPaths, config.hiddenPaths, isAdmin, isTeacher, resolveNavItem]);
 
     // Resolve secondary items ("More" dropdown)
     const secondaryItems = useMemo(() => {
@@ -260,7 +308,8 @@ export const NavArrangementProvider: React.FC<{ children: ReactNode }> = ({ chil
             .filter(path => !config.primaryPaths.includes(path))
             .filter(path => !config.hiddenPaths.includes(path))
             .filter(path => path !== '/admin' || isAdmin)
-            .map(path => ALL_NAV_REGISTRY[path])
+            .filter(path => !isTeacher || !TEACHER_HIDDEN_PATHS.has(path))
+            .map(resolveNavItem)
             .filter((item): item is NavItemDef => Boolean(item));
 
         // Always ensure admin console appears if admin and not already placed
@@ -269,15 +318,16 @@ export const NavArrangementProvider: React.FC<{ children: ReactNode }> = ({ chil
         }
 
         return explicitSecondary;
-    }, [config.secondaryPaths, config.primaryPaths, config.hiddenPaths, isAdmin]);
+    }, [config.secondaryPaths, config.primaryPaths, config.hiddenPaths, isAdmin, isTeacher, resolveNavItem]);
 
     // Resolve hidden items
     const hiddenItems = useMemo(() => {
         return config.hiddenPaths
             .filter(path => path !== '/admin' || isAdmin)
-            .map(path => ALL_NAV_REGISTRY[path])
+            .filter(path => !isTeacher || !TEACHER_HIDDEN_PATHS.has(path))
+            .map(resolveNavItem)
             .filter((item): item is NavItemDef => Boolean(item));
-    }, [config.hiddenPaths, isAdmin]);
+    }, [config.hiddenPaths, isAdmin, isTeacher, resolveNavItem]);
 
     // Resolve Mobile Bottom Nav Items
     const bottomNavItems = useMemo(() => {
@@ -430,13 +480,8 @@ export const NavArrangementProvider: React.FC<{ children: ReactNode }> = ({ chil
 
     // Reset to platform defaults
     const resetToDefault = useCallback(() => {
-        setConfig({
-            primaryPaths: [...DEFAULT_PRIMARY_PATHS],
-            secondaryPaths: [...DEFAULT_SECONDARY_PATHS],
-            hiddenPaths: [],
-            syncWithBottomNav: true
-        });
-    }, []);
+        setConfig(getDefaultConfig());
+    }, [getDefaultConfig]);
 
     const openCustomizer = useCallback(() => setIsCustomizerOpen(true), []);
     const closeCustomizer = useCallback(() => setIsCustomizerOpen(false), []);

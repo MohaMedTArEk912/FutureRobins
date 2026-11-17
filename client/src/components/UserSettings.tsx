@@ -201,7 +201,8 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
                             </div>
                         </div>
 
-                        {/* Navigation & Layout Arrangement */}
+                        {/* Navigation & Layout Arrangement (Students & Admins only; teachers use sidebar nav) */}
+                        {user.role !== 'teacher' && (
                         <div className={`pt-6 space-y-3 border-t ${isBento ? 'border-black' : 'border-gray-200 dark:border-white/5'}`}>
                             <div className="flex items-center justify-between">
                                 <h3 className={`text-sm font-black uppercase tracking-wider flex items-center gap-2 ${
@@ -234,6 +235,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
                                 <span>Arrange Navigation Tabs & Layout</span>
                             </button>
                         </div>
+                        )}
 
                         {/* Security */}
                         <div className={`pt-6 space-y-4 border-t ${isBento ? 'border-black' : 'border-gray-200 dark:border-white/5'}`}>

@@ -97,7 +97,7 @@ export const AnimatedCharacter: React.FC<AnimatedCharacterProps> = ({
     const peekEyes = isPasswordFocused && !showPassword;
 
     return (
-        <div ref={containerRef} className={`relative flex items-center justify-center w-full h-full pb-8 ${className}`}>
+        <div ref={containerRef} className={`relative flex items-center justify-center w-full h-full pt-4 pb-4 ${className}`}>
             
             {/* Ambient shadow glow behind character (hidden in bento) */}
             {!isBento && (
@@ -106,7 +106,7 @@ export const AnimatedCharacter: React.FC<AnimatedCharacterProps> = ({
 
             {/* Neo-Brutalist Interactive Speech Bubble */}
             {isBento && (
-                <div className="absolute -top-4 sm:-top-5 z-30 transition-all duration-300 transform -translate-y-1 select-none pointer-events-none">
+                <div className="absolute -top-3 sm:-top-4 left-1/2 -translate-x-1/2 z-30 transition-all duration-300 select-none pointer-events-none whitespace-nowrap">
                     <div className={`px-3.5 py-1.5 rounded-2xl text-[11px] font-black uppercase tracking-wider border-[2.5px] border-black shadow-[3px_3px_0px_#000] flex items-center gap-1.5 transition-colors ${
                         isPasswordFocused
                             ? (showPassword ? 'bg-[#38bdf8] text-black' : 'bg-[#8b5cf6] text-white')

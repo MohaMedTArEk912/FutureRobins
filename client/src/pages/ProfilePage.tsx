@@ -2,6 +2,7 @@ import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import UserProfile from '../components/UserProfile';
 import { PublicUserProfileView } from '../components/profile/PublicUserProfileView';
+import { TeacherProfileView } from '../components/teacher/TeacherProfileView';
 import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
 import { useTheme } from '../context/ThemeContext';
@@ -67,6 +68,16 @@ const ProfilePage: React.FC = () => {
 
     // Own Profile View
     if (!currentUser) return null;
+
+    if (currentUser.role === 'teacher') {
+        return (
+            <TeacherProfileView
+                user={userWithRank || currentUser}
+                onBack={handleBack}
+                onUserUpdate={(u) => updateUser(u)}
+            />
+        );
+    }
 
     return (
         <UserProfile

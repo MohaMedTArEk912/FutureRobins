@@ -14,6 +14,10 @@ export const BottomNav: React.FC = () => {
 
     const isGuest = !currentUser || currentUser.userId === 'guest' || !currentUser.email;
 
+    if (currentUser?.role === 'teacher') {
+        return null;
+    }
+
     const navItems = [
         ...bottomNavItems.map(item => ({
             path: item.path,

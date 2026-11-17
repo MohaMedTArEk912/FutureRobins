@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Avatar from '../Avatar';
-import { ClanEmblem } from '../social/ClanEmblem';
+import { ClanEmblem } from '../social/ClassEmblem';
 import { GitHubActivityHeatmap } from './GitHubActivityHeatmap';
 import { api } from '../../lib/api';
 import { useAuth } from '../../context/AuthContext';
@@ -281,13 +281,17 @@ export const PublicUserProfileView: React.FC<PublicUserProfileViewProps> = ({
                                 )}
                             </div>
 
-                            {/* Level Pill */}
+                            {/* Role or Level Pill */}
                             <span className={`absolute -bottom-2 -right-2 px-2.5 py-0.5 rounded-full text-xs font-black uppercase tracking-wider ${
-                                isBento
-                                    ? 'bg-black text-white border-2 border-black shadow-[1.5px_1.5px_0px_#000]'
-                                    : 'bg-indigo-600 text-white border-2 border-white dark:border-[#111625] shadow-md'
+                                user.role === 'teacher'
+                                    ? (isBento
+                                        ? 'bg-[#bef264] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]'
+                                        : 'bg-emerald-600 text-white border-2 border-white dark:border-[#111625] shadow-md')
+                                    : (isBento
+                                        ? 'bg-black text-white border-2 border-black shadow-[1.5px_1.5px_0px_#000]'
+                                        : 'bg-indigo-600 text-white border-2 border-white dark:border-[#111625] shadow-md')
                             }`}>
-                                Lvl {level}
+                                {user.role === 'teacher' ? 'Educator' : `Lvl ${level}`}
                             </span>
                         </div>
 
@@ -300,7 +304,16 @@ export const PublicUserProfileView: React.FC<PublicUserProfileViewProps> = ({
                                         Admin
                                     </span>
                                 )}
-                                {user.rank && user.rank > 0 && user.role !== 'admin' && (
+                                {user.role === 'teacher' && (
+                                    <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-black uppercase ${
+                                        isBento
+                                            ? 'bg-[#e0f2fe] text-black border border-black shadow-[1px_1px_0px_#000]'
+                                            : 'bg-indigo-500/15 text-indigo-600 dark:text-indigo-300 border border-indigo-400/30'
+                                    }`}>
+                                        Verified Educator
+                                    </span>
+                                )}
+                                {user.rank && user.rank > 0 && user.role !== 'admin' && user.role !== 'teacher' && (
                                     <span className={`text-[11px] font-black px-2 py-0.5 rounded-full flex items-center gap-1 ${
                                         isBento
                                             ? 'bg-[#fde047] text-black border border-black shadow-[1px_1px_0px_#000]'

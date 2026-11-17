@@ -1,15 +1,73 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useSocket } from '../context/SocketContext';
 import { useNotification } from '../context/NotificationContext';
+import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
+import { TeacherWorkspaceProvider, useTeacherWorkspace } from '../context/TeacherWorkspaceContext';
+import { getTeacherThemeStyles } from '../components/teacher/teacherTheme';
+import TeacherSidebar from '../components/teacher/TeacherSidebar';
+import { AmbientBackground } from '../components/AmbientBackground';
 import InstallPWA from '../components/InstallPWA';
 import PwaUpdatePrompt from '../components/PwaUpdatePrompt';
 import { GlobalChatDrawer } from '../components/chat/GlobalChatDrawer';
 import { NavbarCustomizerModal } from '../components/nav/NavbarCustomizerModal';
 
+const TeacherShellFrame: React.FC<{ isQuizOrGame: boolean }> = ({ isQuizOrGame }) => {
+    const { currentUser } = useAuth();
+    const { theme } = useTheme();
+    const styles = useMemo(() => getTeacherThemeStyles(theme), [theme]);
+    const {
+        activeSection,
+        navigateToSection,
+        myClasses,
+        selectedClassId,
+        setSelectedClassId,
+        activeClan,
+        sidebarCollapsed,
+        setSidebarCollapsed,
+        mobileDrawerOpen,
+        setMobileDrawerOpen
+    } = useTeacherWorkspace();
+
+    const showTeacherSidebarShell = currentUser?.role === 'teacher' && !isQuizOrGame;
+
+    if (!showTeacherSidebarShell) {
+        return <Outlet />;
+    }
+
+    return (
+        <div className={`min-h-screen lg:h-screen lg:overflow-hidden flex flex-col transition-colors ${styles.pageShell}`}>
+            {!styles.isBento && <AmbientBackground />}
+            <div className="flex-1 min-h-0 relative w-full max-w-[1520px] mx-auto px-3 sm:px-5 py-4 lg:py-0 flex flex-col lg:flex-row gap-5">
+                <div className="lg:py-6 lg:h-full shrink-0">
+                    <TeacherSidebar
+                        user={currentUser}
+                        styles={styles}
+                        activeSection={activeSection}
+                        onSelectSection={(section) => navigateToSection(section)}
+                        myClasses={myClasses}
+                        selectedClassId={selectedClassId}
+                        activeClan={activeClan}
+                        onSelectClass={(id) => setSelectedClassId(id)}
+                        collapsed={sidebarCollapsed}
+                        onToggleCollapse={() => setSidebarCollapsed(prev => !prev)}
+                        mobileOpen={mobileDrawerOpen}
+                        onSetMobileOpen={setMobileDrawerOpen}
+                    />
+                </div>
+                <div className="flex-1 min-w-0 min-h-0 w-full flex flex-col lg:h-full lg:overflow-y-auto lg:overflow-x-hidden lg:py-6 lg:pl-1.5 lg:pr-4">
+                    <Outlet />
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const MainLayout: React.FC = () => {
     const { socket } = useSocket();
     const { showNotification } = useNotification();
+    const { updateUser, refreshUser } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
     const [gameInvite, setGameInvite] = useState<{ fromId: string; fromName: string; quizId: string; roomId: string } | null>(null);
@@ -52,14 +110,54 @@ const MainLayout: React.FC = () => {
             });
         };
 
+        const handleHomeworkAlert = (alert: { title?: string; message?: string; link?: string; className?: string }) => {
+            showNotification('warning', alert.message || 'You have pending homework to complete!', {
+                title: alert.title || '📚 Homework Reminder',
+                duration: 8000,
+                action: alert.link ? {
+                    label: 'Open Homework',
+                    onClick: () => navigate(alert.link!)
+                } : undefined
+            });
+        };
+
+        const handleClassInvite = (invite: { clanName?: string; inviterName?: string }) => {
+            showNotification('info', `${invite.inviterName || 'A teacher'} invited you to join "${invite.clanName || 'Class'}"`, {
+                title: '🎓 Class Invitation',
+                duration: 7000,
+                action: {
+                    label: 'View Invite',
+                    onClick: () => navigate('/classes')
+                }
+            });
+        };
+
+        const handleRoleUpdated = (payload: { userId?: string; role?: 'user' | 'student' | 'teacher' | 'admin' }) => {
+            if (payload?.role) {
+                updateUser({ role: payload.role });
+                refreshUser();
+                const label = payload.role === 'teacher' ? 'Teacher Mode' : payload.role === 'admin' ? 'Admin Mode' : 'Student Mode';
+                showNotification('info', `Your account role was updated to ${label}.`, {
+                    title: '🔄 Role Updated',
+                    duration: 7000
+                });
+            }
+        };
+
         socket.on('game_invite', handleInvite);
         socket.on('classroom_invite_received', handleClassroomInvite);
+        socket.on('homework_alert', handleHomeworkAlert);
+        socket.on('class_invite_received', handleClassInvite);
+        socket.on('user_role_updated', handleRoleUpdated);
 
         return () => {
             socket.off('game_invite', handleInvite);
             socket.off('classroom_invite_received', handleClassroomInvite);
+            socket.off('homework_alert', handleHomeworkAlert);
+            socket.off('class_invite_received', handleClassInvite);
+            socket.off('user_role_updated', handleRoleUpdated);
         };
-    }, [socket, showNotification, navigate]);
+    }, [socket, showNotification, navigate, updateUser, refreshUser]);
 
     const acceptInvite = () => {
         if (!gameInvite) return;
@@ -74,8 +172,8 @@ const MainLayout: React.FC = () => {
     };
 
     return (
-        <>
-            <Outlet /> {/* Renders the child route */}
+        <TeacherWorkspaceProvider>
+            <TeacherShellFrame isQuizOrGame={isQuizOrGame} />
             <InstallPWA /> {/* Global PWA install prompt */}
             <PwaUpdatePrompt /> {/* Global PWA auto-update prompt */}
             <NavbarCustomizerModal /> {/* Global Nav Customizer */}
@@ -115,7 +213,7 @@ const MainLayout: React.FC = () => {
                     </div>
                 </div>
             )}
-        </>
+        </TeacherWorkspaceProvider>
     );
 };
 

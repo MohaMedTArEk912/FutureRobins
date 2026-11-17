@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { User } from '../models/User.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
@@ -250,33 +251,75 @@ export const forgotPassword = async (req, res) => {
     try {
         const { email } = req.body || {};
         const normalizedEmail = (email || '').toLowerCase().trim();
-        
+
+        if (!normalizedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+            return res.status(400).json({ message: 'Please provide a valid email address' });
+        }
+
         const user = await User.findOne({ email: normalizedEmail });
         if (!user) {
             return res.status(404).json({ message: 'No account found with this email address' });
         }
-        
-        // Generate secure 6-digit numeric verification code
-        const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+        // Generate cryptographically random 6-digit numeric verification code
+        const code = String(crypto.randomInt(100000, 1000000));
         user.resetPasswordCode = code;
         user.resetPasswordExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 mins expiry
         await user.save();
 
-        // Dispatch Password Reset Code Email
-        await sendPasswordResetEmail({
+        // Dispatch Password Reset Code Email and verify delivery
+        const mailResult = await sendPasswordResetEmail({
             email: user.email,
             name: user.name,
             resetCode: code
         });
 
-        res.json({ 
-            message: 'A 6-digit verification code has been dispatched to your email.',
-            userId: user.userId,
-            ...(process.env.NODE_ENV !== 'production' ? { code } : {})
+        if (!mailResult || !mailResult.success) {
+            user.resetPasswordCode = undefined;
+            user.resetPasswordExpires = undefined;
+            await user.save();
+            return res.status(502).json({
+                message: 'Failed to send verification email. Please verify mail service settings and try again.',
+                error: mailResult?.error || 'Mail delivery failed'
+            });
+        }
+
+        res.json({
+            message: 'A 6-digit verification code has been sent to your email.',
+            deliveryStatus: mailResult.status || 'sent',
+            ...(mailResult.status === 'simulated' && mailResult.previewUrl ? { previewUrl: mailResult.previewUrl } : {})
         });
     } catch (error) {
         console.error('Error in forgotPassword:', error);
         res.status(500).json({ message: 'Error processing request', error: error.message });
+    }
+};
+
+export const verifyResetCode = async (req, res) => {
+    try {
+        const { email, code } = req.body || {};
+        const normalizedEmail = (email || '').toLowerCase().trim();
+
+        if (!normalizedEmail || !code) {
+            return res.status(400).json({ valid: false, message: 'Email and verification code are required' });
+        }
+
+        const user = await User.findOne({ email: normalizedEmail });
+        if (!user || !user.resetPasswordCode) {
+            return res.status(400).json({ valid: false, message: 'No active password reset request found for this email' });
+        }
+
+        if (user.resetPasswordCode !== String(code).trim()) {
+            return res.status(400).json({ valid: false, message: 'Invalid verification code' });
+        }
+
+        if (user.resetPasswordExpires && new Date() > user.resetPasswordExpires) {
+            return res.status(400).json({ valid: false, message: 'Verification code has expired. Please request a new code.' });
+        }
+
+        res.json({ valid: true, message: 'Verification code confirmed' });
+    } catch (error) {
+        res.status(500).json({ valid: false, message: 'Error verifying code', error: error.message });
     }
 };
 
@@ -288,20 +331,26 @@ export const resetPassword = async (req, res) => {
         if (!newPassword || newPassword.length < 6) {
             return res.status(400).json({ message: 'Password must be at least 6 characters long' });
         }
+
+        if (!code || !String(code).trim()) {
+            return res.status(400).json({ message: 'Verification code is required' });
+        }
         
         const user = await User.findOne({ email: normalizedEmail });
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Validate verification code if active on user account
-        if (user.resetPasswordCode) {
-            if (!code || user.resetPasswordCode !== code.trim()) {
-                return res.status(400).json({ message: 'Invalid or incorrect verification code' });
-            }
-            if (user.resetPasswordExpires && new Date() > user.resetPasswordExpires) {
-                return res.status(400).json({ message: 'Verification code has expired. Please request a new code.' });
-            }
+        if (!user.resetPasswordCode) {
+            return res.status(400).json({ message: 'No active reset request found. Please request a verification code first.' });
+        }
+
+        if (user.resetPasswordCode !== String(code).trim()) {
+            return res.status(400).json({ message: 'Invalid or incorrect verification code' });
+        }
+
+        if (user.resetPasswordExpires && new Date() > user.resetPasswordExpires) {
+            return res.status(400).json({ message: 'Verification code has expired. Please request a new code.' });
         }
         
         const salt = await bcrypt.genSalt(10);
@@ -394,6 +443,8 @@ export const adminCreateUser = async (req, res) => {
     try {
         const { userId, name, email, password, role } = req.body;
         const normalizedEmail = email.toLowerCase().trim();
+        const allowedRoles = ['user', 'student', 'teacher', 'admin'];
+        const safeRole = allowedRoles.includes(role) ? role : 'user';
 
         // Check if user exists
         const existingUser = await User.findOne({ email: normalizedEmail });
@@ -410,7 +461,7 @@ export const adminCreateUser = async (req, res) => {
             name,
             email: normalizedEmail,
             password: hashedPassword,
-            role: role || 'user',
+            role: safeRole,
             createdAt: new Date()
         });
 

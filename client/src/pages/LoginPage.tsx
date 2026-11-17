@@ -111,13 +111,8 @@ const LoginPage: React.FC = () => {
         );
 
         if (!googleWindow) {
-            confirm({
-                title: 'Pop-up Blocked',
-                message: 'Pop-up blocked! Please allow pop-ups for this site to use Google Sign-In.',
-                confirmText: 'OK',
-                type: 'warning',
-                cancelText: 'Close'
-            });
+            // Fallback to same-tab redirect when popups are blocked (e.g., embedded webviews)
+            window.location.assign(googleAuthUrl);
             return;
         }
 

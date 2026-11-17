@@ -1,9 +1,26 @@
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-// Ensure environment variables are loaded even when imported in worker threads or standalone scripts
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Ensure environment variables are loaded even when started from server/ or worker scripts
 if (!process.env.GMAIL_USER && !process.env.SMTP_HOST) {
   dotenv.config();
+  if (!process.env.GMAIL_USER && !process.env.SMTP_HOST) {
+    dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+  }
+}
+
+export function getAppBaseUrl() {
+  return (
+    process.env.APP_URL ||
+    process.env.FRONTEND_URL ||
+    process.env.CLIENT_URL ||
+    'http://localhost:5173'
+  ).replace(/\/+$/, '');
 }
 
 let transporter = null;
@@ -498,6 +515,7 @@ export async function sendWelcomeEmail({ email, name, userId }) {
 export async function sendPasswordResetEmail({ email, name, resetCode }) {
   const safeName = escapeHtml(name || 'User');
   const safeCode = escapeHtml(resetCode);
+  const resetUrl = `${getAppBaseUrl()}/forgot-password?email=${encodeURIComponent(email)}&code=${encodeURIComponent(resetCode)}`;
   const subject = `Your Password Reset Code: ${safeCode} 🔒`;
 
   const html = `
@@ -511,6 +529,7 @@ export async function sendPasswordResetEmail({ email, name, resetCode }) {
           .header { background: #f59e0b; padding: 24px; border-bottom: 2.5px solid #000000; color: #ffffff; text-align: center; }
           .content { padding: 24px; text-align: center; line-height: 1.6; }
           .code-box { display: inline-block; background: #fef3c7; border: 2.5px solid #000; border-radius: 12px; padding: 16px 32px; font-family: monospace; font-size: 32px; font-weight: 900; letter-spacing: 6px; color: #000; margin: 18px 0; box-shadow: 3px 3px 0px #000; }
+          .btn { display: inline-block; background: #bef264; color: #000000 !important; text-decoration: none; font-weight: 900; font-size: 14px; padding: 12px 28px; border-radius: 12px; border: 2px solid #000000; box-shadow: 3px 3px 0px #000000; margin: 14px 0; }
           .footer { background: #f1f5f9; padding: 14px 20px; border-top: 2px solid #000; font-size: 12px; color: #64748b; text-align: center; }
         </style>
       </head>
@@ -521,11 +540,15 @@ export async function sendPasswordResetEmail({ email, name, resetCode }) {
           </div>
           <div class="content">
             <p>Hello <strong>${safeName}</strong>,</p>
-            <p>We received a request to reset the password for your Quiz Platform account. Use the 6-digit verification code below to complete your reset:</p>
+            <p>We received a request to reset the password for your Quiz Platform account. Enter the 6-digit verification code below or click the button to reset right away:</p>
             
             <div class="code-box">${safeCode}</div>
+
+            <div>
+              <a href="${resetUrl}" class="btn">Reset Password Now →</a>
+            </div>
             
-            <p style="font-size: 13px; color: #64748b;">
+            <p style="font-size: 13px; color: #64748b; margin-top: 16px;">
               ⏱️ This verification code expires in <strong>15 minutes</strong>.<br/>
               If you did not request a password reset, you can safely ignore this email.
             </p>
@@ -541,7 +564,7 @@ export async function sendPasswordResetEmail({ email, name, resetCode }) {
   return dispatchMail({
     to: email,
     subject,
-    text: `Hello ${safeName},\n\nYour Quiz Platform password reset code is: ${safeCode}\n\nThis code is valid for 15 minutes. If you did not request this, please ignore this email.`,
+    text: `Hello ${safeName},\n\nYour Quiz Platform password reset code is: ${safeCode}\n\nOr open this link directly: ${resetUrl}\n\nThis code is valid for 15 minutes. If you did not request this, please ignore this email.`,
     html
   });
 }

@@ -11,7 +11,9 @@ import {
     X,
     Swords,
     Users,
-    Trophy
+    Trophy,
+    BookOpen,
+    GraduationCap
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { AppNotification } from '../types';
@@ -21,13 +23,15 @@ import { useTheme } from '../context/ThemeContext';
 interface NotificationCenterProps {
     currentUser?: { userId: string; name?: string; role?: string } | null;
     onNotificationClick?: (notification: AppNotification) => void;
+    align?: 'left' | 'right';
 }
 
 type FilterCategory = 'all' | 'unread' | 'quizzes' | 'duels' | 'requests';
 
 const NotificationCenter: React.FC<NotificationCenterProps> = ({
     currentUser,
-    onNotificationClick
+    onNotificationClick,
+    align = 'right'
 }) => {
     const { isBento } = useTheme();
     const [isOpen, setIsOpen] = useState(false);
@@ -38,8 +42,10 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
     const dropdownRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
 
+    const currentUserId = currentUser?.userId;
+
     const fetchNotifications = useCallback(async () => {
-        if (!currentUser?.userId || currentUser.userId === 'guest') return;
+        if (!currentUserId || currentUserId === 'guest') return;
         try {
             const [notifRes, countRes] = await Promise.all([
                 api.getNotifications(50).catch(() => ({ success: true, notifications: [] })),
@@ -55,14 +61,26 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
         } catch (err) {
             console.error('Failed to load notifications:', err);
         }
-    }, [currentUser?.userId]);
+    }, [currentUserId]);
 
     useEffect(() => {
-        fetchNotifications();
+        let active = true;
+        void Promise.resolve().then(() => {
+            if (active) {
+                return fetchNotifications();
+            }
+        });
 
         // Polling interval every 25s as fallback
-        const interval = setInterval(fetchNotifications, 25000);
-        return () => clearInterval(interval);
+        const interval = setInterval(() => {
+            if (active) {
+                void fetchNotifications();
+            }
+        }, 25000);
+        return () => {
+            active = false;
+            clearInterval(interval);
+        };
     }, [fetchNotifications]);
 
     // Close on click outside or Escape key
@@ -214,6 +232,18 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                             <Users className="w-4.5 h-4.5 stroke-[2.5]" />
                         </div>
                     );
+                case 'homework_alert':
+                    return (
+                        <div className="w-9 h-9 rounded-xl bg-[#fed7aa] text-black border-2 border-black shadow-[2px_2px_0px_#000] flex items-center justify-center shrink-0">
+                            <BookOpen className="w-4.5 h-4.5 stroke-[2.5]" />
+                        </div>
+                    );
+                case 'class_invite':
+                    return (
+                        <div className="w-9 h-9 rounded-xl bg-[#ddd6fe] text-black border-2 border-black shadow-[2px_2px_0px_#000] flex items-center justify-center shrink-0">
+                            <GraduationCap className="w-4.5 h-4.5 stroke-[2.5]" />
+                        </div>
+                    );
                 default:
                     return (
                         <div className="w-9 h-9 rounded-xl bg-[#e2e8f0] text-black border-2 border-black shadow-[2px_2px_0px_#000] flex items-center justify-center shrink-0">
@@ -264,6 +294,18 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                 return (
                     <div className="w-9 h-9 rounded-2xl bg-amber-500/15 dark:bg-amber-500/25 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 shadow-inner">
                         <Trophy className="w-4.5 h-4.5" />
+                    </div>
+                );
+            case 'homework_alert':
+                return (
+                    <div className="w-9 h-9 rounded-2xl bg-orange-500/15 dark:bg-orange-500/25 text-orange-500 flex items-center justify-center shrink-0 shadow-inner">
+                        <BookOpen className="w-4.5 h-4.5" />
+                    </div>
+                );
+            case 'class_invite':
+                return (
+                    <div className="w-9 h-9 rounded-2xl bg-violet-500/15 dark:bg-violet-500/25 text-violet-500 flex items-center justify-center shrink-0 shadow-inner">
+                        <GraduationCap className="w-4.5 h-4.5" />
                     </div>
                 );
             default:
@@ -561,7 +603,9 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
 
             {/* Notification Popover (Desktop >= 640px) - Opens DOWNWARD from the bell */}
             {isOpen && (
-                <div className={`hidden sm:flex flex-col absolute right-0 sm:-right-4 top-[calc(100%+8px)] w-[400px] max-w-[calc(100vw-24px)] z-[100] overflow-hidden max-h-[min(540px,calc(100vh-100px))] animate-in fade-in slide-in-from-top-2 duration-200 origin-top-right ${
+                <div className={`hidden sm:flex flex-col absolute ${
+                    align === 'left' ? 'left-0 origin-top-left' : 'right-0 sm:-right-4 origin-top-right'
+                } top-[calc(100%+8px)] w-[400px] max-w-[calc(100vw-24px)] z-[100] overflow-hidden max-h-[min(540px,calc(100vh-100px))] animate-in fade-in slide-in-from-top-2 duration-200 ${
                     isBento
                         ? 'bg-white text-black border-2 border-black shadow-[6px_6px_0px_#000] rounded-2xl'
                         : 'bg-white/95 dark:bg-[#12131f]/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-gray-200 dark:border-white/10'

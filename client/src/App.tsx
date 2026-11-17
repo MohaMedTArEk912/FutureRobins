@@ -43,7 +43,8 @@ const TournamentsPage = lazy(() => import('./pages/TournamentsPage'));
 const SkillTracksPage = lazy(() => import('./pages/SkillTracksPage'));
 const DailyChallengePage = lazy(() => import('./pages/DailyChallengePage'));
 const StudyModePage = lazy(() => import('./pages/StudyCardPage.tsx'));
-const ClanPage = lazy(() => import('./pages/ClanPage'));
+const ClassPage = lazy(() => import('./pages/ClassPage'));
+const JoinClassPage = lazy(() => import('./pages/JoinClassPage'));
 
 // Quiz and game pages
 const QuizTakingPage = lazy(() => import('./pages/QuizTakingPage'));
@@ -126,6 +127,7 @@ const App: React.FC = () => {
                               {/* Public Browsing Routes */}
                               <Route path="/" element={<DashboardPage />} />
                               <Route path="/dashboard" element={<DashboardPage />} />
+                              <Route path="/teacher" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
                               <Route path="/quizzes" element={<DashboardPage />} />
                               <Route path="/leaderboard" element={<LeaderboardPage />} />
                               <Route path="/tracks" element={<SkillTracksPage />} />
@@ -146,7 +148,10 @@ const App: React.FC = () => {
                               <Route path="/social" element={<ProtectedRoute><SocialPage /></ProtectedRoute>} />
                               <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
                               <Route path="/daily" element={<ProtectedRoute><DailyChallengePage /></ProtectedRoute>} />
-                              <Route path="/clans" element={<ProtectedRoute><ClanPage /></ProtectedRoute>} />
+                              <Route path="/clans" element={<ProtectedRoute><ClassPage /></ProtectedRoute>} />
+                              <Route path="/classes" element={<ProtectedRoute><ClassPage /></ProtectedRoute>} />
+                              <Route path="/classes/join/:inviteCode" element={<ProtectedRoute><JoinClassPage /></ProtectedRoute>} />
+                              <Route path="/clans/join/:inviteCode" element={<ProtectedRoute><JoinClassPage /></ProtectedRoute>} />
 
                               {/* Custom 404 Not Found Route */}
                               <Route path="*" element={<NotFoundPage />} />

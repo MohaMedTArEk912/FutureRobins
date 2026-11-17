@@ -19,6 +19,10 @@ import type {
     ClanLogo,
     ClanAnnouncement,
     ClanChatMessage,
+    ClassSummary,
+    ClassInvitePreview,
+    ClassHomeworkStatusResponse,
+    MotionPresentation,
     DailyChallengeDef,
     StudyCard,
     BadgeNode,
@@ -35,7 +39,11 @@ import type {
     DetailedAttemptData,
     CohortAnalyticsResponse,
     LiveProctoringResponse,
-    SupportTicket
+    SupportTicket,
+    ClassAnalyticsResponse,
+    GenerateQuestionsFromSlidesResponse,
+    GeneratedSlideQuestion,
+    TeacherAiToolkitResponse
 } from '../types';
 import { fetchWithFallback } from './apiRetry';
 
@@ -192,14 +200,14 @@ export const api = {
     },
 
     async updateUser(userId: string, updates: Partial<UserData>) {
-        const response = await fetchWithFallback(`/users/${userId}`, {
+        const response = await fetchWithFallback(`/users/${encodeURIComponent(userId)}`, {
             method: 'PUT',
             headers: getHeaders(),
             body: JSON.stringify(updates),
         });
         if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || 'Failed to update user');
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.message || `Failed to update user (${response.status})`);
         }
         return response.json();
     },
@@ -488,17 +496,30 @@ export const api = {
     },
 
     // Password Management
-    async forgotPassword(email: string) {
+    async forgotPassword(email: string): Promise<{ message: string; deliveryStatus?: 'sent' | 'simulated'; previewUrl?: string }> {
         const response = await fetchWithFallback('/forgot-password', {
             method: 'POST',
             headers: getHeaders(),
             body: JSON.stringify({ email }),
         });
         if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || 'Failed to verify email');
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.message || 'Failed to send reset code');
         }
         return response.json();
+    },
+
+    async verifyResetCode(email: string, code: string): Promise<{ valid: boolean; message: string }> {
+        const response = await fetchWithFallback('/verify-reset-code', {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify({ email, code }),
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            throw new Error(data.message || 'Invalid verification code');
+        }
+        return data;
     },
 
     async resetPassword(email: string, newPassword: string, code?: string) {
@@ -1427,17 +1448,383 @@ export const api = {
         return response.json();
     },
 
-    // Clans
+    // Classes
 
-    async createClan(data: { name: string; tag: string; description: string; isPublic: boolean; logo?: ClanLogo }, userId: string) {
-        const response = await fetchWithFallback('/clans/create', {
+    async createClan(
+        data: { name: string; tag: string; description: string; isPublic: boolean; logo?: ClanLogo; trackId?: string; teacherId?: string; studentIds?: string[] },
+        userId: string
+    ) {
+        const response = await fetchWithFallback('/classes/create', {
             method: 'POST',
             headers: getHeaders(userId),
             body: JSON.stringify(data)
         });
         if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || 'Failed to create clan');
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.message || 'Failed to create class');
+        }
+        invalidateClanClientCache();
+        return response.json();
+    },
+
+    async adminGetAllClasses(adminId: string) {
+        const response = await fetchWithFallback('/classes/admin/all', {
+            headers: getHeaders(adminId)
+        });
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.message || 'Failed to load classes');
+        }
+        return response.json();
+    },
+
+    async adminAssignClass(
+        clanId: string,
+        data: { teacherId?: string; studentIds?: string[]; trackId?: string | null; name?: string; description?: string; isPublic?: boolean },
+        adminId: string
+    ) {
+        const response = await fetchWithFallback(`/classes/admin/${clanId}/assign`, {
+            method: 'PUT',
+            headers: getHeaders(adminId),
+            body: JSON.stringify(data)
+        });
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.message || 'Failed to update class assignments');
+        }
+        invalidateClanClientCache(clanId);
+        return response.json();
+    },
+
+    async adminDeleteClass(clanId: string, adminId: string) {
+        const response = await fetchWithFallback(`/classes/admin/${clanId}`, {
+            method: 'DELETE',
+            headers: getHeaders(adminId)
+        });
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.message || 'Failed to delete class');
+        }
+        invalidateClanClientCache(clanId);
+        return response.json();
+    },
+
+    async getMyClasses(userId: string): Promise<ClassSummary[]> {
+        const response = await fetchWithFallback('/clans/my', {
+            headers: getHeaders(userId)
+        });
+        if (!response.ok) throw new Error('Failed to load classes');
+        return response.json();
+    },
+
+    async getClassByInviteCode(inviteCode: string, userId?: string): Promise<ClassInvitePreview> {
+        const response = await fetchWithFallback(`/clans/invite/${encodeURIComponent(inviteCode)}`, {
+            headers: getHeaders(userId)
+        });
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.message || 'Invalid or expired invite link');
+        }
+        return response.json();
+    },
+
+    async joinClassByInvite(inviteCode: string, userId: string) {
+        const response = await fetchWithFallback('/clans/join-by-invite', {
+            method: 'POST',
+            headers: getHeaders(userId),
+            body: JSON.stringify({ inviteCode })
+        });
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.message || 'Failed to join class');
+        }
+        invalidateClanClientCache();
+        return response.json();
+    },
+
+    async regenerateInviteCode(clanId: string, userId: string): Promise<{ inviteCode: string }> {
+        const response = await fetchWithFallback(`/clans/${clanId}/regenerate-invite`, {
+            method: 'POST',
+            headers: getHeaders(userId)
+        });
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.message || 'Failed to regenerate invite link');
+        }
+        invalidateClanClientCache(clanId);
+        return response.json();
+    },
+
+    async setClassTrack(clanId: string, trackId: string | null, userId: string) {
+        const response = await fetchWithFallback(`/clans/${clanId}/track`, {
+            method: 'PUT',
+            headers: getHeaders(userId),
+            body: JSON.stringify({ trackId })
+        });
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.message || 'Failed to assign track');
+        }
+        invalidateClanClientCache(clanId);
+        return response.json();
+    },
+
+    async toggleClassSession(
+        clanId: string,
+        moduleId: string,
+        payload: { completed?: boolean; note?: string; notifyStudents?: boolean },
+        userId: string
+    ) {
+        const response = await fetchWithFallback(`/clans/${clanId}/sessions/${encodeURIComponent(moduleId)}/complete`, {
+            method: 'POST',
+            headers: getHeaders(userId),
+            body: JSON.stringify(payload)
+        });
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.message || 'Failed to update session status');
+        }
+        invalidateClanClientCache(clanId);
+        return response.json();
+    },
+
+    async getClassHomeworkStatus(clanId: string, userId: string): Promise<ClassHomeworkStatusResponse> {
+        const response = await fetchWithFallback(`/clans/${clanId}/homework-status`, {
+            headers: getHeaders(userId)
+        });
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.message || 'Failed to load homework status');
+        }
+        return response.json();
+    },
+
+    async sendHomeworkAlert(
+        clanId: string,
+        payload: { moduleId: string; quizId?: string; targetUserIds?: string[]; message?: string },
+        userId: string
+    ) {
+        const response = await fetchWithFallback(`/clans/${clanId}/homework-alert`, {
+            method: 'POST',
+            headers: getHeaders(userId),
+            body: JSON.stringify(payload)
+        });
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.message || 'Failed to send homework alert');
+        }
+        invalidateClanClientCache(clanId);
+        return response.json();
+    },
+
+    async getClassAnalyticsAndLogs(clanId: string, userId: string): Promise<ClassAnalyticsResponse> {
+        const response = await fetchWithFallback(`/clans/${clanId}/analytics`, {
+            headers: getHeaders(userId)
+        });
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.message || 'Failed to load class analytics');
+        }
+        return response.json();
+    },
+
+    async generateQuestionsFromSlides(
+        clanId: string,
+        payload: {
+            presentationId?: string;
+            slidesPayload?: unknown;
+            slideText?: string;
+            count?: number;
+            difficulty?: 'beginner' | 'intermediate' | 'advanced' | 'mixed';
+            questionTypes?: Array<'multiple-choice' | 'text'>;
+            focusTopics?: string;
+            pedagogyMode?: 'balanced_bloom' | 'concept_check' | 'code_debugging' | 'exam_rigor';
+            language?: 'en' | 'ar' | 'bilingual';
+        },
+        userId: string
+    ): Promise<GenerateQuestionsFromSlidesResponse> {
+        const response = await fetchWithFallback(`/clans/${clanId}/ai/generate-questions`, {
+            method: 'POST',
+            headers: getHeaders(userId),
+            body: JSON.stringify(payload)
+        });
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.message || 'Failed to generate questions from slides');
+        }
+        return response.json();
+    },
+
+    async publishGeneratedQuizToClass(
+        clanId: string,
+        payload: {
+            title: string;
+            description?: string;
+            category?: string;
+            difficulty?: string;
+            timeLimit?: number;
+            passingScore?: number;
+            xpReward?: number;
+            coinsReward?: number;
+            moduleId?: string;
+            attachAsHomework?: boolean;
+            questions: GeneratedSlideQuestion[];
+        },
+        userId: string
+    ): Promise<{ success: boolean; quiz: Quiz; attachedToSession: boolean; message: string }> {
+        const response = await fetchWithFallback(`/clans/${clanId}/ai/publish-quiz`, {
+            method: 'POST',
+            headers: getHeaders(userId),
+            body: JSON.stringify(payload)
+        });
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.message || 'Failed to publish quiz');
+        }
+        invalidateClanClientCache(clanId);
+        return response.json();
+    },
+
+    async runTeacherAiToolkit(
+        clanId: string,
+        payload: {
+            mode: 'class_coach' | 'lesson_plan' | 'homework_rubric';
+            presentationId?: string;
+            slidesPayload?: unknown;
+            slideText?: string;
+            customGoal?: string;
+            studentSummaries?: unknown[];
+            weakTopics?: unknown[];
+        },
+        userId: string
+    ): Promise<TeacherAiToolkitResponse> {
+        const response = await fetchWithFallback(`/clans/${clanId}/ai/toolkit`, {
+            method: 'POST',
+            headers: getHeaders(userId),
+            body: JSON.stringify(payload)
+        });
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.message || 'Failed to run Teacher AI tool');
+        }
+        return response.json();
+    },
+
+    // Motion Presentations
+    async getPresentations(params: { trackId?: string; moduleId?: string; clanId?: string }, userId: string): Promise<MotionPresentation[]> {
+        const q = new URLSearchParams();
+        if (params.trackId) q.set('trackId', params.trackId);
+        if (params.moduleId) q.set('moduleId', params.moduleId);
+        if (params.clanId) q.set('clanId', params.clanId);
+        const response = await fetchWithFallback(`/presentations?${q.toString()}`, {
+            headers: getHeaders(userId)
+        });
+        if (!response.ok) throw new Error('Failed to fetch presentations');
+        return response.json();
+    },
+
+    async getPresentation(presentationId: string, userId: string): Promise<MotionPresentation> {
+        const response = await fetchWithFallback(`/presentations/${encodeURIComponent(presentationId)}`, {
+            headers: getHeaders(userId)
+        });
+        if (!response.ok) throw new Error('Failed to fetch presentation');
+        return response.json();
+    },
+
+    async savePresentation(data: MotionPresentation, userId: string): Promise<MotionPresentation> {
+        const response = await fetchWithFallback('/presentations', {
+            method: 'POST',
+            headers: getHeaders(userId),
+            body: JSON.stringify(data)
+        });
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.message || 'Failed to save presentation');
+        }
+        return response.json();
+    },
+
+    async deletePresentation(presentationId: string, userId: string): Promise<void> {
+        const response = await fetchWithFallback(`/presentations/${encodeURIComponent(presentationId)}`, {
+            method: 'DELETE',
+            headers: getHeaders(userId)
+        });
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.message || 'Failed to delete presentation');
+        }
+    },
+
+    async assignPresentation(
+        presentationId: string,
+        data: { trackId?: string | null; moduleId?: string | null; moduleIds?: string[]; clanId?: string | null },
+        userId: string
+    ): Promise<MotionPresentation> {
+        const response = await fetchWithFallback(`/presentations/${encodeURIComponent(presentationId)}/assign`, {
+            method: 'PATCH',
+            headers: getHeaders(userId),
+            body: JSON.stringify(data)
+        });
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.message || 'Failed to assign presentation');
+        }
+        return response.json();
+    },
+
+    async getSamplePresentationJson(): Promise<MotionPresentation> {
+        const response = await fetchWithFallback('/presentations/sample-json');
+        if (!response.ok) throw new Error('Failed to fetch sample presentation JSON');
+        return response.json();
+    },
+
+    async convertSlidesToMotion(
+        payload: {
+            file?: File | null;
+            title: string;
+            rawText?: string;
+            rawPayload?: string;
+            subjectId?: string;
+            materialId?: string;
+            theme?: string;
+            slideCount?: number;
+            checkupCount?: number;
+        },
+        userId: string
+    ): Promise<{ success: boolean; sourceFormat: string; usedAi: boolean; presentation: MotionPresentation; xml: string }> {
+        const token = getStoredToken();
+        const headers: Record<string, string> = {};
+        if (token) headers.Authorization = `Bearer ${token}`;
+        if (userId) headers['x-user-id'] = userId;
+
+        if (payload.file) {
+            const formData = new FormData();
+            formData.append('file', payload.file);
+            formData.append('title', payload.title);
+            if (payload.theme) formData.append('theme', payload.theme);
+            if (payload.slideCount) formData.append('slideCount', String(payload.slideCount));
+            if (payload.checkupCount !== undefined) formData.append('checkupCount', String(payload.checkupCount));
+
+            const response = await fetchWithFallback('/presentations/convert', {
+                method: 'POST',
+                headers,
+                body: formData
+            });
+            if (!response.ok) {
+                const error = await response.json().catch(() => ({}));
+                throw new Error(error.message || 'Failed to convert slide file');
+            }
+            return response.json();
+        }
+
+        const response = await fetchWithFallback('/presentations/convert', {
+            method: 'POST',
+            headers: getHeaders(userId),
+            body: JSON.stringify(payload)
+        });
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.message || 'Failed to convert slides');
         }
         return response.json();
     },

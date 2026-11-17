@@ -2,10 +2,10 @@ import { Badge } from '../models/Badge.js';
 import { BadgeNode } from '../models/BadgeNode.js';
 import { User } from '../models/User.js';
 import { Attempt } from '../models/Attempt.js';
-import { Clan } from '../models/Clan.js';
+import { Class as Clan } from '../models/Class.js';
 import { Challenge } from '../models/Challenge.js';
 import { syncClanXp } from '../utils/xpSync.js';
-import { clanCache } from '../controllers/clanController.js';
+import { clanCache } from '../controllers/classController.js';
 
 // ==========================================
 // 30 Comprehensive Built-in Default Badges

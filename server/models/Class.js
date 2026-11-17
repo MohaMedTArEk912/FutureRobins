@@ -69,6 +69,32 @@ const clanSchema = new mongoose.Schema({
     autoAccept: { type: Boolean, default: true }
   },
 
+  // Class Mode: Invite Link, Track Curriculum, Completed Sessions & Homework Alerts
+  inviteCode: {
+    type: String,
+    unique: true,
+    sparse: true,
+    default: () => crypto.randomUUID().replace(/-/g, '').slice(0, 10).toUpperCase()
+  },
+  trackId: { type: String, default: null },
+  subjectId: { type: String, default: null },
+  completedSessions: [{
+    moduleId: { type: String, required: true },
+    completedAt: { type: Date, default: Date.now },
+    completedBy: { type: String },
+    note: { type: String, default: '' }
+  }],
+  homeworkAlerts: [{
+    alertId: { type: String, required: true },
+    moduleId: { type: String, required: true },
+    moduleTitle: { type: String, default: '' },
+    quizId: { type: String, default: '' },
+    targetUserIds: [{ type: String }],
+    message: { type: String, default: '' },
+    createdBy: { type: String },
+    createdAt: { type: Date, default: Date.now }
+  }],
+
   createdAt: { type: Date, default: Date.now }
 });
 
@@ -76,4 +102,5 @@ clanSchema.index({ totalXP: -1 });
 clanSchema.index({ 'members.userId': 1 });
 clanSchema.index({ leaderId: 1 });
 
-export const Clan = mongoose.model('Clan', clanSchema);
+export const Class = mongoose.model('Class', clanSchema, 'clans');
+export const Clan = Class;

@@ -108,3 +108,19 @@ export const requireRole = (role) => {
     next();
   };
 };
+
+// Middleware to verify teacher (or admin) access
+export const isTeacherUser = (user) => {
+  return Boolean(user && (user.role === 'teacher' || user.role === 'admin' || user.isAdmin === true));
+};
+
+export const verifyTeacher = (req, res, next) => {
+  const user = req.user || req.admin;
+  if (!user) {
+    return res.status(401).json({ message: 'Authentication required' });
+  }
+  if (!isTeacherUser(user)) {
+    return res.status(403).json({ message: 'Forbidden: Only teachers or admins can perform this action' });
+  }
+  next();
+};

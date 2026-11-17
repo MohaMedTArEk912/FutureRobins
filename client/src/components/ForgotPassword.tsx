@@ -26,6 +26,51 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const [resendCooldown, setResendCooldown] = useState(0);
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        const params = new URLSearchParams(window.location.search);
+        const paramEmail = params.get('email');
+        const paramCode = params.get('code');
+        if (paramEmail) setEmail(paramEmail.trim());
+        if (paramEmail && paramCode) {
+            setVerificationCode(paramCode.trim());
+            setStep('reset');
+            setSuccess('Verification link detected. Enter your new password below.');
+        }
+    }, []);
+
+    useEffect(() => {
+        if (resendCooldown <= 0) return;
+        const timer = setInterval(() => {
+            setResendCooldown(prev => (prev > 0 ? prev - 1 : 0));
+        }, 1000);
+        return () => clearInterval(timer);
+    }, [resendCooldown]);
+
+    const dispatchResetEmail = async () => {
+        setError(null);
+        setSuccess(null);
+        setPreviewUrl(null);
+        if (!isValidEmail(email)) {
+            setError('Please enter a valid email address');
+            return;
+        }
+        setLoading(true);
+        try {
+            const res = await api.forgotPassword(email);
+            setSuccess(res.message || `A 6-digit verification code was sent to ${email}. Check your inbox or spam folder.`);
+            if (res.previewUrl) setPreviewUrl(res.previewUrl);
+            setResendCooldown(60);
+            setStep('reset');
+        } catch (err) {
+            setError((err as Error).message);
+        } finally {
+            setLoading(false);
+        }
+    };
     const [passwordStrength, setPasswordStrength] = useState<PasswordStrength | null>(null);
     const [passwordsMatch, setPasswordsMatch] = useState<boolean | null>(null);
 
@@ -100,8 +145,9 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
 
         try {
             const res = await api.forgotPassword(email);
-            setSuccess('A 6-digit verification code was sent to ' + email + '!');
-            if (res && res.code) setVerificationCode(res.code);
+            setSuccess(res.message || `A 6-digit verification code was sent to ${email}. Check your inbox or spam folder.`);
+            if (res && res.previewUrl) setPreviewUrl(res.previewUrl);
+            setResendCooldown(60);
             setStep('reset');
         } catch (err) {
             setError((err as Error).message);
@@ -261,7 +307,27 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
                                 <label className={`block text-sm ${isBento ? 'font-black text-black' : 'font-semibold text-gray-700 dark:text-gray-300'}`}>
                                     6-Digit Verification Code
                                 </label>
-                                <span className="text-[11px] text-purple-600 dark:text-purple-400 font-bold">Check your email</span>
+                                <div className="flex items-center gap-3 text-[11px] font-bold">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setStep('email');
+                                            setError(null);
+                                            setSuccess(null);
+                                        }}
+                                        className="text-gray-500 hover:underline cursor-pointer"
+                                    >
+                                        Change Email
+                                    </button>
+                                    <button
+                                        type="button"
+                                        disabled={loading || resendCooldown > 0}
+                                        onClick={dispatchResetEmail}
+                                        className="text-purple-600 dark:text-purple-400 hover:underline disabled:opacity-50 cursor-pointer"
+                                    >
+                                        {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend Code'}
+                                    </button>
+                                </div>
                             </div>
                             <input
                                 type="text"
@@ -276,6 +342,13 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
                                 }`}
                                 required
                             />
+                            {previewUrl && (
+                                <p className="mt-2 text-xs text-center">
+                                    <a href={previewUrl} target="_blank" rel="noopener noreferrer" className="text-indigo-600 dark:text-indigo-400 underline font-bold">
+                                        Open Dev Test Email Preview →
+                                    </a>
+                                </p>
+                            )}
                         </div>
 
                         <div>

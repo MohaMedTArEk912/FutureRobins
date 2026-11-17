@@ -107,7 +107,7 @@ export interface UserData {
     userId: string;
     name: string;
     email: string;
-    role?: 'user' | 'admin';
+    role?: 'user' | 'student' | 'teacher' | 'admin';
     isAdmin?: boolean;
     password?: string;
     totalScore: number;
@@ -789,10 +789,13 @@ export interface UserBadgeProgress {
 export interface ClanMember {
     userId: string;
     role: 'leader' | 'elder' | 'member';
+    userRole?: 'user' | 'student' | 'teacher' | 'admin';
     joinedAt: string;
     contribution: number;
     name?: string;
+    email?: string;
     avatar?: AvatarConfig;
+    xp?: number;
     totalScore?: number;
     equippedBadgeId?: string | null;
     equippedBadge?: {
@@ -802,6 +805,24 @@ export interface ClanMember {
         icon: string;
         rarity?: 'common' | 'rare' | 'epic' | 'legendary' | 'mythic';
     } | null;
+}
+
+export interface ClassCompletedSession {
+    moduleId: string;
+    completedAt: string;
+    completedBy?: string;
+    note?: string;
+}
+
+export interface ClassHomeworkAlert {
+    alertId: string;
+    moduleId: string;
+    moduleTitle: string;
+    quizId?: string;
+    targetUserIds: string[];
+    message: string;
+    createdBy?: string;
+    createdAt: string;
 }
 
 export interface ClanLogo {
@@ -825,6 +846,12 @@ export interface Clan {
     totalXP: number;
     level: number;
     isPublic: boolean;
+    inviteCode?: string;
+    trackId?: string | null;
+    subjectId?: string | null;
+    track?: SkillTrack | null;
+    completedSessions?: ClassCompletedSession[];
+    homeworkAlerts?: ClassHomeworkAlert[];
     members: ClanMember[];
     activeJoinRequests?: {
         userId: string;
@@ -839,6 +866,178 @@ export interface Clan {
     announcements?: ClanAnnouncement[];
     chatMessages?: ClanChatMessage[];
     createdAt: string;
+}
+
+export interface ClassSummary {
+    clanId: string;
+    name: string;
+    tag: string;
+    description: string;
+    leaderId: string;
+    leaderName: string;
+    isPublic: boolean;
+    logo?: ClanLogo;
+    inviteCode?: string;
+    trackId?: string | null;
+    subjectId?: string | null;
+    trackTitle?: string | null;
+    trackIcon?: string | null;
+    totalSessions: number;
+    finishedSessionsCount: number;
+    memberCount: number;
+    myRole: 'teacher' | 'student';
+    createdAt: string;
+}
+
+export interface ClassInvitePreview {
+    clanId: string;
+    name: string;
+    tag: string;
+    description: string;
+    logo?: ClanLogo;
+    inviteCode: string;
+    leaderId: string;
+    leaderName: string;
+    memberCount: number;
+    trackId?: string | null;
+    trackTitle?: string | null;
+    trackIcon?: string | null;
+    totalSessions: number;
+    isMember: boolean;
+}
+
+export interface ClassSessionHomeworkQuiz {
+    id: string;
+    title: string;
+    passingScore: number;
+    questionsCount: number;
+}
+
+export interface ClassSessionStatus {
+    moduleId: string;
+    title: string;
+    description: string;
+    level: number;
+    type: string;
+    isFinished: boolean;
+    finishedAt?: string | null;
+    note?: string;
+    subModulesCount: number;
+    subModules?: { id: string; title: string }[];
+    quizzes: ClassSessionHomeworkQuiz[];
+    completedStudentsCount: number;
+    totalStudentsCount: number;
+    incompleteStudentIds: string[];
+}
+
+export interface StudentQuizProgress {
+    quizId: string;
+    title: string;
+    passingScore: number;
+    attempted: boolean;
+    passed: boolean;
+    bestPercentage: number;
+    attemptsCount: number;
+    lastAttemptAt?: string | null;
+}
+
+export interface ClassStudentHomework {
+    userId: string;
+    name: string;
+    email?: string;
+    avatar?: AvatarConfig | null;
+    xp: number;
+    totalScore: number;
+    sessionProgress: Record<string, {
+        status: 'completed' | 'in_progress' | 'not_started' | 'no_homework';
+        quizzes: StudentQuizProgress[];
+    }>;
+    finishedHomeworkSessions: number;
+    totalHomeworkSessions: number;
+}
+
+export interface ClassHomeworkStatusResponse {
+    track: {
+        trackId: string;
+        title: string;
+        description: string;
+        icon: string;
+        category: string;
+        subjectId?: string | null;
+    } | null;
+    sessions: ClassSessionStatus[];
+    students: ClassStudentHomework[];
+    homeworkAlerts: ClassHomeworkAlert[];
+}
+
+export type SlideLayout = 'hero' | 'bullets' | 'split' | 'code' | 'comparison' | 'timeline' | 'checkup' | 'summary' | 'wireframe' | 'live-preview' | 'homework';
+export type SlideMotion = 'fade-up' | 'slide-left' | 'zoom-in' | 'stagger' | 'pop' | 'flip';
+export type PresentationTheme = 'dark-tech' | 'bento' | 'editorial' | 'neon';
+
+export interface SlideVisualBlock {
+    kind: 'page-structure' | 'split-cards' | 'footer-anatomy' | 'live-html' | 'checklist';
+    sections?: {
+        id: string;
+        label: string;
+        tag?: string;
+        description?: string;
+        code?: string;
+        highlight?: boolean;
+    }[];
+    leftCard?: { title: string; body: string; tag?: string };
+    rightCards?: { title: string; subtitle?: string; badge?: string }[];
+    topNav?: { brand: string; links: string[] };
+    columns?: { title: string; items: string[] }[];
+    htmlPreview?: string;
+    cssPreview?: string;
+}
+
+export interface SlideCheckupQuestion {
+    question: string;
+    options: string[];
+    correctAnswer: number;
+    explanation?: string;
+    points?: number;
+}
+
+export interface MotionSlide {
+    id: string;
+    order?: number;
+    layout: SlideLayout;
+    motion: SlideMotion;
+    title: string;
+    subtitle?: string;
+    body?: string;
+    bullets?: string[];
+    codeSnippet?: {
+        language: string;
+        code: string;
+    };
+    visualBlock?: SlideVisualBlock;
+    callout?: string;
+    speakerNotes?: string;
+    durationSeconds?: number;
+    checkupQuestion?: SlideCheckupQuestion;
+}
+
+export interface MotionPresentation {
+    presentationId?: string;
+    title: string;
+    description?: string;
+    trackId?: string | null;
+    moduleId?: string | null;
+    moduleIds?: string[];
+    clanId?: string | null;
+    createdBy?: string;
+    creatorName?: string;
+    creatorRole?: string;
+    sourceFormat?: 'json' | 'xml' | 'ai_slides' | 'manual';
+    theme: PresentationTheme;
+    rawJson?: string;
+    slides: MotionSlide[];
+    xml?: string;
+    createdAt?: string;
+    updatedAt?: string;
 }
 
 export interface ClanLeaderboardEntry {
@@ -974,7 +1173,7 @@ export interface AppNotification {
     recipientId: string;
     senderId?: string;
     senderName?: string;
-    type: 'new_quiz' | 'request_approved' | 'request_rejected' | 're_request' | 'system' | 'challenge' | 'badge' | 'tournament_invite';
+    type: 'new_quiz' | 'request_approved' | 'request_rejected' | 're_request' | 'system' | 'challenge' | 'badge' | 'tournament_invite' | 'homework_alert' | 'class_invite';
     title: string;
     message: string;
     note?: string;
@@ -1162,6 +1361,169 @@ export interface SupportTicket {
     emailDeliveryMessageId?: string;
     createdAt?: string;
     updatedAt?: string;
+}
+
+export interface ClassAnalyticsOverview {
+    totalStudents: number;
+    activeStudents7d: number;
+    atRiskCount: number;
+    classAvgScore: number;
+    classPassRate: number;
+    totalQuizAttempts: number;
+    totalTimeMinutes: number;
+    finishedSessionsCount: number;
+    totalSessionsCount: number;
+    homeworkCompletionRate: number;
+}
+
+export interface ClassSessionAnalyticsItem {
+    moduleId: string;
+    title: string;
+    level: number;
+    isFinished: boolean;
+    quizCount: number;
+    completedStudents: number;
+    pendingStudents: number;
+    completionRate: number;
+    attemptsCount: number;
+    avgScore: number;
+}
+
+export interface ClassWeakTopicItem {
+    topic: string;
+    category: string;
+    quizId: string;
+    wrongCount: number;
+    totalAnswered: number;
+    errorRate: number;
+    accuracy: number;
+    affectedStudentsCount: number;
+    sampleMistakes?: Array<{
+        studentName: string;
+        question: string;
+        userAnswer: string;
+        correctAnswer: string;
+    }>;
+}
+
+export interface ClassStudentAnalyticsItem {
+    userId: string;
+    name: string;
+    email: string;
+    avatar?: AvatarConfig | null;
+    xp: number;
+    level: number;
+    streak: number;
+    lastActiveAt: string;
+    attemptsCount: number;
+    avgScore: number;
+    passRate: number;
+    totalTimeSeconds: number;
+    finishedHomeworkSessions: number;
+    totalHomeworkSessions: number;
+    homeworkCompletionRate: number;
+    recentTrend: 'improving' | 'declining' | 'stable';
+    riskLevel: 'on_track' | 'needs_attention' | 'at_risk';
+    weakTopics: Array<{
+        topic: string;
+        category: string;
+        quizId: string;
+        wrongCount: number;
+        totalAnswered: number;
+        errorRate: number;
+        accuracy: number;
+    }>;
+    wrongAnswers: Array<{
+        quizId: string;
+        quizTitle: string;
+        question: string;
+        codeSnippet?: string;
+        userAnswer: string;
+        correctAnswer: string;
+        explanation?: string;
+        completedAt: string;
+    }>;
+    recentScores: Array<{
+        quizId: string;
+        quizTitle: string;
+        percentage: number;
+        passed: boolean;
+        completedAt: string;
+    }>;
+}
+
+export interface ClassActivityLogItem {
+    id: string;
+    type: 'quiz_attempt' | 'homework_alert' | 'session_completed' | 'member_joined';
+    studentId: string;
+    studentName: string;
+    studentAvatar?: AvatarConfig | null;
+    title: string;
+    quizId?: string;
+    score?: number;
+    totalQuestions?: number;
+    percentage?: number;
+    passed?: boolean;
+    timeTaken?: number;
+    integrityScore?: number;
+    tabSwitches?: number;
+    message?: string;
+    timestamp: string;
+}
+
+export interface ClassAnalyticsResponse {
+    overview: ClassAnalyticsOverview;
+    sessionAnalytics: ClassSessionAnalyticsItem[];
+    weakTopics: ClassWeakTopicItem[];
+    students: ClassStudentAnalyticsItem[];
+    activityLogs: ClassActivityLogItem[];
+}
+
+export interface GeneratedSlideQuestion {
+    id: number;
+    type: 'multiple-choice' | 'text';
+    question: string;
+    codeSnippet?: string;
+    options: string[];
+    correctAnswer: number | string;
+    explanation: string;
+    points: number;
+    bloomLevel?: string;
+    targetedMisconception?: string;
+    sourceSlideTitle?: string;
+}
+
+export interface GenerateQuestionsFromSlidesResponse {
+    success: boolean;
+    usedAi: boolean;
+    model?: string;
+    suggestedTitle: string;
+    suggestedDescription: string;
+    pedagogicalSummary: string;
+    questions: GeneratedSlideQuestion[];
+}
+
+export interface TeacherAiToolkitResponse {
+    success: boolean;
+    usedAi: boolean;
+    mode: 'class_coach' | 'lesson_plan' | 'homework_rubric';
+    data: {
+        headline?: string;
+        reteachTopics?: Array<{ topic: string; whyStudentsStruggle: string; boardDemoIdea: string }>;
+        studentInterventions?: Array<{ studentName: string; statusSummary: string; recommendedAction: string; draftMessage: string }>;
+        nextSessionOpening?: string;
+        lessonTitle?: string;
+        estimatedMinutes?: number;
+        warmupHook?: string;
+        segments?: Array<{ phase: string; minutes: number; teacherMoves: string; checkForUnderstanding: string }>;
+        commonMistakesToWatch?: string[];
+        exitTicketQuestion?: string;
+        assignmentTitle?: string;
+        objective?: string;
+        checklist?: string[];
+        rubric?: Array<{ criterion: string; points: number; excellent: string; needsWork: string }>;
+        starterHints?: string[];
+    };
 }
 
 declare global {

@@ -5,6 +5,7 @@ import type { UserData } from '../lib/api';
 interface AuthContextType {
     currentUser: UserData | null;
     isAdmin: boolean;
+    isTeacher: boolean;
     isLoading: boolean;
     login: (email: string, password: string) => Promise<{ user: UserData; token: string; isAdmin: boolean }>;
     register: (name: string, email: string, password: string) => Promise<{ user: UserData; token: string; isAdmin: boolean }>;
@@ -161,16 +162,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         sessionStorage.removeItem('userSession');
     };
 
-    const updateUser = (updates: Partial<UserData>) => {
-        setCurrentUser(prev => prev ? { ...prev, ...updates } : null);
-        if (currentUser) {
-            const newState = { ...currentUser, ...updates };
-            sessionStorage.setItem('userSession', JSON.stringify({ user: newState, token, isAdmin }));
-        }
-    };
+    const updateUser = useCallback((updates: Partial<UserData>) => {
+        setCurrentUser(prev => {
+            if (!prev) return null;
+            const newState = { ...prev, ...updates };
+            const nextIsAdmin = newState.role === 'admin';
+            setIsAdmin(nextIsAdmin);
+            sessionStorage.setItem('userSession', JSON.stringify({ user: newState, token, isAdmin: nextIsAdmin }));
+            return newState;
+        });
+    }, [token]);
+
+    const isTeacher = Boolean(currentUser && (currentUser.role === 'teacher' || currentUser.role === 'admin' || isAdmin));
 
     return (
-        <AuthContext.Provider value={{ currentUser, isAdmin, isLoading, login, register, googleLogin, logout, updateUser, refreshUser }}>
+        <AuthContext.Provider value={{ currentUser, isAdmin, isTeacher, isLoading, login, register, googleLogin, logout, updateUser, refreshUser }}>
             {children}
         </AuthContext.Provider>
     );

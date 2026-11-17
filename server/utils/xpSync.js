@@ -1,4 +1,4 @@
-import { Clan } from '../models/Clan.js';
+import { Class as Clan } from '../models/Class.js';
 
 export const syncClanXp = async (userId, xpAmount, clanId) => {
     if (!clanId || xpAmount <= 0) return;

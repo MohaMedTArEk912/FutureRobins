@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 
 import {
     Users,
+    GraduationCap,
+    MonitorPlay,
     BookOpen,
     Trophy,
     Award,
@@ -35,9 +37,12 @@ import { api } from '../lib/api.ts';
 import NotificationCenter from './NotificationCenter.tsx';
 import Avatar from './Avatar.tsx';
 import { useTheme, type AppTheme } from '../context/ThemeContext.tsx';
+import { useData } from '../context/DataContext.tsx';
 
 // Import Admin Sub-Components
 import UserManagement from './admin/UserManagement.tsx';
+import ClassManagement from './admin/ClassManagement.tsx';
+import PresentationLibraryManager from './presentation/PresentationLibraryManager.tsx';
 import ReviewManagement from './admin/ReviewManagement.tsx';
 import DailyChallengeManagement from './admin/DailyChallengeManagement.tsx';
 import TournamentManagement from './admin/TournamentManagement.tsx';
@@ -53,7 +58,7 @@ import AdminSettings from './AdminSettings.tsx';
 import TrackRequestManagement from './admin/TrackRequestManagement.tsx';
 
 // --- Types ---
-type AdminTab = 'main' | 'users' | 'quizzes' | 'road' | 'badges' | 'daily' | 'tournaments' | 'reviews' | 'track-requests' | 'question-analytics' | 'cohort-analytics' | 'live-proctoring';
+type AdminTab = 'main' | 'users' | 'classes' | 'presentations' | 'quizzes' | 'road' | 'badges' | 'daily' | 'tournaments' | 'reviews' | 'track-requests' | 'question-analytics' | 'cohort-analytics' | 'live-proctoring';
 
 interface NavItem {
     id: AdminTab;
@@ -86,6 +91,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
 }) => {
     const navigate = useNavigate();
     const { theme, setTheme, isBento } = useTheme();
+    const { skillTracks } = useData();
 
     // --- State ---
     const [isSettingsDropdownOpen, setIsSettingsDropdownOpen] = useState(false);
@@ -177,6 +183,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
             title: 'Overview & Content',
             items: [
                 { id: 'users', label: 'Users', icon: Users },
+                { id: 'classes', label: 'Classes', icon: GraduationCap },
+                { id: 'presentations', label: 'Presentations', icon: MonitorPlay },
                 { id: 'quizzes', label: 'Quizzes', icon: BookOpen },
                 { id: 'road', label: 'Roads', icon: Route },
                 { id: 'badges', label: 'Badges', icon: Award },
@@ -204,6 +212,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
     const currentTabTitle = useMemo(() => {
         switch (selectedTab) {
             case 'users': return 'User Management';
+            case 'classes': return 'Class Management & Assignments';
+            case 'presentations': return 'Presentations & Sample JSON Hub';
             case 'quizzes': return 'Quiz Manager';
             case 'live-proctoring': return 'Live Proctoring & Telemetry Monitor';
             case 'cohort-analytics': return 'Student Cohort & Tier Analytics';
@@ -1309,6 +1319,24 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                 currentUser={currentUser}
                                 onRefresh={handleRefresh}
                                 onNotification={handleNotification}
+                            />
+                        )}
+
+                        {selectedTab === 'classes' && (
+                            <ClassManagement
+                                users={users}
+                                currentUser={currentUser}
+                                onRefresh={handleRefresh}
+                                onNotification={handleNotification}
+                            />
+                        )}
+
+                        {selectedTab === 'presentations' && (
+                            <PresentationLibraryManager
+                                currentUser={currentUser}
+                                skillTracks={skillTracks}
+                                isAdminView={true}
+                                onChanged={handleRefresh}
                             />
                         )}
 

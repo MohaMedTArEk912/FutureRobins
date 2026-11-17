@@ -9,8 +9,20 @@ const RegisterPage: React.FC = () => {
 
     const handleRegister = async (name: string, email: string, password: string) => {
         const result = await register(name, email, password);
+        sessionStorage.removeItem('suppressRedirectAfterLogin');
         const isAdmin = Boolean(result?.isAdmin || result?.user?.role === 'admin');
-        navigate(isAdmin ? '/admin' : '/', { replace: true });
+        if (isAdmin) {
+            sessionStorage.removeItem('redirectAfterLogin');
+            navigate('/admin', { replace: true });
+            return;
+        }
+        const redirect = sessionStorage.getItem('redirectAfterLogin');
+        if (redirect) {
+            sessionStorage.removeItem('redirectAfterLogin');
+            navigate(redirect, { replace: true });
+        } else {
+            navigate('/', { replace: true });
+        }
     };
 
     return (

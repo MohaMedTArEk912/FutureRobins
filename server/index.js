@@ -44,7 +44,7 @@ import badgeRoutes from './routes/badges.js';
 import badgeNodesRoutes from './routes/badgeNodes.js';
 import badgeTreesRoutes from './routes/badgeTrees.js';
 import studyCardsRoutes from './routes/studyCards.js';
-import clanRoutes from './routes/clanRoutes.js';
+import classRoutes from './routes/classRoutes.js';
 import compilerRoutes from './routes/compiler.js';
 import aiRoutes from './routes/ai.js';
 import subjectRoutes from './routes/subjects.js';
@@ -53,6 +53,7 @@ import trackRequestRoutes from './routes/trackRequests.js';
 import notificationRoutes from './routes/notifications.js';
 import supportRoutes from './routes/support.js';
 import newsletterRoutes from './routes/newsletter.js';
+import presentationRoutes from './routes/presentations.js';
 import { verifyEmailService } from './services/emailService.js';
 
 // Strictly whitelisted origins (No broad wildcard *.vercel.app or *.netlify.app domains)
@@ -289,7 +290,8 @@ app.use('/api/shop', shopRoutes);
 app.use('/api', engagementRoutes); // mounts /daily-challenge, /skill-tracks, /tournaments
 app.use('/api', analyticsRoutes); // mounts /analytics/summary, /data
 app.use('/api/study-cards', studyCardsRoutes);
-app.use('/api/clans', clanRoutes);
+app.use('/api/clans', classRoutes);
+app.use('/api/classes', classRoutes);
 app.use('/api/compiler', compilerRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/subjects', subjectRoutes);
@@ -302,6 +304,7 @@ app.use('/api/track-requests', trackRequestRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/support', supportRoutes);
 app.use('/api/newsletter', newsletterRoutes);
+app.use('/api/presentations', presentationRoutes);
 
 
 // Socket.io event handlers (disabled on Vercel serverless)
@@ -669,9 +672,9 @@ if (io) io.on('connection', (socket) => {
     if (!clanId || !senderId || !content?.trim()) return;
     
     try {
-      // Import Clan model dynamically to avoid circular deps
-      const { Clan } = await import('./models/Clan.js');
-      const { invalidateClanDetailCache } = await import('./controllers/clanController.js');
+      // Import Class model dynamically to avoid circular deps
+      const { Clan } = await import('./models/Class.js');
+      const { invalidateClanDetailCache } = await import('./controllers/classController.js');
 
       let role = senderRole;
       let avatar = senderAvatar;
@@ -749,8 +752,8 @@ if (io) io.on('connection', (socket) => {
     if (!clanId || !messageId || !newContent?.trim() || !userId) return;
 
     try {
-      const { Clan } = await import('./models/Clan.js');
-      const { invalidateClanDetailCache } = await import('./controllers/clanController.js');
+      const { Clan } = await import('./models/Class.js');
+      const { invalidateClanDetailCache } = await import('./controllers/classController.js');
       const clan = await Clan.findOne({ clanId });
       if (!clan) return socket.emit('chat_error', { message: 'Clan not found' });
 
@@ -790,8 +793,8 @@ if (io) io.on('connection', (socket) => {
     if (!clanId || !messageId || !userId) return;
 
     try {
-      const { Clan } = await import('./models/Clan.js');
-      const { invalidateClanDetailCache } = await import('./controllers/clanController.js');
+      const { Clan } = await import('./models/Class.js');
+      const { invalidateClanDetailCache } = await import('./controllers/classController.js');
       const clan = await Clan.findOne({ clanId });
       if (!clan) return socket.emit('chat_error', { message: 'Clan not found' });
 
@@ -875,6 +878,95 @@ if (io) io.on('connection', (socket) => {
     });
   });
   // ========== END TOURNAMENT ==========
+
+  // ========== LIVE PRESENTATION MODE EVENTS ==========
+  socket.on('join_presentation', ({ presentationId, clanId, role }) => {
+    if (!presentationId) return;
+    const room = clanId ? `pres_${clanId}_${presentationId}` : `pres_${presentationId}`;
+    socket.join(room);
+    if (role === 'teacher' && clanId) {
+      io.to(`clan_${clanId}`).emit('live_presentation_started', {
+        presentationId,
+        clanId
+      });
+    }
+  });
+
+  socket.on('leave_presentation', ({ presentationId, clanId, role }) => {
+    if (!presentationId) return;
+    const room = clanId ? `pres_${clanId}_${presentationId}` : `pres_${presentationId}`;
+    socket.leave(room);
+    if (role === 'teacher' && clanId) {
+      io.to(room).emit('live_presentation_ended', { presentationId, clanId });
+      io.to(`clan_${clanId}`).emit('live_presentation_ended', { presentationId, clanId });
+    }
+  });
+
+  socket.on('presentation_sync_slide', ({ presentationId, clanId, slideIndex, revealedCheckups }) => {
+    if (!presentationId) return;
+    const room = clanId ? `pres_${clanId}_${presentationId}` : `pres_${presentationId}`;
+    socket.to(room).emit('presentation_slide_synced', {
+      presentationId,
+      slideIndex: Number(slideIndex) || 0,
+      revealedCheckups: revealedCheckups || {}
+    });
+  });
+
+  socket.on('presentation_submit_checkup', ({ presentationId, clanId, slideId, userId, userName, optionIndex }) => {
+    if (!presentationId || !slideId || !userId) return;
+    const room = clanId ? `pres_${clanId}_${presentationId}` : `pres_${presentationId}`;
+    io.to(room).emit('presentation_checkup_response', {
+      slideId,
+      userId,
+      userName: userName || 'Student',
+      optionIndex: Number(optionIndex)
+    });
+  });
+
+  socket.on('presentation_reveal_checkup', ({ presentationId, clanId, slideId, revealed }) => {
+    if (!presentationId || !slideId) return;
+    const room = clanId ? `pres_${clanId}_${presentationId}` : `pres_${presentationId}`;
+    io.to(room).emit('presentation_checkup_revealed', {
+      slideId,
+      revealed: Boolean(revealed)
+    });
+  });
+
+  socket.on('presentation_draw_stroke', ({ presentationId, clanId, slideId, stroke }) => {
+    if (!presentationId || !stroke) return;
+    const room = clanId ? `pres_${clanId}_${presentationId}` : `pres_${presentationId}`;
+    socket.to(room).emit('presentation_stroke_added', { slideId, stroke });
+  });
+
+  socket.on('presentation_clear_board', ({ presentationId, clanId, slideId }) => {
+    if (!presentationId) return;
+    const room = clanId ? `pres_${clanId}_${presentationId}` : `pres_${presentationId}`;
+    socket.to(room).emit('presentation_board_cleared', { slideId });
+  });
+
+  socket.on('presentation_highlight_element', ({ presentationId, clanId, slideId, elementId }) => {
+    if (!presentationId) return;
+    const room = clanId ? `pres_${clanId}_${presentationId}` : `pres_${presentationId}`;
+    socket.to(room).emit('presentation_element_highlighted', { slideId, elementId });
+  });
+
+  socket.on('presentation_laser_move', ({ presentationId, clanId, x, y, active }) => {
+    if (!presentationId) return;
+    const room = clanId ? `pres_${clanId}_${presentationId}` : `pres_${presentationId}`;
+    socket.to(room).emit('presentation_laser_synced', { x, y, active: Boolean(active) });
+  });
+
+  socket.on('presentation_reaction', ({ presentationId, clanId, userId, userName, type }) => {
+    if (!presentationId || !userId) return;
+    const room = clanId ? `pres_${clanId}_${presentationId}` : `pres_${presentationId}`;
+    io.to(room).emit('presentation_reaction_received', {
+      userId,
+      userName: userName || 'Student',
+      type: type || 'got_it',
+      timestamp: Date.now()
+    });
+  });
+  // ========== END LIVE PRESENTATION MODE ==========
 
   // ========== END CLAN CHAT ==========
   

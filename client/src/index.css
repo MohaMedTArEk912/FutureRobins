@@ -900,10 +900,10 @@ button:active {
 }
 
 /* 10. Inputs, Search Bars & General Buttons */
-[data-layout="bento"] input,
-[data-theme="bento"] input,
-[data-layout="bento"] textarea,
-[data-theme="bento"] textarea,
+[data-layout="bento"] input:not(.chat-bare-input),
+[data-theme="bento"] input:not(.chat-bare-input),
+[data-layout="bento"] textarea:not(.chat-bare-input),
+[data-theme="bento"] textarea:not(.chat-bare-input),
 [data-layout="bento"] select,
 [data-theme="bento"] select {
   background: #ffffff !important;
@@ -913,10 +913,10 @@ button:active {
   border-radius: 0.75rem !important;
   font-weight: 700 !important;
 }
-[data-layout="bento"] input:focus,
-[data-theme="bento"] input:focus,
-[data-layout="bento"] textarea:focus,
-[data-theme="bento"] textarea:focus {
+[data-layout="bento"] input:not(.chat-bare-input):focus,
+[data-theme="bento"] input:not(.chat-bare-input):focus,
+[data-layout="bento"] textarea:not(.chat-bare-input):focus,
+[data-theme="bento"] textarea:not(.chat-bare-input):focus {
   box-shadow: 5px 5px 0px #000000 !important;
   outline: none !important;
 }
@@ -961,10 +961,10 @@ button:active {
 [data-theme="bento"] [role="dialog"]:not(.fixed),
 [data-layout="bento"] .animate-in.fade-in.zoom-in-95:not(.fixed),
 [data-theme="bento"] .animate-in.fade-in.zoom-in-95:not(.fixed),
-[data-layout="bento"] .fixed.inset-0 > .relative.bg-white,
-[data-theme="bento"] .fixed.inset-0 > .relative.bg-white,
-[data-layout="bento"] .fixed.inset-0 > div:not(.fixed):not(.absolute),
-[data-theme="bento"] .fixed.inset-0 > div:not(.fixed):not(.absolute) {
+[data-layout="bento"] .fixed.inset-0:not(.chat-overlay-shell) > .relative.bg-white,
+[data-theme="bento"] .fixed.inset-0:not(.chat-overlay-shell) > .relative.bg-white,
+[data-layout="bento"] .fixed.inset-0:not(.chat-overlay-shell) > div:not(.fixed):not(.absolute),
+[data-theme="bento"] .fixed.inset-0:not(.chat-overlay-shell) > div:not(.fixed):not(.absolute) {
   background: #ffffff !important;
   border: 3px solid #000000 !important;
   box-shadow: 8px 8px 0px #000000 !important;
@@ -974,8 +974,8 @@ button:active {
 }
 
 /* Modals & Dialogs: outer fixed overlay must remain transparent */
-[data-layout="bento"] .fixed.inset-0,
-[data-theme="bento"] .fixed.inset-0 {
+[data-layout="bento"] .fixed.inset-0:not(.chat-overlay-shell),
+[data-theme="bento"] .fixed.inset-0:not(.chat-overlay-shell) {
   background-color: transparent !important;
   border: none !important;
   box-shadow: none !important;
@@ -1011,16 +1011,16 @@ button:active {
 }
 
 /* Modal Headers & Footers in Bento Mode */
-[data-layout="bento"] .fixed.inset-0 .border-b,
-[data-theme="bento"] .fixed.inset-0 .border-b {
+[data-layout="bento"] .fixed.inset-0:not(.chat-overlay-shell) .border-b,
+[data-theme="bento"] .fixed.inset-0:not(.chat-overlay-shell) .border-b {
   border-bottom: 2.5px solid #000000 !important;
   background-color: #ffffff !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
 
-[data-layout="bento"] .fixed.inset-0 .border-t,
-[data-theme="bento"] .fixed.inset-0 .border-t {
+[data-layout="bento"] .fixed.inset-0:not(.chat-overlay-shell) .border-t,
+[data-theme="bento"] .fixed.inset-0:not(.chat-overlay-shell) .border-t {
   border-top: 2.5px solid #000000 !important;
   background-color: #ffffff !important;
   backdrop-filter: none !important;
@@ -1232,7 +1232,7 @@ button:active {
 [data-theme="bento"] .mascot-card-wrapper::before {
   content: "STUDY BUDDY 🐾";
   position: absolute;
-  top: -14px;
+  bottom: -14px;
   right: 24px;
   background: var(--bento-green);
   color: #000000;

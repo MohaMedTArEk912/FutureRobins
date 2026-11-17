@@ -11,7 +11,7 @@ import '../models/Badge.js';
 import '../models/BadgeNode.js';
 import '../models/BadgeTree.js';
 import '../models/Challenge.js';
-import '../models/Clan.js';
+import '../models/Class.js';
 import '../models/DailyChallenge.js';
 import '../models/ShopItem.js';
 import '../models/SkillTrack.js';

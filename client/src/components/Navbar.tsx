@@ -135,6 +135,11 @@ const Navbar: React.FC<NavbarProps> = ({
 
     const hasClanInvites = Boolean(user?.clanInvites && user.clanInvites.length > 0);
 
+    // Teachers use the unified left sidebar as their primary navigation bar
+    if (user?.role === 'teacher') {
+        return null;
+    }
+
     return (
         <header className={`sticky top-0 z-50 pt-safe pl-safe pr-safe transition-colors ${
             isBento
@@ -142,10 +147,10 @@ const Navbar: React.FC<NavbarProps> = ({
                 : 'glass-panel border-b border-slate-200/80 dark:border-white/[0.08]'
         }`}>
             <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 py-2.5">
-                {/* Desktop View (xl:grid) - Strictly Symmetric 3-Column Grid */}
-                <div className="hidden xl:grid xl:grid-cols-[1fr_auto_1fr] items-center gap-4 w-full min-h-10">
+                {/* Desktop View (xl:flex) - Responsive 3-section bar without horizontal collision */}
+                <div className="hidden xl:flex items-center justify-between gap-3 w-full min-h-10">
                     {/* Left Column: Brand & Optional Back Button */}
-                    <div className="flex items-center justify-start gap-2.5 min-w-0">
+                    <div className="flex items-center justify-start gap-2.5 shrink-0">
                         {shouldShowBack && (
                             <button
                                 type="button"
@@ -196,8 +201,8 @@ const Navbar: React.FC<NavbarProps> = ({
                         </div>
                     </div>
 
-                    {/* Center Column: Segmented Pill Navigation - 100% Mathematically Centered */}
-                    <div className="flex items-center justify-center">
+                    {/* Center Column: Segmented Pill Navigation */}
+                    <div className="min-w-0 flex-1 flex items-center justify-center">
                         <nav className={`flex items-center gap-1 p-1 rounded-2xl shrink-0 ${
                             isBento
                                 ? 'bg-white border-2 border-black shadow-[3px_3px_0px_#000]'
@@ -229,7 +234,8 @@ const Navbar: React.FC<NavbarProps> = ({
                                         }`}
                                     >
                                         <Icon className={`w-3.5 h-3.5 shrink-0 ${isBento ? 'stroke-[2.5]' : (active ? 'text-indigo-600 dark:text-white' : '')}`} />
-                                        <span>{item.label}</span>
+                                        <span className="2xl:hidden whitespace-nowrap">{item.shortLabel || item.label}</span>
+                                        <span className="hidden 2xl:inline whitespace-nowrap">{item.label}</span>
                                         {active && (
                                             <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isBento ? 'bg-black' : 'bg-indigo-600 dark:bg-white'}`} />
                                         )}
@@ -282,7 +288,7 @@ const Navbar: React.FC<NavbarProps> = ({
                                             secondaryItems.map((item) => {
                                                 const Icon = item.icon;
                                                 const active = isActive(item.path);
-                                                const showDot = item.path === '/clans' && hasClanInvites;
+                                                const showDot = (item.path === '/clans' || item.path === '/classes') && hasClanInvites;
 
                                                 return (
                                                     <button

@@ -1,13 +1,15 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { ClanHub } from '../components/social/ClanHub';
+import { ClassHub } from '../components/social/ClassHub';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { AmbientBackground } from '../components/AmbientBackground';
+import { useTheme } from '../context/ThemeContext';
 
-const ClanPage: React.FC = () => {
+const ClassPage: React.FC = () => {
     const { currentUser, refreshUser, logout, isLoading } = useAuth();
+    const { isBento } = useTheme();
     const navigate = useNavigate();
 
     if (isLoading || !currentUser) {
@@ -22,8 +24,8 @@ const ClanPage: React.FC = () => {
     }
 
     return (
-        <div className="min-h-screen flex flex-col justify-between bg-white dark:bg-[#0a0a0b] text-gray-900 dark:text-white selection:bg-violet-500/30">
-            <AmbientBackground />
+        <div className={`min-h-screen flex flex-col justify-between ${isBento ? 'bg-transparent text-black' : 'bg-slate-50 dark:bg-[#0a0a0b] text-gray-900 dark:text-white'} selection:bg-violet-500/30`}>
+            {!isBento && <AmbientBackground />}
             <Navbar
                 user={currentUser}
                 onViewProfile={() => navigate('/profile')}
@@ -32,11 +34,11 @@ const ClanPage: React.FC = () => {
                 showActions={true}
             />
             <main className="flex-1 relative w-full max-w-7xl mx-auto px-4 sm:px-6 py-8 md:py-12">
-                <ClanHub user={currentUser} onUpdateUser={refreshUser} />
+                <ClassHub user={currentUser} onUpdateUser={refreshUser} />
             </main>
             <Footer />
         </div>
     );
 };
 
-export default ClanPage;
+export default ClassPage;

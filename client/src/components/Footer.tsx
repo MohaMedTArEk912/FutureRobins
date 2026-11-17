@@ -301,6 +301,10 @@ const Footer: React.FC = () => {
         }
     };
 
+    if (currentUser?.role === 'teacher') {
+        return null;
+    }
+
     return (
         <>
             <footer className={`w-full mt-auto border-t transition-colors ${

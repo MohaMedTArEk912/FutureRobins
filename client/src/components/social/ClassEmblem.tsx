@@ -216,7 +216,7 @@ export const ClanEmblem: React.FC<ClanEmblemProps> = ({
                 {customUrl ? (
                     <img
                         src={customUrl}
-                        alt={name || 'Clan logo'}
+                        alt={name || 'Class logo'}
                         className={`w-full h-full object-cover ${shape === 'diamond' ? '-rotate-45 scale-125' : ''}`}
                         onError={(e) => {
                             // Fallback to default emblem on image error
@@ -249,4 +249,5 @@ export const ClanEmblem: React.FC<ClanEmblemProps> = ({
     );
 };
 
+export const ClassEmblem = ClanEmblem;
 export default ClanEmblem;

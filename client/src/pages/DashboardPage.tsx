@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import UserRoads from '../components/UserRoads';
+import TeacherDashboard from '../components/teacher/TeacherDashboard';
 import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useNotification } from '../context/NotificationContext';
 import { LoginPromptModal } from '../components/LoginPromptModal';
 import { GUEST_USER } from '../constants/appDefaults';
@@ -12,6 +13,7 @@ const DashboardPage: React.FC = () => {
     const { logout, refreshUser, currentUser } = useAuth();
     const { availableQuizzes, userWithRank, allAttempts, subjects, skillTracks, studyCards, refreshData } = useData();
     const navigate = useNavigate();
+    const location = useLocation();
     const { showNotification } = useNotification();
 
     const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
@@ -55,6 +57,22 @@ const DashboardPage: React.FC = () => {
         }
         navigate('/profile');
     };
+
+    if (currentUser?.role === 'teacher' && location.pathname !== '/quizzes') {
+        return (
+            <TeacherDashboard
+                user={currentUser}
+                skillTracks={safeSkillTracks}
+                quizzes={safeQuizzes}
+                onRefreshUser={async () => {
+                    await Promise.all([refreshUser(), refreshData()]);
+                }}
+                onLogout={logout}
+                onSelectQuiz={handleSelectQuiz}
+                onViewProfile={handleViewProfile}
+            />
+        );
+    }
 
     return (
         <>

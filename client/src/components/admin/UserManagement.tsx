@@ -1183,15 +1183,16 @@ const RoadmapEditorModal: React.FC<{
 
 const CreateUserModal: React.FC<{
     currentUser: UserData;
+    defaultRole?: 'user' | 'teacher' | 'admin';
     onClose: () => void;
     onNotification: (type: 'success' | 'error', message: string) => void;
     onRefresh: () => void | Promise<void>;
-}> = ({ currentUser, onClose, onNotification, onRefresh }) => {
+}> = ({ currentUser, defaultRole = 'user', onClose, onNotification, onRefresh }) => {
     const { isBento } = useTheme();
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [role, setRole] = useState<'user' | 'admin'>('user');
+    const [role, setRole] = useState<'user' | 'teacher' | 'admin'>(defaultRole);
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -1308,18 +1309,18 @@ const CreateUserModal: React.FC<{
 
                 <div className="space-y-1.5">
                     <label className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">Assignment Role</label>
-                    <div className="grid grid-cols-2 gap-3">
-                        {(['user', 'admin'] as const).map(r => (
+                    <div className="grid grid-cols-3 gap-2">
+                        {(['user', 'teacher', 'admin'] as const).map(r => (
                             <button
                                 key={r}
                                 type="button"
                                 onClick={() => setRole(r)}
-                                className={`py-3 px-4 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${role === r
+                                className={`py-3 px-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all cursor-pointer ${role === r
                                     ? 'bg-indigo-500/10 border-2 border-indigo-500 text-indigo-600 dark:text-indigo-400'
                                     : 'bg-gray-100 dark:bg-white/5 border-2 border-transparent text-gray-500 dark:text-gray-400 grayscale hover:grayscale-0'
                                     }`}
                             >
-                                {r === 'admin' ? '🛡️ Administrator' : '👤 Standard Agent'}
+                                {r === 'admin' ? '🛡️ Admin' : r === 'teacher' ? '👩‍🏫 Teacher' : '🎓 Student'}
                             </button>
                         ))}
                     </div>
@@ -1337,6 +1338,13 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
     const [deleteConfirmation, setDeleteConfirmation] = useState<{ isOpen: boolean; id: string } | null>(null);
     const [showPassword, setShowPassword] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+    const [activeRoleTab, setActiveRoleTab] = useState<'student' | 'teacher'>('student');
+    const [includeAdmins, setIncludeAdmins] = useState(false);
+    const [managedUsers, setManagedUsers] = useState<UserData[]>(() => (Array.isArray(users) ? users : []));
+
+    useEffect(() => {
+        setManagedUsers(Array.isArray(users) ? users : []);
+    }, [users]);
     const [viewingAttempts, setViewingAttempts] = useState<UserData | null>(null);
     const [inspectingAttempt, setInspectingAttempt] = useState<AttemptData | null>(null);
     const [managingRoadmap, setManagingRoadmap] = useState<UserData | null>(null);
@@ -1362,25 +1370,92 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
         fetchShopItems();
     }, []);
 
-    const filteredUsers = (Array.isArray(users) ? users : []).filter(user => {
-        if (!user) return false;
+    const safeUsers = useMemo(() => (Array.isArray(managedUsers) ? managedUsers.filter(Boolean) : []), [managedUsers]);
+    const studentUsersCount = useMemo(
+        () => safeUsers.filter(u => u.role !== 'teacher' && u.role !== 'admin' && !u.isAdmin).length,
+        [safeUsers]
+    );
+    const teacherUsersCount = useMemo(
+        () => safeUsers.filter(u => u.role === 'teacher').length,
+        [safeUsers]
+    );
+    const adminUsersCount = useMemo(
+        () => safeUsers.filter(u => u.role === 'admin' || u.isAdmin).length,
+        [safeUsers]
+    );
+
+    const filteredUsers = safeUsers.filter(user => {
+        const isTeacherRole = user.role === 'teacher';
+        const isAdminRole = user.role === 'admin' || Boolean(user.isAdmin);
+
+        if (activeRoleTab === 'teacher') {
+            if (!isTeacherRole && !(includeAdmins && isAdminRole)) return false;
+        } else {
+            if (isTeacherRole) return false;
+            if (isAdminRole && !includeAdmins) return false;
+        }
+
         const term = (searchTerm || '').toLowerCase();
+        if (!term) return true;
         const name = (user.name || '').toLowerCase();
         const email = (user.email || '').toLowerCase();
         const userId = (user.userId || '').toLowerCase();
         return name.includes(term) || email.includes(term) || userId.includes(term);
     });
 
+    const patchLocalUser = (targetId: string, patch: Partial<UserData>) => {
+        setManagedUsers(prev =>
+            prev.map(u => {
+                const uid = u.userId || (u as { _id?: string })._id?.toString() || u.email || '';
+                if (uid === targetId || u.userId === targetId || u.email === targetId) {
+                    return { ...u, ...patch };
+                }
+                return u;
+            })
+        );
+    };
+
+    const handleQuickRoleSwitch = async (targetUser: UserData, nextRole: 'user' | 'teacher') => {
+        const targetId = targetUser.userId || (targetUser as { _id?: string })._id?.toString() || targetUser.email || '';
+        if (!targetId) return;
+        const previousRole = targetUser.role || 'user';
+        patchLocalUser(targetId, { role: nextRole });
+        try {
+            const updatedUser = await api.updateUser(targetId, { role: nextRole });
+            patchLocalUser(targetId, { role: updatedUser?.role || nextRole });
+            onNotification(
+                'success',
+                `${targetUser.name || targetId} is now a ${nextRole === 'teacher' ? 'Teacher' : 'Student'}`
+            );
+            Promise.resolve(onRefresh()).catch(() => {});
+        } catch (err) {
+            patchLocalUser(targetId, { role: previousRole });
+            onNotification('error', err instanceof Error ? err.message : 'Failed to switch role');
+        }
+    };
+
     const handleUpdateUser = async (user: EditableUser) => {
         if (!user) return;
         const normalizedEmail = (user.email || '').toLowerCase().trim();
         const trimmedName = (user.name || '').trim();
+        const nextRole = user.role || 'user';
+        const prevRole = originalUser?.role || 'user';
 
         try {
-            if (user.name !== originalUser?.name || user.email !== originalUser?.email) {
-                await api.updateUser(user.userId, {
+            if (
+                trimmedName !== (originalUser?.name || '').trim() ||
+                normalizedEmail !== (originalUser?.email || '').toLowerCase().trim() ||
+                nextRole !== prevRole
+            ) {
+                const updated = await api.updateUser(user.userId, {
                     name: trimmedName,
-                    email: normalizedEmail
+                    email: normalizedEmail,
+                    role: nextRole
+                });
+                patchLocalUser(user.userId, {
+                    name: updated?.name || trimmedName,
+                    email: updated?.email || normalizedEmail,
+                    role: updated?.role || nextRole
                 });
             }
 
@@ -1395,7 +1470,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
             setEditingUser(null);
             setOriginalUser(null);
             onNotification('success', 'User updated successfully');
-            await Promise.resolve(onRefresh());
+            Promise.resolve(onRefresh()).catch(() => {});
         } catch (error) {
             console.error('Update error:', error);
             const msg = error instanceof Error ? error.message : 'Failed to update user';
@@ -1455,8 +1530,12 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
         const userId = deleteConfirmation.id;
         try {
             await api.deleteUser(userId, currentUser.userId);
+            setManagedUsers(prev => prev.filter(u => {
+                const uid = u.userId || (u as { _id?: string })._id?.toString() || u.email || '';
+                return uid !== userId && u.userId !== userId;
+            }));
             onNotification('success', 'User deleted successfully');
-            await Promise.resolve(onRefresh());
+            Promise.resolve(onRefresh()).catch(() => {});
         } catch (error) {
             console.error('Delete user error:', error);
             onNotification('error', error instanceof Error ? error.message : 'Failed to delete user');
@@ -1467,6 +1546,66 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
 
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
+            {/* Role Split Tabs: Students vs Teachers */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className={`inline-flex p-1.5 rounded-2xl gap-1.5 ${
+                    isBento ? 'bg-white border-2 border-black shadow-[3px_3px_0px_#000]' : 'bg-white/70 dark:bg-[#1e1e2d]/80 border border-gray-200/80 dark:border-white/10'
+                }`}>
+                    <button
+                        type="button"
+                        onClick={() => setActiveRoleTab('student')}
+                        className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer ${
+                            activeRoleTab === 'student'
+                                ? isBento
+                                    ? 'bg-[#bae6fd] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                    : 'bg-indigo-600 text-white shadow-md shadow-indigo-600/25'
+                                : 'text-gray-600 dark:text-gray-300 hover:bg-black/5 dark:hover:bg-white/5'
+                        }`}
+                    >
+                        <span>🎓 Students</span>
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+                            activeRoleTab === 'student'
+                                ? isBento ? 'bg-black text-white' : 'bg-white/20 text-white'
+                                : 'bg-black/10 dark:bg-white/10'
+                        }`}>
+                            {studentUsersCount}
+                        </span>
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setActiveRoleTab('teacher')}
+                        className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer ${
+                            activeRoleTab === 'teacher'
+                                ? isBento
+                                    ? 'bg-[#fde047] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                    : 'bg-amber-500 text-black shadow-md shadow-amber-500/25'
+                                : 'text-gray-600 dark:text-gray-300 hover:bg-black/5 dark:hover:bg-white/5'
+                        }`}
+                    >
+                        <span>👩‍🏫 Teachers</span>
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+                            activeRoleTab === 'teacher'
+                                ? isBento ? 'bg-black text-white' : 'bg-black/20 text-black'
+                                : 'bg-black/10 dark:bg-white/10'
+                        }`}>
+                            {teacherUsersCount}
+                        </span>
+                    </button>
+                </div>
+
+                {adminUsersCount > 0 && (
+                    <label className="inline-flex items-center gap-2 text-xs font-bold text-gray-500 dark:text-gray-400 cursor-pointer select-none px-3 py-2 rounded-xl bg-black/5 dark:bg-white/5">
+                        <input
+                            type="checkbox"
+                            checked={includeAdmins}
+                            onChange={e => setIncludeAdmins(e.target.checked)}
+                            className="accent-indigo-600 cursor-pointer"
+                        />
+                        <span>Show Admins ({adminUsersCount})</span>
+                    </label>
+                )}
+            </div>
+
             {/* Action Bar */}
             <div className="flex flex-col md:flex-row gap-3 sm:gap-4">
                 <div className={`flex-1 p-3 px-5 rounded-2xl sm:rounded-3xl transition-all flex items-center gap-3 sm:gap-4 ${
@@ -1494,7 +1633,9 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
                     }`}
                 >
                     <Users className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform group-hover:scale-110 ${isBento ? 'text-black' : 'text-white'}`} />
-                    <span className={`text-[11px] font-black uppercase tracking-[0.2em] ${isBento ? 'font-mono text-black' : 'text-white'}`}>Create Identity</span>
+                    <span className={`text-[11px] font-black uppercase tracking-[0.2em] ${isBento ? 'font-mono text-black' : 'text-white'}`}>
+                        {activeRoleTab === 'teacher' ? 'Create Teacher' : 'Create Student'}
+                    </span>
                 </button>
                 <div className={`hidden lg:flex items-center gap-3 px-6 py-3 rounded-2xl sm:rounded-3xl ${
                     isBento
@@ -1503,10 +1644,26 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
                 }`}>
                     <Users className={`w-5 h-5 ${isBento ? 'text-black' : 'text-purple-600 dark:text-purple-400'}`} />
                     <span className={`text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap ${isBento ? 'text-black font-mono' : 'text-purple-600 dark:text-purple-400'}`}>
-                        Total: {(users || []).length} Users
+                        Showing: {filteredUsers.length} {activeRoleTab === 'teacher' ? 'Teachers' : 'Students'}
                     </span>
                 </div>
             </div>
+
+            {filteredUsers.length === 0 && (
+                <div className={`p-10 rounded-3xl text-center border-2 border-dashed ${
+                    isBento ? 'bg-white border-black text-black' : 'border-gray-200 dark:border-white/10 text-gray-500'
+                }`}>
+                    <Users className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm font-black uppercase">
+                        {activeRoleTab === 'teacher' ? 'No Teachers Found' : 'No Students Found'}
+                    </p>
+                    <p className="text-xs opacity-75 mt-1">
+                        {activeRoleTab === 'teacher'
+                            ? 'Click "Create Teacher" above or promote a student from the Students tab.'
+                            : 'Click "Create Student" above or clear your search filter.'}
+                    </p>
+                </div>
+            )}
 
             {/* User Cards Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -1563,6 +1720,27 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
                                     >
                                         {user.name || userId || 'Unnamed User'}
                                     </h3>
+                                    <div className="mt-1 flex items-center gap-1.5 flex-wrap">
+                                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${
+                                            user.role === 'admin'
+                                                ? isBento ? 'bg-[#fecdd3] text-black border border-black' : 'bg-rose-500/15 text-rose-500 border border-rose-500/20'
+                                                : user.role === 'teacher'
+                                                    ? isBento ? 'bg-[#fde047] text-black border border-black' : 'bg-amber-500/15 text-amber-500 border border-amber-500/20'
+                                                    : isBento ? 'bg-[#bae6fd] text-black border border-black' : 'bg-indigo-500/15 text-indigo-400 border border-indigo-500/20'
+                                        }`}>
+                                            {user.role === 'admin' ? '🛡️ Admin' : user.role === 'teacher' ? '👩‍🏫 Teacher' : '🎓 Student'}
+                                        </span>
+                                        {user.role !== 'admin' && !user.isAdmin && (
+                                            <button
+                                                type="button"
+                                                onClick={() => handleQuickRoleSwitch(user, user.role === 'teacher' ? 'user' : 'teacher')}
+                                                className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-black/5 dark:bg-white/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 cursor-pointer transition"
+                                                title={user.role === 'teacher' ? 'Switch role back to Student' : 'Promote user to Teacher'}
+                                            >
+                                                {user.role === 'teacher' ? '→ Student' : '→ Make Teacher'}
+                                            </button>
+                                        )}
+                                    </div>
                                     <div className="flex items-center gap-1.5 text-gray-400 mt-1">
                                         <Mail className="w-3.5 h-3.5 shrink-0" />
                                         <span className={`text-[10px] font-bold truncate ${isBento ? 'text-black/60 font-mono' : 'opacity-75'}`}>
@@ -1777,6 +1955,36 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
                     </div>
 
                     <div className="space-y-1.5">
+                        <label className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">Platform Mode / Role</label>
+                        <div className="grid grid-cols-3 gap-2">
+                            {([
+                                { id: 'user', label: '🎓 Student' },
+                                { id: 'teacher', label: '👩‍🏫 Teacher' },
+                                { id: 'admin', label: '🛡️ Admin' }
+                            ] as const).map(r => {
+                                const currentRole = editingUser?.role === 'student' ? 'user' : (editingUser?.role || 'user');
+                                const selected = currentRole === r.id;
+                                return (
+                                    <button
+                                        key={r.id}
+                                        type="button"
+                                        onClick={() => editingUser && setEditingUser({ ...editingUser, role: r.id })}
+                                        className={`py-2.5 px-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all cursor-pointer ${
+                                            selected
+                                                ? isBento
+                                                    ? 'bg-[#fde047] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                                    : 'bg-indigo-500/15 border-2 border-indigo-500 text-indigo-600 dark:text-indigo-400'
+                                                : 'bg-gray-100 dark:bg-white/5 border-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white'
+                                        }`}
+                                    >
+                                        {r.label}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    <div className="space-y-1.5">
                         <label className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">Access Key Override</label>
                         <div className="relative">
                             <input
@@ -1813,6 +2021,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
             {isCreateOpen && (
                 <CreateUserModal
                     currentUser={currentUser}
+                    defaultRole={activeRoleTab === 'teacher' ? 'teacher' : 'user'}
                     onClose={() => setIsCreateOpen(false)}
                     onNotification={onNotification}
                     onRefresh={onRefresh}

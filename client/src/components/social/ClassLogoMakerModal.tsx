@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import type { ClanLogo } from '../../types';
 import { useTheme } from '../../context/ThemeContext';
-import { ClanEmblem, CLAN_EMBLEM_ICONS, CLAN_EMBLEM_PRESETS } from './ClanEmblem';
+import { ClanEmblem, CLAN_EMBLEM_ICONS, CLAN_EMBLEM_PRESETS } from './ClassEmblem';
 
 interface ClanLogoMakerModalProps {
     isOpen: boolean;
@@ -22,6 +22,7 @@ interface ClanLogoMakerModalProps {
     clanTag: string;
     initialLogo?: ClanLogo | null;
     onSave: (logo: ClanLogo) => Promise<void> | void;
+    inline?: boolean;
 }
 
 const SHAPES: Array<{ id: NonNullable<ClanLogo['shape']>; label: string; iconShape: string }> = [
@@ -62,7 +63,8 @@ export const ClanLogoMakerModal: React.FC<ClanLogoMakerModalProps> = ({
     clanName,
     clanTag,
     initialLogo,
-    onSave
+    onSave,
+    inline = false
 }) => {
     const { isBento } = useTheme();
 
@@ -94,9 +96,9 @@ export const ClanLogoMakerModal: React.FC<ClanLogoMakerModalProps> = ({
         }
     }, [isOpen, initialLogo]);
 
-    // Handle Escape key and disable background scroll
+    // Handle Escape key and disable background scroll (modal mode only)
     useEffect(() => {
-        if (!isOpen) return;
+        if (!isOpen || inline) return;
 
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === 'Escape') onClose();
@@ -110,9 +112,9 @@ export const ClanLogoMakerModal: React.FC<ClanLogoMakerModalProps> = ({
             document.body.style.overflow = originalOverflow;
             window.removeEventListener('keydown', handleKeyDown);
         };
-    }, [isOpen, onClose]);
+    }, [isOpen, inline, onClose]);
 
-    if (!isOpen || typeof document === 'undefined') return null;
+    if (!isOpen || (!inline && typeof document === 'undefined')) return null;
 
     const availableIcons = Object.keys(CLAN_EMBLEM_ICONS);
 
@@ -181,19 +183,15 @@ export const ClanLogoMakerModal: React.FC<ClanLogoMakerModalProps> = ({
         }
     };
 
-    return createPortal(
-        <div 
-            className="fixed inset-0 z-[10000] flex items-center justify-center p-3 sm:p-6 bg-black/60 overflow-y-auto animate-in fade-in duration-200"
-            onClick={onClose}
+    const cardContent = (
+        <div
+            className={`relative w-full ${inline ? '' : 'max-w-3xl my-auto'} rounded-[2.5rem] overflow-hidden transition-all ${
+                isBento
+                    ? 'bg-white text-black border-3 border-black shadow-[8px_8px_0px_#000]'
+                    : 'bg-white dark:bg-[#121623] text-gray-900 dark:text-white border border-gray-200 dark:border-white/10 shadow-2xl'
+            }`}
+            onClick={(e) => !inline && e.stopPropagation()}
         >
-            <div
-                className={`relative w-full max-w-3xl rounded-[2.5rem] overflow-hidden transition-all my-auto ${
-                    isBento
-                        ? 'bg-white text-black border-3 border-black shadow-[8px_8px_0px_#000]'
-                        : 'bg-white dark:bg-[#121623] text-gray-900 dark:text-white border border-gray-200 dark:border-white/10 shadow-2xl'
-                }`}
-                onClick={(e) => e.stopPropagation()}
-            >
                 {/* Header */}
                 <div className={`p-5 sm:p-6 flex items-center justify-between border-b ${
                     isBento ? 'border-b-2.5 border-black bg-[#fde047]' : 'border-gray-200 dark:border-white/10 bg-gradient-to-r from-violet-600/10 to-indigo-600/10'
@@ -206,7 +204,7 @@ export const ClanLogoMakerModal: React.FC<ClanLogoMakerModalProps> = ({
                         </div>
                         <div>
                             <h2 className="text-xl sm:text-2xl font-black uppercase tracking-tight">
-                                Clan Emblem Studio
+                                Class Emblem Studio
                             </h2>
                             <p className={`text-xs font-bold ${isBento ? 'text-black/70' : 'text-gray-500 dark:text-gray-400'}`}>
                                 Design the official identity badge for [{clanTag}] {clanName}
@@ -497,7 +495,7 @@ export const ClanLogoMakerModal: React.FC<ClanLogoMakerModalProps> = ({
                                 isBento ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000]' : 'bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10'
                             }`}>
                                 <div>
-                                    <div className="text-xs font-black uppercase tracking-wider">Stamp Clan Tag</div>
+                                    <div className="text-xs font-black uppercase tracking-wider">Stamp Class Tag</div>
                                     <div className="text-[11px] text-gray-500 font-medium">Display "[{clanTag}]" badge across the bottom of the emblem</div>
                                 </div>
                                 <input
@@ -516,7 +514,7 @@ export const ClanLogoMakerModal: React.FC<ClanLogoMakerModalProps> = ({
                             {/* Local File Upload Box */}
                             <div>
                                 <label className={`block text-xs font-black uppercase tracking-wider mb-2 ${isBento ? 'text-black' : 'text-gray-500'}`}>
-                                    Upload Custom Clan Picture (PNG, JPG, SVG, WebP)
+                                    Upload Custom Class Picture (PNG, JPG, SVG, WebP)
                                 </label>
                                 <label className={`border-2 border-dashed rounded-3xl p-6 sm:p-8 flex flex-col items-center justify-center text-center cursor-pointer transition-all ${
                                     isBento
@@ -554,7 +552,7 @@ export const ClanLogoMakerModal: React.FC<ClanLogoMakerModalProps> = ({
                                             type="url"
                                             value={logo.customUrl || ''}
                                             onChange={(e) => setLogo(prev => ({ ...prev, customUrl: e.target.value }))}
-                                            placeholder="https://example.com/clan-emblem.png"
+                                            placeholder="https://example.com/class-emblem.png"
                                             className={`w-full pl-10 pr-4 py-3 rounded-xl font-mono text-xs focus:outline-none transition-all ${
                                                 isBento
                                                     ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
@@ -582,7 +580,7 @@ export const ClanLogoMakerModal: React.FC<ClanLogoMakerModalProps> = ({
                     isBento ? 'border-t-2.5 border-black bg-neutral-50' : 'border-gray-200 dark:border-white/10 bg-slate-50 dark:bg-[#0c101c]'
                 }`}>
                     <p className={`text-xs font-bold ${isBento ? 'text-black/60' : 'text-gray-400'}`}>
-                        Changes update across Clan Hub, Rankings, and member badges immediately.
+                        Changes update across Class Hub, Rankings, and class badges immediately.
                     </p>
 
                     <div className="flex items-center gap-3 w-full sm:w-auto">
@@ -608,11 +606,23 @@ export const ClanLogoMakerModal: React.FC<ClanLogoMakerModalProps> = ({
                             }`}
                         >
                             <Check className="w-4 h-4 stroke-[3]" />
-                            <span>{isSaving ? 'Applying Emblem...' : 'Save Clan Emblem'}</span>
+                            <span>{isSaving ? 'Applying Emblem...' : 'Save Class Emblem'}</span>
                         </button>
                     </div>
                 </div>
             </div>
+    );
+
+    if (inline) {
+        return cardContent;
+    }
+
+    return createPortal(
+        <div
+            className="fixed inset-0 z-[10000] flex items-center justify-center p-3 sm:p-6 bg-black/60 overflow-y-auto animate-in fade-in duration-200"
+            onClick={onClose}
+        >
+            {cardContent}
         </div>,
         document.body
     );

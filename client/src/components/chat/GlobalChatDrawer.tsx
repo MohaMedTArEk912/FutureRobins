@@ -21,7 +21,7 @@ import { useData } from '../../context/DataContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useUserProfileModal } from '../../context/UserProfileModalContext';
 import Avatar from '../Avatar';
-import { ClanEmblem } from '../social/ClanEmblem';
+import { ClanEmblem } from '../social/ClassEmblem';
 import type { UserData } from '../../types';
 
 export const GlobalChatDrawer: React.FC = () => {
@@ -498,7 +498,7 @@ export const GlobalChatDrawer: React.FC = () => {
     };
 
     return (
-        <div className={`fixed inset-0 z-[120] flex ${
+        <div className={`fixed inset-0 z-[120] chat-overlay-shell flex ${
             isFullscreen ? 'items-stretch justify-stretch' : 'justify-end items-stretch pointer-events-none'
         } animate-in fade-in duration-200`}>
             {/* Backdrop */}
