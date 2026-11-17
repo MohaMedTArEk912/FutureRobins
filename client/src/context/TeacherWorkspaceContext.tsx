@@ -27,7 +27,10 @@ interface TeacherWorkspaceContextType {
     loadActiveClan: (clanId: string, forceRefresh?: boolean) => Promise<void>;
 }
 
-const TeacherWorkspaceContext = createContext<TeacherWorkspaceContextType | undefined>(undefined);
+const globalTeacherWorkspaceStore = globalThis as { __quizTeacherWorkspaceContext?: React.Context<TeacherWorkspaceContextType | undefined> };
+const TeacherWorkspaceContext = import.meta.env.DEV
+    ? (globalTeacherWorkspaceStore.__quizTeacherWorkspaceContext ??= createContext<TeacherWorkspaceContextType | undefined>(undefined))
+    : createContext<TeacherWorkspaceContextType | undefined>(undefined);
 
 export const useTeacherWorkspace = () => {
     const context = useContext(TeacherWorkspaceContext);

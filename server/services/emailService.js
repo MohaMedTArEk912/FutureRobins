@@ -14,13 +14,36 @@ if (!process.env.GMAIL_USER && !process.env.SMTP_HOST) {
   }
 }
 
-export function getAppBaseUrl() {
-  return (
+export function getAppBaseUrl(req) {
+  const explicit =
     process.env.APP_URL ||
     process.env.FRONTEND_URL ||
-    process.env.CLIENT_URL ||
-    'http://localhost:5173'
-  ).replace(/\/+$/, '');
+    process.env.CLIENT_URL;
+  const cleanExplicit = explicit ? String(explicit).trim().replace(/\/+$/, '') : '';
+  const isExplicitLocal = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(cleanExplicit);
+
+  // Use explicit canonical URL only when it is non-local (avoid stale localhost env in hosted/preview envs)
+  if (cleanExplicit && !isExplicitLocal) {
+    return cleanExplicit;
+  }
+
+  const origin = req?.headers?.origin;
+  if (origin && /^https?:\/\//i.test(origin)) {
+    return origin.replace(/\/+$/, '');
+  }
+
+  const fwdHost = req?.headers?.['x-forwarded-host'] || req?.headers?.host;
+  if (fwdHost && !/localhost:5000|127\.0\.0\.1:5000/i.test(String(fwdHost))) {
+    const proto = String(req?.headers?.['x-forwarded-proto'] || 'https').split(',')[0].trim();
+    return `${proto}://${fwdHost}`.replace(/\/+$/, '');
+  }
+
+  const vercelProd = process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL;
+  if (vercelProd && String(vercelProd).trim()) {
+    return `https://${String(vercelProd).trim()}`.replace(/\/+$/, '');
+  }
+
+  return cleanExplicit || 'http://localhost:5173';
 }
 
 let transporter = null;
@@ -373,6 +396,13 @@ export async function sendSupportEmail({
       error: error.message || 'Email delivery failed'
     };
   }
+}
+
+export function isDeliverableEmail(email) {
+  if (!email || typeof email !== 'string') return false;
+  const trimmed = email.trim().toLowerCase();
+  if (!trimmed || !trimmed.includes('@') || trimmed.endsWith('.local')) return false;
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed);
 }
 
 /**
@@ -1114,6 +1144,174 @@ export async function sendChallengeDropBroadcastEmail({ email, name, challengeTi
     to: email,
     subject,
     text: `New Challenge Dropped: ${safeTitle}\n\n${safeDesc}\n\nSolve it now: ${targetUrl}\n\nTo unsubscribe: ${unsubscribeUrl}`,
+    html
+  });
+}
+
+function renderAlertCardHtml({ accentBg = '#fde047', headerColor = '#000000', badgeText, heading, greetingName, introHtml, calloutHtml = '', ctaHref, ctaLabel, footerNote }) {
+  return `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f8fafc; color: #1e293b; margin: 0; padding: 24px; }
+          .card { max-width: 560px; margin: 0 auto; background: #ffffff; border: 2.5px solid #000000; border-radius: 16px; box-shadow: 6px 6px 0px #000000; overflow: hidden; }
+          .header { background: ${accentBg}; padding: 24px; border-bottom: 2.5px solid #000000; color: ${headerColor}; text-align: center; }
+          .badge { display: inline-block; background: #ffffff; color: #000000; font-weight: 900; font-size: 11px; padding: 4px 12px; border-radius: 9999px; border: 1.5px solid #000000; text-transform: uppercase; letter-spacing: 0.6px; }
+          .content { padding: 24px; line-height: 1.6; }
+          .callout { background: #f8fafc; border: 2px solid #000000; border-radius: 12px; padding: 14px 18px; margin: 16px 0; font-size: 14px; }
+          .cta-btn { display: inline-block; background: #bef264; color: #000000 !important; text-decoration: none; font-weight: 900; font-size: 14px; padding: 12px 26px; border-radius: 12px; border: 2px solid #000000; box-shadow: 3px 3px 0px #000000; margin-top: 12px; }
+          .footer { background: #f1f5f9; padding: 14px 20px; border-top: 2px solid #000000; font-size: 12px; color: #64748b; text-align: center; }
+        </style>
+      </head>
+      <body>
+        <div class="card">
+          <div class="header">
+            <span class="badge">${badgeText}</span>
+            <h1 style="margin: 10px 0 0 0; font-size: 22px; font-weight: 900;">${heading}</h1>
+          </div>
+          <div class="content">
+            <p>Hello <strong>${greetingName}</strong>,</p>
+            ${introHtml}
+            ${calloutHtml}
+            <div style="text-align: center; margin-top: 16px;">
+              <a href="${ctaHref}" class="cta-btn">${ctaLabel}</a>
+            </div>
+          </div>
+          <div class="footer">${footerNote}</div>
+        </div>
+      </body>
+    </html>
+  `;
+}
+
+/**
+ * Sends a registration email containing both a 6-digit OTP code and a 1-click verification redirect link.
+ */
+export async function sendRegistrationVerificationEmail({ email, name, otp, verifyUrl }) {
+  const safeName = escapeHtml(name || 'Learner');
+  const safeOtp = escapeHtml(otp);
+  const safeUrl = escapeHtml(verifyUrl);
+  const subject = `Verify Your Email: ${safeOtp} 🔐`;
+
+  const html = renderAlertCardHtml({
+    accentBg: '#bae6fd',
+    headerColor: '#000000',
+    badgeText: 'EMAIL VERIFICATION',
+    heading: 'Confirm Your Quiz Platform Account',
+    greetingName: safeName,
+    introHtml: '<p>To make sure your email address works and activate your account, enter this <strong>6-digit verification code</strong> on the registration page — or click the button below to verify directly:</p>',
+    calloutHtml: `
+      <div style="text-align: center; margin: 18px 0;">
+        <div style="display: inline-block; background: #fef08a; border: 2.5px solid #000000; border-radius: 12px; padding: 14px 28px; font-family: monospace; font-size: 30px; font-weight: 900; letter-spacing: 6px; color: #000000; box-shadow: 3px 3px 0px #000000;">${safeOtp}</div>
+      </div>
+      <p style="font-size: 12px; color: #64748b; text-align: center; margin: 8px 0 0 0;">⏱️ Code and verification link expire in <strong>15 minutes</strong>.</p>
+    `,
+    ctaHref: safeUrl,
+    ctaLabel: 'Verify Email & Complete Sign Up →',
+    footerNote: 'Quiz Platform Account Security • Ignore this email if you did not request registration'
+  });
+
+  return dispatchMail({
+    to: email,
+    subject,
+    text: `Hello ${safeName},\n\nVerify your Quiz Platform email using this 6-digit OTP code: ${safeOtp}\n\nOr click this link to verify automatically: ${verifyUrl}\n\nThis code and link expire in 15 minutes.`,
+    html
+  });
+}
+
+/**
+ * Sends a teacher homework or class session alert email to a student.
+ */
+export async function sendHomeworkAlertEmail({
+  email,
+  recipientName,
+  teacherName,
+  className,
+  moduleTitle,
+  alertTitle,
+  message,
+  actionPath = '/clans'
+}) {
+  if (!isDeliverableEmail(email)) {
+    return { success: false, status: 'skipped_undeliverable' };
+  }
+
+  const baseUrl = getAppBaseUrl();
+  const safePath = String(actionPath || '/clans').startsWith('/') ? actionPath : `/${actionPath}`;
+  const targetUrl = `${baseUrl}${safePath}`;
+  const safeName = escapeHtml(recipientName || 'Student');
+  const safeTeacher = escapeHtml(teacherName || 'Your Teacher');
+  const safeClass = escapeHtml(className || 'Class');
+  const safeModule = escapeHtml(moduleTitle || 'Session Homework');
+  const safeTitle = escapeHtml(alertTitle || 'Homework Reminder');
+  const safeMessage = escapeHtml(message || `Please complete your assigned work for ${moduleTitle || 'class'}.`).replace(/\n/g, '<br/>');
+  const subject = `${alertTitle || 'Homework Reminder'} — ${className || 'Quiz Platform'}`;
+
+  const html = renderAlertCardHtml({
+    accentBg: '#fde047',
+    headerColor: '#000000',
+    badgeText: `CLASS ALERT • ${safeClass}`,
+    heading: safeTitle,
+    greetingName: safeName,
+    introHtml: `<p><strong>${safeTeacher}</strong> sent an alert for <strong>${safeModule}</strong> in <strong>${safeClass}</strong>:</p>`,
+    calloutHtml: `<div class="callout">${safeMessage}</div>`,
+    ctaHref: escapeHtml(targetUrl),
+    ctaLabel: 'Open Homework & Start →',
+    footerNote: `Quiz Platform Classroom Alerts • ${safeClass}`
+  });
+
+  return dispatchMail({
+    to: email,
+    subject,
+    text: `Hello ${safeName},\n\n${safeTeacher} sent an alert for "${safeModule}" in ${safeClass}:\n\n${message}\n\nOpen here: ${targetUrl}`,
+    html
+  });
+}
+
+/**
+ * Sends a direct platform notification alert email (e.g. direct system, challenge, or homework alert).
+ */
+export async function sendGeneralAlertEmail({
+  email,
+  recipientName,
+  senderName,
+  title,
+  message,
+  link = '/'
+}) {
+  if (!isDeliverableEmail(email)) {
+    return { success: false, status: 'skipped_undeliverable' };
+  }
+
+  const baseUrl = getAppBaseUrl();
+  const rawLink = String(link || '/').trim();
+  const targetUrl = /^https?:\/\//i.test(rawLink)
+    ? rawLink
+    : `${baseUrl}${rawLink.startsWith('/') ? rawLink : `/${rawLink}`}`;
+  const safeName = escapeHtml(recipientName || 'Learner');
+  const safeSender = escapeHtml(senderName || 'Quiz Platform');
+  const safeTitle = escapeHtml(title || 'New Alert');
+  const safeMessage = escapeHtml(message || 'You have a new notification on Quiz Platform.').replace(/\n/g, '<br/>');
+
+  const html = renderAlertCardHtml({
+    accentBg: '#8b5cf6',
+    headerColor: '#ffffff',
+    badgeText: 'PLATFORM ALERT',
+    heading: safeTitle,
+    greetingName: safeName,
+    introHtml: `<p>You received an alert from <strong>${safeSender}</strong>:</p>`,
+    calloutHtml: `<div class="callout">${safeMessage}</div>`,
+    ctaHref: escapeHtml(targetUrl),
+    ctaLabel: 'Open Alert →',
+    footerNote: 'Quiz Platform Notifications'
+  });
+
+  return dispatchMail({
+    to: email,
+    subject: `${title || 'New Alert'} — Quiz Platform`,
+    text: `Hello ${safeName},\n\n${title}\n${message}\n\nView on Quiz Platform: ${targetUrl}`,
     html
   });
 }

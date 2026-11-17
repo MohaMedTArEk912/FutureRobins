@@ -2,6 +2,7 @@ import { Quiz } from '../models/Quiz.js';
 import { QuestionPoolProgress } from '../models/QuestionPoolProgress.js';
 import { createAndSendNotification } from './notificationController.js';
 import { enforceQuizShuffleFlags, shuffleArray } from '../utils/shuffle.js';
+import { runInBackground } from '../utils/vercelUtils.js';
 import { readdir, readFile } from 'fs/promises';
 import path from 'path';
 import crypto from 'crypto';
@@ -247,15 +248,18 @@ export const createQuiz = async (req, res) => {
     
     console.log(`✅ Quiz created: ${newQuiz.title} (${newQuiz.id})`);
 
-    // Broadcast notification to all students
-    createAndSendNotification(req.app, {
-      recipientId: 'all',
-      type: 'new_quiz',
-      title: 'New Quiz Added! 🎯',
-      message: `"${newQuiz.title}" has just been added under ${newQuiz.category || 'General'}. Test your skills now!`,
-      link: '/quizzes',
-      metadata: { quizId: newQuiz.id, title: newQuiz.title, category: newQuiz.category }
-    }).catch(e => console.error('Failed to send new quiz notification:', e));
+    // Broadcast notification to all students (tracked via waitUntil on Vercel)
+    runInBackground(
+      createAndSendNotification(req.app, {
+        recipientId: 'all',
+        type: 'new_quiz',
+        title: 'New Quiz Added! 🎯',
+        message: `"${newQuiz.title}" has just been added under ${newQuiz.category || 'General'}. Test your skills now!`,
+        link: '/quizzes',
+        metadata: { quizId: newQuiz.id, title: newQuiz.title, category: newQuiz.category }
+      }),
+      'create-quiz-notification'
+    );
 
     res.status(201).json(newQuiz);
   } catch (error) {
@@ -350,14 +354,17 @@ export const importQuizzes = async (req, res) => {
     
     if (results.length > 0) {
       const titles = results.slice(0, 3).map(q => `"${q.title}"`).join(', ') + (results.length > 3 ? ` and ${results.length - 3} more` : '');
-      createAndSendNotification(req.app, {
-        recipientId: 'all',
-        type: 'new_quiz',
-        title: `${results.length} New Quiz${results.length > 1 ? 'zes' : ''} Published! 📚`,
-        message: `New quiz content available: ${titles}. Check them out!`,
-        link: '/quizzes',
-        metadata: { count: results.length }
-      }).catch(e => console.error('Failed to send import quiz notification:', e));
+      runInBackground(
+        createAndSendNotification(req.app, {
+          recipientId: 'all',
+          type: 'new_quiz',
+          title: `${results.length} New Quiz${results.length > 1 ? 'zes' : ''} Published! 📚`,
+          message: `New quiz content available: ${titles}. Check them out!`,
+          link: '/quizzes',
+          metadata: { count: results.length }
+        }),
+        'import-quiz-notification'
+      );
     }
 
     res.json({ 

@@ -7,6 +7,7 @@ interface AuthContextType {
     isAdmin: boolean;
     isTeacher: boolean;
     isLoading: boolean;
+    completeAuthSession: (user: UserData, jwt: string) => { user: UserData; token: string; isAdmin: boolean };
     login: (email: string, password: string) => Promise<{ user: UserData; token: string; isAdmin: boolean }>;
     register: (name: string, email: string, password: string) => Promise<{ user: UserData; token: string; isAdmin: boolean }>;
     googleLogin: (profile: { email: string; name: string; googleId: string }) => Promise<{ user: UserData; token: string; isAdmin: boolean }>;
@@ -15,7 +16,10 @@ interface AuthContextType {
     refreshUser: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const globalAuthStore = globalThis as { __quizAuthContext?: React.Context<AuthContextType | undefined> };
+const AuthContext = import.meta.env.DEV
+    ? (globalAuthStore.__quizAuthContext ??= createContext<AuthContextType | undefined>(undefined))
+    : createContext<AuthContextType | undefined>(undefined);
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
@@ -99,16 +103,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
     }, [currentUser?.userId, token]);
 
-    const login = async (email: string, password: string) => {
-        const normalizedEmail = email.toLowerCase().trim();
-        const { user, token: jwt } = await api.login({ email: normalizedEmail, password });
+    const completeAuthSession = useCallback((user: UserData, jwt: string) => {
         const isAdminUser = user.role === 'admin';
-
-        setIsAdmin(isAdminUser);
         setCurrentUser(user);
+        setIsAdmin(isAdminUser);
         setToken(jwt);
         sessionStorage.setItem('userSession', JSON.stringify({ user, token: jwt, isAdmin: isAdminUser }));
         return { user, token: jwt, isAdmin: isAdminUser };
+    }, []);
+
+    const login = async (email: string, password: string) => {
+        const normalizedEmail = email.toLowerCase().trim();
+        const { user, token: jwt } = await api.login({ email: normalizedEmail, password });
+        return completeAuthSession(user, jwt);
     };
 
     const register = async (name: string, email: string, password: string) => {
@@ -131,23 +138,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
         const registrationData: Partial<UserData> & { password: string } = { ...baseUserData, password };
         const { user, token: jwt } = await api.register(registrationData);
-        const isAdminUser = user.role === 'admin';
-
-        setCurrentUser(user);
-        setIsAdmin(isAdminUser);
-        setToken(jwt);
-        sessionStorage.setItem('userSession', JSON.stringify({ user, token: jwt, isAdmin: isAdminUser }));
-        return { user, token: jwt, isAdmin: isAdminUser };
+        return completeAuthSession(user, jwt);
     };
 
     const googleLogin = async (profile: { email: string; name: string; googleId: string }) => {
         const { user, token: jwt } = await api.googleLogin(profile);
-        const isAdminUser = user.role === 'admin';
-        setCurrentUser(user);
-        setIsAdmin(isAdminUser);
-        setToken(jwt);
-        sessionStorage.setItem('userSession', JSON.stringify({ user, token: jwt, isAdmin: isAdminUser }));
-        return { user, token: jwt, isAdmin: isAdminUser };
+        return completeAuthSession(user, jwt);
     };
 
     const logout = () => {
@@ -176,7 +172,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const isTeacher = Boolean(currentUser && (currentUser.role === 'teacher' || currentUser.role === 'admin' || isAdmin));
 
     return (
-        <AuthContext.Provider value={{ currentUser, isAdmin, isTeacher, isLoading, login, register, googleLogin, logout, updateUser, refreshUser }}>
+        <AuthContext.Provider value={{ currentUser, isAdmin, isTeacher, isLoading, completeAuthSession, login, register, googleLogin, logout, updateUser, refreshUser }}>
             {children}
         </AuthContext.Provider>
     );

@@ -1,12 +1,12 @@
 {
   "version": 2,
   "framework": "vite",
+  "fluid": true,
   "buildCommand": "npm --prefix client run build",
   "outputDirectory": "client/dist",
   "functions": {
     "api/index.js": {
-      "memory": 1024,
-      "maxDuration": 30
+      "maxDuration": 300
     }
   },
   "routes": [

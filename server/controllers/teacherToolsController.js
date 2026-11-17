@@ -9,6 +9,8 @@ import { Presentation } from '../models/Presentation.js';
 import { extractUserMistakes } from './analyticsController.js';
 import { sanitizeQuestions } from './quizController.js';
 import { createAndSendNotification } from './notificationController.js';
+import { sendHomeworkAlertEmail, isDeliverableEmail } from '../services/emailService.js';
+import { runInBackground } from '../utils/vercelUtils.js';
 import { parsePresentationPayload } from '../utils/motionSlideParser.js';
 import { smartTruncate } from '../utils/tokenOptimizer.js';
 
@@ -774,21 +776,51 @@ export const publishGeneratedQuizToClass = async (req, res) => {
       }
     }
 
-    // Notify class students about the new class homework quiz
+    // Notify class students about the new class homework quiz (in-app & email)
     const studentIds = (clan.members || []).map(m => m.userId).filter(id => id && id !== clan.leaderId);
     if (studentIds.length > 0 && attachedToSession) {
-      Promise.all(studentIds.map(studentId =>
-        createAndSendNotification(req.app, {
-          recipientId: studentId,
-          senderId: req.user.userId,
-          senderName: req.user?.name || 'Teacher',
-          type: 'new_quiz',
-          title: `📝 New Class Homework: ${newQuiz.title}`,
-          message: `Your teacher added "${newQuiz.title}" (${sanitizedQuestions.length} questions) to ${clan.name}.`,
-          link: `/quiz/${encodeURIComponent(quizId)}`,
-          metadata: { quizId, clanId: clan.clanId, moduleId }
-        }).catch(() => {})
-      )).catch(() => {});
+      const notifTitle = `📝 New Class Homework: ${newQuiz.title}`;
+      const notifMsg = `Your teacher added "${newQuiz.title}" (${sanitizedQuestions.length} questions) to ${clan.name}.`;
+      const actionLink = `/quiz/${encodeURIComponent(quizId)}`;
+
+      runInBackground(
+        (async () => {
+          await Promise.all(studentIds.map(studentId =>
+            createAndSendNotification(req.app, {
+              recipientId: studentId,
+              senderId: req.user.userId,
+              senderName: req.user?.name || 'Teacher',
+              type: 'new_quiz',
+              title: notifTitle,
+              message: notifMsg,
+              link: actionLink,
+              skipEmail: true,
+              metadata: { quizId, clanId: clan.clanId, moduleId }
+            }).catch(() => {})
+          ));
+
+          const recipients = await User.find({ userId: { $in: studentIds } })
+            .select('name email')
+            .lean();
+          await Promise.allSettled(
+            recipients
+              .filter(u => isDeliverableEmail(u.email))
+              .map(u =>
+                sendHomeworkAlertEmail({
+                  email: u.email,
+                  recipientName: u.name || 'Student',
+                  teacherName: req.user?.name || 'Teacher',
+                  className: clan.name,
+                  moduleTitle: newQuiz.title,
+                  alertTitle: notifTitle,
+                  message: notifMsg,
+                  actionPath: actionLink
+                })
+              )
+          );
+        })(),
+        'publish-generated-quiz-alerts'
+      );
     }
 
     res.status(201).json({

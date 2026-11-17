@@ -6,9 +6,47 @@ import { Quiz } from '../models/Quiz.js';
 import { Attempt } from '../models/Attempt.js';
 import crypto from 'crypto';
 import { escapeRegex } from '../utils/regexUtils.js';
-import { sendClanInviteEmail } from '../services/emailService.js';
+import { sendClanInviteEmail, sendHomeworkAlertEmail, isDeliverableEmail } from '../services/emailService.js';
 import { evaluateAndAwardBadges } from '../services/badgeService.js';
 import { createAndSendNotification } from './notificationController.js';
+import { runInBackground } from '../utils/vercelUtils.js';
+
+const dispatchClassAlertEmails = async ({
+  targetIds,
+  teacherName,
+  className,
+  moduleTitle,
+  alertTitle,
+  message,
+  actionPath
+}) => {
+  if (!Array.isArray(targetIds) || targetIds.length === 0) return 0;
+  const recipients = await User.find({ userId: { $in: targetIds } })
+    .select('userId name email')
+    .lean();
+  const deliverable = recipients.filter(u => isDeliverableEmail(u.email));
+  if (deliverable.length === 0) return 0;
+
+  runInBackground(
+    Promise.allSettled(
+      deliverable.map(student =>
+        sendHomeworkAlertEmail({
+          email: student.email,
+          recipientName: student.name || 'Student',
+          teacherName,
+          className,
+          moduleTitle,
+          alertTitle,
+          message,
+          actionPath
+        })
+      )
+    ),
+    'class-homework-alert-emails'
+  );
+
+  return deliverable.length;
+};
 
 const generateInviteCode = () => crypto.randomBytes(5).toString('hex').toUpperCase();
 
@@ -90,9 +128,10 @@ const unlockModulesForStudents = async (studentIds, trackId, moduleIdsToUnlock =
 // In-Memory TTL Cache (30s)
 // ==========================================
 class ClanTtlCache {
-  constructor(defaultTtlMs = 30000) {
+  constructor(defaultTtlMs = 30000, maxEntries = 500) {
     this.cache = new Map();
     this.defaultTtlMs = defaultTtlMs;
+    this.maxEntries = maxEntries;
   }
 
   get(key) {
@@ -106,9 +145,19 @@ class ClanTtlCache {
   }
 
   set(key, value, ttlMs = this.defaultTtlMs) {
+    const now = Date.now();
+    if (this.cache.size >= this.maxEntries && !this.cache.has(key)) {
+      for (const [k, entry] of this.cache.entries()) {
+        if (now > entry.expiry) this.cache.delete(k);
+      }
+      if (this.cache.size >= this.maxEntries) {
+        const oldestKey = this.cache.keys().next().value;
+        if (oldestKey !== undefined) this.cache.delete(oldestKey);
+      }
+    }
     this.cache.set(key, {
       value,
-      expiry: Date.now() + ttlMs
+      expiry: now + ttlMs
     });
   }
 
@@ -685,13 +734,16 @@ export const inviteToClan = async (req, res) => {
 
     // Dispatch Class Invitation Email
     if (targetUser.email) {
-      sendClanInviteEmail({
-        email: targetUser.email,
-        recipientName: targetUser.name || 'Student',
-        inviterName: req.user?.name || member?.name || 'Your Teacher',
-        clanName: clan.name,
-        clanTag: clan.tag
-      }).catch(err => console.warn('⚠️ [ClassInvite] Email error:', err.message));
+      runInBackground(
+        sendClanInviteEmail({
+          email: targetUser.email,
+          recipientName: targetUser.name || 'Student',
+          inviterName: req.user?.name || member?.name || 'Your Teacher',
+          clanName: clan.name,
+          clanTag: clan.tag
+        }),
+        'class-invite-email'
+      );
     }
 
     res.json({ message: 'Invitation sent' });
@@ -1422,6 +1474,7 @@ export const toggleClassSession = async (req, res) => {
             title: `Session Finished: ${targetModule.title}`,
             message: hwMessage,
             link,
+            skipEmail: true,
             metadata: {
               clanId: clan.clanId,
               className: clan.name,
@@ -1431,6 +1484,16 @@ export const toggleClassSession = async (req, res) => {
             }
           })
         ));
+
+        await dispatchClassAlertEmails({
+          targetIds: studentIds,
+          teacherName: req.user?.name || 'Teacher',
+          className: clan.name,
+          moduleTitle: targetModule.title,
+          alertTitle: `Session Finished: ${targetModule.title}`,
+          message: hwMessage,
+          actionPath: link
+        }).catch(() => 0);
       }
     } else {
       if (existingIdx !== -1) {
@@ -1756,6 +1819,7 @@ export const sendHomeworkAlert = async (req, res) => {
         message: alertBody,
         note: customNote,
         link,
+        skipEmail: true,
         metadata: {
           clanId: clan.clanId,
           className: clan.name,
@@ -1780,6 +1844,16 @@ export const sendHomeworkAlert = async (req, res) => {
       }
     }));
 
+    const emailedCount = await dispatchClassAlertEmails({
+      targetIds: resolvedTargetIds,
+      teacherName: req.user?.name || 'Teacher',
+      className: clan.name,
+      moduleTitle: targetModule.title,
+      alertTitle,
+      message: alertBody,
+      actionPath: link
+    }).catch(() => 0);
+
     const alertRecord = {
       alertId: crypto.randomUUID(),
       moduleId: targetModule.moduleId,
@@ -1801,8 +1875,9 @@ export const sendHomeworkAlert = async (req, res) => {
     clanCache.invalidateClan(clanId);
 
     res.json({
-      message: `Sent homework reminder to ${resolvedTargetIds.length} student${resolvedTargetIds.length === 1 ? '' : 's'}`,
+      message: `Sent homework reminder to ${resolvedTargetIds.length} student${resolvedTargetIds.length === 1 ? '' : 's'}${emailedCount > 0 ? ` (emailed ${emailedCount})` : ''}`,
       alertedCount: resolvedTargetIds.length,
+      emailedCount,
       alertedUserIds: resolvedTargetIds,
       alertRecord
     });

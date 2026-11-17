@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import { Quiz } from '../models/Quiz.js';
 import { SkillTrack } from '../models/SkillTrack.js';
 import { Tournament } from '../models/Tournament.js';
+import { TournamentSession } from '../models/TournamentSession.js';
 import { Attempt } from '../models/Attempt.js';
 import { User } from '../models/User.js';
 
@@ -1198,8 +1199,8 @@ export const deleteSkillTrack = async (req, res) => {
   }
 };
 
-// In-memory telemetry cache for active tournament quiz-takers: tournamentId -> Map<userId, SessionData>
-const tournamentActiveSessions = new Map();
+// Active tournament live-monitoring sessions are persisted in TournamentSession (TTL-indexed in MongoDB)
+// so telemetry stays consistent across multiple Vercel Fluid/serverless instances.
 
 // --- Tournaments ---
 
@@ -1561,22 +1562,30 @@ export const revealTournamentResults = async (req, res) => {
 export const getTournamentLiveTakers = async (req, res) => {
   try {
     const { id } = req.params;
-    const activeMap = tournamentActiveSessions.get(id) || new Map();
-    const now = Date.now();
-    const TWO_MINUTES = 2 * 60 * 1000;
+    const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000);
 
-    const liveSessions = [];
-    for (const [userId, session] of activeMap.entries()) {
-      // Keep session if updated within the last 2 minutes
-      if (now - session.lastActive <= TWO_MINUTES) {
-        liveSessions.push(session);
-      } else {
-        activeMap.delete(userId);
-      }
-    }
+    const [activeDocs, t] = await Promise.all([
+      TournamentSession.find({
+        tournamentId: id,
+        lastActiveAt: { $gte: twoMinutesAgo }
+      }).lean(),
+      Tournament.findOne({ tournamentId: id }).select('participants').lean()
+    ]);
 
-    // Also fetch participants from DB who have completed their submission
-    const t = await Tournament.findOne({ tournamentId: id }).lean();
+    const liveSessions = activeDocs.map(doc => ({
+      userId: doc.userId,
+      userName: doc.userName || 'Student',
+      userEmail: doc.userEmail || '',
+      userAvatar: doc.userAvatar || '',
+      currentQuestion: doc.currentQuestion || 1,
+      totalQuestions: doc.totalQuestions || 10,
+      score: doc.score || 0,
+      answersCount: doc.answersCount || 0,
+      status: doc.status || 'answering',
+      timeElapsed: doc.timeElapsed || 0,
+      lastActive: doc.lastActiveAt ? new Date(doc.lastActiveAt).getTime() : Date.now()
+    }));
+
     const dbSubmissions = (t?.participants || [])
       .filter(p => p.submittedAt)
       .map(p => ({
@@ -1612,28 +1621,39 @@ export const recordTournamentHeartbeat = async (req, res) => {
     const userId = req.user.userId;
     const { currentQuestion, totalQuestions, score, answersCount, status, timeElapsed } = req.body;
 
-    if (!tournamentActiveSessions.has(id)) {
-      tournamentActiveSessions.set(id, new Map());
-    }
-
-    const sessionMap = tournamentActiveSessions.get(id);
-    const userDoc = await User.findOne({ userId }).lean();
-
+    const now = new Date();
     const sessionData = {
       userId,
-      userName: userDoc?.name || req.user.name || 'Student',
-      userEmail: userDoc?.email || req.user.email || '',
-      userAvatar: userDoc?.avatar || '',
+      userName: req.user.name || 'Student',
+      userEmail: req.user.email || '',
+      userAvatar: req.user.avatar || '',
       currentQuestion: Number(currentQuestion) || 1,
       totalQuestions: Number(totalQuestions) || 10,
       score: Number(score) || 0,
       answersCount: Number(answersCount) || 0,
       status: status || 'answering', // 'answering' | 'focus_lost' | 'submitted'
       timeElapsed: Number(timeElapsed) || 0,
-      lastActive: Date.now()
+      lastActive: now.getTime()
     };
 
-    sessionMap.set(userId, sessionData);
+    await TournamentSession.findOneAndUpdate(
+      { tournamentId: id, userId },
+      {
+        $set: {
+          userName: sessionData.userName,
+          userEmail: sessionData.userEmail,
+          userAvatar: sessionData.userAvatar,
+          currentQuestion: sessionData.currentQuestion,
+          totalQuestions: sessionData.totalQuestions,
+          score: sessionData.score,
+          answersCount: sessionData.answersCount,
+          status: sessionData.status,
+          timeElapsed: sessionData.timeElapsed,
+          lastActiveAt: now
+        }
+      },
+      { upsert: true }
+    );
 
     // Relay to admin live proctoring room via socket
     const io = req.app.get('io');

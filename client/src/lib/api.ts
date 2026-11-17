@@ -43,7 +43,10 @@ import type {
     ClassAnalyticsResponse,
     GenerateQuestionsFromSlidesResponse,
     GeneratedSlideQuestion,
-    TeacherAiToolkitResponse
+    TeacherAiToolkitResponse,
+    ClassroomMode,
+    ClassroomRoomState,
+    ClassroomLobbySummary
 } from '../types';
 import { fetchWithFallback } from './apiRetry';
 
@@ -152,11 +155,48 @@ export const api = {
             headers: getHeaders(),
             body: JSON.stringify(userData),
         });
+        const data = await response.json().catch(() => ({}));
         if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || 'Registration failed');
+            throw new Error(data.message || 'Registration failed');
         }
-        return response.json();
+        return data;
+    },
+
+    async requestRegistrationVerification(userData: { userId: string; name: string; email: string; password: string }): Promise<{
+        requiresVerification: boolean;
+        email: string;
+        message: string;
+        deliveryStatus?: 'sent' | 'simulated';
+        previewUrl?: string;
+    }> {
+        const response = await fetchWithFallback('/register/request-verification', {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify(userData),
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            throw new Error(data.message || 'Failed to send verification email');
+        }
+        return data;
+    },
+
+    async verifyRegistration(payload: { email: string; otp?: string; code?: string; token?: string }): Promise<{
+        user?: UserData;
+        token?: string;
+        alreadyVerified?: boolean;
+        message?: string;
+    }> {
+        const response = await fetchWithFallback('/register/verify', {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify(payload),
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            throw new Error(data.message || 'Email verification failed');
+        }
+        return data;
     },
 
     async login(credentials: { email: string; password: string }) {
@@ -2656,6 +2696,177 @@ export const api = {
             throw new Error(resData.message || 'Failed to broadcast challenge notification.');
         }
         return resData;
+    },
+
+    // ============== LIVE CLASSROOM ARENA API ==============
+    async listActiveClassroomRooms(): Promise<{ rooms: ClassroomLobbySummary[] }> {
+        const response = await fetchWithFallback('/classroom/active');
+        const data = await response.json().catch(() => ({ rooms: [] }));
+        if (!response.ok) {
+            throw new Error(data.message || 'Failed to list active rooms');
+        }
+        return data;
+    },
+
+    async createClassroomRoom(payload: {
+        hostId: string;
+        hostName: string;
+        hostRole?: string;
+        mode: ClassroomMode;
+        hostParticipates?: boolean;
+        questionTimeSec?: number;
+        quizData: {
+            id?: string;
+            title: string;
+            questions: Array<{
+                id?: string | number;
+                question: string;
+                options: string[];
+                codeSnippet?: string;
+                imageUrl?: string;
+                correctAnswer: string | number;
+                points?: number;
+                explanation?: string;
+            }>;
+        };
+    }): Promise<{ room: ClassroomRoomState }> {
+        const response = await fetchWithFallback('/classroom/rooms', {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify(payload)
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            throw new Error(data.message || 'Failed to create classroom room');
+        }
+        return data;
+    },
+
+    async joinClassroomRoom(pin: string, payload: { userId?: string; name: string; role?: string }): Promise<{ room: ClassroomRoomState; joinedUserId: string }> {
+        const response = await fetchWithFallback(`/classroom/rooms/${encodeURIComponent(pin.trim())}/join`, {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify(payload)
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            throw new Error(data.message || 'Failed to join classroom room');
+        }
+        return data;
+    },
+
+    async getClassroomRoomState(pin: string, version?: number): Promise<{ unchanged?: boolean; version?: number; serverNow?: string; room?: ClassroomRoomState }> {
+        const query = typeof version === 'number' && version > 0 ? `?version=${version}` : '';
+        const response = await fetchWithFallback(`/classroom/rooms/${encodeURIComponent(pin.trim())}/state${query}`);
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            throw new Error(data.message || 'Classroom room unavailable');
+        }
+        return data;
+    },
+
+    async updateClassroomSettings(pin: string, settings: { mode?: ClassroomMode; hostParticipates?: boolean; questionTimeSec?: number }): Promise<{ room: ClassroomRoomState }> {
+        const response = await fetchWithFallback(`/classroom/rooms/${encodeURIComponent(pin.trim())}/settings`, {
+            method: 'PATCH',
+            headers: getHeaders(),
+            body: JSON.stringify(settings)
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            throw new Error(data.message || 'Failed to update settings');
+        }
+        return data;
+    },
+
+    async toggleClassroomPracticeBot(pin: string, action: 'add' | 'remove', botId?: string): Promise<{ room: ClassroomRoomState }> {
+        const response = await fetchWithFallback(`/classroom/rooms/${encodeURIComponent(pin.trim())}/bot`, {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify({ action, botId })
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            throw new Error(data.message || 'Failed to update practice student');
+        }
+        return data;
+    },
+
+    async startClassroomRoom(pin: string, options?: { mode?: ClassroomMode; hostParticipates?: boolean }): Promise<{ room: ClassroomRoomState }> {
+        const response = await fetchWithFallback(`/classroom/rooms/${encodeURIComponent(pin.trim())}/start`, {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify(options || {})
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            throw new Error(data.message || 'Failed to launch live classroom');
+        }
+        return data;
+    },
+
+    async submitClassroomAnswer(pin: string, payload: { userId: string; questionIndex: number; answerIndex: number; timedOut?: boolean; autoAnswer?: boolean }): Promise<{ room: ClassroomRoomState }> {
+        const response = await fetchWithFallback(`/classroom/rooms/${encodeURIComponent(pin.trim())}/submit`, {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify(payload)
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            throw new Error(data.message || 'Failed to submit answer');
+        }
+        return data;
+    },
+
+    async revealClassroomQuestion(pin: string): Promise<{ room: ClassroomRoomState }> {
+        const response = await fetchWithFallback(`/classroom/rooms/${encodeURIComponent(pin.trim())}/reveal`, {
+            method: 'POST',
+            headers: getHeaders()
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            throw new Error(data.message || 'Failed to reveal question');
+        }
+        return data;
+    },
+
+    async nextClassroomQuestion(pin: string): Promise<{ room: ClassroomRoomState }> {
+        const response = await fetchWithFallback(`/classroom/rooms/${encodeURIComponent(pin.trim())}/next`, {
+            method: 'POST',
+            headers: getHeaders()
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            throw new Error(data.message || 'Failed to advance question');
+        }
+        return data;
+    },
+
+    async inviteToClassroomRoom(pin: string, payload: { toUserId: string; fromUser: { id: string; name: string }; quizTitle?: string }): Promise<{ success: boolean }> {
+        const response = await fetchWithFallback(`/classroom/rooms/${encodeURIComponent(pin.trim())}/invite`, {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify(payload)
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            throw new Error(data.message || 'Failed to send invite');
+        }
+        return data;
+    },
+
+    async leaveClassroomRoom(pin: string, userId: string): Promise<void> {
+        await fetchWithFallback(`/classroom/rooms/${encodeURIComponent(pin.trim())}/leave`, {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify({ userId })
+        }).catch(() => {});
+    },
+
+    async closeClassroomRoom(pin: string): Promise<void> {
+        await fetchWithFallback(`/classroom/rooms/${encodeURIComponent(pin.trim())}`, {
+            method: 'DELETE',
+            headers: getHeaders()
+        }).catch(() => {});
     }
 };
 

@@ -36,6 +36,7 @@ const fetchWithTimeout = (
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
   return fetch(url, {
+    cache: options.cache ?? 'no-store',
     ...options,
     signal: controller.signal,
   }).finally(() => clearTimeout(timeoutId));

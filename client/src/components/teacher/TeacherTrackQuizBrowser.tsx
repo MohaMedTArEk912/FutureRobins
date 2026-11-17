@@ -8,11 +8,15 @@ import {
     Search,
     Layers
 } from 'lucide-react';
-import type { Quiz, SkillTrack, SkillModule } from '../../types';
+import type { Quiz, SkillTrack } from '../../types';
 import { useTheme } from '../../context/ThemeContext';
 import { getTeacherThemeStyles } from './teacherTheme';
+import {
+    groupQuizzesForTrack,
+    type TrackAssessmentKind
+} from '../../utils/trackQuizUtils';
 
-export type TrackAssessmentKind = 'exam' | 'quiz' | 'homework';
+export type { TrackAssessmentKind };
 type ArrangeViewTab = 'all' | 'sessions' | 'exam' | 'quiz' | 'homework';
 
 interface TeacherTrackQuizBrowserProps {
@@ -20,41 +24,6 @@ interface TeacherTrackQuizBrowserProps {
     quizzes: Quiz[];
     initialTrackId?: string | null;
     onSelectQuiz: (quiz: Quiz) => void;
-}
-
-interface ModuleMatchMeta {
-    moduleId: string;
-    title: string;
-    order: number;
-    type: SkillModule['type'];
-}
-
-function classifyQuizKind(quiz: Quiz, moduleMeta?: ModuleMatchMeta): TrackAssessmentKind {
-    const text = `${quiz.title || ''} ${quiz.description || ''}`;
-    if (/homework|\bhw\b|assignment|take[- ]?home/i.test(text)) {
-        return 'homework';
-    }
-    if (
-        quiz.quizType === 'exam'
-        || moduleMeta?.type === 'exam'
-        || moduleMeta?.type === 'milestone'
-        || /\bexam\b|comprehensive|midterm|final\s+test|capstone/i.test(text)
-    ) {
-        return 'exam';
-    }
-    return 'quiz';
-}
-
-function collectModuleQuizIds(mod: SkillModule): Set<string> {
-    const ids = new Set<string>();
-    if (mod.quizId) ids.add(String(mod.quizId));
-    (mod.quizIds || []).forEach(id => {
-        if (id) ids.add(String(id));
-    });
-    (mod.subModules || []).forEach(sub => {
-        if (sub.quizId) ids.add(String(sub.quizId));
-    });
-    return ids;
 }
 
 export const TeacherTrackQuizBrowser: React.FC<TeacherTrackQuizBrowserProps> = ({
@@ -90,121 +59,10 @@ export const TeacherTrackQuizBrowser: React.FC<TeacherTrackQuizBrowserProps> = (
         [skillTracks, effectiveTrackId]
     );
 
-    const trackData = useMemo(() => {
-        if (!selectedTrack) {
-            return {
-                sessions: [] as { module: SkillModule; order: number; items: { quiz: Quiz; kind: TrackAssessmentKind }[] }[],
-                exams: [] as { quiz: Quiz; sessionLabel?: string }[],
-                quizzes: [] as { quiz: Quiz; sessionLabel?: string }[],
-                homework: [] as { quiz: Quiz; sessionLabel?: string }[],
-                totalCount: 0
-            };
-        }
-
-        const modules = selectedTrack.modules || [];
-        const moduleByQuizId = new Map<string, ModuleMatchMeta>();
-        const moduleById = new Map<string, ModuleMatchMeta>();
-
-        modules.forEach((mod, idx) => {
-            const meta: ModuleMatchMeta = {
-                moduleId: mod.moduleId,
-                title: mod.title,
-                order: idx + 1,
-                type: mod.type
-            };
-            moduleById.set(mod.moduleId, meta);
-            collectModuleQuizIds(mod).forEach(qid => {
-                if (!moduleByQuizId.has(qid)) moduleByQuizId.set(qid, meta);
-            });
-        });
-
-        const trackTitleLower = (selectedTrack.title || '').toLowerCase();
-        const trackCatLower = (selectedTrack.category || '').toLowerCase();
-        const qSearch = searchQuery.trim().toLowerCase();
-
-        const matchedQuizzes: { quiz: Quiz; meta?: ModuleMatchMeta; kind: TrackAssessmentKind }[] = [];
-
-        quizzes.forEach(q => {
-            const qid = String(q.id || q._id || '');
-            const linkedMeta: ModuleMatchMeta | undefined =
-                (qid ? moduleByQuizId.get(qid) : undefined)
-                || (q.linkedModuleId ? moduleById.get(q.linkedModuleId) : undefined)
-                || (q.moduleId ? moduleById.get(q.moduleId) : undefined);
-
-            const catLower = (q.category || '').trim().toLowerCase();
-            const matchesTrack = Boolean(
-                linkedMeta
-                || q.linkedTrackId === selectedTrack.trackId
-                || (selectedTrack.subjectId && q.subjectId === selectedTrack.subjectId)
-                || (trackCatLower && catLower && catLower === trackCatLower)
-                || (catLower && catLower.length > 2 && trackTitleLower.includes(catLower))
-            );
-
-            if (!matchesTrack) return;
-
-            if (qSearch) {
-                const haystack = `${q.title || ''} ${q.description || ''} ${linkedMeta?.title || ''}`.toLowerCase();
-                if (!haystack.includes(qSearch)) return;
-            }
-
-            // Fallback module match via "Module X" prefix in quiz title if not explicitly linked
-            let resolvedMeta = linkedMeta;
-            if (!resolvedMeta && q.title) {
-                const modMatch = q.title.match(/\b(?:module|session)\s*(\d+)\b/i);
-                if (modMatch) {
-                    const num = Number(modMatch[1]);
-                    const targetMod = modules[num - 1];
-                    if (targetMod) {
-                        resolvedMeta = {
-                            moduleId: targetMod.moduleId,
-                            title: targetMod.title,
-                            order: num,
-                            type: targetMod.type
-                        };
-                    }
-                }
-            }
-
-            const kind = classifyQuizKind(q, resolvedMeta);
-            matchedQuizzes.push({ quiz: q, meta: resolvedMeta, kind });
-        });
-
-        // Group into Sessions
-        const sessionBuckets = new Map<string, { quiz: Quiz; kind: TrackAssessmentKind }[]>();
-        matchedQuizzes.forEach(item => {
-            if (item.meta) {
-                const existing = sessionBuckets.get(item.meta.moduleId) || [];
-                existing.push({ quiz: item.quiz, kind: item.kind });
-                sessionBuckets.set(item.meta.moduleId, existing);
-            }
-        });
-
-        const sessions = modules.map((mod, idx) => ({
-            module: mod,
-            order: idx + 1,
-            items: sessionBuckets.get(mod.moduleId) || []
-        })).filter(s => !qSearch || s.items.length > 0 || s.module.title.toLowerCase().includes(qSearch));
-
-        const exams = matchedQuizzes
-            .filter(m => m.kind === 'exam')
-            .map(m => ({ quiz: m.quiz, sessionLabel: m.meta ? `Session ${m.meta.order}: ${m.meta.title}` : undefined }));
-
-        const regularQuizzes = matchedQuizzes
-            .filter(m => m.kind === 'quiz')
-            .map(m => ({ quiz: m.quiz, sessionLabel: m.meta ? `Session ${m.meta.order}: ${m.meta.title}` : undefined }));
-
-        const homework = matchedQuizzes
-            .filter(m => m.kind === 'homework')
-            .map(m => ({ quiz: m.quiz, sessionLabel: m.meta ? `Session ${m.meta.order}: ${m.meta.title}` : undefined }));
-
-        return {
-            sessions,
-            exams,
-            quizzes: regularQuizzes,
-            homework,
-            totalCount: matchedQuizzes.length
-        };
-    }, [selectedTrack, quizzes, searchQuery]);
+    const trackData = useMemo(
+        () => groupQuizzesForTrack(selectedTrack, quizzes, searchQuery),
+        [selectedTrack, quizzes, searchQuery]
+    );
 
     const kindBadgeStyle = (kind: TrackAssessmentKind) => {
         if (kind === 'exam') return styles.pillDanger;

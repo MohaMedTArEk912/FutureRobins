@@ -27,6 +27,7 @@ import AvatarEditor from './AvatarEditor';
 import { StreakRewardModal } from './gamification/StreakRewardModal';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useAuth } from '../context/AuthContext';
+import { useSocket } from '../context/SocketContext';
 import Footer from './Footer';
 import ThemeSkeletonPreviewCards from './ThemeSkeletonPreviewCards';
 import WorkspaceThemeSwitcher from './WorkspaceThemeSwitcher';
@@ -177,6 +178,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
     const { theme, isBento } = useTheme();
     const { logout } = useAuth();
     const { showNotification } = useNotification();
+    const { socket } = useSocket();
     const navigate = useNavigate();
     const certificateRef = useRef<HTMLDivElement>(null);
     const [downloadingAttemptId, setDownloadingAttemptId] = useState<string | null>(null);
@@ -284,6 +286,54 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
     useEffect(() => {
         fetchJoinedTournaments();
     }, [fetchJoinedTournaments]);
+
+    // Auto-sync joined tournaments when switching to History tab, focusing window, or receiving WebSocket events
+    useEffect(() => {
+        if (activeTab === 'history') {
+            fetchJoinedTournaments();
+        }
+    }, [activeTab, fetchJoinedTournaments]);
+
+    useEffect(() => {
+        const handleFocus = () => {
+            if (document.visibilityState === 'visible') {
+                fetchJoinedTournaments();
+            }
+        };
+        window.addEventListener('focus', handleFocus);
+        document.addEventListener('visibilitychange', handleFocus);
+        return () => {
+            window.removeEventListener('focus', handleFocus);
+            document.removeEventListener('visibilitychange', handleFocus);
+        };
+    }, [fetchJoinedTournaments]);
+
+    useEffect(() => {
+        if (!socket || !currentUser?.userId) return;
+
+        const handleTournamentUpdate = (payload: { userId?: string }) => {
+            if (payload?.userId && payload.userId !== currentUser.userId) return;
+            fetchJoinedTournaments();
+        };
+
+        const handleTournamentInviteOrApproval = (payload: { type?: string; recipientId?: string }) => {
+            if (!payload) return;
+            if (payload.recipientId && payload.recipientId !== 'all' && payload.recipientId !== currentUser.userId) return;
+            if (payload.type === 'tournament_invite' || payload.type === 'request_approved' || payload.type === 'request_rejected') {
+                fetchJoinedTournaments();
+            }
+        };
+
+        socket.on('tournament_request_status', handleTournamentUpdate);
+        socket.on('tournament_results_revealed', handleTournamentUpdate);
+        socket.on('new_notification', handleTournamentInviteOrApproval);
+
+        return () => {
+            socket.off('tournament_request_status', handleTournamentUpdate);
+            socket.off('tournament_results_revealed', handleTournamentUpdate);
+            socket.off('new_notification', handleTournamentInviteOrApproval);
+        };
+    }, [socket, currentUser?.userId, fetchJoinedTournaments]);
 
     // Fetch default catalog badges and auto-evaluate achievements on profile mount
     useEffect(() => {

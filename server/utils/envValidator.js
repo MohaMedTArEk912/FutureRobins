@@ -20,16 +20,22 @@ export const validateEnv = () => {
   const errors = [];
   const warnings = [];
 
-  // 1. Validate Database URI
-  const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI || process.env.MONGO_URL;
+  // 1. Validate Database URI (matches dbMiddleware.js supported env keys)
+  const mongoUri =
+    process.env.MONGODB_URI ||
+    process.env.ATLAS_MONGODB_URI ||
+    process.env.MONGO_URI ||
+    process.env.DATABASE_URL ||
+    process.env.MONGODB_URL ||
+    process.env.DB_URI;
   if (!mongoUri || !String(mongoUri).trim()) {
     if (isProduction) {
-      errors.push('MONGO_URI is required in production environment.');
+      errors.push('MONGODB_URI (or MONGO_URI / DATABASE_URL) is required in production environment.');
     } else {
-      warnings.push('MONGO_URI is not set. Database connections will fail until set.');
+      warnings.push('MONGODB_URI is not set. Database connections will fail until set.');
     }
   } else if (!mongoUri.startsWith('mongodb://') && !mongoUri.startsWith('mongodb+srv://')) {
-    warnings.push('MONGO_URI does not start with standard mongodb:// or mongodb+srv:// protocol.');
+    warnings.push('Database URI does not start with standard mongodb:// or mongodb+srv:// protocol.');
   }
 
   // 2. Validate JWT Secret & Entropy

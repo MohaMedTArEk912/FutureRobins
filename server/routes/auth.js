@@ -6,6 +6,8 @@ import { verifyAdmin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
+router.post('/register/request-verification', validate(registerSchema), authController.requestRegistrationVerification);
+router.post('/register/verify', authController.verifyRegistration);
 router.post('/register', validate(registerSchema), authController.register);
 router.post('/login', validate(loginSchema), authController.login);
 router.post('/auth/google', authController.googleAuth);

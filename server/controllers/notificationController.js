@@ -1,5 +1,10 @@
 import { Notification } from '../models/Notification.js';
+import { User } from '../models/User.js';
+import { sendGeneralAlertEmail, isDeliverableEmail } from '../services/emailService.js';
+import { runInBackground } from '../utils/vercelUtils.js';
 import crypto from 'crypto';
+
+const EMAIL_ALERT_TYPES = new Set(['homework_alert', 'challenge', 'system']);
 
 /**
  * Helper to create a notification in DB and emit via socket io if available
@@ -42,6 +47,30 @@ export const createAndSendNotification = async (appOrIo, data) => {
       } else {
         io.to(newNotification.recipientId).emit('new_notification', payload);
       }
+    }
+
+    const recipientId = newNotification.recipientId;
+    if (
+      recipientId &&
+      recipientId !== 'all' &&
+      !data.skipEmail &&
+      EMAIL_ALERT_TYPES.has(newNotification.type)
+    ) {
+      runInBackground((async () => {
+        const recipient = await User.findOne({ userId: recipientId })
+          .select('email name')
+          .lean();
+        if (!recipient || !isDeliverableEmail(recipient.email)) return;
+
+        await sendGeneralAlertEmail({
+          email: recipient.email,
+          recipientName: recipient.name || recipientId,
+          senderName: newNotification.senderName || 'Quiz Platform',
+          title: newNotification.title,
+          message: newNotification.message,
+          link: newNotification.link || '/'
+        });
+      })(), `notification-email:${newNotification.notificationId}`);
     }
 
     return newNotification;

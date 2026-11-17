@@ -13,12 +13,14 @@ import {
     Users,
     Trophy,
     BookOpen,
-    GraduationCap
+    GraduationCap,
+    RefreshCw
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { AppNotification } from '../types';
 import { api } from '../lib/api';
 import { useTheme } from '../context/ThemeContext';
+import { useSocket } from '../context/SocketContext';
 
 interface NotificationCenterProps {
     currentUser?: { userId: string; name?: string; role?: string } | null;
@@ -34,18 +36,28 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
     align = 'right'
 }) => {
     const { isBento } = useTheme();
+    const { socket } = useSocket();
     const [isOpen, setIsOpen] = useState(false);
     const [notifications, setNotifications] = useState<AppNotification[]>([]);
     const [unreadCount, setUnreadCount] = useState<number>(0);
-    const [isLoading] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
     const [filter, setFilter] = useState<FilterCategory>('all');
     const dropdownRef = useRef<HTMLDivElement>(null);
+    const lastSyncAtRef = useRef<number>(0);
+    const lastUnreadCountRef = useRef<number>(0);
+    const isOpenRef = useRef<boolean>(false);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        isOpenRef.current = isOpen;
+    }, [isOpen]);
 
     const currentUserId = currentUser?.userId;
 
-    const fetchNotifications = useCallback(async () => {
+    const fetchNotifications = useCallback(async (showSpinner = false) => {
         if (!currentUserId || currentUserId === 'guest') return;
+        lastSyncAtRef.current = Date.now();
+        if (showSpinner) setIsLoading(true);
         try {
             const [notifRes, countRes] = await Promise.all([
                 api.getNotifications(50).catch(() => ({ success: true, notifications: [] })),
@@ -56,12 +68,34 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                 setNotifications(notifRes.notifications);
             }
             if (countRes.success && typeof countRes.count === 'number') {
+                lastUnreadCountRef.current = countRes.count;
                 setUnreadCount(countRes.count);
             }
         } catch (err) {
             console.error('Failed to load notifications:', err);
+        } finally {
+            if (showSpinner) setIsLoading(false);
         }
     }, [currentUserId]);
+
+    // Lightweight background count check when dropdown is closed to avoid redundant full list fetches across active classrooms
+    const syncUnreadCountOnly = useCallback(async () => {
+        if (!currentUserId || currentUserId === 'guest') return;
+        lastSyncAtRef.current = Date.now();
+        try {
+            const countRes = await api.getUnreadNotificationCount().catch(() => ({ success: true, count: lastUnreadCountRef.current }));
+            if (countRes.success && typeof countRes.count === 'number') {
+                const prev = lastUnreadCountRef.current;
+                lastUnreadCountRef.current = countRes.count;
+                setUnreadCount(countRes.count);
+                if (countRes.count > prev) {
+                    void fetchNotifications(false);
+                }
+            }
+        } catch {
+            // Non-blocking background sync
+        }
+    }, [currentUserId, fetchNotifications]);
 
     useEffect(() => {
         let active = true;
@@ -71,17 +105,70 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
             }
         });
 
-        // Polling interval every 25s as fallback
+        // Background poll: full refresh only when dropdown is open, lightweight unread count check when closed
         const interval = setInterval(() => {
-            if (active) {
-                void fetchNotifications();
+            if (active && document.visibilityState === 'visible') {
+                if (isOpenRef.current) {
+                    void fetchNotifications();
+                } else {
+                    void syncUnreadCountOnly();
+                }
             }
-        }, 25000);
+        }, 30000);
+
+        const syncOnFocusWithCooldown = () => {
+            if (!active || document.visibilityState !== 'visible') return;
+            if (Date.now() - lastSyncAtRef.current < 5000) return;
+            if (isOpenRef.current) {
+                void fetchNotifications();
+            } else {
+                void syncUnreadCountOnly();
+            }
+        };
+
+        const handleFocus = syncOnFocusWithCooldown;
+        const handleVisibility = syncOnFocusWithCooldown;
+
+        window.addEventListener('focus', handleFocus);
+        document.addEventListener('visibilitychange', handleVisibility);
+
         return () => {
             active = false;
             clearInterval(interval);
+            window.removeEventListener('focus', handleFocus);
+            document.removeEventListener('visibilitychange', handleVisibility);
         };
-    }, [fetchNotifications]);
+    }, [fetchNotifications, syncUnreadCountOnly]);
+
+    // Immediately sync when opening notifications dropdown
+    useEffect(() => {
+        if (isOpen) {
+            void fetchNotifications();
+        }
+    }, [isOpen, fetchNotifications]);
+
+    // Real-time WebSocket push for incoming notifications
+    useEffect(() => {
+        if (!socket || !currentUserId || currentUserId === 'guest') return;
+
+        const handleNewNotification = (payload: AppNotification) => {
+            if (!payload || !payload.notificationId) return;
+            if (payload.recipientId !== 'all' && payload.recipientId !== currentUserId) return;
+
+            setNotifications(prev => {
+                if (prev.some(n => n.notificationId === payload.notificationId)) {
+                    return prev;
+                }
+                return [{ ...payload, isRead: false }, ...prev].slice(0, 50);
+            });
+            setUnreadCount(prev => prev + 1);
+        };
+
+        socket.on('new_notification', handleNewNotification);
+        return () => {
+            socket.off('new_notification', handleNewNotification);
+        };
+    }, [socket, currentUserId]);
 
     // Close on click outside or Escape key
     useEffect(() => {
@@ -321,7 +408,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
         if (filter === 'unread') return !n.isRead;
         if (filter === 'quizzes') return n.type === 'new_quiz';
         if (filter === 'duels') return n.type === 'challenge';
-        if (filter === 'requests') return n.type.includes('request');
+        if (filter === 'requests') return n.type.includes('request') || n.type === 'tournament_invite';
         return true;
     });
 
@@ -355,6 +442,21 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                 </div>
 
                 <div className="flex items-center gap-1.5">
+                    <button
+                        type="button"
+                        onClick={() => void fetchNotifications(true)}
+                        disabled={isLoading}
+                        title="Refresh notifications"
+                        aria-label="Refresh notifications"
+                        className={`p-1.5 rounded-xl transition-all cursor-pointer disabled:opacity-60 ${
+                            isBento
+                                ? 'bg-white text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000] hover:bg-[#bef264]'
+                                : 'text-gray-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-white/10'
+                        }`}
+                    >
+                        <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
+                    </button>
+
                     {unreadCount > 0 && (
                         <button
                             type="button"
@@ -416,9 +518,9 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                             ? unreadCount
                             : tab === 'quizzes'
                             ? notifications.filter(n => n.type === 'new_quiz').length
-                            : notifications.filter(n => n.type.includes('request')).length;
+                            : notifications.filter(n => n.type.includes('request') || n.type === 'tournament_invite').length;
 
-                        const label = tab === 'all' ? 'All' : tab === 'unread' ? 'Unread' : tab === 'quizzes' ? 'Quizzes' : 'Requests';
+                        const label = tab === 'all' ? 'All' : tab === 'unread' ? 'Unread' : tab === 'quizzes' ? 'Quizzes' : 'Invites & Req';
 
                         return (
                             <button

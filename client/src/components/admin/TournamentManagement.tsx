@@ -72,7 +72,7 @@ const TournamentManagement: React.FC<TournamentManagementProps> = ({
     onRefresh,
     onNotification
 }) => {
-    const { socket } = useSocket();
+    const { socket, connected } = useSocket();
     const { isBento } = useTheme();
 
     // Data states
@@ -154,17 +154,22 @@ const TournamentManagement: React.FC<TournamentManagementProps> = ({
             ]);
 
             // Deduplicate items & badges by ID to prevent duplicate React keys
-            const uniqueBadges = Array.from(new Map((badgesData || []).map((b: any) => [b.id, b])).values()) as BadgeDefinition[];
-            const uniqueShopItems = Array.from(new Map((shopItemsData || []).map((item: any) => [item.itemId || item.id, item])).values()) as ShopItem[];
+            const uniqueBadges = Array.from(
+                new Map<string, BadgeDefinition>((badgesData || []).map((b: BadgeDefinition) => [b.id, b])).values()
+            );
+            const uniqueShopItems = Array.from(
+                new Map<string, ShopItem>((shopItemsData || []).map((item: ShopItem & { id?: string }) => [item.itemId || item.id || '', item])).values()
+            );
 
             setTournaments(tournamentsData || []);
             setBadges(uniqueBadges);
             setShopItems(uniqueShopItems);
+            setLastRefreshedAt(new Date());
 
             // If active tournament is open, refresh its data in place
             setActiveTournament(prev => {
                 if (!prev) return null;
-                return (tournamentsData || []).find((t: any) => t.tournamentId === prev.tournamentId) || prev;
+                return (tournamentsData || []).find((t: Tournament) => t.tournamentId === prev.tournamentId) || prev;
             });
         } catch (err) {
             console.error('Failed to load tournaments:', err);
@@ -177,6 +182,18 @@ const TournamentManagement: React.FC<TournamentManagementProps> = ({
     useEffect(() => {
         loadTournaments();
     }, [loadTournaments]);
+
+    const tournamentsRef = useRef<Tournament[]>([]);
+    useEffect(() => {
+        tournamentsRef.current = tournaments;
+    }, [tournaments]);
+
+    const activeTournamentRef = useRef<Tournament | null>(null);
+    useEffect(() => {
+        activeTournamentRef.current = activeTournament;
+    }, [activeTournament]);
+
+    const joinedAdminRoomsRef = useRef<Set<string>>(new Set());
 
     // --- Live Room Telemetry Loader ---
     const loadLiveRoom = useCallback(async (tournamentId: string) => {
@@ -199,6 +216,24 @@ const TournamentManagement: React.FC<TournamentManagementProps> = ({
         }
     }, [currentUser.userId]);
 
+    // Refresh silently when returning to browser tab
+    useEffect(() => {
+        const handleVisibilityOrFocus = () => {
+            if (document.visibilityState === 'visible') {
+                loadTournaments();
+                if (activeTournamentRef.current) {
+                    loadLiveRoom(activeTournamentRef.current.tournamentId);
+                }
+            }
+        };
+        window.addEventListener('focus', handleVisibilityOrFocus);
+        document.addEventListener('visibilitychange', handleVisibilityOrFocus);
+        return () => {
+            window.removeEventListener('focus', handleVisibilityOrFocus);
+            document.removeEventListener('visibilitychange', handleVisibilityOrFocus);
+        };
+    }, [loadTournaments, loadLiveRoom]);
+
     // Auto-refresh timer for Live Room
     useEffect(() => {
         if (currentView === 'control' && controlTab === 'live' && activeTournament && autoRefreshLive) {
@@ -210,16 +245,49 @@ const TournamentManagement: React.FC<TournamentManagementProps> = ({
         }
     }, [currentView, controlTab, activeTournament, autoRefreshLive, loadLiveRoom]);
 
-    // Socket listeners for tournament events
+    // Join admin rooms for ALL tournaments so Overview & Control Center both receive real-time events
     useEffect(() => {
-        if (!socket || !activeTournament) return;
-        const tournId = activeTournament.tournamentId;
-
-        socket.emit('join_tournament', {
-            tournamentId: tournId,
-            isAdmin: true,
-            user: { name: currentUser.name, id: currentUser.userId }
+        if (!socket || tournaments.length === 0) return;
+        tournaments.forEach((t) => {
+            if (!joinedAdminRoomsRef.current.has(t.tournamentId)) {
+                socket.emit('join_tournament', {
+                    tournamentId: t.tournamentId,
+                    isAdmin: true,
+                    user: { name: currentUser.name, id: currentUser.userId }
+                });
+                joinedAdminRoomsRef.current.add(t.tournamentId);
+            }
         });
+    }, [socket, tournaments, currentUser.name, currentUser.userId]);
+
+    useEffect(() => {
+        if (!socket || !connected) return;
+        tournamentsRef.current.forEach((t) => {
+            socket.emit('join_tournament', {
+                tournamentId: t.tournamentId,
+                isAdmin: true,
+                user: { name: currentUser.name, id: currentUser.userId }
+            });
+            joinedAdminRoomsRef.current.add(t.tournamentId);
+        });
+    }, [socket, connected, currentUser.name, currentUser.userId]);
+
+    useEffect(() => {
+        const currentSocket = socket;
+        const joined = joinedAdminRoomsRef.current;
+        return () => {
+            if (currentSocket && joined.size > 0) {
+                joined.forEach((tournamentId) => {
+                    currentSocket.emit('leave_tournament', { tournamentId, isAdmin: true });
+                });
+                joined.clear();
+            }
+        };
+    }, [socket]);
+
+    // Global Admin Socket listeners for tournament events
+    useEffect(() => {
+        if (!socket) return;
 
         const handleLiveUpdate = (session: TournamentLiveSession) => {
             setLiveSessions(prev => {
@@ -235,31 +303,34 @@ const TournamentManagement: React.FC<TournamentManagementProps> = ({
         };
 
         const handleJoinRequested = (data: { tournamentId: string; participant: TournamentParticipant }) => {
-            if (data.tournamentId === tournId) {
-                onNotification('warning', `New join request from ${data.participant.userName}!`);
-                loadTournaments();
-            }
+            onNotificationRef.current('warning', `New join request from ${data.participant.userName}!`);
+            loadTournaments();
+        };
+
+        const handleRequestsUpdated = () => {
+            loadTournaments();
         };
 
         const handleStudentSubmitted = (data: { tournamentId: string; userName: string; score: number }) => {
-            if (data.tournamentId === tournId) {
-                onNotification('success', `${data.userName} finished with score ${data.score}!`);
-                loadTournaments();
-                loadLiveRoom(tournId);
+            onNotificationRef.current('success', `${data.userName} finished with score ${data.score}!`);
+            loadTournaments();
+            if (activeTournamentRef.current?.tournamentId === data.tournamentId) {
+                loadLiveRoom(data.tournamentId);
             }
         };
 
         socket.on('tournament_live_update', handleLiveUpdate);
         socket.on('tournament_join_requested', handleJoinRequested);
+        socket.on('tournament_requests_updated', handleRequestsUpdated);
         socket.on('tournament_student_submitted', handleStudentSubmitted);
 
         return () => {
-            socket.emit('leave_tournament', { tournamentId: tournId, isAdmin: true });
             socket.off('tournament_live_update', handleLiveUpdate);
             socket.off('tournament_join_requested', handleJoinRequested);
+            socket.off('tournament_requests_updated', handleRequestsUpdated);
             socket.off('tournament_student_submitted', handleStudentSubmitted);
         };
-    }, [socket, activeTournament, currentUser, onNotification, loadTournaments, loadLiveRoom]);
+    }, [socket, loadTournaments, loadLiveRoom]);
 
     // --- Load Leaderboard for Control Center ---
     const loadLeaderboard = useCallback(async (tournamentId: string) => {
@@ -367,20 +438,23 @@ const TournamentManagement: React.FC<TournamentManagementProps> = ({
 
         try {
             // Prepare clean payload without internal Mongo immutable fields
-            const payload: any = { ...formTournament };
+            const payload: Partial<Tournament> & { _id?: string } = { ...formTournament };
             delete payload._id;
 
             // Normalize questions if in custom mode
             if (payload.quizMode === 'custom' && payload.customQuiz) {
-                payload.customQuiz.questions = (payload.customQuiz.questions || []).map((q: any, idx: number) => ({
-                    ...q,
-                    id: q.id !== undefined ? String(q.id) : `tq_${idx + 1}`,
-                    text: q.text || q.question || `Question ${idx + 1}`,
-                    type: q.type || 'multiple-choice',
-                    points: typeof q.points === 'number' ? q.points : 10,
-                    options: Array.isArray(q.options) ? q.options : [],
-                    correctAnswer: q.correctAnswer !== undefined ? q.correctAnswer : 0
-                }));
+                payload.customQuiz.questions = (payload.customQuiz.questions || []).map((q, idx: number) => {
+                    const qObj = q as unknown as Record<string, unknown>;
+                    return {
+                        ...q,
+                        id: q.id !== undefined ? String(q.id) : `tq_${idx + 1}`,
+                        text: q.text || String(qObj.question || '') || `Question ${idx + 1}`,
+                        type: q.type || 'multiple-choice',
+                        points: typeof q.points === 'number' ? q.points : 10,
+                        options: Array.isArray(q.options) ? q.options : [],
+                        correctAnswer: q.correctAnswer !== undefined ? q.correctAnswer : 0
+                    };
+                });
             }
 
             if (payload.tournamentId) {
@@ -555,17 +629,17 @@ const TournamentManagement: React.FC<TournamentManagementProps> = ({
                         description: normalizedCustomQuiz.description || '',
                         timeLimit: normalizedCustomQuiz.timeLimit || json.durationMinutes || 45,
                         passingScore: normalizedCustomQuiz.passingScore || 70,
-                        questions: normalizedCustomQuiz.questions.map((q: any, idx: number) => ({
+                        questions: normalizedCustomQuiz.questions.map((q: Record<string, unknown>, idx: number) => ({
                             id: q.id !== undefined ? String(q.id) : `tq_${idx + 1}`,
-                            text: q.text || q.question || q.prompt || q.title || `Question ${idx + 1}`,
-                            type: q.type || 'multiple-choice',
+                            text: String(q.text || q.question || q.prompt || q.title || `Question ${idx + 1}`),
+                            type: String(q.type || 'multiple-choice'),
                             options: Array.isArray(q.options)
-                                ? q.options.map((opt: any) => typeof opt === 'string' ? opt : (opt.text || opt.title || String(opt)))
+                                ? q.options.map((opt: unknown) => typeof opt === 'string' ? opt : String((opt as Record<string, unknown>)?.text || (opt as Record<string, unknown>)?.title || opt))
                                 : [],
                             correctAnswer: q.correctAnswer !== undefined ? q.correctAnswer : (q.answer !== undefined ? q.answer : 0),
                             points: typeof q.points === 'number' ? q.points : 10,
-                            explanation: q.explanation || '',
-                            codeSnippet: q.codeSnippet || '',
+                            explanation: String(q.explanation || ''),
+                            codeSnippet: String(q.codeSnippet || ''),
                             orderingItems: Array.isArray(q.orderingItems) ? q.orderingItems : undefined
                         }))
                     };
@@ -576,13 +650,13 @@ const TournamentManagement: React.FC<TournamentManagementProps> = ({
                 const endsAt = json.endsAt ? new Date(json.endsAt).toISOString() : new Date(new Date(startsAt).getTime() + 2 * 3600000).toISOString();
 
                 // Build clean tournament state without internal Mongo fields
-                const sanitizedTournament: Partial<Tournament> = {
+                const sanitizedTournament: Partial<Tournament> & { _id?: string } = {
                     name: json.name || json.title || 'Imported Tournament Arena',
                     description: json.description || '',
                     startsAt,
                     endsAt,
                     durationMinutes: duration,
-                    status: (json.status as any) || 'scheduled',
+                    status: (json.status as Tournament['status']) || 'scheduled',
                     quizMode: json.quizMode || (normalizedCustomQuiz?.questions?.length ? 'custom' : 'assigned'),
                     quizIds: Array.isArray(json.quizIds) ? json.quizIds : [],
                     customQuiz: normalizedCustomQuiz || {
@@ -601,7 +675,7 @@ const TournamentManagement: React.FC<TournamentManagementProps> = ({
                 };
 
                 // Strip internal MongoDB _id to prevent duplicate or immutable errors
-                delete (sanitizedTournament as any)._id;
+                delete sanitizedTournament._id;
 
                 setFormTournament(sanitizedTournament);
                 setCurrentView('editor');
@@ -621,8 +695,8 @@ const TournamentManagement: React.FC<TournamentManagementProps> = ({
         const reader = new FileReader();
         reader.onload = (e) => {
             try {
-                let json = JSON.parse(e.target?.result as string);
-                let rawQuestions: any[] = [];
+                const json = JSON.parse(e.target?.result as string);
+                let rawQuestions: Record<string, unknown>[] = [];
                 let quizTitle = '';
                 let quizDesc = '';
                 let quizTime = 45;
@@ -662,28 +736,34 @@ const TournamentManagement: React.FC<TournamentManagementProps> = ({
                     return;
                 }
 
-                const normalizedQuestions: TournamentCustomQuestion[] = rawQuestions.map((q: any, idx: number) => {
-                    const text = q.text || q.question || q.prompt || q.title || `Question ${idx + 1}`;
-                    let qType = q.type || 'multiple-choice';
+                const normalizedQuestions: TournamentCustomQuestion[] = rawQuestions.map((q: Record<string, unknown>, idx: number) => {
+                    const text = String(q.text || q.question || q.prompt || q.title || `Question ${idx + 1}`);
+                    let qType = String(q.type || 'multiple-choice');
                     if (!['multiple-choice', 'text', 'code-output', 'ordering', 'matching', 'compiler', 'block'].includes(qType)) {
                         qType = 'multiple-choice';
                     }
 
                     let options: string[] = [];
                     if (Array.isArray(q.options)) {
-                        options = q.options.map((opt: any) => typeof opt === 'string' ? opt : (opt.text || opt.title || String(opt)));
+                        options = q.options.map((opt: unknown) => typeof opt === 'string' ? opt : String((opt as Record<string, unknown>)?.text || (opt as Record<string, unknown>)?.title || opt));
                     }
+
+                    const rawAns = q.correctAnswer !== undefined ? q.correctAnswer : (q.answer !== undefined ? q.answer : 0);
+                    const safeAnswer: string | number =
+                        typeof rawAns === 'number' || typeof rawAns === 'string'
+                            ? rawAns
+                            : String(rawAns ?? 0);
 
                     return {
                         id: q.id !== undefined ? String(q.id) : `tq_${idx + 1}`,
                         text,
                         type: qType,
                         options,
-                        correctAnswer: q.correctAnswer !== undefined ? q.correctAnswer : (q.answer !== undefined ? q.answer : 0),
+                        correctAnswer: safeAnswer,
                         points: typeof q.points === 'number' ? q.points : (typeof q.point === 'number' ? q.point : 10),
-                        explanation: q.explanation || '',
-                        codeSnippet: q.codeSnippet || '',
-                        orderingItems: Array.isArray(q.orderingItems) ? q.orderingItems : undefined
+                        explanation: typeof q.explanation === 'string' ? q.explanation : '',
+                        codeSnippet: typeof q.codeSnippet === 'string' ? q.codeSnippet : '',
+                        orderingItems: Array.isArray(q.orderingItems) ? q.orderingItems.map(item => String(item)) : undefined
                     };
                 });
 
@@ -1913,9 +1993,12 @@ const TournamentManagement: React.FC<TournamentManagementProps> = ({
                                         }`}
                                     >
                                         <option value="">No Item Prize</option>
-                                        {shopItems.map((item, itemIdx) => (
-                                            <option key={`${item.itemId || (item as any).id}-${itemIdx}`} value={item.itemId || (item as any).id}>🎁 {item.name}</option>
-                                        ))}
+                                        {shopItems.map((item, itemIdx) => {
+                                            const itemKey = item.itemId || (item as ShopItem & { id?: string }).id || '';
+                                            return (
+                                                <option key={`${itemKey}-${itemIdx}`} value={itemKey}>🎁 {item.name}</option>
+                                            );
+                                        })}
                                     </select>
                                 </div>
 

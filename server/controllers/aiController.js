@@ -5,6 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import limiter, { scheduleNormal } from '../utils/aiLimiter.js';
 import { smartTruncate, validateTokenBudget } from '../utils/tokenOptimizer.js';
+import { getSharedRuntimeCache } from '../utils/vercelUtils.js';
 
 // Get __dirname equivalent for ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -523,7 +524,22 @@ export const getDailyQuote = async (req, res) => {
         // Return cached quote if already generated today and not forced
         if (!force && dailyQuoteCache.has(todayKey)) {
             const cached = dailyQuoteCache.get(todayKey);
+            res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
             return res.json({ success: true, data: cached, cached: true });
+        }
+
+        const runtimeCache = !force ? getSharedRuntimeCache('daily-quote') : null;
+        if (runtimeCache) {
+            try {
+                const cached = await runtimeCache.get(todayKey);
+                if (cached) {
+                    dailyQuoteCache.set(todayKey, cached);
+                    res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
+                    return res.json({ success: true, data: cached, cached: true });
+                }
+            } catch {
+                // Fall back seamlessly
+            }
         }
 
         const groq = getGroqClient();
@@ -561,6 +577,10 @@ Return ONLY valid JSON with this exact structure:
                             isAI: true
                         };
                         dailyQuoteCache.set(todayKey, payload);
+                        if (runtimeCache) {
+                            await runtimeCache.set(todayKey, payload, { ttl: 86400, name: 'daily-quote' }).catch(() => {});
+                        }
+                        res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
                         return res.json({ success: true, data: payload, cached: false });
                     }
                 }
@@ -583,6 +603,10 @@ Return ONLY valid JSON with this exact structure:
 
         if (!force) {
             dailyQuoteCache.set(todayKey, fallback);
+            if (runtimeCache) {
+                await runtimeCache.set(todayKey, fallback, { ttl: 3600, name: 'daily-quote-fallback' }).catch(() => {});
+            }
+            res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
         }
 
         return res.json({ success: true, data: fallback, cached: false });

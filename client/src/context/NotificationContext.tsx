@@ -24,7 +24,10 @@ interface NotificationContextType {
     clearAllNotifications: () => void;
 }
 
-const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
+const globalNotifStore = globalThis as { __quizNotificationContext?: React.Context<NotificationContextType | undefined> };
+const NotificationContext = import.meta.env.DEV
+    ? (globalNotifStore.__quizNotificationContext ??= createContext<NotificationContextType | undefined>(undefined))
+    : createContext<NotificationContextType | undefined>(undefined);
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const useNotification = () => {

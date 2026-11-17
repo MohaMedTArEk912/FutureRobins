@@ -2,13 +2,14 @@ import React from 'react';
 import RegisterScreen from '../components/RegisterScreen';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import type { UserData } from '../lib/api';
 
 const RegisterPage: React.FC = () => {
-    const { register } = useAuth();
+    const { completeAuthSession } = useAuth();
     const navigate = useNavigate();
 
-    const handleRegister = async (name: string, email: string, password: string) => {
-        const result = await register(name, email, password);
+    const handleVerified = (user: UserData, token: string) => {
+        const result = completeAuthSession(user, token);
         sessionStorage.removeItem('suppressRedirectAfterLogin');
         const isAdmin = Boolean(result?.isAdmin || result?.user?.role === 'admin');
         if (isAdmin) {
@@ -27,7 +28,7 @@ const RegisterPage: React.FC = () => {
 
     return (
         <RegisterScreen
-            onRegister={handleRegister}
+            onVerified={handleVerified}
             onSwitchToLogin={() => navigate('/login')}
         />
     );

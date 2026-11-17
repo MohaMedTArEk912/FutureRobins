@@ -27,6 +27,7 @@ import { useNotification } from '../../context/NotificationContext';
 import { SAMPLE_FULL_PRESENTATION } from '../../constants/samplePresentationJson';
 import { getTeacherThemeStyles } from '../teacher/teacherTheme';
 import { PresentationModePlayer } from './PresentationModePlayer';
+import { PresentationVisualBoardModal } from './PresentationVisualBoardModal';
 
 interface PresentationLibraryManagerProps {
     currentUser: UserData;
@@ -70,9 +71,7 @@ export const PresentationLibraryManager: React.FC<PresentationLibraryManagerProp
     const [assignTrackId, setAssignTrackId] = useState('');
     const [assignModuleIds, setAssignModuleIds] = useState<string[]>([]);
     const [savingAssign, setSavingAssign] = useState(false);
-    const [editingJsonId, setEditingJsonId] = useState<string | null>(null);
-    const [editJsonDraft, setEditJsonDraft] = useState('');
-    const [updatingJson, setUpdatingJson] = useState(false);
+    const [boardEditingDeck, setBoardEditingDeck] = useState<MotionPresentation | null>(null);
     const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
     const loadPresentations = useCallback(async () => {
@@ -227,79 +226,9 @@ export const PresentationLibraryManager: React.FC<PresentationLibraryManagerProp
         }
     };
 
-    const openJsonEditor = (deck: MotionPresentation) => {
-        const id = deck.presentationId || '';
-        if (editingJsonId === id) {
-            setEditingJsonId(null);
-            return;
-        }
+    const openBoardEditor = (deck: MotionPresentation) => {
         setAssigningId(null);
-        setEditingJsonId(id);
-        setEditJsonDraft(
-            deck.rawJson && deck.rawJson.trim()
-                ? deck.rawJson
-                : JSON.stringify({
-                    title: deck.title,
-                    description: deck.description || '',
-                    theme: deck.theme || 'dark-tech',
-                    slides: deck.slides || []
-                }, null, 2)
-        );
-    };
-
-    const handleReplaceJsonFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-        try {
-            const text = await file.text();
-            JSON.parse(text);
-            setEditJsonDraft(text);
-            showNotification('success', `Loaded "${file.name}". Click Save JSON Update to save changes.`);
-        } catch {
-            showNotification('error', 'Selected file does not contain valid JSON.');
-        } finally {
-            e.target.value = '';
-        }
-    };
-
-    const handleUpdateDeckJson = async (deck: MotionPresentation) => {
-        if (!deck.presentationId) return;
-        let parsed: Record<string, unknown>;
-        try {
-            parsed = JSON.parse(editJsonDraft) as Record<string, unknown>;
-        } catch {
-            showNotification('error', 'Invalid JSON format. Fix syntax errors before saving.');
-            return;
-        }
-
-        if (!Array.isArray(parsed.slides) || parsed.slides.length === 0) {
-            showNotification('error', 'Presentation JSON must include a non-empty "slides" array.');
-            return;
-        }
-
-        setUpdatingJson(true);
-        try {
-            await api.savePresentation({
-                presentationId: deck.presentationId,
-                title: typeof parsed.title === 'string' && parsed.title.trim() ? parsed.title.trim() : deck.title,
-                description: typeof parsed.description === 'string' ? parsed.description : (deck.description || ''),
-                trackId: deck.trackId ?? null,
-                moduleId: deck.moduleId ?? null,
-                moduleIds: deck.moduleIds || (deck.moduleId ? [deck.moduleId] : []),
-                theme: (typeof parsed.theme === 'string' ? parsed.theme : deck.theme) as PresentationTheme,
-                sourceFormat: 'json',
-                rawJson: editJsonDraft,
-                slides: parsed.slides as MotionPresentation['slides']
-            }, currentUser.userId);
-            showNotification('success', 'Presentation JSON updated in database!');
-            setEditingJsonId(null);
-            await loadPresentations();
-            onChanged?.();
-        } catch (err) {
-            showNotification('error', err instanceof Error ? err.message : 'Failed to update JSON');
-        } finally {
-            setUpdatingJson(false);
-        }
+        setBoardEditingDeck(deck);
     };
 
     const handleDelete = async (presentationId: string) => {
@@ -529,7 +458,7 @@ export const PresentationLibraryManager: React.FC<PresentationLibraryManagerProp
                             const linkedClass = deck.clanId ? classMap.get(deck.clanId) : undefined;
                             const canManage = isAdminView || deck.createdBy === currentUser.userId;
                             const isAssignOpen = Boolean(deck.presentationId && assigningId === deck.presentationId);
-                            const isJsonEditorOpen = Boolean(deck.presentationId && editingJsonId === deck.presentationId);
+                            const isBoardEditing = Boolean(deck.presentationId && boardEditingDeck?.presentationId === deck.presentationId);
                             const isDeleteConfirm = Boolean(deck.presentationId && confirmDeleteId === deck.presentationId);
 
                             return (
@@ -566,11 +495,11 @@ export const PresentationLibraryManager: React.FC<PresentationLibraryManagerProp
                                                     </button>
                                                     <button
                                                         type="button"
-                                                        onClick={() => openJsonEditor(deck)}
+                                                        onClick={() => openBoardEditor(deck)}
                                                         className={`px-2.5 py-1.5 rounded-xl text-xs flex items-center gap-1 cursor-pointer ${
-                                                            isJsonEditorOpen ? styles.primaryBtn : styles.secondaryBtn
+                                                            isBoardEditing ? styles.primaryBtn : styles.secondaryBtn
                                                         }`}
-                                                        title="Update JSON in database"
+                                                        title="Open visual slide board & JSON editor"
                                                     >
                                                         <Pencil className="w-3.5 h-3.5" />
                                                         <span>Update JSON</span>
@@ -700,51 +629,27 @@ export const PresentationLibraryManager: React.FC<PresentationLibraryManagerProp
                                             </div>
                                         </div>
                                     )}
-
-                                    {isJsonEditorOpen && deck.presentationId && (
-                                        <div className={`p-3.5 rounded-xl space-y-2.5 border-t ${styles.divider} ${styles.surfaceCard}`}>
-                                            <div className="flex items-center justify-between gap-2 flex-wrap">
-                                                <span className="text-[11px] font-black uppercase tracking-wider">
-                                                    Update Saved JSON
-                                                </span>
-                                                <label className={`px-2.5 py-1 rounded-lg text-[11px] uppercase flex items-center gap-1 cursor-pointer ${styles.secondaryBtn}`}>
-                                                    <Upload className="w-3 h-3" />
-                                                    <span>Replace with .json File</span>
-                                                    <input type="file" accept=".json" className="hidden" onChange={handleReplaceJsonFile} />
-                                                </label>
-                                            </div>
-                                            <textarea
-                                                rows={8}
-                                                value={editJsonDraft}
-                                                onChange={(e) => setEditJsonDraft(e.target.value)}
-                                                className={`w-full p-3 rounded-xl font-mono text-[11px] ${styles.input}`}
-                                            />
-                                            <div className="flex items-center justify-end gap-2">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setEditingJsonId(null)}
-                                                    className={`px-3 py-1.5 rounded-lg text-xs cursor-pointer ${styles.secondaryBtn}`}
-                                                >
-                                                    Cancel
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    disabled={updatingJson}
-                                                    onClick={() => handleUpdateDeckJson(deck)}
-                                                    className={`px-3.5 py-1.5 rounded-lg text-xs flex items-center gap-1 cursor-pointer disabled:opacity-50 ${styles.successBtn}`}
-                                                >
-                                                    <Check className="w-3.5 h-3.5" />
-                                                    <span>{updatingJson ? 'Updating...' : 'Save JSON Update'}</span>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    )}
                                 </div>
                             );
                         })}
                     </div>
                 )}
             </section>
+
+            {/* Interactive Visual Slide Board & Raw JSON Studio Modal */}
+            {boardEditingDeck && (
+                <PresentationVisualBoardModal
+                    deck={boardEditingDeck}
+                    userId={currentUser.userId}
+                    userName={currentUser.name || 'Teacher'}
+                    onClose={() => setBoardEditingDeck(null)}
+                    savePresentation={(payload) => api.savePresentation(payload, currentUser.userId)}
+                    onSaved={async () => {
+                        await loadPresentations();
+                        onChanged?.();
+                    }}
+                />
+            )}
         </div>
     );
 };

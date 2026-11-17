@@ -100,6 +100,7 @@ const App: React.FC = () => {
                             {/* Public Routes */}
                             <Route path="/login" element={<LoginPage />} />
                             <Route path="/register" element={<RegisterPage />} />
+                            <Route path="/verify-email" element={<RegisterPage />} />
                             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
                             {/* Async Challenge (Can be accessed with link) */}

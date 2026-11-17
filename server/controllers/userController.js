@@ -9,6 +9,9 @@ import { updateSkillTrackProgress, syncRoadmapProgress } from '../services/progr
 import { getEnrichedUser } from '../services/userService.js';
 import { evaluateAndAwardBadges } from '../services/badgeService.js';
 import { escapeRegex } from '../utils/regexUtils.js';
+import { getSharedRuntimeCache } from '../utils/vercelUtils.js';
+
+let localLeaderboardCache = { data: null, expiresAt: 0 };
 
 export const updateUser = async (req, res) => {
   try {
@@ -371,6 +374,26 @@ export const updateUserRoadmapProgress = async (req, res) => {
 
 export const getPublicLeaderboard = async (req, res) => {
     try {
+        const now = Date.now();
+        if (localLeaderboardCache.data && now < localLeaderboardCache.expiresAt) {
+            res.setHeader('Cache-Control', 'public, s-maxage=15, stale-while-revalidate=30');
+            return res.json(localLeaderboardCache.data);
+        }
+
+        const runtimeCache = getSharedRuntimeCache('leaderboard');
+        if (runtimeCache) {
+            try {
+                const cached = await runtimeCache.get('top-100');
+                if (Array.isArray(cached)) {
+                    localLeaderboardCache = { data: cached, expiresAt: now + 10000 };
+                    res.setHeader('Cache-Control', 'public, s-maxage=15, stale-while-revalidate=30');
+                    return res.json(cached);
+                }
+            } catch {
+                // Fall back cleanly to DB query if Runtime Cache is unavailable
+            }
+        }
+
         const users = await User.find(
             { role: { $ne: 'admin' }, isAdmin: { $ne: true } },
             'userId name totalScore totalAttempts xp level streak lastLoginDate badges role avatar equippedBadgeId'
@@ -379,6 +402,12 @@ export const getPublicLeaderboard = async (req, res) => {
             .limit(100)
             .lean();
 
+        localLeaderboardCache = { data: users, expiresAt: now + 10000 };
+        if (runtimeCache) {
+            await runtimeCache.set('top-100', users, { ttl: 15, name: 'public-leaderboard' }).catch(() => {});
+        }
+
+        res.setHeader('Cache-Control', 'public, s-maxage=15, stale-while-revalidate=30');
         res.json(users);
     } catch (error) {
         console.error('Error fetching public leaderboard:', error);

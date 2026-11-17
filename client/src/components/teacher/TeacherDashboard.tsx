@@ -3,7 +3,7 @@ import {
     GraduationCap, Users, Compass, Copy, Link2, RefreshCw,
     BarChart3, Sparkles, MonitorPlay, UserPlus, MessageCircle, Search,
     ArrowUpCircle, ArrowDownCircle,
-    Trash2, CheckCircle2, XCircle
+    Trash2, CheckCircle2, XCircle, X, FileCode, ArrowLeft
 } from 'lucide-react';
 import type {
     UserData,
@@ -47,15 +47,15 @@ const SECTION_DESCRIPTIONS: Record<TeacherSectionId, { title: string; subtitle: 
         subtitle: 'Browse classes assigned to you by Admin and jump directly into any teaching workspace.'
     },
     sessions: {
-        title: 'Sessions & Lesson Board',
-        subtitle: 'Deliver track sessions, launch the interactive whiteboard, and monitor homework status.'
+        title: 'Sessions, Interactive Board & Presentations',
+        subtitle: 'Deliver class sessions, present live on the interactive whiteboard, and manage your slide JSON library in one place.'
     },
     presentations: {
-        title: 'Presentations & Sample JSON Hub',
+        title: 'Sessions, Interactive Board & Presentations',
         subtitle: 'Download sample JSON templates, upload decks, and assign multiple presentations per module/session.'
     },
     board_studio: {
-        title: 'Interactive Teaching Board',
+        title: 'Sessions, Interactive Board & Presentations',
         subtitle: 'Teach live with clickable wireframes, pen annotations, laser pointer, and check-up polls in one unified board.'
     },
     analytics: {
@@ -253,10 +253,15 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
     const filteredClasses = useMemo(() => {
         const q = classSearch.trim().toLowerCase();
         if (!q) return myClasses;
-        return myClasses.filter(c =>
-            (c.name || '').toLowerCase().includes(q) || (c.tag || '').toLowerCase().includes(q)
-        );
-    }, [myClasses, classSearch]);
+        return myClasses.filter(c => {
+            const trackTitle = c.trackId ? (trackMap.get(c.trackId)?.title || '') : '';
+            return (
+                (c.name || '').toLowerCase().includes(q) ||
+                (c.tag || '').toLowerCase().includes(q) ||
+                trackTitle.toLowerCase().includes(q)
+            );
+        });
+    }, [myClasses, classSearch, trackMap]);
 
     const filteredRoster = useMemo(() => {
         const members = activeClan?.members || [];
@@ -270,6 +275,8 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
     const sectionInfo = SECTION_DESCRIPTIONS[activeSection];
     const isClassContextualSection = (
         activeSection === 'sessions'
+        || activeSection === 'board_studio'
+        || activeSection === 'presentations'
         || activeSection === 'analytics'
         || activeSection === 'ai_studio'
         || activeSection === 'students'
@@ -361,39 +368,49 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 pt-1">
+                <div className="space-y-2 pt-1">
                     <button
                         type="button"
                         onClick={() => openClassSection(cls.clanId, 'sessions')}
-                        className={`py-2.5 px-3 rounded-xl text-xs uppercase flex items-center justify-center gap-1.5 cursor-pointer ${styles.primaryBtn}`}
+                        className={`w-full py-2.5 px-3 rounded-xl text-xs uppercase flex items-center justify-center gap-1.5 cursor-pointer ${styles.primaryBtn}`}
                     >
                         <MonitorPlay className="w-3.5 h-3.5 shrink-0" />
-                        <span>Sessions &amp; Board</span>
+                        <span>Enter Class Studio</span>
                     </button>
-                    <button
-                        type="button"
-                        onClick={() => openClassSection(cls.clanId, 'analytics')}
-                        className={`py-2.5 px-3 rounded-xl text-xs uppercase flex items-center justify-center gap-1.5 cursor-pointer ${styles.secondaryBtn}`}
-                    >
-                        <BarChart3 className={`w-3.5 h-3.5 shrink-0 ${styles.isBento ? '' : 'text-indigo-500'}`} />
-                        <span>Analytics</span>
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => openClassSection(cls.clanId, 'ai_studio')}
-                        className={`py-2.5 px-3 rounded-xl text-xs uppercase flex items-center justify-center gap-1.5 cursor-pointer ${styles.secondaryBtn}`}
-                    >
-                        <Sparkles className={`w-3.5 h-3.5 shrink-0 ${styles.isBento ? '' : 'text-violet-500'}`} />
-                        <span>AI Studio</span>
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => openClassSection(cls.clanId, 'students')}
-                        className={`py-2.5 px-3 rounded-xl text-xs uppercase flex items-center justify-center gap-1.5 cursor-pointer ${styles.secondaryBtn}`}
-                    >
-                        <UserPlus className={`w-3.5 h-3.5 shrink-0 ${styles.isBento ? '' : 'text-emerald-500'}`} />
-                        <span>Students</span>
-                    </button>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        <button
+                            type="button"
+                            onClick={() => openClassSection(cls.clanId, 'students')}
+                            className={`py-2 px-2.5 rounded-xl text-[11px] uppercase flex items-center justify-center gap-1 cursor-pointer ${styles.secondaryBtn}`}
+                        >
+                            <UserPlus className={`w-3.5 h-3.5 shrink-0 ${styles.isBento ? '' : 'text-emerald-500'}`} />
+                            <span>Students</span>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => openClassSection(cls.clanId, 'chat')}
+                            className={`py-2 px-2.5 rounded-xl text-[11px] uppercase flex items-center justify-center gap-1 cursor-pointer ${styles.secondaryBtn}`}
+                        >
+                            <MessageCircle className={`w-3.5 h-3.5 shrink-0 ${styles.isBento ? '' : 'text-sky-500'}`} />
+                            <span>Chat</span>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => openClassSection(cls.clanId, 'analytics')}
+                            className={`py-2 px-2.5 rounded-xl text-[11px] uppercase flex items-center justify-center gap-1 cursor-pointer ${styles.secondaryBtn}`}
+                        >
+                            <BarChart3 className={`w-3.5 h-3.5 shrink-0 ${styles.isBento ? '' : 'text-indigo-500'}`} />
+                            <span>Analytics</span>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => openClassSection(cls.clanId, 'ai_studio')}
+                            className={`py-2 px-2.5 rounded-xl text-[11px] uppercase flex items-center justify-center gap-1 cursor-pointer ${styles.secondaryBtn}`}
+                        >
+                            <Sparkles className={`w-3.5 h-3.5 shrink-0 ${styles.isBento ? '' : 'text-violet-500'}`} />
+                            <span>AI Studio</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         );
@@ -473,41 +490,137 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                                 </div>
                             </section>
                         ) : (
-                            <section className={`rounded-[1.75rem] p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 ${styles.sectionHeaderCard}`}>
-                                <div className="min-w-0">
-                                    <h1 className="text-xl sm:text-2xl font-black tracking-tight">{sectionInfo.title}</h1>
-                                    <p className={`text-xs sm:text-sm font-medium mt-0.5 ${styles.mutedText}`}>
-                                        {sectionInfo.subtitle}
-                                    </p>
-                                </div>
-
-                                {isClassContextualSection && myClasses.length > 0 && (
-                                    <div className="flex items-center gap-2 flex-wrap shrink-0">
-                                        {activeClan?.inviteCode && (
+                            <div className="space-y-4">
+                                <section className={`rounded-[1.75rem] p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 ${styles.sectionHeaderCard}`}>
+                                    <div className="flex items-start gap-3 min-w-0">
+                                        {isClassContextualSection && (
                                             <button
                                                 type="button"
-                                                onClick={() => handleCopyInviteLink(activeClan.inviteCode)}
-                                                className={`px-3.5 py-2 rounded-xl text-xs flex items-center gap-1.5 cursor-pointer ${styles.secondaryBtn}`}
+                                                onClick={() => setActiveSection('overview')}
+                                                title="Back to Command Center"
+                                                className={`mt-0.5 px-3 py-2 rounded-xl text-xs uppercase flex items-center gap-1.5 shrink-0 cursor-pointer transition ${styles.secondaryBtn}`}
                                             >
-                                                <Link2 className="w-3.5 h-3.5" />
-                                                <span>Copy Link ({activeClan.inviteCode})</span>
+                                                <ArrowLeft className="w-3.5 h-3.5" />
+                                                <span className="hidden sm:inline">Command Center</span>
                                             </button>
                                         )}
-                                        <select
-                                            value={selectedClassId}
-                                            onChange={(e) => setSelectedClassId(e.target.value)}
-                                            aria-label="Select class"
-                                            className={`px-3.5 py-2 rounded-xl text-xs font-black cursor-pointer ${styles.select}`}
-                                        >
-                                            {myClasses.map(c => (
-                                                <option key={c.clanId} value={c.clanId}>
-                                                    [{c.tag}] {c.name}
-                                                </option>
-                                            ))}
-                                        </select>
+                                        <div className="min-w-0">
+                                            <h1 className="text-xl sm:text-2xl font-black tracking-tight">{sectionInfo.title}</h1>
+                                            <p className={`text-xs sm:text-sm font-medium mt-0.5 ${styles.mutedText}`}>
+                                                {sectionInfo.subtitle}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {isClassContextualSection && myClasses.length > 0 && (
+                                        <div className="flex items-center gap-2 flex-wrap shrink-0">
+                                            {activeClan?.inviteCode && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleCopyInviteLink(activeClan.inviteCode)}
+                                                    className={`px-3.5 py-2 rounded-xl text-xs flex items-center gap-1.5 cursor-pointer ${styles.secondaryBtn}`}
+                                                >
+                                                    <Link2 className="w-3.5 h-3.5" />
+                                                    <span>Copy Link ({activeClan.inviteCode})</span>
+                                                </button>
+                                            )}
+                                            <select
+                                                value={selectedClassId}
+                                                onChange={(e) => setSelectedClassId(e.target.value)}
+                                                aria-label="Select class"
+                                                className={`px-3.5 py-2 rounded-xl text-xs font-black cursor-pointer ${styles.select}`}
+                                            >
+                                                {myClasses.map(c => (
+                                                    <option key={c.clanId} value={c.clanId}>
+                                                        [{c.tag}] {c.name}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    )}
+                                </section>
+
+                                {/* Inside-Class Workspace Bar: Students & Invites + Class Chat + Sessions + Analytics + AI Studio */}
+                                {isClassContextualSection && myClasses.length > 0 && (
+                                    <div className={`p-1.5 rounded-2xl flex flex-wrap items-center gap-1.5 ${
+                                        styles.isBento
+                                            ? 'bg-white border-2 border-black shadow-[3px_3px_0px_#000]'
+                                            : 'bg-white/90 dark:bg-white/[0.04] border border-gray-200 dark:border-white/10 shadow-sm'
+                                    }`}>
+                                        {([
+                                            {
+                                                id: 'sessions' as const,
+                                                active: activeSection === 'sessions' || activeSection === 'board_studio' || activeSection === 'presentations',
+                                                label: 'Sessions & Board',
+                                                icon: MonitorPlay
+                                            },
+                                            {
+                                                id: 'students' as const,
+                                                active: activeSection === 'students',
+                                                label: 'Students & Invites',
+                                                icon: Users,
+                                                badge: (activeClan?.activeJoinRequests?.length || 0) > 0
+                                                    ? `+${activeClan?.activeJoinRequests?.length}`
+                                                    : activeClan
+                                                        ? Math.max(0, (activeClan.members?.length || 1) - 1)
+                                                        : undefined
+                                            },
+                                            {
+                                                id: 'chat' as const,
+                                                active: activeSection === 'chat',
+                                                label: 'Class Chat',
+                                                icon: MessageCircle
+                                            },
+                                            {
+                                                id: 'analytics' as const,
+                                                active: activeSection === 'analytics',
+                                                label: 'Analytics & Logs',
+                                                icon: BarChart3
+                                            },
+                                            {
+                                                id: 'ai_studio' as const,
+                                                active: activeSection === 'ai_studio',
+                                                label: 'AI Quiz Studio',
+                                                icon: Sparkles
+                                            }
+                                        ]).map((item) => {
+                                            const NavIcon = item.icon;
+                                            return (
+                                                <button
+                                                    key={item.id}
+                                                    type="button"
+                                                    onClick={() => setActiveSection(item.id)}
+                                                    className={`px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer ${
+                                                        item.active
+                                                            ? styles.isBento
+                                                                ? 'bg-[#fde047] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                                                : 'bg-indigo-600 text-white shadow-sm'
+                                                            : styles.isBento
+                                                                ? 'text-slate-700 hover:text-black hover:bg-slate-100'
+                                                                : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10'
+                                                    }`}
+                                                >
+                                                    <NavIcon className="w-3.5 h-3.5 shrink-0" />
+                                                    <span>{item.label}</span>
+                                                    {item.badge !== undefined && (
+                                                        <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-black ${
+                                                            item.active
+                                                                ? styles.isBento
+                                                                    ? 'bg-black text-white'
+                                                                    : 'bg-white/20 text-white'
+                                                                : styles.isBento
+                                                                    ? 'bg-[#bef264] text-black border border-black'
+                                                                    : 'bg-indigo-500/15 text-indigo-600 dark:text-indigo-300'
+                                                        }`}>
+                                                            {item.badge}
+                                                        </span>
+                                                    )}
+                                                </button>
+                                            );
+                                        })}
                                     </div>
                                 )}
-                            </section>
+                            </div>
                         )}
 
                         {/* SECTION 1: COMMAND CENTER OVERVIEW */}
@@ -567,19 +680,52 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                                     </section>
                                 )}
 
-                                {/* Overview Class Cards Preview */}
+                                {/* Command Center Classes & Search */}
                                 <section className="space-y-4">
-                                    <div className="flex items-center justify-between gap-3 flex-wrap">
-                                        <h2 className="text-lg font-black uppercase tracking-tight">Your Classes ({myClasses.length})</h2>
-                                        {myClasses.length > 0 && (
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                        <div className="flex items-center gap-2.5 flex-wrap">
+                                            <h2 className="text-lg font-black uppercase tracking-tight">
+                                                Assigned Classes ({myClasses.length})
+                                            </h2>
+                                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase ${styles.pillNeutral}`}>
+                                                Provisioned by Admin
+                                            </span>
+                                        </div>
+
+                                        <div className="flex items-center gap-2 w-full sm:w-auto">
+                                            {myClasses.length > 0 && (
+                                                <div className="relative flex-1 sm:w-72">
+                                                    <Search className={`w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none ${styles.mutedText}`} />
+                                                    <input
+                                                        type="text"
+                                                        value={classSearch}
+                                                        onChange={e => setClassSearch(e.target.value)}
+                                                        placeholder="Search classes by name, tag, or track..."
+                                                        className={`w-full pl-10 pr-8 py-2.5 rounded-xl text-xs font-bold ${styles.input}`}
+                                                    />
+                                                    {classSearch && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setClassSearch('')}
+                                                            aria-label="Clear search"
+                                                            className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 rounded-md opacity-60 hover:opacity-100 cursor-pointer"
+                                                        >
+                                                            <X className="w-3.5 h-3.5" />
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            )}
+
                                             <button
                                                 type="button"
-                                                onClick={() => setActiveSection('my_classes')}
-                                                className={`px-3.5 py-2 rounded-xl text-xs cursor-pointer ${styles.secondaryBtn}`}
+                                                onClick={() => loadMyClasses(selectedClassId)}
+                                                disabled={loadingClasses}
+                                                title="Refresh assigned classes"
+                                                className={`p-2.5 rounded-xl cursor-pointer transition-all disabled:opacity-50 ${styles.secondaryBtn}`}
                                             >
-                                                View All Classes →
+                                                <RefreshCw className={`w-4 h-4 ${loadingClasses ? 'animate-spin' : ''}`} />
                                             </button>
-                                        )}
+                                        </div>
                                     </div>
 
                                     {loadingClasses ? (
@@ -589,9 +735,20 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                                         </div>
                                     ) : myClasses.length === 0 ? (
                                         renderEmptyNoClassesCard('Ask an Administrator to assign you as the teacher of a class to unlock curriculum sessions, live motion slide boards, homework tracking, and student analytics.')
+                                    ) : filteredClasses.length === 0 ? (
+                                        <div className={`p-10 rounded-[2rem] text-center space-y-2 ${styles.surfaceCard}`}>
+                                            <p className={`text-sm font-bold ${styles.mutedText}`}>No classes match "{classSearch}".</p>
+                                            <button
+                                                type="button"
+                                                onClick={() => setClassSearch('')}
+                                                className={`px-4 py-2 rounded-xl text-xs cursor-pointer ${styles.secondaryBtn}`}
+                                            >
+                                                Clear Search
+                                            </button>
+                                        </div>
                                     ) : (
                                         <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
-                                            {myClasses.slice(0, 4).map(renderClassCard)}
+                                            {filteredClasses.map(renderClassCard)}
                                         </div>
                                     )}
                                 </section>
@@ -635,60 +792,97 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                             </section>
                         )}
 
-                        {/* SECTION 4: SESSIONS & CURRICULUM BOARD */}
-                        {activeSection === 'sessions' && (
-                            myClasses.length === 0 ? (
-                                renderEmptyNoClassesCard('Once an Administrator assigns you a class, its curriculum sessions, slide decks, and homework status will appear here.')
-                            ) : loadingActiveClan || !activeClan ? (
-                                <div className={`py-14 text-center rounded-[2rem] ${styles.surfaceCard}`}>
-                                    <div className="animate-spin rounded-full h-9 w-9 border-b-2 border-indigo-600 mx-auto" />
+                        {/* SECTION 4: UNIFIED SESSIONS, INTERACTIVE BOARD & PRESENTATIONS STUDIO */}
+                        {(activeSection === 'sessions' || activeSection === 'board_studio' || activeSection === 'presentations') && (
+                            <div className="space-y-5">
+                                {/* Unified 3-in-1 Sub-Tab Switcher */}
+                                <div className={`p-1.5 rounded-2xl flex flex-wrap items-center gap-1.5 w-full sm:w-fit ${
+                                    styles.isBento
+                                        ? 'bg-slate-100 border-2 border-black shadow-[3px_3px_0px_#000]'
+                                        : 'bg-gray-100/80 dark:bg-white/[0.04] border border-gray-200 dark:border-white/10'
+                                }`}>
+                                    {([
+                                        { id: 'sessions' as const, label: 'Class Sessions', icon: Compass },
+                                        { id: 'board_studio' as const, label: 'Interactive Board', icon: MonitorPlay },
+                                        { id: 'presentations' as const, label: 'Presentations & JSON', icon: FileCode }
+                                    ]).map((tab) => {
+                                        const TabIcon = tab.icon;
+                                        const isSubActive = activeSection === tab.id;
+                                        return (
+                                            <button
+                                                key={tab.id}
+                                                type="button"
+                                                onClick={() => setActiveSection(tab.id)}
+                                                className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer ${
+                                                    isSubActive
+                                                        ? styles.isBento
+                                                            ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                                            : 'bg-indigo-600 text-white shadow-sm'
+                                                        : styles.isBento
+                                                            ? 'text-slate-700 hover:text-black hover:bg-white'
+                                                            : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+                                                }`}
+                                            >
+                                                <TabIcon className="w-3.5 h-3.5" />
+                                                <span>{tab.label}</span>
+                                            </button>
+                                        );
+                                    })}
                                 </div>
-                            ) : (
-                                <ClassCurriculumSection
-                                    clan={activeClan}
-                                    user={user}
-                                    isTeacherOwner={true}
-                                    presentationsRefreshKey={presentationsVersion}
-                                    onRefreshClan={() => loadActiveClan(activeClan.clanId, true)}
-                                    onRequestUploadSlides={(trackId, moduleId) => {
-                                        setPresetUploadTarget({ trackId, moduleId });
-                                        setActiveSection('presentations');
-                                    }}
-                                />
-                            )
-                        )}
 
-                        {/* SECTION 5: INTERACTIVE TEACHING BOARD */}
-                        {activeSection === 'board_studio' && (
-                            <TeacherBoardBrowser
-                                key={presentationsVersion}
-                                user={user}
-                                skillTracks={skillTracks}
-                                initialTrackId={activeClan?.trackId}
-                                selectedClassId={selectedClassId}
-                                onUploadForModule={(trackId, moduleId) => {
-                                    setPresetUploadTarget({ trackId, moduleId });
-                                    setActiveSection('presentations');
-                                }}
-                            />
-                        )}
+                                {activeSection === 'sessions' && (
+                                    myClasses.length === 0 ? (
+                                        renderEmptyNoClassesCard('Once an Administrator assigns you a class, its curriculum sessions, slide decks, and homework status will appear here.')
+                                    ) : loadingActiveClan || !activeClan ? (
+                                        <div className={`py-14 text-center rounded-[2rem] ${styles.surfaceCard}`}>
+                                            <div className="animate-spin rounded-full h-9 w-9 border-b-2 border-indigo-600 mx-auto" />
+                                        </div>
+                                    ) : (
+                                        <ClassCurriculumSection
+                                            clan={activeClan}
+                                            user={user}
+                                            isTeacherOwner={true}
+                                            presentationsRefreshKey={presentationsVersion}
+                                            onRefreshClan={() => loadActiveClan(activeClan.clanId, true)}
+                                            onRequestUploadSlides={(trackId, moduleId) => {
+                                                setPresetUploadTarget({ trackId, moduleId });
+                                                setActiveSection('presentations');
+                                            }}
+                                        />
+                                    )
+                                )}
 
-                        {/* SECTION 5B: PRESENTATIONS & SAMPLE JSON HUB */}
-                        {activeSection === 'presentations' && (
-                            <PresentationLibraryManager
-                                key={presetUploadTarget ? `${presetUploadTarget.trackId}:${presetUploadTarget.moduleId}` : 'default'}
-                                currentUser={user}
-                                skillTracks={skillTracks}
-                                classes={myClasses}
-                                isAdminView={false}
-                                initialUploadTrackId={presetUploadTarget?.trackId}
-                                initialUploadModuleId={presetUploadTarget?.moduleId}
-                                onChanged={() => {
-                                    setPresetUploadTarget(null);
-                                    setPresentationsVersion(v => v + 1);
-                                    loadMyClasses();
-                                }}
-                            />
+                                {activeSection === 'board_studio' && (
+                                    <TeacherBoardBrowser
+                                        key={presentationsVersion}
+                                        user={user}
+                                        skillTracks={skillTracks}
+                                        initialTrackId={activeClan?.trackId}
+                                        selectedClassId={selectedClassId}
+                                        onUploadForModule={(trackId, moduleId) => {
+                                            setPresetUploadTarget({ trackId, moduleId });
+                                            setActiveSection('presentations');
+                                        }}
+                                    />
+                                )}
+
+                                {activeSection === 'presentations' && (
+                                    <PresentationLibraryManager
+                                        key={presetUploadTarget ? `${presetUploadTarget.trackId}:${presetUploadTarget.moduleId}` : 'default'}
+                                        currentUser={user}
+                                        skillTracks={skillTracks}
+                                        classes={myClasses}
+                                        isAdminView={false}
+                                        initialUploadTrackId={presetUploadTarget?.trackId}
+                                        initialUploadModuleId={presetUploadTarget?.moduleId}
+                                        onChanged={() => {
+                                            setPresetUploadTarget(null);
+                                            setPresentationsVersion(v => v + 1);
+                                            loadMyClasses();
+                                        }}
+                                    />
+                                )}
+                            </div>
                         )}
 
                         {/* SECTION 6: ANALYTICS & STUDENT LOGS */}

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import type { AvatarConfig, UserData } from '../types';
 import Avatar from './Avatar';
 import {
@@ -176,14 +177,22 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
 
     const formatLabel = (str: string) => str.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 
-    return (
+    const modalContent = (
         <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-md animate-in fade-in duration-200"
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 !bg-transparent !border-0 !shadow-none animate-in fade-in duration-200"
             onClick={onClose}
         >
             <div
+                className="modal-backdrop absolute inset-0 bg-black/50 dark:bg-black/65 backdrop-blur-md transition-opacity"
+                onClick={onClose}
+                aria-hidden="true"
+            />
+            <div
+                role="dialog"
+                aria-modal="true"
+                aria-label="Customize Avatar"
                 onClick={e => e.stopPropagation()}
-                className={`w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col md:flex-row transition-all ${
+                className={`relative z-10 w-full max-w-4xl h-[86dvh] md:h-[600px] max-h-[90dvh] overflow-hidden flex flex-col md:flex-row transition-all ${
                     isBento
                         ? 'bg-white border-[3px] border-black shadow-[8px_8px_0px_#000] rounded-3xl'
                         : 'bg-white dark:bg-[#131624] rounded-3xl shadow-2xl border border-slate-200 dark:border-white/10'
@@ -370,7 +379,7 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                     </div>
 
                     {/* Options Content Area */}
-                    <div className="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-6 space-y-6">
+                    <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-4 sm:p-6 space-y-6">
                         {activeTab === 'base' && (
                             <div className="space-y-5">
                                 {/* Identity */}
@@ -836,6 +845,9 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
             </div>
         </div>
     );
+
+    if (typeof document === 'undefined') return null;
+    return createPortal(modalContent, document.body);
 };
 
 export default AvatarEditor;

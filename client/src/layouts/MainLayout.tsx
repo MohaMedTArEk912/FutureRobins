@@ -1,8 +1,8 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useSocket } from '../context/SocketContext';
 import { useNotification } from '../context/NotificationContext';
-import { useAuth } from '../context/AuthContext';
+import { useOptionalAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { TeacherWorkspaceProvider, useTeacherWorkspace } from '../context/TeacherWorkspaceContext';
 import { getTeacherThemeStyles } from '../components/teacher/teacherTheme';
@@ -14,8 +14,11 @@ import { GlobalChatDrawer } from '../components/chat/GlobalChatDrawer';
 import { NavbarCustomizerModal } from '../components/nav/NavbarCustomizerModal';
 
 const TeacherShellFrame: React.FC<{ isQuizOrGame: boolean }> = ({ isQuizOrGame }) => {
-    const { currentUser } = useAuth();
+    const auth = useOptionalAuth();
+    const currentUser = auth?.currentUser ?? null;
     const { theme } = useTheme();
+    const location = useLocation();
+    const contentScrollRef = useRef<HTMLDivElement | null>(null);
     const styles = useMemo(() => getTeacherThemeStyles(theme), [theme]);
     const {
         activeSection,
@@ -32,15 +35,19 @@ const TeacherShellFrame: React.FC<{ isQuizOrGame: boolean }> = ({ isQuizOrGame }
 
     const showTeacherSidebarShell = currentUser?.role === 'teacher' && !isQuizOrGame;
 
+    useEffect(() => {
+        contentScrollRef.current?.scrollTo({ top: 0 });
+    }, [location.pathname, activeSection]);
+
     if (!showTeacherSidebarShell) {
         return <Outlet />;
     }
 
     return (
-        <div className={`min-h-screen lg:h-screen lg:overflow-hidden flex flex-col transition-colors ${styles.pageShell}`}>
+        <div className={`min-h-dvh lg:h-dvh lg:overflow-hidden flex flex-col transition-colors ${styles.pageShell}`}>
             {!styles.isBento && <AmbientBackground />}
             <div className="flex-1 min-h-0 relative w-full max-w-[1520px] mx-auto px-3 sm:px-5 py-4 lg:py-0 flex flex-col lg:flex-row gap-5">
-                <div className="lg:py-6 lg:h-full shrink-0">
+                <div className="lg:py-3 lg:h-full shrink-0">
                     <TeacherSidebar
                         user={currentUser}
                         styles={styles}
@@ -56,7 +63,10 @@ const TeacherShellFrame: React.FC<{ isQuizOrGame: boolean }> = ({ isQuizOrGame }
                         onSetMobileOpen={setMobileDrawerOpen}
                     />
                 </div>
-                <div className="flex-1 min-w-0 min-h-0 w-full flex flex-col lg:h-full lg:overflow-y-auto lg:overflow-x-hidden lg:py-6 lg:pl-1.5 lg:pr-4">
+                <div
+                    ref={contentScrollRef}
+                    className="flex-1 min-w-0 min-h-0 w-full flex flex-col lg:h-full lg:overflow-y-auto lg:overflow-x-hidden lg:py-3 lg:pl-1.5 lg:pr-4"
+                >
                     <Outlet />
                 </div>
             </div>
@@ -67,7 +77,10 @@ const TeacherShellFrame: React.FC<{ isQuizOrGame: boolean }> = ({ isQuizOrGame }
 const MainLayout: React.FC = () => {
     const { socket } = useSocket();
     const { showNotification } = useNotification();
-    const { updateUser, refreshUser } = useAuth();
+    const auth = useOptionalAuth();
+    const currentUser = auth?.currentUser ?? null;
+    const updateUser = auth?.updateUser;
+    const refreshUser = auth?.refreshUser;
     const navigate = useNavigate();
     const location = useLocation();
     const [gameInvite, setGameInvite] = useState<{ fromId: string; fromName: string; quizId: string; roomId: string } | null>(null);
@@ -134,8 +147,8 @@ const MainLayout: React.FC = () => {
 
         const handleRoleUpdated = (payload: { userId?: string; role?: 'user' | 'student' | 'teacher' | 'admin' }) => {
             if (payload?.role) {
-                updateUser({ role: payload.role });
-                refreshUser();
+                updateUser?.({ role: payload.role });
+                refreshUser?.();
                 const label = payload.role === 'teacher' ? 'Teacher Mode' : payload.role === 'admin' ? 'Admin Mode' : 'Student Mode';
                 showNotification('info', `Your account role was updated to ${label}.`, {
                     title: '🔄 Role Updated',
@@ -144,11 +157,45 @@ const MainLayout: React.FC = () => {
             }
         };
 
+        const handleNewNotification = (payload: { type?: string; title?: string; message?: string; link?: string }) => {
+            if (payload?.type === 'tournament_invite') {
+                showNotification('info', payload.message || 'You were invited to a tournament!', {
+                    title: payload.title || '🏆 Tournament Invite',
+                    duration: 8000,
+                    action: {
+                        label: 'View Arena',
+                        onClick: () => navigate(payload.link || '/tournaments')
+                    }
+                });
+            }
+        };
+
+        const handleTournamentRequestStatus = (payload: { tournamentId?: string; status?: string; userId?: string; tournamentName?: string }) => {
+            if (payload?.userId && currentUser?.userId && payload.userId !== currentUser.userId) return;
+            if (location.pathname === '/tournaments') return;
+            if (payload?.status === 'approved') {
+                showNotification(
+                    'success',
+                    `Your request to join "${payload.tournamentName || 'the tournament'}" was approved!`,
+                    {
+                        title: '🎉 Tournament Approved',
+                        duration: 8000,
+                        action: {
+                            label: 'Open Arena',
+                            onClick: () => navigate(payload.tournamentId ? `/tournaments?invite=${encodeURIComponent(payload.tournamentId)}` : '/tournaments')
+                        }
+                    }
+                );
+            }
+        };
+
         socket.on('game_invite', handleInvite);
         socket.on('classroom_invite_received', handleClassroomInvite);
         socket.on('homework_alert', handleHomeworkAlert);
         socket.on('class_invite_received', handleClassInvite);
         socket.on('user_role_updated', handleRoleUpdated);
+        socket.on('new_notification', handleNewNotification);
+        socket.on('tournament_request_status', handleTournamentRequestStatus);
 
         return () => {
             socket.off('game_invite', handleInvite);
@@ -156,8 +203,10 @@ const MainLayout: React.FC = () => {
             socket.off('homework_alert', handleHomeworkAlert);
             socket.off('class_invite_received', handleClassInvite);
             socket.off('user_role_updated', handleRoleUpdated);
+            socket.off('new_notification', handleNewNotification);
+            socket.off('tournament_request_status', handleTournamentRequestStatus);
         };
-    }, [socket, showNotification, navigate, updateUser, refreshUser]);
+    }, [socket, showNotification, navigate, updateUser, refreshUser, location.pathname, currentUser?.userId]);
 
     const acceptInvite = () => {
         if (!gameInvite) return;

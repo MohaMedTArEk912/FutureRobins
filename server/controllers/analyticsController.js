@@ -157,10 +157,10 @@ export const getAnalyticsSummary = async (req, res) => {
 
     let attempts = [];
     if (userId && userId !== 'guest') {
-      attempts = await Attempt.find({ userId }).lean();
+      attempts = await Attempt.find({ userId }).sort({ completedAt: -1 }).limit(300).lean();
     }
     if (attempts.length === 0 && isAdmin) {
-      attempts = await Attempt.find({}).lean();
+      attempts = await Attempt.find({}).sort({ completedAt: -1 }).limit(500).lean();
     }
 
     const quizzes = await Quiz.find({}).select('id _id category title questions difficulty').lean();
@@ -459,8 +459,12 @@ export const getQuestionAnalytics = async (req, res) => {
 
     // Fetch all quizzes and attempts
     const [quizzes, attempts] = await Promise.all([
-      Quiz.find({}).lean(),
-      Attempt.find(quizId ? { quizId } : {}).lean()
+      Quiz.find({}).select('id _id category title questions').lean(),
+      Attempt.find(quizId ? { quizId } : {})
+        .select('attemptId quizId quizTitle userName answers attemptQuestions completedAt')
+        .sort({ completedAt: -1 })
+        .limit(2000)
+        .lean()
     ]);
 
     const quizMap = new Map();
@@ -672,8 +676,12 @@ export const getQuestionAnalytics = async (req, res) => {
 export const getCohortAnalytics = async (req, res) => {
   try {
     const [users, attempts, quizzes] = await Promise.all([
-      User.find({}, 'userId name email level xp totalScore totalAttempts').lean(),
-      Attempt.find({}).sort({ completedAt: -1 }).lean(),
+      User.find({}, 'userId name email level xp totalScore totalAttempts').limit(5000).lean(),
+      Attempt.find({})
+        .select('userId percentage passed quizId completedAt')
+        .sort({ completedAt: -1 })
+        .limit(5000)
+        .lean(),
       Quiz.find({}, 'id title category difficulty').lean()
     ]);
 
@@ -870,14 +878,14 @@ export const getData = async (req, res) => {
 
     const [users, attempts, badges, challenges, shopItems] = await Promise.all([
       isAdmin
-        ? User.find({}, '-password').lean()
+        ? User.find({}, '-password').sort({ createdAt: -1 }).limit(2000).lean()
         : User.find({}, 'userId name totalScore totalAttempts xp level streak rank lastLoginDate createdAt badges')
             .sort({ totalScore: -1 })
             .limit(100)
             .lean(),
       isAdmin
         ? Attempt.find({}).select('-attemptQuestions').sort({ completedAt: -1 }).limit(500).lean()
-        : Attempt.find({ userId }).select('-attemptQuestions').sort({ completedAt: -1 }).lean(),
+        : Attempt.find({ userId }).select('-attemptQuestions').sort({ completedAt: -1 }).limit(300).lean(),
       Badge.find({}).lean(),
       Challenge.find({
         $or: [{ fromId: userId }, { toId: userId }]

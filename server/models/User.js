@@ -75,6 +75,7 @@ const userSchema = new mongoose.Schema({
   primaryTrackId: { type: String }, // Initial chosen track/road ID (subjectId)
   unlockedTracks: [{ type: String }], // List of track/subject IDs user has access to
   clanId: { type: String }, // Simplified link to clan
+  emailVerified: { type: Boolean, default: false },
   resetPasswordCode: { type: String },
   resetPasswordExpires: { type: Date }
 });

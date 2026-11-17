@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import type {
   Tournament,
@@ -50,7 +50,7 @@ type TournamentTab = 'arenas' | 'leaderboards' | 'history';
 const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
   const { isBento } = useTheme();
   const { showNotification } = useNotification();
-  const { socket } = useSocket();
+  const { socket, connected } = useSocket();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -108,16 +108,30 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
   const [historyItems, setHistoryItems] = useState<TournamentHistoryItem[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
 
+  const itemsRef = useRef<Tournament[]>([]);
+  useEffect(() => {
+    itemsRef.current = items;
+  }, [items]);
+
+  const awaitingTournamentRef = useRef<Tournament | null>(null);
+  useEffect(() => {
+    awaitingTournamentRef.current = awaitingTournament;
+  }, [awaitingTournament]);
+
+  const joinedRoomsRef = useRef<Set<string>>(new Set());
+
   // --- Load Tournaments ---
-  const loadTournaments = useCallback(async () => {
+  const loadTournaments = useCallback(async (silent = false) => {
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       const data = await api.getTournaments(userId);
-      setItems(Array.isArray(data) ? data : []);
+      const safeList = Array.isArray(data) ? data : [];
+      setItems(safeList);
+      setLastRefreshedAt(new Date());
 
       // If awaitingParamId is present in URL, select that tournament for the holding screen
       if (awaitingParamId) {
-        const found = data.find(t => t.tournamentId === awaitingParamId);
+        const found = safeList.find(t => t.tournamentId === awaitingParamId);
         if (found) {
           setAwaitingTournament(found);
           if (found.resultsRevealed) {
@@ -126,9 +140,9 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
         }
       }
     } catch (err) {
-      setError((err as Error).message);
+      if (!silent) setError((err as Error).message);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, [userId, awaitingParamId]);
 
@@ -136,13 +150,53 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
     loadTournaments();
   }, [loadTournaments]);
 
-  // Join tournament rooms on connect for real-time telemetry
+  // Refresh tournament list & status when user returns to browser tab or window gains focus
+  useEffect(() => {
+    const handleVisibilityOrFocus = () => {
+      if (document.visibilityState === 'visible') {
+        loadTournaments(true);
+      }
+    };
+    window.addEventListener('focus', handleVisibilityOrFocus);
+    document.addEventListener('visibilitychange', handleVisibilityOrFocus);
+    return () => {
+      window.removeEventListener('focus', handleVisibilityOrFocus);
+      document.removeEventListener('visibilitychange', handleVisibilityOrFocus);
+    };
+  }, [loadTournaments]);
+
+  // Join tournament rooms incrementally & re-join after reconnect without churning on every poll
   useEffect(() => {
     if (!socket || !userId || items.length === 0) return;
+
     items.forEach(t => {
-      socket.emit('join_tournament', { tournamentId: t.tournamentId, isAdmin: false, user: { userId } });
+      if (!joinedRoomsRef.current.has(t.tournamentId)) {
+        socket.emit('join_tournament', { tournamentId: t.tournamentId, isAdmin: false, user: { userId } });
+        joinedRoomsRef.current.add(t.tournamentId);
+      }
     });
   }, [socket, userId, items]);
+
+  useEffect(() => {
+    if (!socket || !userId || !connected) return;
+    itemsRef.current.forEach(t => {
+      socket.emit('join_tournament', { tournamentId: t.tournamentId, isAdmin: false, user: { userId } });
+      joinedRoomsRef.current.add(t.tournamentId);
+    });
+  }, [socket, userId, connected]);
+
+  useEffect(() => {
+    const currentSocket = socket;
+    const joined = joinedRoomsRef.current;
+    return () => {
+      if (currentSocket && joined.size > 0) {
+        joined.forEach(tournamentId => {
+          currentSocket.emit('leave_tournament', { tournamentId, isAdmin: false });
+        });
+        joined.clear();
+      }
+    };
+  }, [socket, userId]);
 
   // Fast auto-poll fallback (3s) while user has any pending join requests
   const hasPendingRequests = useMemo(() => {
@@ -157,12 +211,13 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
         if (Array.isArray(fresh)) {
           let newlyApprovedName = '';
           fresh.forEach(freshT => {
-            const prevT = items.find(it => it.tournamentId === freshT.tournamentId);
+            const prevT = itemsRef.current.find(it => it.tournamentId === freshT.tournamentId);
             if (prevT?.myStatus === 'pending' && freshT.myStatus === 'approved') {
               newlyApprovedName = freshT.name;
             }
           });
           setItems(fresh);
+          setLastRefreshedAt(new Date());
           if (newlyApprovedName) {
             confetti({ particleCount: 110, spread: 75, origin: { y: 0.6 } });
             showNotification('success', `🎉 Your request to join "${newlyApprovedName}" has been approved!`);
@@ -174,18 +229,18 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
     }, 3000);
 
     return () => clearInterval(pollInterval);
-  }, [hasPendingRequests, userId, items, showNotification]);
+  }, [hasPendingRequests, userId, showNotification]);
 
-  // --- Socket Listener for Live Results Reveal & Approvals ---
+  // --- Socket Listener for Live Results Reveal, Approvals & Invites ---
   useEffect(() => {
     if (!socket) return;
 
     // Listen for global tournament result reveal event
     const handleResultsRevealed = (payload: { tournamentId: string; resultsRevealed: boolean }) => {
-      loadTournaments();
+      loadTournaments(true);
 
       // If user is currently waiting on this tournament's holding screen
-      if (awaitingTournament?.tournamentId === payload.tournamentId && payload.resultsRevealed) {
+      if (awaitingTournamentRef.current?.tournamentId === payload.tournamentId && payload.resultsRevealed) {
         setIsRevealedUnlock(true);
         confetti({
           particleCount: 150,
@@ -213,7 +268,7 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
       }));
 
       // Background sync to ensure full participant arrays are refreshed
-      loadTournaments();
+      loadTournaments(true);
 
       if (payload.status === 'approved') {
         const nameText = payload.tournamentName ? ` for "${payload.tournamentName}"` : '';
@@ -224,14 +279,28 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
       }
     };
 
+    const handleRequestsUpdated = () => {
+      loadTournaments(true);
+    };
+
+    const handleNewNotification = (payload: { type?: string; recipientId?: string }) => {
+      if (!payload || payload.type !== 'tournament_invite') return;
+      if (payload.recipientId && payload.recipientId !== 'all' && payload.recipientId !== userId) return;
+      loadTournaments(true);
+    };
+
     socket.on('tournament_results_revealed', handleResultsRevealed);
     socket.on('tournament_request_status', handleRequestStatus);
+    socket.on('tournament_requests_updated', handleRequestsUpdated);
+    socket.on('new_notification', handleNewNotification);
 
     return () => {
       socket.off('tournament_results_revealed', handleResultsRevealed);
       socket.off('tournament_request_status', handleRequestStatus);
+      socket.off('tournament_requests_updated', handleRequestsUpdated);
+      socket.off('new_notification', handleNewNotification);
     };
-  }, [socket, userId, awaitingTournament, loadTournaments, showNotification]);
+  }, [socket, userId, loadTournaments, showNotification]);
 
   // Periodic polling for awaiting holding screen (fallback if sockets are off)
   useEffect(() => {

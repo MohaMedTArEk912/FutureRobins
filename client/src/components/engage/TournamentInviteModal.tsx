@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import {
   X,
   Link2,
@@ -99,7 +100,7 @@ export const TournamentInviteModal: React.FC<TournamentInviteModalProps> = ({
     };
   }, [searchQuery, isOpen]);
 
-  if (!isOpen || !tournament) return null;
+  if (!isOpen || !tournament || typeof document === 'undefined') return null;
 
   const handleCopyLink = async () => {
     try {
@@ -163,14 +164,19 @@ export const TournamentInviteModal: React.FC<TournamentInviteModalProps> = ({
     }
   };
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-150"
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 !bg-transparent !border-0 !shadow-none animate-in fade-in duration-150"
       onClick={onClose}
     >
       <div
+        className="modal-backdrop absolute inset-0 bg-black/50 dark:bg-black/65 backdrop-blur-md transition-opacity"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+      <div
         onClick={(e) => e.stopPropagation()}
-        className={`w-full max-w-lg rounded-3xl p-6 space-y-5 animate-in zoom-in-95 duration-150 ${
+        className={`relative z-10 w-full max-w-lg rounded-3xl p-6 space-y-5 animate-in zoom-in-95 duration-150 ${
           isBento
             ? 'bg-white text-black border-[3px] border-black shadow-[8px_8px_0px_#000]'
             : 'bg-white dark:bg-[#111827] text-gray-900 dark:text-white border border-gray-200 dark:border-white/10 shadow-2xl'
@@ -460,7 +466,8 @@ export const TournamentInviteModal: React.FC<TournamentInviteModalProps> = ({
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

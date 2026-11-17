@@ -7,7 +7,6 @@ import {
     Compass,
     MonitorPlay,
     Settings,
-    Palette,
     FileCode,
     BarChart3,
     Gamepad2,
@@ -28,7 +27,6 @@ import Avatar from '../Avatar';
 import AvatarEditor from '../AvatarEditor';
 import UserSettings from '../UserSettings';
 import WorkspaceThemeSwitcher from '../WorkspaceThemeSwitcher';
-import ThemeSkeletonPreviewCards from '../ThemeSkeletonPreviewCards';
 import { ClassEmblem } from '../social/ClassEmblem';
 import { getTeacherThemeStyles } from './teacherTheme';
 
@@ -38,7 +36,7 @@ interface TeacherProfileViewProps {
     onUserUpdate: (updatedUser: UserData) => void;
 }
 
-type TeacherProfileTab = 'portfolio' | 'decks' | 'appearance' | 'settings';
+type TeacherProfileTab = 'portfolio' | 'decks' | 'settings';
 
 interface EducatorMeta {
     headline: string;
@@ -57,7 +55,7 @@ export const TeacherProfileView: React.FC<TeacherProfileViewProps> = ({
     onUserUpdate
 }) => {
     const navigate = useNavigate();
-    const { theme, setTheme } = useTheme();
+    const { theme } = useTheme();
     const styles = useMemo(() => getTeacherThemeStyles(theme), [theme]);
     const { myClasses, loadingClasses, navigateToSection } = useTeacherWorkspace();
     const { skillTracks } = useData();
@@ -147,8 +145,13 @@ export const TeacherProfileView: React.FC<TeacherProfileViewProps> = ({
                 <section className={`rounded-[2rem] p-6 sm:p-8 ${styles.heroBanner}`}>
                     <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6">
                         <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-5 min-w-0">
-                            <div className="relative shrink-0 self-start sm:self-center">
-                                <div className={`w-20 h-20 sm:w-24 sm:h-24 rounded-3xl overflow-hidden flex items-center justify-center ${
+                            <button
+                                type="button"
+                                onClick={() => setShowAvatarEditor(true)}
+                                title="Click to customize your avatar"
+                                className="relative shrink-0 self-start sm:self-center group cursor-pointer text-left focus:outline-none"
+                            >
+                                <div className={`w-20 h-20 sm:w-24 sm:h-24 rounded-3xl overflow-hidden flex items-center justify-center transition-transform duration-200 group-hover:scale-105 ${
                                     styles.isBento
                                         ? 'bg-white border-[3px] border-black shadow-[4px_4px_0px_#000]'
                                         : 'bg-white dark:bg-[#0b0f1b] border-2 border-indigo-500/40 shadow-xl'
@@ -161,15 +164,13 @@ export const TeacherProfileView: React.FC<TeacherProfileViewProps> = ({
                                         </span>
                                     )}
                                 </div>
-                                <button
-                                    type="button"
-                                    onClick={() => setShowAvatarEditor(v => !v)}
-                                    title="Customize Educator Avatar"
-                                    className={`absolute -bottom-2 -right-2 p-2 rounded-xl cursor-pointer ${styles.primaryBtn}`}
+                                <span
+                                    aria-hidden="true"
+                                    className={`absolute -bottom-2 -right-2 p-2 rounded-xl transition-transform group-hover:scale-110 ${styles.primaryBtn}`}
                                 >
                                     <Pencil className="w-3.5 h-3.5" />
-                                </button>
-                            </div>
+                                </span>
+                            </button>
 
                             <div className="min-w-0 space-y-2">
                                 <div className="flex items-center gap-2 flex-wrap">
@@ -301,18 +302,16 @@ export const TeacherProfileView: React.FC<TeacherProfileViewProps> = ({
                     </div>
                 </section>
 
-                {/* Inline Avatar Studio */}
+                {/* Avatar Editor Modal (Opened by clicking avatar icon) */}
                 {showAvatarEditor && (
-                    <section className={`rounded-[2rem] p-5 sm:p-6 ${styles.surfaceCard}`}>
-                        <AvatarEditor
-                            user={user}
-                            onClose={() => setShowAvatarEditor(false)}
-                            onUpdate={(updated) => {
-                                onUserUpdate(updated);
-                                setShowAvatarEditor(false);
-                            }}
-                        />
-                    </section>
+                    <AvatarEditor
+                        user={user}
+                        onClose={() => setShowAvatarEditor(false)}
+                        onUpdate={(updated) => {
+                            onUserUpdate(updated);
+                            setShowAvatarEditor(false);
+                        }}
+                    />
                 )}
 
                 {/* Educator Tab Bar + Direct Profile Workspace Theme Toggle */}
@@ -321,7 +320,6 @@ export const TeacherProfileView: React.FC<TeacherProfileViewProps> = ({
                         {([
                             { id: 'portfolio' as const, label: 'Teaching Portfolio', icon: GraduationCap },
                             { id: 'decks' as const, label: `Slide Decks (${stats.decksCount})`, icon: FileCode },
-                            { id: 'appearance' as const, label: 'Avatar & Theme', icon: Palette },
                             { id: 'settings' as const, label: 'Account & Security', icon: Settings }
                         ]).map(tab => {
                             const Icon = tab.icon;
@@ -583,49 +581,13 @@ export const TeacherProfileView: React.FC<TeacherProfileViewProps> = ({
                     </section>
                 )}
 
-                {/* TAB 3: AVATAR & THEME */}
-                {activeTab === 'appearance' && (
-                    <div className="space-y-6">
-                        <section className={`rounded-[2rem] p-6 space-y-5 ${styles.surfaceCard}`}>
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                <div>
-                                    <h2 className="text-lg font-black uppercase tracking-tight">Choose Your Workspace Theme</h2>
-                                    <p className={`text-xs sm:text-sm font-medium mt-1 ${styles.mutedText}`}>
-                                        Teacher Studio, Sessions, Presentations, and the Interactive Board adapt immediately across Light, Dark, and Bento themes.
-                                    </p>
-                                </div>
-                                <div className="w-full sm:w-[270px] shrink-0">
-                                    <WorkspaceThemeSwitcher />
-                                </div>
-                            </div>
-                            <ThemeSkeletonPreviewCards onThemeSelect={(chosen) => setTheme(chosen)} />
-                        </section>
-
-                        <section className={`rounded-[2rem] p-5 sm:p-6 ${styles.surfaceCard}`}>
-                            <div className="mb-4">
-                                <h2 className="text-base font-black uppercase tracking-tight">Customize Educator Avatar</h2>
-                                <p className={`text-xs font-medium mt-0.5 ${styles.mutedText}`}>
-                                    Appears in your sidebar identity card, class chats, and live classroom sessions.
-                                </p>
-                            </div>
-                            <AvatarEditor
-                                user={user}
-                                onClose={() => setActiveTab('portfolio')}
-                                onUpdate={(updated) => onUserUpdate(updated)}
-                            />
-                        </section>
-                    </div>
-                )}
-
-                {/* TAB 4: ACCOUNT & SECURITY */}
+                {/* TAB 3: ACCOUNT & SECURITY */}
                 {activeTab === 'settings' && (
-                    <section className={`rounded-[2rem] p-5 sm:p-6 ${styles.surfaceCard}`}>
-                        <UserSettings
-                            user={user}
-                            onUpdate={onUserUpdate}
-                            embedded={true}
-                        />
-                    </section>
+                    <UserSettings
+                        user={user}
+                        onUpdate={onUserUpdate}
+                        embedded={true}
+                    />
                 )}
             </main>
         </div>

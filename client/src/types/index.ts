@@ -1526,6 +1526,107 @@ export interface TeacherAiToolkitResponse {
     };
 }
 
+export type ClassroomMode = 'turn_based' | 'simultaneous';
+export type ClassroomGameState = 'lobby' | 'question' | 'reveal' | 'game_over';
+
+export interface ClassroomPlayer {
+    id: string;
+    name: string;
+    role: 'teacher' | 'student' | 'admin' | 'user' | string;
+    isHost: boolean;
+    isBot: boolean;
+    isSpectator: boolean;
+    score: number;
+    streak: number;
+    correctCount: number;
+    answeredCount: number;
+    hasSubmitted: boolean;
+    lastAnswerCorrect?: boolean;
+    lastAnswerPoints?: number;
+    lastSelectedOption?: number;
+    lastResponseMs?: number;
+}
+
+export interface ClassroomQuestionDTO {
+    id: string | number;
+    index: number;
+    question: string;
+    options: string[];
+    codeSnippet?: string;
+    imageUrl?: string;
+    points: number;
+    correctAnswer?: number;
+    explanation?: string;
+}
+
+export interface ClassroomTurnResult {
+    playerId: string;
+    playerName: string;
+    userRole: string;
+    questionIndex: number;
+    answerIndex: number;
+    isCorrect: boolean;
+    points: number;
+    timeSpentMs: number;
+    timedOut: boolean;
+}
+
+export interface ClassroomRoundRevealItem {
+    userId: string;
+    userName: string;
+    userRole: string;
+    answerIndex: number;
+    isCorrect: boolean;
+    points: number;
+    timeSpentMs: number;
+    timedOut: boolean;
+}
+
+export interface ClassroomRoundReveal {
+    questionIndex: number;
+    correctAnswer: number;
+    optionCounts: number[];
+    results: ClassroomRoundRevealItem[];
+}
+
+export interface ClassroomRoomState {
+    pin: string;
+    hostId: string;
+    hostName: string;
+    hostRole: string;
+    mode: ClassroomMode;
+    hostParticipates: boolean;
+    questionTimeSec: number;
+    quizId: string;
+    quizTitle: string;
+    totalQuestions: number;
+    gameState: ClassroomGameState;
+    currentQuestionIndex: number;
+    questionStartedAt: string | null;
+    serverNow: string;
+    currentTurnUserId: string;
+    turnOrder: string[];
+    players: ClassroomPlayer[];
+    submittedUserIds: string[];
+    submittedCount: number;
+    eligibleCount: number;
+    currentQuestion: ClassroomQuestionDTO | null;
+    lastTurnResult: ClassroomTurnResult | null;
+    roundReveal: ClassroomRoundReveal | null;
+    version: number;
+}
+
+export interface ClassroomLobbySummary {
+    pin: string;
+    hostName: string;
+    hostRole: string;
+    mode: ClassroomMode;
+    quizTitle: string;
+    totalQuestions: number;
+    gameState: ClassroomGameState;
+    playerCount: number;
+}
+
 declare global {
     interface Window {
         __pendingChallengeCallback?: (quizId: string, quizTitle: string) => void;

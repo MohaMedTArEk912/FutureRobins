@@ -6,11 +6,9 @@ import {
     Compass,
     MonitorPlay,
     BookOpen,
-    FileCode,
     BarChart3,
     Sparkles,
     Users,
-    MessageCircle,
     Gamepad2,
     ChevronLeft,
     ChevronRight,
@@ -27,7 +25,6 @@ import type { UserData, ClassSummary, Clan } from '../../types';
 import { useAuth } from '../../context/AuthContext';
 import { useChat } from '../../context/ChatContext';
 import NotificationCenter from '../NotificationCenter';
-import { ClanEmblem } from '../social/ClassEmblem';
 import Avatar from '../Avatar';
 import type { TeacherSectionId, TeacherThemeStyles } from './teacherTheme';
 
@@ -36,6 +33,7 @@ interface NavItemConfig {
     label: string;
     icon: LucideIcon;
     section?: TeacherSectionId;
+    matchSections?: TeacherSectionId[];
     route?: string;
     matchRoutes?: string[];
     badge?: string | number;
@@ -84,8 +82,6 @@ export const TeacherSidebar: React.FC<TeacherSidebarProps> = ({
     onSelectSection,
     myClasses,
     selectedClassId,
-    activeClan,
-    onSelectClass,
     collapsed,
     onToggleCollapse,
     mobileOpen,
@@ -100,25 +96,18 @@ export const TeacherSidebar: React.FC<TeacherSidebarProps> = ({
     const isOnProfile = location.pathname === '/profile';
 
     const selectedSummary = myClasses.find(c => c.clanId === selectedClassId) || myClasses[0];
-    const studentCount = activeClan
-        ? Math.max(0, (activeClan.members?.length || 1) - 1)
-        : selectedSummary
-            ? Math.max(0, (selectedSummary.memberCount || 1) - 1)
-            : 0;
-    const pendingRequestsCount = activeClan?.activeJoinRequests?.length || 0;
 
     const navGroups: NavGroup[] = [
         {
             id: 'studio',
             label: 'Studio & Classes',
             items: [
-                { id: 'overview', section: 'overview', label: 'Command Center', icon: LayoutDashboard },
                 {
-                    id: 'my_classes',
-                    section: 'my_classes',
+                    id: 'overview',
+                    section: 'overview',
                     matchRoutes: ['/classes', '/clans'],
-                    label: 'Assigned Classes',
-                    icon: GraduationCap,
+                    label: 'Command Center',
+                    icon: LayoutDashboard,
                     badge: myClasses.length
                 }
             ]
@@ -127,9 +116,13 @@ export const TeacherSidebar: React.FC<TeacherSidebarProps> = ({
             id: 'teaching',
             label: 'Teaching & Content',
             items: [
-                { id: 'sessions', section: 'sessions', label: 'Sessions & Board', icon: Compass, requiresClass: true },
-                { id: 'presentations', section: 'presentations', label: 'Presentations & JSON', icon: FileCode },
-                { id: 'board_studio', section: 'board_studio', label: 'Interactive Board', icon: MonitorPlay },
+                {
+                    id: 'sessions',
+                    section: 'sessions',
+                    matchSections: ['sessions', 'board_studio', 'presentations'],
+                    label: 'Sessions & Board',
+                    icon: MonitorPlay
+                },
                 {
                     id: 'library',
                     section: 'library',
@@ -157,17 +150,8 @@ export const TeacherSidebar: React.FC<TeacherSidebarProps> = ({
         },
         {
             id: 'community',
-            label: 'Students & Community',
+            label: 'Community',
             items: [
-                {
-                    id: 'students',
-                    section: 'students',
-                    label: 'Students & Invites',
-                    icon: Users,
-                    badge: pendingRequestsCount > 0 ? `+${pendingRequestsCount}` : (selectedSummary ? studentCount : undefined),
-                    requiresClass: true
-                },
-                { id: 'chat', section: 'chat', label: 'Class Chat', icon: MessageCircle, requiresClass: true },
                 { id: 'leaderboard', route: '/leaderboard', label: 'Rankings', icon: Award },
                 { id: 'social', route: '/social', label: 'Social Hub', icon: Users }
             ]
@@ -179,7 +163,7 @@ export const TeacherSidebar: React.FC<TeacherSidebarProps> = ({
             return location.pathname === item.route || location.pathname.startsWith(`${item.route}/`);
         }
         if (isOnDashboard && item.section) {
-            return activeSection === item.section;
+            return item.matchSections ? item.matchSections.includes(activeSection) : activeSection === item.section;
         }
         if (item.matchRoutes) {
             return item.matchRoutes.some(
@@ -192,7 +176,9 @@ export const TeacherSidebar: React.FC<TeacherSidebarProps> = ({
     const activeRouteMeta = ROUTE_TITLES.find(
         r => location.pathname === r.prefix || location.pathname.startsWith(`${r.prefix}/`)
     );
-    const activeSectionMeta = navGroups.flatMap(g => g.items).find(i => i.section === activeSection);
+    const activeSectionMeta = navGroups
+        .flatMap(g => g.items)
+        .find(i => i.matchSections ? i.matchSections.includes(activeSection) : i.section === activeSection);
     const mobileHeaderLabel = isOnDashboard
         ? (activeSectionMeta?.label || 'Command Center')
         : (activeRouteMeta?.label || 'Teacher Studio');
@@ -231,7 +217,7 @@ export const TeacherSidebar: React.FC<TeacherSidebarProps> = ({
         return (
             <div className="flex flex-col h-full min-h-0">
                 {/* Teacher Identity Header (Clickable -> Profile) */}
-                <div className={`${compact ? 'p-3 flex-col items-center gap-2.5' : 'p-4 items-center justify-between gap-2'} flex shrink-0 ${styles.sidebarHeaderBorder}`}>
+                <div className={`${compact ? 'p-2.5 flex-col items-center gap-1.5' : 'px-3.5 py-2.5 items-center justify-between gap-2'} flex shrink-0 ${styles.sidebarHeaderBorder}`}>
                     <button
                         type="button"
                         onClick={() => {
@@ -239,11 +225,11 @@ export const TeacherSidebar: React.FC<TeacherSidebarProps> = ({
                             navigate('/profile');
                         }}
                         title={compact ? `${user.name} (View Profile)` : 'Open Teacher Profile'}
-                        className={`flex items-center gap-3 min-w-0 text-left cursor-pointer rounded-2xl transition-all ${
+                        className={`flex items-center gap-2.5 min-w-0 text-left cursor-pointer rounded-xl transition-all ${
                             compact ? 'justify-center p-0.5' : 'flex-1 p-1 -m-1 hover:opacity-90'
                         }`}
                     >
-                        <div className={`w-10 h-10 rounded-2xl overflow-hidden flex items-center justify-center shrink-0 ${
+                        <div className={`w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center shrink-0 ${
                             styles.isBento
                                 ? `bg-[#fde047] border-2 border-black shadow-[2px_2px_0px_#000] ${isOnProfile ? 'ring-2 ring-black' : ''}`
                                 : styles.isDark
@@ -260,8 +246,8 @@ export const TeacherSidebar: React.FC<TeacherSidebarProps> = ({
                         </div>
                         {!compact && (
                             <div className="min-w-0">
-                                <div className="text-sm font-black truncate">{user.name}</div>
-                                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider mt-0.5 ${styles.pillPrimary}`}>
+                                <div className="text-[13px] font-black leading-tight truncate">{user.name}</div>
+                                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider mt-0.5 leading-none ${styles.pillPrimary}`}>
                                     Teacher Studio
                                 </span>
                             </div>
@@ -272,7 +258,7 @@ export const TeacherSidebar: React.FC<TeacherSidebarProps> = ({
                         <button
                             type="button"
                             onClick={() => onSetMobileOpen(false)}
-                            className={`p-2 rounded-xl cursor-pointer shrink-0 ${styles.secondaryBtn}`}
+                            className={`p-1.5 rounded-xl cursor-pointer shrink-0 ${styles.secondaryBtn}`}
                             aria-label="Close sidebar"
                         >
                             <X className="w-4 h-4" />
@@ -281,7 +267,7 @@ export const TeacherSidebar: React.FC<TeacherSidebarProps> = ({
                         <button
                             type="button"
                             onClick={onToggleCollapse}
-                            className={`hidden lg:flex items-center justify-center ${compact ? 'w-full py-1.5' : 'p-1.5'} rounded-xl cursor-pointer shrink-0 ${styles.secondaryBtn}`}
+                            className={`hidden lg:flex items-center justify-center ${compact ? 'w-full py-1' : 'p-1.5'} rounded-xl cursor-pointer shrink-0 ${styles.secondaryBtn}`}
                             title={compact ? 'Expand sidebar' : 'Collapse sidebar'}
                             aria-label={compact ? 'Expand sidebar' : 'Collapse sidebar'}
                         >
@@ -291,14 +277,14 @@ export const TeacherSidebar: React.FC<TeacherSidebarProps> = ({
                 </div>
 
                 {/* Navbar Utility Row moved into Sidebar: Messages, Notifications, Back */}
-                <div className={`${compact ? 'px-2.5 py-2.5 flex-col items-center gap-2' : 'px-3.5 py-2.5 items-center gap-2'} flex shrink-0 border-b ${styles.divider}`}>
+                <div className={`${compact ? 'px-2 py-1.5 flex-col items-center gap-1.5' : 'px-3 py-2 items-center gap-2'} flex shrink-0 border-b ${styles.divider}`}>
                     {!isOnDashboard && (
                         <button
                             type="button"
                             onClick={handleGoBack}
                             title="Back to previous page"
                             aria-label="Go back"
-                            className={`${compact ? 'w-full py-2 justify-center' : 'px-2.5 py-2'} rounded-xl text-xs flex items-center gap-1.5 cursor-pointer shrink-0 ${styles.secondaryBtn}`}
+                            className={`${compact ? 'w-full py-1.5 justify-center' : 'h-9 px-2.5'} rounded-xl text-xs flex items-center gap-1.5 cursor-pointer shrink-0 ${styles.secondaryBtn}`}
                         >
                             <ArrowLeft className="w-3.5 h-3.5 shrink-0" />
                             {!compact && <span>Back</span>}
@@ -310,7 +296,7 @@ export const TeacherSidebar: React.FC<TeacherSidebarProps> = ({
                         onClick={() => (isChatOpen ? closeChat() : openChat())}
                         title="Messages & Chat Hub"
                         aria-label="Open Chat Hub"
-                        className={`relative ${compact ? 'w-full py-2 justify-center' : 'flex-1 py-2 px-2.5 justify-center'} rounded-xl text-xs flex items-center gap-1.5 cursor-pointer ${
+                        className={`relative ${compact ? 'w-full py-1.5 justify-center' : 'flex-1 h-9 px-2.5 justify-center'} rounded-xl text-xs flex items-center gap-1.5 cursor-pointer ${
                             isChatOpen ? styles.primaryBtn : styles.secondaryBtn
                         }`}
                     >
@@ -334,73 +320,16 @@ export const TeacherSidebar: React.FC<TeacherSidebarProps> = ({
                     </div>
                 </div>
 
-                {/* Active Class Switcher */}
-                {!compact && (
-                    <div className="p-3.5 pb-2 shrink-0">
-                        <div className={`p-3 rounded-2xl space-y-2.5 ${styles.sidebarSwitcherBox}`}>
-                            <div className="flex items-center justify-between gap-2">
-                                <span className={`text-[10px] uppercase tracking-widest ${styles.sidebarSectionLabel}`}>
-                                    Active Class
-                                </span>
-                                <span className={`text-[10px] font-bold ${styles.mutedText}`}>
-                                    {myClasses.length} Assigned
-                                </span>
-                            </div>
-
-                            {myClasses.length > 0 ? (
-                                <>
-                                    <div className="flex items-center gap-2.5">
-                                        {selectedSummary && (
-                                            <ClanEmblem
-                                                logo={selectedSummary.logo}
-                                                tag={selectedSummary.tag}
-                                                name={selectedSummary.name}
-                                                size="sm"
-                                            />
-                                        )}
-                                        <select
-                                            value={selectedClassId || selectedSummary?.clanId || ''}
-                                            onChange={(e) => onSelectClass(e.target.value)}
-                                            aria-label="Switch active class"
-                                            className={`w-full px-2.5 py-2 rounded-xl text-xs font-black cursor-pointer truncate ${styles.select}`}
-                                        >
-                                            {myClasses.map(cls => (
-                                                <option key={cls.clanId} value={cls.clanId}>
-                                                    [{cls.tag}] {cls.name} ({Math.max(0, (cls.memberCount || 1) - 1)} stu)
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                    {selectedSummary && (
-                                        <div className="flex items-center justify-between text-[11px] font-bold">
-                                            <span className={styles.mutedText}>
-                                                {studentCount} {studentCount === 1 ? 'Student' : 'Students'}
-                                            </span>
-                                            <span className={styles.mutedText}>
-                                                {selectedSummary.finishedSessionsCount || 0} Done
-                                            </span>
-                                        </div>
-                                    )}
-                                </>
-                            ) : (
-                                <div className={`text-[11px] font-semibold leading-snug ${styles.mutedText}`}>
-                                    Awaiting Admin class assignment.
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                )}
-
                 {/* Unified De-Duplicated Navigation Groups */}
-                <nav className={`flex-1 overflow-y-auto ${compact ? 'px-2.5 py-2 space-y-2' : 'px-3 py-2 space-y-4'}`}>
+                <nav className={`flex-1 min-h-0 overflow-y-auto no-scrollbar ${compact ? 'px-2 py-1.5 space-y-1.5' : 'px-2.5 py-2 space-y-2'}`}>
                     {navGroups.map((group, groupIdx) => (
-                        <div key={group.id} className="space-y-1">
+                        <div key={group.id} className="space-y-0.5">
                             {!compact ? (
-                                <div className={`px-2.5 pb-1 text-[10px] uppercase tracking-widest ${styles.sidebarSectionLabel}`}>
+                                <div className={`px-2.5 pt-0.5 pb-0.5 text-[9.5px] leading-tight uppercase tracking-widest ${styles.sidebarSectionLabel}`}>
                                     {group.label}
                                 </div>
                             ) : groupIdx > 0 ? (
-                                <div className={`my-1.5 border-t ${styles.divider}`} />
+                                <div className={`my-1 border-t ${styles.divider}`} />
                             ) : null}
 
                             {group.items.map(item => {
@@ -414,7 +343,7 @@ export const TeacherSidebar: React.FC<TeacherSidebarProps> = ({
                                         type="button"
                                         onClick={() => handlePickItem(item)}
                                         title={compact ? item.label : undefined}
-                                        className={`w-full flex items-center ${compact ? 'justify-center px-2 py-2.5' : 'justify-between px-3 py-2.5'} rounded-xl text-xs transition-all cursor-pointer ${
+                                        className={`w-full flex items-center ${compact ? 'justify-center px-2 py-1.5' : 'justify-between px-2.5 py-1.5'} rounded-xl text-xs transition-all cursor-pointer ${
                                             active ? styles.navItemActive : styles.navItemIdle
                                         } ${noClassHint ? 'opacity-70' : ''}`}
                                     >
@@ -438,9 +367,9 @@ export const TeacherSidebar: React.FC<TeacherSidebarProps> = ({
                 </nav>
 
                 {/* Sidebar Footer: Profile & Logout */}
-                <div className={`p-3.5 border-t shrink-0 ${styles.divider}`}>
+                <div className={`${compact ? 'p-2' : 'px-3 py-2'} border-t shrink-0 ${styles.divider}`}>
                     {/* Profile + Logout Row */}
-                    <div className={compact ? 'flex flex-col gap-2' : 'grid grid-cols-2 gap-2'}>
+                    <div className={compact ? 'flex flex-col gap-1.5' : 'grid grid-cols-2 gap-2'}>
                         <button
                             type="button"
                             onClick={() => {
@@ -448,7 +377,7 @@ export const TeacherSidebar: React.FC<TeacherSidebarProps> = ({
                                 navigate('/profile');
                             }}
                             title="Teacher Profile"
-                            className={`py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 cursor-pointer transition-all ${
+                            className={`py-1.5 px-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 cursor-pointer transition-all ${
                                 isOnProfile ? styles.primaryBtn : styles.secondaryBtn
                             }`}
                         >
@@ -461,7 +390,7 @@ export const TeacherSidebar: React.FC<TeacherSidebarProps> = ({
                             onClick={handleLogout}
                             title="Logout"
                             aria-label="Logout"
-                            className={`py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 cursor-pointer transition-all ${styles.dangerBtn}`}
+                            className={`py-1.5 px-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 cursor-pointer transition-all ${styles.dangerBtn}`}
                         >
                             <LogOut className="w-3.5 h-3.5 shrink-0" />
                             {!compact && <span className="truncate">Logout</span>}

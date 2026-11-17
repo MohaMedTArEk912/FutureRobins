@@ -1,11 +1,20 @@
 import crypto from 'crypto';
 import { User } from '../models/User.js';
+import { PendingRegistration } from '../models/PendingRegistration.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { getEnrichedUser } from '../services/userService.js';
 import { resolveJwtSecret } from '../utils/jwtSecret.js';
-import { sendWelcomeEmail, sendPasswordResetEmail, sendPasswordChangedEmail } from '../services/emailService.js';
+import {
+  sendWelcomeEmail,
+  sendPasswordResetEmail,
+  sendPasswordChangedEmail,
+  sendRegistrationVerificationEmail,
+  getAppBaseUrl,
+  isDeliverableEmail
+} from '../services/emailService.js';
 import { evaluateAndAwardBadges } from '../services/badgeService.js';
+import { runInBackground } from '../utils/vercelUtils.js';
 
 
 // Helper: Generate JWT
@@ -55,48 +64,227 @@ const resolveLoginEmail = (email) => {
   return normalizedEmail;
 };
 
-export const register = async (req, res) => {
-  try {
-    const { userId, name, email, password } = req.body || {};
-    
-    // Check if user exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ message: 'User already exists' });
-    }
+async function finalizeVerifiedUser({ userId, name, email, passwordHash }) {
+  const newUser = new User({
+    userId,
+    name,
+    email,
+    password: passwordHash,
+    emailVerified: true,
+    createdAt: new Date()
+  });
 
-    // Hash password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+  await newUser.save();
 
-    const newUser = new User({
-      userId,
-      name,
-      email,
-      password: hashedPassword,
-      createdAt: new Date()
-    });
-
-    await newUser.save();
-    
-    // Dispatch Welcome Email (non-blocking)
+  // Dispatch Welcome Email (non-blocking, tracked via waitUntil on Vercel)
+  runInBackground(
     sendWelcomeEmail({
       email: newUser.email,
       name: newUser.name,
       userId: newUser.userId
-    }).catch(err => console.warn('⚠️ [Register] Welcome email error:', err.message));
-    
-    // Generate Token
-    const token = generateToken(newUser.userId, newUser.role || 'user');
-    
-    // Fetch enriched user for response
-    const enrichedUser = await getEnrichedUser(newUser.userId);
-    const { password: _pw, ...safeUser } = enrichedUser || newUser.toObject();
+    }),
+    'register-welcome-email'
+  );
 
-    res.status(201).json({ user: safeUser, token });
+  const token = generateToken(newUser.userId, newUser.role || 'user');
+  const enrichedUser = await getEnrichedUser(newUser.userId);
+  const { password: _pw, ...safeUser } = enrichedUser || newUser.toObject();
+  return { user: safeUser, token };
+}
+
+export const requestRegistrationVerification = async (req, res) => {
+  try {
+    const { userId, name, email, password } = req.body || {};
+    const normalizedEmail = (email || '').toLowerCase().trim();
+    const trimmedName = (name || '').trim();
+
+    if (!normalizedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail) || !isDeliverableEmail(normalizedEmail)) {
+      return res.status(400).json({ message: 'Please provide a valid, deliverable email address' });
+    }
+    if (!trimmedName || trimmedName.length < 2) {
+      return res.status(400).json({ message: 'Full name must be at least 2 characters' });
+    }
+    if (!password || String(password).length < 6) {
+      return res.status(400).json({ message: 'Password must be at least 6 characters long' });
+    }
+
+    const existingUser = await User.findOne({ email: normalizedEmail }).select('userId email').lean();
+    if (existingUser) {
+      return res.status(400).json({ message: 'User already exists with this email address' });
+    }
+
+    const baseUserId = (userId && String(userId).trim())
+      ? String(userId).trim()
+      : normalizedEmail.replace(/[^a-z0-9]/g, '_');
+    const conflictingUserId = await User.exists({ userId: baseUserId });
+    const resolvedUserId = conflictingUserId
+      ? `${baseUserId}_${crypto.randomBytes(3).toString('hex')}`
+      : baseUserId;
+
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(password, salt);
+    const otp = String(crypto.randomInt(100000, 1000000));
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+
+    await PendingRegistration.findOneAndUpdate(
+      { email: normalizedEmail },
+      {
+        email: normalizedEmail,
+        userId: resolvedUserId,
+        name: trimmedName,
+        passwordHash,
+        otp,
+        verificationToken,
+        attempts: 0,
+        expiresAt
+      },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
+
+    const verifyUrl = `${getAppBaseUrl(req)}/register?email=${encodeURIComponent(normalizedEmail)}&token=${encodeURIComponent(verificationToken)}`;
+    const mailResult = await sendRegistrationVerificationEmail({
+      email: normalizedEmail,
+      name: trimmedName,
+      otp,
+      verifyUrl
+    });
+
+    if (!mailResult || !mailResult.success) {
+      await PendingRegistration.deleteOne({ email: normalizedEmail }).catch(() => {});
+      return res.status(502).json({
+        message: 'Could not deliver verification email. Please verify your email address works and try again.',
+        error: mailResult?.error || 'Mail delivery failed'
+      });
+    }
+
+    return res.status(200).json({
+      requiresVerification: true,
+      email: normalizedEmail,
+      message: 'A 6-digit verification code and confirmation link have been sent to your email.',
+      deliveryStatus: mailResult.status || 'sent',
+      ...(mailResult.status === 'simulated' && mailResult.previewUrl ? { previewUrl: mailResult.previewUrl } : {})
+    });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('Error in requestRegistrationVerification:', error);
+    return res.status(500).json({ message: 'Server error', error: error.message });
   }
+};
+
+export const verifyRegistration = async (req, res) => {
+  try {
+    const { email, otp, code, token } = req.body || {};
+    const normalizedEmail = (email || '').toLowerCase().trim();
+    const submittedOtp = String(otp ?? code ?? '').trim();
+    const submittedToken = String(token || '').trim();
+
+    if (!submittedToken && (!normalizedEmail || !submittedOtp)) {
+      return res.status(400).json({
+        message: 'Provide your 6-digit verification code or open the verification link sent to your email.'
+      });
+    }
+
+    const query = submittedToken
+      ? { verificationToken: submittedToken, ...(normalizedEmail ? { email: normalizedEmail } : {}) }
+      : { email: normalizedEmail };
+
+    const pending = await PendingRegistration.findOne(query);
+    if (!pending) {
+      if (normalizedEmail) {
+        const existingUser = await User.findOne({ email: normalizedEmail }).select('emailVerified').lean();
+        if (existingUser?.emailVerified) {
+          return res.status(200).json({
+            alreadyVerified: true,
+            message: 'Your email is already verified! Please sign in to continue.'
+          });
+        }
+        if (existingUser) {
+          return res.status(400).json({ message: 'An account already exists with this email. Please sign in.' });
+        }
+      }
+      return res.status(400).json({
+        message: 'Verification request not found or expired. Please register again to receive a new code.'
+      });
+    }
+
+    if (pending.expiresAt && new Date() > pending.expiresAt) {
+      await PendingRegistration.deleteOne({ _id: pending._id }).catch(() => {});
+      return res.status(400).json({
+        message: 'Verification code and link have expired. Please request a new one.'
+      });
+    }
+
+    if (submittedToken) {
+      const expectedBuf = Buffer.from(String(pending.verificationToken), 'utf8');
+      const providedBuf = Buffer.from(submittedToken, 'utf8');
+      if (expectedBuf.length !== providedBuf.length || !crypto.timingSafeEqual(expectedBuf, providedBuf)) {
+        return res.status(400).json({ message: 'Invalid verification link token.' });
+      }
+    } else if (pending.otp !== submittedOtp) {
+      const updated = await PendingRegistration.findByIdAndUpdate(
+        pending._id,
+        { $inc: { attempts: 1 } },
+        { new: true }
+      );
+      if (updated && updated.attempts >= 5) {
+        await PendingRegistration.deleteOne({ _id: pending._id }).catch(() => {});
+        return res.status(429).json({
+          message: 'Too many invalid code attempts. Please submit your details again to get a new verification code.'
+        });
+      }
+      return res.status(400).json({ message: 'Invalid 6-digit verification code. Please check your email and try again.' });
+    }
+
+    const existingUser = await User.findOne({ email: pending.email }).select('emailVerified').lean();
+    if (existingUser) {
+      await PendingRegistration.deleteOne({ _id: pending._id }).catch(() => {});
+      if (existingUser.emailVerified) {
+        return res.status(200).json({
+          alreadyVerified: true,
+          message: 'Your email is already verified! Please sign in to continue.'
+        });
+      }
+      return res.status(400).json({ message: 'An account already exists with this email. Please sign in.' });
+    }
+
+    const consumed = await PendingRegistration.findOneAndDelete({ _id: pending._id });
+    if (!consumed) {
+      const concurrentUser = await User.findOne({ email: pending.email }).select('emailVerified').lean();
+      if (concurrentUser?.emailVerified) {
+        return res.status(200).json({
+          alreadyVerified: true,
+          message: 'Your email is already verified! Please sign in to continue.'
+        });
+      }
+      return res.status(400).json({ message: 'Verification was already processed. Please sign in.' });
+    }
+
+    const { user, token: authToken } = await finalizeVerifiedUser({
+      userId: consumed.userId,
+      name: consumed.name,
+      email: consumed.email,
+      passwordHash: consumed.passwordHash
+    });
+
+    return res.status(201).json({
+      user,
+      token: authToken,
+      message: 'Email verified and account created successfully!'
+    });
+  } catch (error) {
+    if (error?.code === 11000) {
+      return res.status(400).json({ message: 'An account with this email or username already exists. Please sign in.' });
+    }
+    console.error('Error in verifyRegistration:', error);
+    return res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+export const register = async (req, res) => {
+  if (req.body?.otp || req.body?.code || req.body?.token) {
+    return verifyRegistration(req, res);
+  }
+  return requestRegistrationVerification(req, res);
 };
 
 export const login = async (req, res) => {
@@ -171,6 +359,7 @@ export const googleAuth = async (req, res) => {
         name,
         email: normalizedEmail,
         password: googleId, // Use Google ID as password (they won't use it for login)
+        emailVerified: true,
         totalScore: 0,
         totalAttempts: 0,
         totalTime: 0,
@@ -186,6 +375,9 @@ export const googleAuth = async (req, res) => {
       const newStreak = calculateStreak(user.lastLoginDate, user.streak);
       user.streak = newStreak;
       user.lastLoginDate = new Date();
+      if (!user.emailVerified) {
+        user.emailVerified = true;
+      }
       await user.save();
     }
     
@@ -359,11 +551,14 @@ export const resetPassword = async (req, res) => {
         user.resetPasswordExpires = undefined;
         await user.save();
 
-        // Dispatch confirmation email
-        sendPasswordChangedEmail({
-            email: user.email,
-            name: user.name
-        }).catch(err => console.warn('⚠️ [ResetPassword] Notification email error:', err.message));
+        // Dispatch confirmation email (tracked via waitUntil on Vercel)
+        runInBackground(
+            sendPasswordChangedEmail({
+                email: user.email,
+                name: user.name
+            }),
+            'reset-password-email'
+        );
         
         res.json({ message: 'Password reset successfully' });
     } catch (error) {
@@ -404,11 +599,14 @@ export const changePassword = async (req, res) => {
         user.password = await bcrypt.hash(newPassword, salt);
         await user.save();
 
-        // Dispatch confirmation email
-        sendPasswordChangedEmail({
-            email: user.email,
-            name: user.name
-        }).catch(err => console.warn('⚠️ [ChangePassword] Notification email error:', err.message));
+        // Dispatch confirmation email (tracked via waitUntil on Vercel)
+        runInBackground(
+            sendPasswordChangedEmail({
+                email: user.email,
+                name: user.name
+            }),
+            'change-password-email'
+        );
         
         res.json({ message: 'Password changed successfully' });
     } catch (error) {
@@ -461,18 +659,22 @@ export const adminCreateUser = async (req, res) => {
             name,
             email: normalizedEmail,
             password: hashedPassword,
+            emailVerified: true,
             role: safeRole,
             createdAt: new Date()
         });
 
         await newUser.save();
     
-    // Dispatch Welcome Email (non-blocking)
-    sendWelcomeEmail({
-      email: newUser.email,
-      name: newUser.name,
-      userId: newUser.userId
-    }).catch(err => console.warn('⚠️ [Register] Welcome email error:', err.message));
+    // Dispatch Welcome Email (non-blocking, tracked via waitUntil on Vercel)
+    runInBackground(
+      sendWelcomeEmail({
+        email: newUser.email,
+        name: newUser.name,
+        userId: newUser.userId
+      }),
+      'admin-create-welcome-email'
+    );
 
         // Fetch enriched user for response
         const enrichedUser = await getEnrichedUser(newUser.userId);

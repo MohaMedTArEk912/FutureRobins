@@ -29,6 +29,7 @@
     "@types/multer": "^2.0.0",
     "@types/react-window": "^1.8.8",
     "@vercel/connect": "^2.9.0",
+    "@vercel/functions": "^3.11.3",
     "axios": "^1.13.2",
     "bcryptjs": "^3.0.3",
     "bottleneck": "^2.19.5",

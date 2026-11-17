@@ -18,7 +18,10 @@ interface DataContextType {
     userWithRank: UserData | null;
 }
 
-const DataContext = createContext<DataContextType | undefined>(undefined);
+const globalDataStore = globalThis as { __quizDataContext?: React.Context<DataContextType | undefined> };
+const DataContext = import.meta.env.DEV
+    ? (globalDataStore.__quizDataContext ??= createContext<DataContextType | undefined>(undefined))
+    : createContext<DataContextType | undefined>(undefined);
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const useData = () => {
@@ -90,12 +93,14 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 // Admin fetches everything
                 const { users, attempts, badges, subjects: adminSubjects } = await api.getData(uid);
 
-                // Admins also need skill tracks and study cards
+                // Admins also need quizzes, skill tracks and study cards
                 try {
-                    const [sTracks, sCards] = await Promise.all([
+                    const [freshQuizzes, sTracks, sCards] = await Promise.all([
+                        api.getQuizzes(undefined, true),
                         api.getSkillTracks(),
                         api.getStudyCards()
                     ]);
+                    if (Array.isArray(freshQuizzes)) setAvailableQuizzes(freshQuizzes);
                     setSkillTracks(sTracks || []);
                     setStudyCards(sCards || []);
                 } catch (e) {
@@ -111,13 +116,15 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 // Regular user fetches optimized set
                 const { attempts, badges, users, challenges: userChallenges } = await api.getUserData(uid);
 
-                // Also fetch skill tracks, study cards, and subjects for regular users
+                // Also fetch quizzes, skill tracks, study cards, and subjects for regular users
                 try {
-                    const [tracksRes, cardsRes, subjectsRes] = await Promise.all([
+                    const [freshQuizzes, tracksRes, cardsRes, subjectsRes] = await Promise.all([
+                        api.getQuizzes(),
                         api.getSkillTracks(),
                         api.getStudyCards(),
                         api.getSubjects()
                     ]);
+                    if (Array.isArray(freshQuizzes)) setAvailableQuizzes(freshQuizzes);
                     setSkillTracks(tracksRes || []);
                     setStudyCards(cardsRes || []);
                     setSubjects(subjectsRes || []);

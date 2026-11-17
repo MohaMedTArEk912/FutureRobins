@@ -20,7 +20,8 @@ import {
     ListOrdered,
     Link2,
     ZoomIn,
-    ZoomOut
+    ZoomOut,
+    RefreshCw
 } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import { useTheme } from '../context/ThemeContext';
@@ -70,6 +71,7 @@ const TeacherQuizRevisionPage: React.FC = () => {
 
     const [quiz, setQuiz] = useState<Quiz | null>(null);
     const [loading, setLoading] = useState(true);
+    const [isRefreshing, setIsRefreshing] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     // Revision Controls
@@ -82,6 +84,35 @@ const TeacherQuizRevisionPage: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [fontScale, setFontScale] = useState<'normal' | 'large' | 'xlarge'>('normal');
     const [showNavigator, setShowNavigator] = useState(true);
+
+    // Reset revision session state when navigating to a different quizId
+    useEffect(() => {
+        setCurrentSlideIdx(0);
+        setRevealedQuestionIds(new Set());
+        setClassDiscussionPicks({});
+        setSelectedPart('ALL');
+        setSearchQuery('');
+        setError(null);
+    }, [quizId]);
+
+    const handleRefreshQuiz = useCallback(async () => {
+        if (!quizId) return;
+        setIsRefreshing(true);
+        setError(null);
+        try {
+            const allAdminQuizzes: Quiz[] = await api.getQuizzes(undefined, true);
+            const found = allAdminQuizzes.find((q: Quiz) => q.id === quizId || q._id === quizId);
+            if (found) {
+                setQuiz(found);
+            } else {
+                setError('Quiz not found.');
+            }
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to refresh quiz.');
+        } finally {
+            setIsRefreshing(false);
+        }
+    }, [quizId]);
 
     // Resolve Quiz (from DataContext cache or fresh admin fetch including hidden quizzes)
     useEffect(() => {
@@ -670,6 +701,22 @@ const TeacherQuizRevisionPage: React.FC = () => {
                                 <ZoomIn className="w-3.5 h-3.5" />
                             </button>
                         </div>
+
+                        {/* Refresh Latest Quiz Data */}
+                        <button
+                            type="button"
+                            onClick={handleRefreshQuiz}
+                            disabled={isRefreshing}
+                            className={`px-3 py-2 rounded-xl text-[11px] font-black uppercase tracking-wider flex items-center gap-1.5 cursor-pointer transition-all disabled:opacity-60 ${
+                                isBento
+                                    ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#bef264]'
+                                    : 'bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-white/10'
+                            }`}
+                            title="Refresh latest questions and answers from server"
+                        >
+                            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
+                            <span className="hidden lg:inline">{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
+                        </button>
 
                         {/* Secondary action: Test in Student View */}
                         <button

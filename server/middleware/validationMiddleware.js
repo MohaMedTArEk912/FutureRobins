@@ -28,10 +28,13 @@ export const validate = (schema) => (req, res, next) => {
 };
 
 export const registerSchema = z.object({
-  userId: z.string().min(3),
+  userId: z.string().min(3).optional(),
   name: z.string().min(2),
   email: z.string().email(),
   password: z.string().min(6),
+  otp: z.string().optional(),
+  code: z.string().optional(),
+  token: z.string().optional(),
   createdAt: z.string().optional() // Or date, depending on usage
 });
 

@@ -1,8 +1,33 @@
 import mongoose from 'mongoose';
+import { attachDatabasePool } from '@vercel/functions';
 
 let cachedConnection = null;
 let cachedPromise = null;
-let connectionAttemptTime = null;
+let sigtermRegistered = false;
+const attachedClients = new WeakSet();
+
+const attachVercelPoolIfSupported = (conn) => {
+  if (!process.env.VERCEL || !conn) return;
+  try {
+    const client = typeof conn.getClient === 'function' ? conn.getClient() : null;
+    if (client && !attachedClients.has(client)) {
+      attachDatabasePool(client);
+      attachedClients.add(client);
+    }
+  } catch (err) {
+    console.warn('⚠️ Unable to attach Vercel database pool:', err?.message || err);
+  }
+};
+
+const registerGracefulDbShutdown = () => {
+  if (sigtermRegistered || typeof process === 'undefined' || !process.on) return;
+  sigtermRegistered = true;
+  process.on('SIGTERM', () => {
+    if (mongoose.connection && mongoose.connection.readyState === 1) {
+      mongoose.connection.close().catch(() => {});
+    }
+  });
+};
 
 // Track connection lifecycle
 if (mongoose.connection) {
@@ -72,6 +97,7 @@ export async function connectToDatabase() {
 
   // 1 = connected, reuse existing connection
   if (mongoose.connection && mongoose.connection.readyState === 1) {
+    attachVercelPoolIfSupported(mongoose.connection);
     return mongoose.connection;
   }
 
@@ -79,6 +105,13 @@ export async function connectToDatabase() {
   if (cachedPromise) {
     return cachedPromise;
   }
+
+  // 3 = disconnecting: reset handles before opening a fresh connection
+  if (mongoose.connection && mongoose.connection.readyState === 3) {
+    cachedConnection = null;
+  }
+
+  registerGracefulDbShutdown();
 
   if (!uri) {
     const errorMsg = 'MONGODB_URI or ATLAS_MONGODB_URI is not defined in environment variables. Please add MONGODB_URI or ATLAS_MONGODB_URI in your deployment settings (Vercel/Render/Railway).';
@@ -100,9 +133,13 @@ export async function connectToDatabase() {
   const isLocal = uri.includes('127.0.0.1') || uri.includes('localhost');
 
   const opts = {
-    // In serverless, smaller pools prevent exhausted Atlas connection limits
-    maxPoolSize: isServerless ? 10 : 50,
+    // Under Vercel Fluid Compute / serverless scaling, keep per-instance pools small so
+    // concurrent instances never exhaust MongoDB Atlas connection limits.
+    maxPoolSize: isServerless ? Math.max(2, Number(process.env.MONGO_POOL_SIZE) || 5) : 50,
     minPoolSize: isServerless ? 0 : 2,
+    maxConnecting: isServerless ? 2 : 5,
+    maxIdleTimeMS: isServerless ? 10000 : 60000,
+    waitQueueTimeoutMS: 15000,
     // Faster timeout for local DB, ample time for Atlas cold starts
     serverSelectionTimeoutMS: isLocal ? 5000 : 25000,
     connectTimeoutMS: isLocal ? 5000 : 25000,
@@ -120,6 +157,7 @@ export async function connectToDatabase() {
   cachedPromise = mongoose.connect(uri, opts)
     .then((mongooseInstance) => {
       cachedConnection = mongooseInstance.connection;
+      attachVercelPoolIfSupported(cachedConnection);
       const ms = Date.now() - start;
       console.info(`✅ MongoDB connected successfully in ${ms}ms [${uriType}] (Host: ${cachedConnection.host || 'local'}, DB: ${cachedConnection.name})`);
       return cachedConnection;

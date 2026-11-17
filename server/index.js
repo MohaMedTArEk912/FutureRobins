@@ -22,7 +22,9 @@ import { connectToDatabase, dbMiddleware, getDbDiagnostics, getMongoUri } from '
 
 import compression from 'compression';
 import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
+import jwt from 'jsonwebtoken';
+import { resolveJwtSecret } from './utils/jwtSecret.js';
 import { mongoSanitizeMiddleware } from './middleware/mongoSanitize.js';
 import hpp from 'hpp';
 import path from 'path';
@@ -54,6 +56,7 @@ import notificationRoutes from './routes/notifications.js';
 import supportRoutes from './routes/support.js';
 import newsletterRoutes from './routes/newsletter.js';
 import presentationRoutes from './routes/presentations.js';
+import classroomRoutes from './routes/classroom.js';
 import { verifyEmailService } from './services/emailService.js';
 
 // Strictly whitelisted origins (No broad wildcard *.vercel.app or *.netlify.app domains)
@@ -180,22 +183,46 @@ app.use(helmet({
   },
 }));
 
-// Rate Limiting
+// Rate Limiting (Keyed per authenticated user or normalized IP so shared school/office NAT IPs never block classrooms)
 const isLocalEnv = process.env.NODE_ENV !== 'production' || process.env.LOCAL_DEV === 'true';
 
-// Tier 1: General API limiter
+const extractVerifiedUserId = (req) => {
+  const authHeader = req.headers?.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) return null;
+  try {
+    const decoded = jwt.verify(authHeader.split(' ')[1], resolveJwtSecret());
+    return decoded?.userId ? String(decoded.userId) : null;
+  } catch {
+    return null;
+  }
+};
+
+const getClientIpKey = (req) => ipKeyGenerator(req.ip || req.socket?.remoteAddress || '127.0.0.1');
+
+// Tier 1: General API limiter (per-user bucket when signed in; high shared-IP headroom otherwise)
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 300,
+  windowMs: 15 * 60 * 1000,
+  max: (req) => (extractVerifiedUserId(req) ? 800 : 1200),
+  keyGenerator: (req) => {
+    const userId = extractVerifiedUserId(req);
+    return userId ? `user:${userId}` : `ip:${getClientIpKey(req)}`;
+  },
   message: {
     success: false,
-    message: 'Too many requests from this IP, please try again after 15 minutes'
+    message: 'Too many requests, please try again shortly'
   },
-  standardHeaders: true, 
+  standardHeaders: true,
   legacyHeaders: false,
   validate: { xForwardedForHeader: false },
   skip: (req) => {
     if (isLocalEnv) return true;
+    if (req.path === '/health-check' || req.originalUrl === '/api/health-check') return true;
+    if (
+      req.method === 'GET' &&
+      (req.path.startsWith('/classroom/rooms/') || req.path === '/classroom/active')
+    ) {
+      return true;
+    }
     const ip = req.ip || req.connection?.remoteAddress || '';
     const host = req.hostname || req.headers.host || '';
     return (
@@ -208,13 +235,18 @@ const limiter = rateLimit({
   }
 });
 
-// Tier 2: Brute-Force Auth Limiter (15 attempts / 15 minutes)
+// Tier 2A: Brute-Force Auth Limiter per (IP + email), ignoring successful logins so shared classrooms never lock out
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 15,
+  skipSuccessfulRequests: true,
+  keyGenerator: (req) => {
+    const email = String(req.body?.email || '').toLowerCase().trim().slice(0, 120);
+    return `${getClientIpKey(req)}:${email || 'anon'}`;
+  },
   message: {
     success: false,
-    message: 'Too many authentication attempts. Please try again after 15 minutes.'
+    message: 'Too many failed authentication attempts for this account. Please try again after 15 minutes.'
   },
   standardHeaders: true,
   legacyHeaders: false,
@@ -222,10 +254,30 @@ const authLimiter = rateLimit({
   skip: () => isLocalEnv
 });
 
-// Tier 3: Heavy Resource / Export Limiter (30 requests / 15 minutes)
+// Tier 2B: Broad IP ceiling for auth failure flooding/credential stuffing while supporting large classroom logins
+const authIpLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 120,
+  skipSuccessfulRequests: true,
+  keyGenerator: (req) => getClientIpKey(req),
+  message: {
+    success: false,
+    message: 'Too many failed authentication attempts from this network. Please try again after 15 minutes.'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  validate: { xForwardedForHeader: false },
+  skip: () => isLocalEnv
+});
+
+// Tier 3: Heavy Resource / Export Limiter (30 requests / 15 minutes per user/IP)
 const heavyResourceLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 30,
+  keyGenerator: (req) => {
+    const userId = extractVerifiedUserId(req);
+    return userId ? `heavy_user:${userId}` : `heavy_ip:${getClientIpKey(req)}`;
+  },
   message: {
     success: false,
     message: 'Resource limit exceeded. Please slow down.'
@@ -241,9 +293,11 @@ if (!isLocalEnv) {
 }
 
 // Attach Tier 2 & Tier 3 Rate Limiters
-app.use('/api/login', authLimiter);
-app.use('/api/register', authLimiter);
-app.use('/api/forgot-password', authLimiter);
+app.use('/api/login', authLimiter, authIpLimiter);
+app.use('/api/register', authLimiter, authIpLimiter);
+app.use('/api/register/request-verification', authLimiter, authIpLimiter);
+app.use('/api/register/verify', authLimiter, authIpLimiter);
+app.use('/api/forgot-password', authLimiter, authIpLimiter);
 app.use('/api/ai-studio/generate', heavyResourceLimiter);
 app.use('/api/ai-studio/materials', heavyResourceLimiter);
 
@@ -305,6 +359,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/support', supportRoutes);
 app.use('/api/newsletter', newsletterRoutes);
 app.use('/api/presentations', presentationRoutes);
+app.use('/api/classroom', classroomRoutes);
 
 
 // Socket.io event handlers (disabled on Vercel serverless)
@@ -527,6 +582,11 @@ if (io) io.on('connection', (socket) => {
   });
 
   // ========== CLASSROOM MULTIPLAYER & TURN-BASED EVENTS ==========
+  socket.on('subscribe_classroom', ({ pin }) => {
+    if (!pin) return;
+    socket.join(`classroom_${String(pin).trim()}`);
+  });
+
   socket.on('join_classroom', ({ pin, user, quizData }) => {
     if (!pin || !user) return;
     const roomId = `classroom_${pin}`;
