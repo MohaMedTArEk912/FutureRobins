@@ -456,24 +456,24 @@ export const ClassManagement: React.FC<ClassManagementProps> = ({
                                             )}
                                         </div>
 
-                                        <div className="grid grid-cols-3 gap-2 text-center">
-                                            <div className={`p-2.5 rounded-xl ${styles.subtleBox}`}>
-                                                <div className={`text-[10px] font-black uppercase ${styles.mutedText}`}>Students</div>
-                                                <div className="text-base font-black">{cls.studentIds?.length || 0}</div>
+                                        <div className="grid grid-cols-3 gap-1.5 sm:gap-2 text-center">
+                                            <div className={`p-2 sm:p-2.5 rounded-xl ${styles.subtleBox}`}>
+                                                <div className={`text-[9px] sm:text-[10px] font-black uppercase ${styles.mutedText}`}>Students</div>
+                                                <div className="text-sm sm:text-base font-black">{cls.studentIds?.length || 0}</div>
                                             </div>
-                                            <div className={`p-2.5 rounded-xl ${styles.subtleBox}`}>
-                                                <div className={`text-[10px] font-black uppercase ${styles.mutedText}`}>Sessions</div>
-                                                <div className="text-base font-black">
+                                            <div className={`p-2 sm:p-2.5 rounded-xl ${styles.subtleBox}`}>
+                                                <div className={`text-[9px] sm:text-[10px] font-black uppercase ${styles.mutedText}`}>Sessions</div>
+                                                <div className="text-sm sm:text-base font-black">
                                                     {cls.finishedSessionsCount}/{cls.totalSessions || 0}
                                                 </div>
                                             </div>
-                                            <div className={`p-2.5 rounded-xl ${styles.subtleBox}`}>
-                                                <div className={`text-[10px] font-black uppercase ${styles.mutedText}`}>Access</div>
-                                                <div className="text-base font-black">{cls.isPublic ? 'Open' : 'Invite'}</div>
+                                            <div className={`p-2 sm:p-2.5 rounded-xl ${styles.subtleBox}`}>
+                                                <div className={`text-[9px] sm:text-[10px] font-black uppercase ${styles.mutedText}`}>Access</div>
+                                                <div className="text-sm sm:text-base font-black">{cls.isPublic ? 'Open' : 'Invite'}</div>
                                             </div>
                                         </div>
 
-                                        <div className="flex items-center justify-between gap-2 pt-1 flex-wrap">
+                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-1">
                                             <button
                                                 type="button"
                                                 onClick={() => openManageClass(cls)}

@@ -477,14 +477,14 @@ export const PresentationLibraryManager: React.FC<PresentationLibraryManagerProp
             </form>
 
             {/* Presentations Library */}
-            <section className={`p-6 rounded-[2rem] space-y-4 ${styles.surfaceCard}`}>
+            <section className={`p-4 sm:p-6 rounded-[1.75rem] sm:rounded-[2rem] space-y-4 ${styles.surfaceCard}`}>
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <h2 className="text-base font-black uppercase tracking-tight">
                         {isAdminView ? 'All Platform Presentations' : 'Presentations'} ({filteredPresentations.length})
                     </h2>
 
-                    <div className="flex flex-wrap items-center gap-2">
-                        <div className="relative min-w-[200px]">
+                    <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 w-full sm:w-auto">
+                        <div className="relative w-full sm:w-auto sm:min-w-[200px]">
                             <Search className={`w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 ${styles.mutedText}`} />
                             <input
                                 value={searchQuery}
@@ -497,7 +497,7 @@ export const PresentationLibraryManager: React.FC<PresentationLibraryManagerProp
                             value={filterTrackId}
                             onChange={e => setFilterTrackId(e.target.value)}
                             aria-label="Filter by track"
-                            className={`px-3 py-2 rounded-xl text-xs font-bold ${styles.select}`}
+                            className={`w-full sm:w-auto px-3 py-2 rounded-xl text-xs font-bold ${styles.select}`}
                         >
                             <option value="">All Tracks</option>
                             {skillTracks.map(t => (

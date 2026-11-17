@@ -265,13 +265,13 @@ export const MotionSlideStudioPanel: React.FC<MotionSlideStudioPanelProps> = ({
                 : 'bg-white dark:bg-[#11131f] text-gray-900 dark:text-white border border-gray-200 dark:border-white/10 shadow-xl'
         }`}>
             {/* Top Controls: Title, Theme, Preset, Sub-tabs */}
-            <div className="px-5 py-4 border-b border-gray-200 dark:border-white/10 flex flex-wrap items-center justify-between gap-3 bg-gray-50/70 dark:bg-white/[0.02]">
-                <div className="flex items-center gap-2 flex-wrap flex-1 min-w-[240px]">
+            <div className="px-4 sm:px-5 py-3.5 sm:py-4 border-b border-gray-200 dark:border-white/10 flex flex-wrap items-center justify-between gap-3 bg-gray-50/70 dark:bg-white/[0.02]">
+                <div className="flex items-center gap-2 flex-wrap flex-1 min-w-0 sm:min-w-[240px]">
                     <input
                         value={deck.title}
                         onChange={e => setDeck(prev => ({ ...prev, title: e.target.value }))}
                         placeholder="Presentation title..."
-                        className={`px-3.5 py-2 rounded-xl text-sm font-bold flex-1 min-w-[180px] ${
+                        className={`px-3.5 py-2 rounded-xl text-sm font-bold flex-1 min-w-[140px] ${
                             isBento
                                 ? 'bg-white border-2 border-black text-black'
                                 : 'bg-white dark:bg-black/30 border border-gray-200 dark:border-white/10'
@@ -313,7 +313,7 @@ export const MotionSlideStudioPanel: React.FC<MotionSlideStudioPanelProps> = ({
                     </button>
                 </div>
 
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar sm:flex-wrap w-full lg:w-auto">
                     {([
                         { id: 'convert', label: 'Convert Slides', icon: Upload },
                         { id: 'editor', label: `Slide Editor (${deck.slides.length})`, icon: Layers },
@@ -325,7 +325,7 @@ export const MotionSlideStudioPanel: React.FC<MotionSlideStudioPanelProps> = ({
                                 key={t.id}
                                 type="button"
                                 onClick={() => setActiveTab(t.id)}
-                                className={`px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 cursor-pointer transition ${
+                                className={`px-3 sm:px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 whitespace-nowrap shrink-0 cursor-pointer transition ${
                                     activeTab === t.id
                                         ? isBento
                                             ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
@@ -342,7 +342,7 @@ export const MotionSlideStudioPanel: React.FC<MotionSlideStudioPanelProps> = ({
             </div>
 
             {/* Body */}
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
                 {activeTab === 'convert' && (
                     <div className="max-w-3xl mx-auto space-y-5">
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -369,7 +369,7 @@ export const MotionSlideStudioPanel: React.FC<MotionSlideStudioPanelProps> = ({
                         </div>
 
                         {convertMode === 'file' && (
-                            <label className={`block p-8 rounded-3xl border-2 border-dashed text-center cursor-pointer transition ${
+                            <label className={`block p-5 sm:p-8 rounded-3xl border-2 border-dashed text-center cursor-pointer transition ${
                                 isBento ? 'border-black bg-slate-50 hover:bg-[#fef9c3]' : 'border-indigo-500/40 hover:bg-indigo-500/5'
                             }`}>
                                 <Upload className="w-10 h-10 mx-auto mb-3 text-indigo-500" />
@@ -406,7 +406,7 @@ export const MotionSlideStudioPanel: React.FC<MotionSlideStudioPanelProps> = ({
                         )}
 
                         {convertMode !== 'json_xml' && (
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-xs font-black uppercase tracking-wider mb-1.5">
                                         Target Motion Slides
@@ -472,7 +472,7 @@ export const MotionSlideStudioPanel: React.FC<MotionSlideStudioPanelProps> = ({
                                 </button>
                             </div>
 
-                            <div className="space-y-1.5 max-h-[460px] overflow-y-auto pr-1">
+                            <div className="space-y-1.5 max-h-[220px] lg:max-h-[460px] overflow-y-auto pr-1">
                                 {deck.slides.map((s, idx) => (
                                     <div
                                         key={s.id + idx}

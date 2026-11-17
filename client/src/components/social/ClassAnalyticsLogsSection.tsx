@@ -263,7 +263,7 @@ export const ClassAnalyticsLogsSection: React.FC<ClassAnalyticsLogsSectionProps>
             </div>
 
             {/* Inline Page Sub-Tabs */}
-            <div className="flex items-center gap-2 flex-wrap border-b border-gray-200 dark:border-white/10 pb-3">
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar sm:flex-wrap border-b border-gray-200 dark:border-white/10 pb-3">
                 {[
                     { id: 'overview' as const, label: 'Class Insights & Weak Concepts', icon: BarChart3 },
                     { id: 'students' as const, label: `Student Tracker (${students.length})`, icon: Users },
@@ -276,7 +276,7 @@ export const ClassAnalyticsLogsSection: React.FC<ClassAnalyticsLogsSectionProps>
                             key={t.id}
                             type="button"
                             onClick={() => setSubTab(t.id)}
-                            className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 cursor-pointer transition ${
+                            className={`px-3.5 sm:px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 whitespace-nowrap shrink-0 cursor-pointer transition ${
                                 active
                                     ? isBento ? 'bg-black text-[#bef264]' : 'bg-indigo-600 text-white shadow'
                                     : 'bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10'
@@ -538,7 +538,7 @@ export const ClassAnalyticsLogsSection: React.FC<ClassAnalyticsLogsSectionProps>
                             {selectedStudent.recentScores.length > 0 && (
                                 <div className="space-y-2">
                                     <div className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black/80' : 'opacity-70'}`}>Recent Score History</div>
-                                    <div className={`grid grid-cols-4 sm:grid-cols-8 gap-2 items-end h-28 p-3 rounded-2xl ${
+                                    <div className={`grid grid-cols-4 sm:grid-cols-8 gap-1.5 sm:gap-2 items-end h-28 p-2.5 sm:p-3 rounded-2xl ${
                                         isBento ? 'bg-white border-2 border-black' : 'bg-black/5 dark:bg-black/30'
                                     }`}>
                                         {selectedStudent.recentScores.map((rs, idx) => (

@@ -1018,13 +1018,13 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                 )}
 
                 {view === 'my_clan' && (
-                    <div className={`rounded-[2.5rem] overflow-hidden ${
+                    <div className={`rounded-[1.75rem] sm:rounded-[2.5rem] overflow-hidden ${
                         isBento
-                            ? 'bg-white text-black border-3 border-black shadow-[6px_6px_0px_#000]'
+                            ? 'bg-white text-black border-[3px] border-black shadow-[6px_6px_0px_#000]'
                             : 'bg-white dark:bg-[#13141f] border border-gray-200 dark:border-white/10 shadow-sm'
                     }`}>
                     {/* Clan Header */}
-                    <div className="relative bg-gradient-to-r from-violet-600 to-indigo-600 p-8 text-white overflow-hidden">
+                    <div className="relative bg-gradient-to-r from-violet-600 to-indigo-600 p-5 pt-14 sm:p-8 sm:pt-8 text-white overflow-hidden">
                         <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
                         <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full blur-2xl translate-y-1/2 -translate-x-1/4" />
                         <div className="absolute top-4 right-4 flex gap-2 z-10">
@@ -1063,8 +1063,8 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                                 )}
                             </div>
                             <div className="text-center md:text-left">
-                                <div className="flex flex-wrap items-center gap-3 justify-center md:justify-start mb-2">
-                                    <h1 className="text-3xl font-black uppercase tracking-tight">
+                                <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 justify-center md:justify-start mb-2">
+                                    <h1 className="text-xl sm:text-3xl font-black uppercase tracking-tight">
                                         [{clan.tag}] {clan.name}
                                     </h1>
                                     {isAdminAccount && (
@@ -1142,7 +1142,7 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                     </div>
 
                     {/* Inside-Class Tab Switcher */}
-                    <div className={`px-4 sm:px-6 py-3 border-b flex flex-wrap items-center gap-1.5 ${
+                    <div className={`px-3 sm:px-6 py-2.5 sm:py-3 border-b flex items-center gap-1.5 overflow-x-auto no-scrollbar sm:flex-wrap ${
                         isBento ? 'border-black/15' : 'border-gray-200 dark:border-white/10'
                     }`}>
                         {([
@@ -1184,7 +1184,7 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                     </div>
 
                     {/* Content */}
-                    <div className="p-6 md:p-8">
+                    <div className="p-4 sm:p-6 md:p-8">
                         {classSubTab === 'curriculum' && (
                             <ClassCurriculumSection
                                 clan={clan}
@@ -1803,9 +1803,9 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
     return (
         <div className="space-y-8">
             {/* Hero Header Card */}
-            <div className={`p-8 md:p-10 rounded-[2.5rem] text-center relative overflow-hidden ${
+            <div className={`p-5 sm:p-8 md:p-10 rounded-[1.75rem] sm:rounded-[2.5rem] text-center relative overflow-hidden ${
                 isBento
-                    ? 'bg-white text-black border-3 border-black shadow-[6px_6px_0px_#000]'
+                    ? 'bg-white text-black border-[3px] border-black shadow-[6px_6px_0px_#000]'
                     : 'bg-white/90 dark:bg-[#13141f] border border-gray-200 dark:border-white/10 shadow-xl backdrop-blur-xl'
             }`}>
                 <div className="flex items-center justify-center gap-2 mb-3">
@@ -1835,7 +1835,7 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                 </p>
 
                 {/* Quick Join via Invite Code / Link */}
-                <form onSubmit={handleJoinByCode} className="max-w-md mx-auto mb-6 flex gap-2">
+                <form onSubmit={handleJoinByCode} className="max-w-md mx-auto mb-6 flex flex-col sm:flex-row gap-2">
                     <input
                         type="text"
                         value={joinCodeInput}
@@ -1850,7 +1850,7 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                     <button
                         type="submit"
                         disabled={joiningByCode || !joinCodeInput.trim()}
-                        className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider cursor-pointer disabled:opacity-50 ${
+                        className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider cursor-pointer disabled:opacity-50 shrink-0 ${
                             isBento
                                 ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
                                 : 'bg-indigo-600 hover:bg-indigo-700 text-white'
@@ -1943,7 +1943,7 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                                 {clanInvites.map((invite) => (
                                     <div
                                         key={invite.clanId}
-                                        className={`p-4 rounded-2xl flex items-center justify-between group transition-colors ${
+                                        className={`p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 group transition-colors ${
                                             isBento
                                                 ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
                                                 : 'bg-black/20 backdrop-blur-md border border-white/10 text-white hover:bg-black/30'

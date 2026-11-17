@@ -369,7 +369,7 @@ export const ClanLogoMakerModal: React.FC<ClanLogoMakerModalProps> = ({
                                 <label className={`block text-xs font-black uppercase tracking-wider mb-2 ${isBento ? 'text-black' : 'text-gray-500'}`}>
                                     1. Crest Silhouette &amp; Shape
                                 </label>
-                                <div className="grid grid-cols-5 gap-2">
+                                <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
                                     {SHAPES.map(s => {
                                         const isShapeActive = logo.shape === s.id && !logo.customUrl;
                                         return (
@@ -437,7 +437,7 @@ export const ClanLogoMakerModal: React.FC<ClanLogoMakerModalProps> = ({
                                     <label className={`block text-xs font-black uppercase tracking-wider mb-2 ${isBento ? 'text-black' : 'text-gray-500'}`}>
                                         3. Crest Color / Gradient
                                     </label>
-                                    <div className="grid grid-cols-6 gap-2">
+                                    <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
                                         {BG_COLORS.map(c => {
                                             const isBgActive = logo.bgColor === c.value && !logo.customUrl;
                                             return (
@@ -466,7 +466,7 @@ export const ClanLogoMakerModal: React.FC<ClanLogoMakerModalProps> = ({
                                     <label className={`block text-xs font-black uppercase tracking-wider mb-2 ${isBento ? 'text-black' : 'text-gray-500'}`}>
                                         4. Symbol Tint
                                     </label>
-                                    <div className="grid grid-cols-6 gap-2">
+                                    <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
                                         {ICON_COLORS.map(c => {
                                             const isIconColorActive = logo.iconColor === c.value && !logo.customUrl;
                                             return (

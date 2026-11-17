@@ -263,7 +263,7 @@ export const TeacherTrackQuizBrowser: React.FC<TeacherTrackQuizBrowserProps> = (
     return (
         <section className="space-y-6">
             {/* Step 1: Choose Curriculum Track */}
-            <div className={`p-5 rounded-[2rem] space-y-4 ${styles.surfaceCard}`}>
+            <div className={`p-4 sm:p-5 rounded-[1.75rem] sm:rounded-[2rem] space-y-4 ${styles.surfaceCard}`}>
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
                         <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${styles.pillPrimary}`}>
@@ -272,7 +272,7 @@ export const TeacherTrackQuizBrowser: React.FC<TeacherTrackQuizBrowserProps> = (
                         <h2 className="text-lg font-black mt-1">Choose a Curriculum Track</h2>
                     </div>
 
-                    <div className="relative min-w-[240px]">
+                    <div className="relative w-full sm:w-auto sm:min-w-[240px]">
                         <Search className={`w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 ${styles.mutedText}`} />
                         <input
                             value={searchQuery}

@@ -685,18 +685,18 @@ export const PresentationModePlayer: React.FC<PresentationModePlayerProps> = ({
             ref={containerRef}
             className={`flex flex-col w-full min-w-0 ${themeStyle.bg} select-none overflow-hidden ${
                 isFullscreen
-                    ? 'fixed inset-0 z-[10050] h-screen w-screen rounded-none border-0'
+                    ? 'fixed inset-0 z-[10050] h-dvh w-full rounded-none border-0'
                     : embedded
                         ? isBento
-                            ? 'rounded-2xl border-2 border-black min-h-[540px]'
+                            ? 'rounded-2xl border-2 border-black min-h-[460px] sm:min-h-[540px]'
                             : isLightSurface
-                                ? 'rounded-2xl border border-slate-200 shadow-sm min-h-[540px]'
-                                : 'rounded-2xl border border-white/15 min-h-[540px]'
-                        : 'fixed inset-0 z-[10050] h-screen w-screen'
+                                ? 'rounded-2xl border border-slate-200 shadow-sm min-h-[460px] sm:min-h-[540px]'
+                                : 'rounded-2xl border border-white/15 min-h-[460px] sm:min-h-[540px]'
+                        : 'fixed inset-0 z-[10050] h-dvh w-full'
             }`}
         >
             {/* Top Bar + Unified Teaching Board Toolbar */}
-            <div className={`px-4 py-2.5 flex items-center justify-between gap-2.5 flex-wrap lg:flex-nowrap shrink-0 ${
+            <div className={`px-3 sm:px-4 py-2 sm:py-2.5 flex items-center justify-between gap-2 sm:gap-2.5 flex-wrap lg:flex-nowrap shrink-0 ${
                 isBento
                     ? 'bg-white text-black border-b-2 border-black'
                     : isLightSurface
@@ -872,14 +872,14 @@ export const PresentationModePlayer: React.FC<PresentationModePlayerProps> = ({
 
             {/* Main Board Stage + Optional Speaker Notes */}
             <div className="flex-1 flex min-h-0 overflow-hidden">
-                <main className="flex-1 flex flex-col p-4 sm:p-5 lg:p-6 overflow-y-auto">
+                <main className="flex-1 flex flex-col p-2.5 sm:p-5 lg:p-6 overflow-y-auto">
                     <div
                         ref={stageRef}
                         onPointerDown={handleStagePointerDown}
                         onPointerMove={handleStagePointerMove}
                         onPointerUp={handleStagePointerUp}
                         onPointerLeave={handleStagePointerLeave}
-                        className={`relative w-full max-w-5xl mx-auto my-auto rounded-[2rem] p-5 sm:p-7 ${themeStyle.card} ${getMotionClass(currentSlide.motion)} ${
+                        className={`relative w-full max-w-5xl mx-auto my-auto rounded-2xl sm:rounded-[2rem] p-4 sm:p-7 ${themeStyle.card} ${getMotionClass(currentSlide.motion)} ${
                             boardTool === 'pen' ? 'cursor-crosshair touch-none' : boardTool === 'laser' ? 'cursor-none' : ''
                         }`}
                     >
@@ -931,8 +931,8 @@ export const PresentationModePlayer: React.FC<PresentationModePlayerProps> = ({
                         </div>
 
                         {currentSlide.layout === 'hero' && (
-                            <div className="text-center py-6 sm:py-8 space-y-5 relative z-10">
-                                <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight">
+                            <div className="text-center py-4 sm:py-8 space-y-4 sm:space-y-5 relative z-10">
+                                <h1 className="text-2xl sm:text-5xl font-black tracking-tight leading-tight">
                                     {currentSlide.title}
                                 </h1>
                                 {currentSlide.body && (
@@ -1153,7 +1153,7 @@ export const PresentationModePlayer: React.FC<PresentationModePlayerProps> = ({
                 </main>
             </div>
 
-            <footer className={`px-4 sm:px-6 py-3 flex items-center justify-between gap-4 shrink-0 ${
+            <footer className={`px-3 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between gap-2 sm:gap-4 shrink-0 ${
                 isBento
                     ? 'bg-white text-black border-t-2 border-black'
                     : isLightSurface
@@ -1164,7 +1164,7 @@ export const PresentationModePlayer: React.FC<PresentationModePlayerProps> = ({
                     type="button"
                     disabled={currentIndex === 0}
                     onClick={() => goToSlide(currentIndex - 1)}
-                    className={`px-4 py-2 rounded-xl disabled:opacity-35 font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 cursor-pointer transition ${
+                    className={`px-3 sm:px-4 py-2 rounded-xl disabled:opacity-35 font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 shrink-0 cursor-pointer transition ${
                         isBento
                             ? 'bg-white hover:bg-[#f1f5f9] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
                             : isLightSurface
@@ -1176,16 +1176,16 @@ export const PresentationModePlayer: React.FC<PresentationModePlayerProps> = ({
                     <span>Prev</span>
                 </button>
 
-                <div className="flex items-center gap-1.5 overflow-x-auto max-w-md py-1">
+                <div className="flex items-center justify-center gap-1.5 overflow-x-auto no-scrollbar flex-1 min-w-0 max-w-md py-1">
                     {slides.map((s, idx) => (
                         <button
                             key={s.id + idx}
                             type="button"
                             onClick={() => goToSlide(idx)}
                             title={`${idx + 1}. ${s.title}`}
-                            className={`h-2.5 rounded-full transition-all cursor-pointer ${
+                            className={`h-2.5 rounded-full transition-all shrink-0 cursor-pointer ${
                                 idx === currentIndex
-                                    ? isBento ? 'w-8 bg-black' : 'w-8 bg-amber-400'
+                                    ? isBento ? 'w-7 sm:w-8 bg-black' : 'w-7 sm:w-8 bg-amber-400'
                                     : s.layout === 'checkup'
                                         ? 'w-2.5 bg-emerald-500/80 hover:bg-emerald-500'
                                         : s.visualBlock
@@ -1200,7 +1200,7 @@ export const PresentationModePlayer: React.FC<PresentationModePlayerProps> = ({
                     type="button"
                     disabled={isLastSlide}
                     onClick={() => goToSlide(currentIndex + 1)}
-                    className={`px-4 py-2 rounded-xl disabled:opacity-35 font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 cursor-pointer transition ${
+                    className={`px-3 sm:px-4 py-2 rounded-xl disabled:opacity-35 font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 shrink-0 cursor-pointer transition ${
                         isBento
                             ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
                             : 'bg-indigo-600 hover:bg-indigo-500 text-white'

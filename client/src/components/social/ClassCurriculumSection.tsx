@@ -355,12 +355,12 @@ export const ClassCurriculumSection: React.FC<ClassCurriculumSectionProps> = ({
                     </div>
 
                     {user.role === 'admin' && (
-                        <div className="flex items-center gap-2 shrink-0 flex-wrap">
+                        <div className="flex items-center gap-2 shrink-0 flex-wrap w-full sm:w-auto">
                             <select
                                 value={selectedTrackId}
                                 disabled={assigningTrack}
                                 onChange={e => handleAssignTrack(e.target.value)}
-                                className={`px-4 py-2.5 rounded-xl text-xs font-black min-w-[230px] cursor-pointer ${
+                                className={`w-full sm:w-auto sm:min-w-[230px] px-4 py-2.5 rounded-xl text-xs font-black cursor-pointer ${
                                     isBento
                                         ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
                                         : 'bg-white dark:bg-[#13141f] border border-gray-300 dark:border-white/15 text-gray-900 dark:text-white'
@@ -432,7 +432,7 @@ export const ClassCurriculumSection: React.FC<ClassCurriculumSectionProps> = ({
                     <p className="text-xs font-bold text-gray-500">Loading sessions &amp; homework tracker...</p>
                 </div>
             ) : !homeworkStatus?.track || sessions.length === 0 ? (
-                <div className={`p-10 rounded-3xl text-center border-2 border-dashed space-y-4 ${
+                <div className={`p-6 sm:p-10 rounded-3xl text-center border-2 border-dashed space-y-4 ${
                     isBento ? 'border-black bg-white' : 'border-gray-200 dark:border-white/10'
                 }`}>
                     <Compass className="w-12 h-12 mx-auto text-indigo-500 opacity-60" />
@@ -657,7 +657,7 @@ export const ClassCurriculumSection: React.FC<ClassCurriculumSectionProps> = ({
                             </div>
 
                             {/* Session Dashboard Navigation Tabs (Teaching Board Only - Uploads in Presentations Hub) */}
-                            <div className="flex items-center gap-2 flex-wrap border-b border-gray-200 dark:border-white/10 pb-3">
+                            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar sm:flex-wrap border-b border-gray-200 dark:border-white/10 pb-3">
                                 {[
                                     { id: 'overview' as const, label: 'Overview & Content', icon: Layers },
                                     { id: 'board' as const, label: 'Teaching Board', icon: MonitorPlay },

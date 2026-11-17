@@ -57,8 +57,8 @@ const JoinClassPage: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50 dark:bg-[#0a0a0b]">
-            <div className={`w-full max-w-lg rounded-[2rem] p-8 transition-all ${
+        <div className="min-h-dvh flex items-center justify-center p-4 bg-slate-50 dark:bg-[#0a0a0b]">
+            <div className={`w-full max-w-lg rounded-[1.75rem] sm:rounded-[2rem] p-5 sm:p-8 transition-all ${
                 isBento
                     ? 'bg-white text-black border-[3px] border-black shadow-[8px_8px_0px_#000]'
                     : 'bg-white dark:bg-[#13141f] border border-gray-200 dark:border-white/10 shadow-2xl text-gray-900 dark:text-white'

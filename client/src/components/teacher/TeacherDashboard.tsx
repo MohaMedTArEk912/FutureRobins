@@ -277,7 +277,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
     );
 
     const renderEmptyNoClassesCard = (contextMessage: string) => (
-        <div className={`p-10 sm:p-12 rounded-[2rem] text-center space-y-4 ${styles.surfaceCard}`}>
+        <div className={`p-6 sm:p-10 md:p-12 rounded-[1.75rem] sm:rounded-[2rem] text-center space-y-4 ${styles.surfaceCard}`}>
             <GraduationCap className={`w-14 h-14 mx-auto ${styles.isBento ? 'text-black' : 'text-indigo-500'}`} />
             <h2 className="text-2xl font-black uppercase tracking-tight">No Classes Assigned Yet</h2>
             <p className={`text-sm max-w-md mx-auto font-medium ${styles.mutedText}`}>
@@ -342,20 +342,20 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                     )}
                 </div>
 
-                <div className="grid grid-cols-3 gap-2.5 text-center">
-                    <div className={`p-2.5 rounded-xl ${styles.subtleBox}`}>
-                        <div className={`text-[10px] font-black uppercase ${styles.mutedText}`}>Students</div>
-                        <div className="text-base font-black">{studentsCount}</div>
+                <div className="grid grid-cols-3 gap-2 sm:gap-2.5 text-center">
+                    <div className={`p-2 sm:p-2.5 rounded-xl ${styles.subtleBox}`}>
+                        <div className={`text-[9px] sm:text-[10px] font-black uppercase ${styles.mutedText}`}>Students</div>
+                        <div className="text-sm sm:text-base font-black">{studentsCount}</div>
                     </div>
-                    <div className={`p-2.5 rounded-xl ${styles.subtleBox}`}>
-                        <div className={`text-[10px] font-black uppercase ${styles.mutedText}`}>Finished</div>
-                        <div className={`text-base font-black ${styles.isBento ? '' : 'text-emerald-500'}`}>
+                    <div className={`p-2 sm:p-2.5 rounded-xl ${styles.subtleBox}`}>
+                        <div className={`text-[9px] sm:text-[10px] font-black uppercase ${styles.mutedText}`}>Finished</div>
+                        <div className={`text-sm sm:text-base font-black ${styles.isBento ? '' : 'text-emerald-500'}`}>
                             {cls.finishedSessionsCount}{totalSessions > 0 ? `/${totalSessions}` : ''}
                         </div>
                     </div>
-                    <div className={`p-2.5 rounded-xl ${styles.subtleBox}`}>
-                        <div className={`text-[10px] font-black uppercase ${styles.mutedText}`}>Access</div>
-                        <div className={`text-base font-black ${styles.isBento ? '' : 'text-amber-500'}`}>
+                    <div className={`p-2 sm:p-2.5 rounded-xl ${styles.subtleBox}`}>
+                        <div className={`text-[9px] sm:text-[10px] font-black uppercase ${styles.mutedText}`}>Access</div>
+                        <div className={`text-sm sm:text-base font-black ${styles.isBento ? '' : 'text-amber-500'}`}>
                             {cls.isPublic ? 'Public' : 'Invite'}
                         </div>
                     </div>
@@ -405,7 +405,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
             <main className="flex-1 min-w-0 w-full space-y-6">
                         {/* Overview Hero vs Focused Section Header */}
                         {activeSection === 'overview' ? (
-                            <section className={`rounded-[2rem] p-6 sm:p-8 ${styles.heroBanner}`}>
+                            <section className={`rounded-[1.75rem] sm:rounded-[2rem] p-5 sm:p-8 ${styles.heroBanner}`}>
                                 <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6">
                                     <div className="space-y-2">
                                         <div className="flex items-center gap-2 flex-wrap">
@@ -515,7 +515,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                             <div className="space-y-6">
                                 {/* Quick Launchpad for Active Class */}
                                 {activeClan && (
-                                    <section className={`rounded-[2rem] p-6 space-y-4 ${styles.surfaceCard}`}>
+                                    <section className={`rounded-[1.75rem] sm:rounded-[2rem] p-4 sm:p-6 space-y-4 ${styles.surfaceCard}`}>
                                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                                             <div className="flex items-center gap-3 min-w-0">
                                                 <ClanEmblem logo={activeClan.logo} tag={activeClan.tag} name={activeClan.name} size="sm" />
@@ -569,7 +569,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
 
                                 {/* Overview Class Cards Preview */}
                                 <section className="space-y-4">
-                                    <div className="flex items-center justify-between gap-3">
+                                    <div className="flex items-center justify-between gap-3 flex-wrap">
                                         <h2 className="text-lg font-black uppercase tracking-tight">Your Classes ({myClasses.length})</h2>
                                         {myClasses.length > 0 && (
                                             <button
