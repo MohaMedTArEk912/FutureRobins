@@ -22,6 +22,10 @@ export type EnrichedDirectMessage = DirectChatMessage & {
     challengeData?: ChallengeDataPayload;
 };
 
+export interface OpenChatOptions {
+    returnToLabel?: string;
+}
+
 interface ChatContextType {
     isOpen: boolean;
     activeTab: 'clan' | 'direct';
@@ -33,7 +37,8 @@ interface ChatContextType {
     directMessages: Record<string, EnrichedDirectMessage[]>;
     clan: Clan | null;
     onlineUserIds: Set<string>;
-    openChat: (tab?: 'clan' | 'direct', friend?: UserData | string) => void;
+    returnToLabel: string | null;
+    openChat: (tab?: 'clan' | 'direct', friend?: UserData | string, options?: OpenChatOptions) => void;
     closeChat: () => void;
     setActiveTab: (tab: 'clan' | 'direct') => void;
     setActiveFriend: (friend: UserData | null) => void;
@@ -65,6 +70,7 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const [isOpen, setIsOpen] = useState(false);
     const [activeTab, setActiveTab] = useState<'clan' | 'direct'>('clan');
     const [activeFriend, setActiveFriend] = useState<UserData | null>(null);
+    const [returnToLabel, setReturnToLabel] = useState<string | null>(null);
 
     const [clan, setClan] = useState<Clan | null>(null);
     const [clanMessages, setClanMessages] = useState<ClanChatMessage[]>([]);
@@ -270,7 +276,8 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }, []);
 
     // Open chat helper
-    const openChat = useCallback((tab: 'clan' | 'direct' = 'clan', friend?: UserData | string) => {
+    const openChat = useCallback((tab: 'clan' | 'direct' = 'clan', friend?: UserData | string, options?: OpenChatOptions) => {
+        setReturnToLabel(options?.returnToLabel ?? null);
         setIsOpen(true);
         if (tab) {
             setActiveTab(tab);
@@ -283,6 +290,23 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 if (resolved) {
                     setActiveFriend(resolved);
                     markFriendAsRead(resolved.userId);
+                } else {
+                    const fallbackFriend: UserData = {
+                        userId: friend,
+                        name: friend,
+                        email: '',
+                        role: 'student',
+                        totalScore: 0,
+                        totalTime: 0,
+                        totalAttempts: 0,
+                        xp: 0,
+                        level: 1,
+                        streak: 0,
+                        lastLoginDate: new Date().toISOString(),
+                        badges: []
+                    };
+                    setActiveFriend(fallbackFriend);
+                    markFriendAsRead(friend);
                 }
             } else {
                 setActiveFriend(friend);
@@ -295,6 +319,7 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const closeChat = useCallback(() => {
         setIsOpen(false);
+        setReturnToLabel(null);
     }, []);
 
     // Send direct message
@@ -417,6 +442,7 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 directMessages,
                 clan,
                 onlineUserIds,
+                returnToLabel,
                 openChat,
                 closeChat,
                 setActiveTab,

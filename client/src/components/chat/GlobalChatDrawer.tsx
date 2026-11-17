@@ -38,6 +38,7 @@ export const GlobalChatDrawer: React.FC = () => {
         unreadClanCount,
         unreadByFriend,
         onlineUserIds,
+        returnToLabel,
         sendDirectMessage,
         sendClanMessage,
         editClanMessage,
@@ -49,7 +50,7 @@ export const GlobalChatDrawer: React.FC = () => {
     const { currentUser } = useAuth();
     const { allUsers, availableQuizzes } = useData();
     const { isBento } = useTheme();
-    const { openUserProfile } = useUserProfileModal();
+    const { openUserProfile, isOpen: isProfileModalOpen } = useUserProfileModal();
     const navigate = useNavigate();
 
     const [friendSearch, setFriendSearch] = useState('');
@@ -60,6 +61,11 @@ export const GlobalChatDrawer: React.FC = () => {
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
+    const handleCloseOrReturn = () => {
+        setIsFullscreen(false);
+        closeChat();
+    };
+
     // Auto-scroll to bottom of conversation
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -68,7 +74,7 @@ export const GlobalChatDrawer: React.FC = () => {
     // Escape key listener for fullscreen / close
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'Escape' && isOpen) {
+            if (e.key === 'Escape' && isOpen && !isProfileModalOpen) {
                 if (isFullscreen) {
                     setIsFullscreen(false);
                 } else {
@@ -78,7 +84,7 @@ export const GlobalChatDrawer: React.FC = () => {
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [isOpen, isFullscreen, closeChat]);
+    }, [isOpen, isFullscreen, isProfileModalOpen, closeChat]);
 
     // Lock body scroll when in fullscreen
     useEffect(() => {
@@ -91,19 +97,30 @@ export const GlobalChatDrawer: React.FC = () => {
         }
     }, [isOpen, isFullscreen]);
 
-    // User's friends list
+    // User's friends & active DM contacts list
     const friendsList = useMemo(() => {
         if (!currentUser) return [];
-        const friendIds = new Set<string>([
+        const contactIds = new Set<string>([
             ...(currentUser.friends || []),
             ...((currentUser.friendRequests || [])
                 .filter(r => r.status === 'accepted')
                 .map(r => r.from === currentUser.userId ? r.to : r.from)
-                .filter((id): id is string => Boolean(id)))
+                .filter((id): id is string => Boolean(id))),
+            ...Object.keys(directMessages).filter(
+                id => id !== currentUser.userId && (directMessages[id]?.length ?? 0) > 0
+            )
         ]);
 
-        return allUsers.filter(u => friendIds.has(u.userId));
-    }, [currentUser, allUsers]);
+        const resolved = allUsers.filter(u => contactIds.has(u.userId));
+        if (
+            activeFriend &&
+            activeFriend.userId !== currentUser.userId &&
+            !resolved.some(u => u.userId === activeFriend.userId)
+        ) {
+            return [activeFriend, ...resolved];
+        }
+        return resolved;
+    }, [currentUser, allUsers, directMessages, activeFriend]);
 
     // Filtered friends by search query
     const filteredFriends = useMemo(() => {
@@ -498,7 +515,7 @@ export const GlobalChatDrawer: React.FC = () => {
     };
 
     return (
-        <div className={`fixed inset-0 z-[120] chat-overlay-shell flex ${
+        <div className={`fixed inset-0 z-[10010] chat-overlay-shell flex ${
             isFullscreen ? 'items-stretch justify-stretch' : 'justify-end items-stretch pointer-events-none'
         } animate-in fade-in duration-200`}>
             {/* Backdrop */}
@@ -506,7 +523,7 @@ export const GlobalChatDrawer: React.FC = () => {
                 className={`absolute inset-0 ${
                     isFullscreen ? 'bg-black/85' : 'bg-black/25 dark:bg-black/50 pointer-events-auto'
                 } transition-opacity`}
-                onClick={isFullscreen ? () => setIsFullscreen(false) : closeChat}
+                onClick={isFullscreen ? () => setIsFullscreen(false) : handleCloseOrReturn}
                 aria-hidden="true"
             />
 
@@ -526,13 +543,29 @@ export const GlobalChatDrawer: React.FC = () => {
                         ? 'bg-[#fde047] border-b-[2.5px] border-black text-black'
                         : 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white'
                 }`}>
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2 font-black text-sm sm:text-base uppercase tracking-tight min-w-0">
                             <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
                             <span className="truncate">Social Chat Hub</span>
                             {isFullscreen && <span className="text-[10px] sm:text-xs opacity-75 font-mono lowercase tracking-normal shrink-0">(fullscreen)</span>}
                         </div>
-                        <div className="flex items-center gap-1 shrink-0">
+                        <div className="flex items-center gap-1.5 shrink-0">
+                            {returnToLabel && (
+                                <button
+                                    type="button"
+                                    onClick={handleCloseOrReturn}
+                                    className={`btn-unstyled inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[10px] sm:text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer shrink-0 ${
+                                        isBento
+                                            ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#a3e635]'
+                                            : 'bg-white/20 hover:bg-white/30 text-white border border-white/25'
+                                    }`}
+                                    title={`Return to ${returnToLabel}`}
+                                >
+                                    <ArrowLeft className="w-3.5 h-3.5 shrink-0" />
+                                    <span className="hidden sm:inline">Back to {returnToLabel}</span>
+                                    <span className="sm:hidden">Back</span>
+                                </button>
+                            )}
                             <button
                                 type="button"
                                 onClick={() => setIsFullscreen(prev => !prev)}
@@ -548,13 +581,13 @@ export const GlobalChatDrawer: React.FC = () => {
                             </button>
                             <button
                                 type="button"
-                                onClick={closeChat}
+                                onClick={handleCloseOrReturn}
                                 className={`p-1.5 rounded-xl transition-all cursor-pointer ${
                                     isBento
                                         ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-neutral-100'
                                         : 'text-white/80 hover:text-white hover:bg-white/10'
                                 }`}
-                                title="Close Chat"
+                                title={returnToLabel ? `Close & return to ${returnToLabel}` : 'Close Chat'}
                             >
                                 <X className="w-4 h-4 sm:w-5 sm:h-5" />
                             </button>

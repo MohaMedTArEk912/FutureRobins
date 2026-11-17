@@ -240,7 +240,7 @@ export const GitHubActivityHeatmap: React.FC<GitHubActivityHeatmapProps> = ({
                 {/* Floating Tooltip */}
                 {hoveredDay && (
                     <div
-                        className={`fixed z-[200] -translate-x-1/2 -translate-y-full mb-2 pointer-events-none px-3 py-1.5 rounded-xl text-xs font-black shadow-2xl transition-all ${
+                        className={`fixed z-[10030] -translate-x-1/2 -translate-y-full mb-2 pointer-events-none px-3 py-1.5 rounded-xl text-xs font-black shadow-2xl transition-all ${
                             isBento
                                 ? 'bg-black text-white border-2 border-white'
                                 : 'bg-slate-900 text-white border border-white/20'

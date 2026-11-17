@@ -30,7 +30,12 @@ export const PublicUserProfileModal: React.FC<PublicUserProfileModalProps> = ({
     if (!isOpen || !userId) return null;
 
     return (
-        <div className="fixed inset-0 z-[160] flex items-center justify-center p-3 sm:p-6 bg-black/50 dark:bg-black/75 backdrop-blur-md animate-in fade-in duration-200">
+        <div
+            onClick={(e) => {
+                if (e.target === e.currentTarget) onClose();
+            }}
+            className="fixed inset-0 z-[10020] flex items-center justify-center p-3 sm:p-6 bg-black/50 dark:bg-black/75 backdrop-blur-md animate-in fade-in duration-200"
+        >
             <div
                 className={`relative w-full max-w-4xl max-h-[92vh] flex flex-col rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 ${
                     isBento

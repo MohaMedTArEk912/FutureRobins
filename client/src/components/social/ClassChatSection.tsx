@@ -20,11 +20,28 @@ import {
     PanelLeftClose,
     PanelLeftOpen,
     Megaphone,
-    Zap
+    Zap,
+    User as UserIcon
 } from 'lucide-react';
 import { useConfirm } from '../../hooks/useConfirm';
 import ConfirmDialog from '../ConfirmDialog';
 import { useUserProfileModal } from '../../context/UserProfileModalContext';
+import { useChat } from '../../context/ChatContext';
+import { useData } from '../../context/DataContext';
+
+interface MemberActionTarget {
+    userId: string;
+    name: string;
+    avatar?: AvatarConfig | null;
+    role?: 'leader' | 'elder' | 'member';
+    equippedBadge?: {
+        id: string;
+        name: string;
+        title?: string;
+        icon: string;
+        rarity?: string;
+    } | null;
+}
 
 interface ClanChatSectionProps {
     clan: Clan;
@@ -54,7 +71,9 @@ export const ClanChatSection: React.FC<ClanChatSectionProps> = ({
     onMarkAsRead
 }) => {
     const { confirm, confirmState, handleCancel } = useConfirm();
-    const { openUserProfile } = useUserProfileModal();
+    const { openUserProfile, isOpen: isProfileModalOpen } = useUserProfileModal();
+    const { openChat, isOpen: isGlobalChatOpen, onlineUserIds } = useChat();
+    const { allUsers } = useData();
     const [inputContent, setInputContent] = useState('');
     const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
     const [editContent, setEditContent] = useState('');
@@ -64,29 +83,42 @@ export const ClanChatSection: React.FC<ClanChatSectionProps> = ({
     const [showQuickComms, setShowQuickComms] = useState(true);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const [memberActionTarget, setMemberActionTarget] = useState<MemberActionTarget | null>(null);
 
     const messagesContainerRef = useRef<HTMLDivElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const searchInputRef = useRef<HTMLInputElement>(null);
     const onMarkAsReadRef = useRef(onMarkAsRead);
 
-    // Escape key listener for fullscreen / search / mobile roster
+    // Escape key listener: prioritize topmost overlay before exiting fullscreen chat
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') {
-                if (isSearchOpen) {
-                    setIsSearchOpen(false);
-                    setSearchQuery('');
-                } else if (showMobileRoster) {
-                    setShowMobileRoster(false);
-                } else if (isFullscreen) {
-                    setIsFullscreen(false);
-                }
+            if (e.key !== 'Escape') return;
+            if (isProfileModalOpen || isGlobalChatOpen || confirmState.isOpen) {
+                return;
+            }
+            if (memberActionTarget) {
+                setMemberActionTarget(null);
+            } else if (isSearchOpen) {
+                setIsSearchOpen(false);
+                setSearchQuery('');
+            } else if (showMobileRoster) {
+                setShowMobileRoster(false);
+            } else if (isFullscreen) {
+                setIsFullscreen(false);
             }
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [isFullscreen, isSearchOpen, showMobileRoster]);
+    }, [
+        isFullscreen,
+        isSearchOpen,
+        showMobileRoster,
+        memberActionTarget,
+        isProfileModalOpen,
+        isGlobalChatOpen,
+        confirmState.isOpen
+    ]);
 
     // Lock body scroll when fullscreen
     useEffect(() => {
@@ -239,6 +271,47 @@ export const ClanChatSection: React.FC<ClanChatSectionProps> = ({
     const latestAnnouncement = (clan.announcements || [])[0];
     const messageCountLabel = `${messages.length} ${messages.length === 1 ? 'message' : 'messages'}`;
 
+    const handleMemberClick = (target: MemberActionTarget) => {
+        if (!target.userId || target.userId === 'undefined') return;
+        if (target.userId === currentUser.userId) {
+            setShowMobileRoster(false);
+            openUserProfile(target.userId);
+            return;
+        }
+        setMemberActionTarget(target);
+    };
+
+    const handleOpenSelectedProfile = () => {
+        if (!memberActionTarget) return;
+        const targetId = memberActionTarget.userId;
+        setMemberActionTarget(null);
+        setShowMobileRoster(false);
+        openUserProfile(targetId);
+    };
+
+    const handleStartPrivateChat = () => {
+        if (!memberActionTarget) return;
+        const existingUser = allUsers.find(u => u.userId === memberActionTarget.userId);
+        const targetUser: UserData = existingUser || {
+            userId: memberActionTarget.userId,
+            name: memberActionTarget.name || 'Classmate',
+            email: '',
+            avatar: memberActionTarget.avatar || undefined,
+            role: memberActionTarget.role === 'leader' ? 'teacher' : 'student',
+            totalScore: 0,
+            totalTime: 0,
+            totalAttempts: 0,
+            xp: 0,
+            level: 1,
+            streak: 0,
+            lastLoginDate: new Date().toISOString(),
+            badges: []
+        };
+        setMemberActionTarget(null);
+        setShowMobileRoster(false);
+        openChat('direct', targetUser, { returnToLabel: 'Class Chat' });
+    };
+
     const renderMemberRow = (m: ClanMember) => {
         const isCurrent = m.userId === currentUser.userId;
         const role = m.role || 'member';
@@ -246,7 +319,13 @@ export const ClanChatSection: React.FC<ClanChatSectionProps> = ({
             <button
                 key={m.userId}
                 type="button"
-                onClick={() => openUserProfile(m.userId)}
+                onClick={() => handleMemberClick({
+                    userId: m.userId,
+                    name: m.name || 'Class Member',
+                    avatar: m.avatar,
+                    role: m.role,
+                    equippedBadge: m.equippedBadge
+                })}
                 className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-left transition-all cursor-pointer ${
                     isBento
                         ? (isCurrent
@@ -766,9 +845,15 @@ export const ClanChatSection: React.FC<ClanChatSectionProps> = ({
                                                     </div>
                                                 ) : (
                                                     <div
-                                                        onClick={() => !isMe && openUserProfile(msg.senderId)}
+                                                        onClick={() => !isMe && handleMemberClick({
+                                                            userId: msg.senderId,
+                                                            name: senderDisplayName,
+                                                            avatar: avatar || null,
+                                                            role,
+                                                            equippedBadge: senderBadge || undefined
+                                                        })}
                                                         className={`shrink-0 mt-0.5 ${!isMe ? 'cursor-pointer transition-transform hover:scale-105' : ''}`}
-                                                        title={!isMe ? `View ${senderDisplayName}'s profile` : undefined}
+                                                        title={!isMe ? `Message or view ${senderDisplayName}'s profile` : undefined}
                                                     >
                                                         <div className={`w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center text-xs font-black ${
                                                             isBento
@@ -789,7 +874,14 @@ export const ClanChatSection: React.FC<ClanChatSectionProps> = ({
                                                     {!isGrouped && (
                                                         <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
                                                             <span
-                                                                onClick={() => !isMe && openUserProfile(msg.senderId)}
+                                                                onClick={() => !isMe && handleMemberClick({
+                                                                    userId: msg.senderId,
+                                                                    name: senderDisplayName,
+                                                                    avatar: avatar || null,
+                                                                    role,
+                                                                    equippedBadge: senderBadge || undefined
+                                                                })}
+                                                                title={!isMe ? `Message or view ${senderDisplayName}'s profile` : undefined}
                                                                 className={`text-xs sm:text-sm font-black ${
                                                                     isMe
                                                                         ? (isBento ? 'text-black' : 'text-violet-600 dark:text-violet-400')
@@ -1061,14 +1153,190 @@ export const ClanChatSection: React.FC<ClanChatSectionProps> = ({
         </section>
     );
 
+    const isTargetOnline = memberActionTarget ? onlineUserIds.has(memberActionTarget.userId) : false;
+
+    const memberActionModal =
+        memberActionTarget && typeof document !== 'undefined'
+            ? createPortal(
+                <div className="fixed inset-0 z-[9950] flex items-center justify-center p-4 animate-in fade-in duration-150">
+                    <div
+                        className="absolute inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm modal-backdrop"
+                        onClick={() => setMemberActionTarget(null)}
+                        aria-hidden="true"
+                    />
+                    <div
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label={`Actions for ${memberActionTarget.name}`}
+                        className={`relative z-10 w-full max-w-sm rounded-3xl overflow-hidden animate-in zoom-in-95 duration-150 ${
+                            isBento
+                                ? 'bg-white text-black border-3 border-black shadow-[8px_8px_0px_#000]'
+                                : 'bg-white dark:bg-[#13141f] text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 shadow-2xl'
+                        }`}
+                    >
+                        {/* Header */}
+                        <div className={`p-4 border-b flex items-center justify-between gap-3 ${
+                            isBento
+                                ? 'bg-[#fef08a] border-b-[2.5px] border-black text-black'
+                                : 'bg-slate-50 dark:bg-white/[0.04] border-slate-200 dark:border-white/10'
+                        }`}>
+                            <div className="flex items-center gap-3 min-w-0">
+                                <div className="relative shrink-0">
+                                    <div className={`w-11 h-11 rounded-2xl overflow-hidden flex items-center justify-center text-sm font-black ${
+                                        isBento
+                                            ? 'bg-[#fde047] border-2 border-black shadow-[2px_2px_0px_#000] text-black'
+                                            : 'bg-gradient-to-br from-violet-500 to-indigo-600 text-white'
+                                    }`}>
+                                        {memberActionTarget.avatar ? (
+                                            <Avatar config={memberActionTarget.avatar} size="sm" className="w-full h-full object-cover" />
+                                        ) : (
+                                            (memberActionTarget.name || 'M').substring(0, 2).toUpperCase()
+                                        )}
+                                    </div>
+                                    <span
+                                        className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white dark:border-[#13141f] ${
+                                            isTargetOnline ? 'bg-emerald-500' : 'bg-slate-400'
+                                        }`}
+                                        title={isTargetOnline ? 'Online' : 'Offline'}
+                                    />
+                                </div>
+
+                                <div className="min-w-0">
+                                    <div className="flex items-center gap-1.5 flex-wrap">
+                                        <h3 className="text-sm font-black truncate">{memberActionTarget.name}</h3>
+                                        {memberActionTarget.role === 'leader' && (
+                                            <span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase ${
+                                                isBento ? 'bg-[#facc15] text-black border border-black' : 'bg-amber-500/20 text-amber-600 dark:text-amber-300'
+                                            }`}>
+                                                Teacher
+                                            </span>
+                                        )}
+                                        {memberActionTarget.role === 'elder' && (
+                                            <span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase ${
+                                                isBento ? 'bg-[#93c5fd] text-black border border-black' : 'bg-blue-500/20 text-blue-600 dark:text-blue-300'
+                                            }`}>
+                                                Assistant
+                                            </span>
+                                        )}
+                                    </div>
+                                    <p className={`text-[11px] font-semibold truncate ${
+                                        isBento ? 'text-black/65' : 'text-slate-500 dark:text-slate-400'
+                                    }`}>
+                                        {memberActionTarget.equippedBadge
+                                            ? `${memberActionTarget.equippedBadge.icon} ${memberActionTarget.equippedBadge.title || memberActionTarget.equippedBadge.name}`
+                                            : isTargetOnline
+                                                ? 'Online now'
+                                                : `[${clan.tag}] Class Member`}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={() => setMemberActionTarget(null)}
+                                className={`btn-unstyled p-1.5 rounded-xl transition-all cursor-pointer shrink-0 ${
+                                    isBento
+                                        ? 'bg-white hover:bg-rose-400 text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]'
+                                        : 'hover:bg-slate-200 dark:hover:bg-white/10 text-slate-500 dark:text-slate-300'
+                                }`}
+                                aria-label="Close"
+                            >
+                                <X className="w-4 h-4" />
+                            </button>
+                        </div>
+
+                        {/* Body */}
+                        <div className="p-4 space-y-2.5">
+                            <p className={`text-xs font-bold ${
+                                isBento ? 'text-black/75' : 'text-slate-600 dark:text-slate-300'
+                            }`}>
+                                Choose what you want to do — you&apos;ll return right back to this class chat when you close it.
+                            </p>
+
+                            <button
+                                type="button"
+                                onClick={handleStartPrivateChat}
+                                className={`btn-unstyled w-full flex items-center gap-3 p-3.5 rounded-2xl text-left transition-all cursor-pointer ${
+                                    isBento
+                                        ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[3px_3px_0px_#000] active:translate-y-0.5'
+                                        : 'bg-violet-600 hover:bg-violet-700 text-white shadow-md'
+                                }`}
+                            >
+                                <span className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                                    isBento ? 'bg-white border-2 border-black text-black' : 'bg-white/15 text-white'
+                                }`}>
+                                    <MessageCircle className="w-4 h-4" />
+                                </span>
+                                <span className="min-w-0 flex-1">
+                                    <span className="block text-xs font-black uppercase tracking-wider">Chat Privately</span>
+                                    <span className={`block text-[11px] font-semibold ${
+                                        isBento ? 'text-black/70' : 'text-white/80'
+                                    }`}>
+                                        Open direct private message
+                                    </span>
+                                </span>
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={handleOpenSelectedProfile}
+                                className={`btn-unstyled w-full flex items-center gap-3 p-3.5 rounded-2xl text-left transition-all cursor-pointer ${
+                                    isBento
+                                        ? 'bg-[#bae6fd] hover:bg-[#7dd3fc] text-black border-2 border-black shadow-[3px_3px_0px_#000] active:translate-y-0.5'
+                                        : 'bg-slate-100 hover:bg-slate-200 dark:bg-white/[0.06] dark:hover:bg-white/10 text-slate-900 dark:text-white border border-slate-200 dark:border-white/10'
+                                }`}
+                            >
+                                <span className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                                    isBento ? 'bg-white border-2 border-black text-black' : 'bg-indigo-500/15 text-indigo-600 dark:text-indigo-300'
+                                }`}>
+                                    <UserIcon className="w-4 h-4" />
+                                </span>
+                                <span className="min-w-0 flex-1">
+                                    <span className="block text-xs font-black uppercase tracking-wider">Open Profile</span>
+                                    <span className={`block text-[11px] font-semibold ${
+                                        isBento ? 'text-black/70' : 'text-slate-500 dark:text-slate-400'
+                                    }`}>
+                                        View achievements, activity & stats
+                                    </span>
+                                </span>
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => setMemberActionTarget(null)}
+                                className={`btn-unstyled w-full py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer text-center ${
+                                    isBento
+                                        ? 'bg-neutral-100 hover:bg-neutral-200 text-black border-2 border-black'
+                                        : 'bg-transparent hover:bg-slate-100 dark:hover:bg-white/5 text-slate-500 dark:text-slate-400'
+                                }`}
+                            >
+                                Stay in Class Chat
+                            </button>
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            )
+            : null;
+
     if (isFullscreen && typeof document !== 'undefined') {
-        return createPortal(
-            <div className="fixed inset-0 z-[9990] chat-overlay-shell flex overflow-hidden">
-                {chatSection}
-            </div>,
-            document.body
+        return (
+            <>
+                {createPortal(
+                    <div className="fixed inset-0 z-[9900] chat-overlay-shell flex overflow-hidden">
+                        {chatSection}
+                    </div>,
+                    document.body
+                )}
+                {memberActionModal}
+            </>
         );
     }
 
-    return chatSection;
+    return (
+        <>
+            {chatSection}
+            {memberActionModal}
+        </>
+    );
 };
