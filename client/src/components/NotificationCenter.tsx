@@ -414,41 +414,41 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
 
     const renderContent = () => (
         <>
-            {/* Header */}
-            <div className={`px-4 py-3 sm:px-5 sm:py-3.5 flex items-center justify-between shrink-0 ${
+            {/* Compact Balanced Header */}
+            <div className={`px-3.5 py-2.5 flex items-center justify-between gap-3 shrink-0 ${
                 isBento
-                    ? 'border-b-2.5 border-black bg-[#fef08a]'
+                    ? 'border-b-2 border-black bg-[#fef08a]'
                     : 'border-b border-gray-200/60 dark:border-white/10 bg-slate-50/60 dark:bg-white/[0.02]'
             }`}>
-                <div className="flex items-center gap-2.5">
+                <div className="flex items-center gap-2 min-w-0">
                     <div className={isBento
-                        ? 'w-8 h-8 rounded-xl bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000] flex items-center justify-center shrink-0'
-                        : 'p-2 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 text-indigo-600 dark:text-indigo-400'
+                        ? 'w-7 h-7 rounded-lg bg-[#bef264] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000] flex items-center justify-center shrink-0'
+                        : 'w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0'
                     }>
-                        <Bell className={`w-4 h-4 sm:w-4.5 sm:h-4.5 ${isBento ? 'stroke-[2.5]' : ''}`} />
+                        <Bell className={`w-3.5 h-3.5 ${isBento ? 'stroke-[2.5]' : ''}`} />
                     </div>
-                    <div>
-                        <h3 className={`text-xs sm:text-sm font-black uppercase tracking-tight ${
+                    <div className="min-w-0 leading-tight">
+                        <h3 className={`text-xs font-black uppercase tracking-tight truncate ${
                             isBento ? 'text-black font-mono' : 'text-gray-900 dark:text-white'
                         }`}>
                             Notifications
                         </h3>
-                        <div className={`text-[10px] sm:text-[11px] font-bold ${
-                            isBento ? 'text-black/70 font-mono' : 'text-gray-400'
+                        <div className={`text-[10px] font-bold truncate ${
+                            isBento ? 'text-black/75 font-mono' : 'text-gray-400'
                         }`}>
                             {unreadCount} unread alert{unreadCount !== 1 ? 's' : ''}
                         </div>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1.5 shrink-0">
                     <button
                         type="button"
                         onClick={() => void fetchNotifications(true)}
                         disabled={isLoading}
                         title="Refresh notifications"
                         aria-label="Refresh notifications"
-                        className={`p-1.5 rounded-xl transition-all cursor-pointer disabled:opacity-60 ${
+                        className={`btn-unstyled w-7 h-7 rounded-lg flex items-center justify-center transition-all cursor-pointer disabled:opacity-60 ${
                             isBento
                                 ? 'bg-white text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000] hover:bg-[#bef264]'
                                 : 'text-gray-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-white/10'
@@ -462,14 +462,14 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                             type="button"
                             onClick={handleMarkAllAsRead}
                             disabled={isLoading}
-                            className={`px-2.5 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer ${
+                            className={`btn-unstyled h-7 px-2.5 rounded-lg text-[10px] font-black uppercase tracking-wider inline-flex items-center gap-1 whitespace-nowrap transition-all cursor-pointer ${
                                 isBento
-                                    ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-x-0 active:translate-y-0'
-                                    : 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-500/20'
+                                    ? 'bg-[#bef264] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000] hover:bg-[#a3e635]'
+                                    : 'bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-500/25'
                             }`}
                         >
-                            <CheckCheck className="w-3.5 h-3.5" />
-                            <span>Mark read</span>
+                            <CheckCheck className="w-3 h-3 shrink-0" />
+                            <span>Mark Read</span>
                         </button>
                     )}
 
@@ -478,7 +478,8 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                             type="button"
                             onClick={handleClearAll}
                             title="Clear all notifications"
-                            className={`p-1.5 rounded-xl transition-all cursor-pointer ${
+                            aria-label="Clear all notifications"
+                            className={`btn-unstyled w-7 h-7 rounded-lg flex items-center justify-center transition-all cursor-pointer ${
                                 isBento
                                     ? 'bg-white text-rose-600 border-2 border-black shadow-[1.5px_1.5px_0px_#000] hover:bg-rose-100'
                                     : 'text-gray-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10'
@@ -488,18 +489,17 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                         </button>
                     )}
 
-                    {/* Close Icon */}
                     <button
                         type="button"
                         onClick={() => setIsOpen(false)}
-                        className={`p-1.5 rounded-xl transition-all cursor-pointer ${
+                        className={`btn-unstyled w-7 h-7 rounded-lg flex items-center justify-center transition-all cursor-pointer ${
                             isBento
-                                ? 'bg-white text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000] hover:bg-rose-100 active:translate-y-0.5'
-                                : 'text-gray-400 hover:text-gray-600 dark:hover:text-white rounded-xl hover:bg-gray-100 dark:hover:bg-white/10'
+                                ? 'bg-white text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000] hover:bg-rose-100'
+                                : 'text-gray-400 hover:text-gray-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10'
                         }`}
                         aria-label="Close notifications"
                     >
-                        <X className="w-4 h-4" />
+                        <X className="w-3.5 h-3.5" />
                     </button>
                 </div>
             </div>
@@ -538,7 +538,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                                 }`}
                             >
                                 <span className="truncate">{label}</span>
-                                <span className={`px-1.5 py-0.2 rounded-full text-[9px] font-black shrink-0 ${
+                                <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-black shrink-0 ${
                                     isBento
                                         ? filter === tab
                                             ? 'bg-black text-white'
@@ -586,7 +586,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                         <div
                             key={notif.notificationId}
                             onClick={() => handleItemClick(notif)}
-                            className={`p-3 sm:p-3.5 transition-all flex items-start gap-3 cursor-pointer group relative ${
+                            className={`p-2.5 sm:p-3 transition-all flex items-start gap-2.5 cursor-pointer group relative ${
                                 isBento
                                     ? !notif.isRead
                                         ? 'bg-[#bef264]/15 border-l-4 border-l-black hover:bg-[#bef264]/25'
@@ -707,7 +707,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
             {isOpen && (
                 <div className={`hidden sm:flex flex-col absolute ${
                     align === 'left' ? 'left-0 origin-top-left' : 'right-0 sm:-right-4 origin-top-right'
-                } top-[calc(100%+8px)] w-[400px] max-w-[calc(100vw-24px)] z-[100] overflow-hidden max-h-[min(540px,calc(100vh-100px))] animate-in fade-in slide-in-from-top-2 duration-200 ${
+                } top-[calc(100%+8px)] w-[420px] max-w-[calc(100vw-24px)] z-[100] overflow-hidden max-h-[min(540px,calc(100vh-100px))] animate-in fade-in slide-in-from-top-2 duration-200 ${
                     isBento
                         ? 'bg-white text-black border-2 border-black shadow-[6px_6px_0px_#000] rounded-2xl'
                         : 'bg-white/95 dark:bg-[#12131f]/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-gray-200 dark:border-white/10'
