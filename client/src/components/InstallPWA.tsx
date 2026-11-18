@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Download, X, Share, PlusSquare, Sparkles } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
+import { useLanguage } from '../context/LanguageContext';
 
 interface BeforeInstallPromptEvent extends Event {
     prompt: () => Promise<void>;
@@ -7,6 +9,9 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 const InstallPWA: React.FC = () => {
+    const { isBento } = useTheme();
+    const { tx } = useLanguage();
+
     const [isDismissed, setIsDismissed] = useState(() => {
         return typeof sessionStorage !== 'undefined' && sessionStorage.getItem('pwa_prompt_dismissed') === 'true';
     });
@@ -85,21 +90,35 @@ const InstallPWA: React.FC = () => {
         <>
             {/* Floating Install Prompt Banner */}
             <aside
-                aria-label="Install Quiz Platform App"
-                className="fixed bottom-4 left-3 right-3 sm:left-auto sm:right-6 sm:bottom-6 z-[80] animate-in slide-in-from-bottom-5 duration-300 pb-safe"
+                aria-label={tx('Install Quiz Platform App', 'تثبيت تطبيق Quiz Platform')}
+                className="fixed bottom-4 left-3 right-3 sm:left-auto sm:end-6 sm:bottom-6 z-[80] animate-in slide-in-from-bottom-5 duration-300 pb-safe"
             >
-                <div className="bg-white/95 dark:bg-[#13141f]/95 backdrop-blur-2xl border border-purple-500/30 dark:border-purple-500/40 p-3.5 sm:p-4 rounded-3xl shadow-2xl shadow-purple-500/20 max-w-full sm:max-w-sm flex items-center gap-3.5 ring-1 ring-black/5 dark:ring-white/10">
-                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-600 flex items-center justify-center text-white shrink-0 shadow-md shadow-purple-500/30">
-                        <Download className="w-5 h-5 animate-pulse" />
+                <div className={`p-3.5 sm:p-4 rounded-2xl max-w-full sm:max-w-sm flex items-center gap-3 ${
+                    isBento
+                        ? 'bg-white text-black border-[3px] border-black shadow-[5px_5px_0_#000]'
+                        : 'bg-white/95 dark:bg-[#13141f]/95 backdrop-blur-xl border border-slate-200 dark:border-white/10 shadow-2xl shadow-indigo-500/15'
+                }`}>
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                        isBento
+                            ? 'bg-[#fde047] text-black border-2 border-black shadow-[2px_2px_0_#000]'
+                            : 'bg-gradient-to-br from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-500/30'
+                    }`}>
+                        <Download className="w-5 h-5" />
                     </div>
 
                     <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5 text-xs font-black text-gray-900 dark:text-white">
-                            <span>Install App</span>
-                            <Sparkles className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                        <div className={`flex items-center gap-1.5 text-xs font-black ${
+                            isBento ? 'text-black' : 'text-slate-900 dark:text-white'
+                        }`}>
+                            <span>{tx('Install App', 'نزّل التطبيق')}</span>
+                            <Sparkles className="w-3.5 h-3.5 text-amber-400 fill-amber-400 shrink-0" />
                         </div>
-                        <p className="text-[11px] text-gray-500 dark:text-gray-400 font-medium line-clamp-1">
-                            {isIOS ? 'Add to Home Screen for best experience' : 'Fast, offline ready & fullscreen'}
+                        <p className={`text-[11px] font-semibold line-clamp-1 ${
+                            isBento ? 'text-slate-700' : 'text-slate-500 dark:text-slate-400'
+                        }`}>
+                            {isIOS
+                                ? tx('Add to Home Screen for best experience', 'ضيفه للشاشة الرئيسية لأفضل تجربة')
+                                : tx('Fast, offline ready & fullscreen', 'سريع، يشتغل أوفلاين، وشاشة كاملة')}
                         </p>
                     </div>
 
@@ -107,17 +126,25 @@ const InstallPWA: React.FC = () => {
                         <button
                             type="button"
                             onClick={handleInstallClick}
-                            className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 text-white font-black text-xs uppercase tracking-wider hover:opacity-90 active:scale-95 transition-all shadow-md shadow-purple-500/25 cursor-pointer"
+                            className={`btn-unstyled px-3.5 py-1.5 rounded-xl font-black text-xs uppercase tracking-wider active:scale-95 transition-all cursor-pointer ${
+                                isBento
+                                    ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[2px_2px_0_#000]'
+                                    : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:opacity-90 text-white shadow-md shadow-indigo-500/25'
+                            }`}
                         >
-                            Install
+                            {tx('Install', 'تثبيت')}
                         </button>
                         <button
                             type="button"
                             onClick={handleDismiss}
-                            className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-white rounded-xl hover:bg-gray-100 dark:hover:bg-white/10 transition-colors cursor-pointer"
-                            aria-label="Dismiss install banner"
+                            className={`btn-unstyled p-1.5 rounded-xl transition-colors cursor-pointer ${
+                                isBento
+                                    ? 'bg-slate-100 hover:bg-[#fecdd3] text-black border-2 border-black'
+                                    : 'text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10'
+                            }`}
+                            aria-label={tx('Dismiss install banner', 'إغلاق إشعار التثبيت')}
                         >
-                            <X className="w-4 h-4" />
+                            <X className="w-4 h-4 stroke-[2.5]" />
                         </button>
                     </div>
                 </div>
@@ -130,52 +157,87 @@ const InstallPWA: React.FC = () => {
                     onClick={() => setShowIOSModal(false)}
                 >
                     <div
-                        className="bg-white dark:bg-[#13141f] border border-white/10 rounded-3xl p-6 max-w-sm w-full shadow-2xl animate-in zoom-in-95 duration-200"
+                        className={`rounded-3xl p-6 max-w-sm w-full animate-in zoom-in-95 duration-200 ${
+                            isBento
+                                ? 'bg-white text-black border-[3px] border-black shadow-[6px_6px_0_#000]'
+                                : 'bg-white dark:bg-[#13141f] border border-slate-200 dark:border-white/10 shadow-2xl'
+                        }`}
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center gap-2.5">
-                                <div className="p-2 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400">
+                                <div className={`p-2 rounded-xl ${
+                                    isBento
+                                        ? 'bg-[#fde047] text-black border-2 border-black'
+                                        : 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
+                                }`}>
                                     <Download className="w-5 h-5" />
                                 </div>
-                                <h3 className="font-black text-base text-gray-900 dark:text-white">Install on iOS</h3>
+                                <h3 className={`font-black text-base ${isBento ? 'text-black' : 'text-slate-900 dark:text-white'}`}>
+                                    {tx('Install on iOS', 'التثبيت على iOS')}
+                                </h3>
                             </div>
                             <button
+                                type="button"
                                 onClick={() => setShowIOSModal(false)}
-                                className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-white rounded-lg"
+                                className={`btn-unstyled p-1.5 rounded-xl cursor-pointer ${
+                                    isBento
+                                        ? 'bg-slate-100 hover:bg-[#fecdd3] text-black border-2 border-black'
+                                        : 'text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10'
+                                }`}
                             >
-                                <X className="w-5 h-5" />
+                                <X className="w-4 h-4 stroke-[2.5]" />
                             </button>
                         </div>
 
-                        <div className="space-y-3.5 text-xs text-gray-600 dark:text-gray-300">
-                            <div className="flex items-start gap-3 p-3 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5">
-                                <span className="w-6 h-6 rounded-full bg-purple-600 text-white font-black flex items-center justify-center shrink-0 text-xs">1</span>
+                        <div className={`space-y-3 text-xs ${isBento ? 'text-slate-800' : 'text-slate-600 dark:text-slate-300'}`}>
+                            <div className={`flex items-start gap-3 p-3 rounded-2xl ${
+                                isBento ? 'bg-[#f8fafc] border-2 border-black/20' : 'bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5'
+                            }`}>
+                                <span className={`w-6 h-6 rounded-full font-black flex items-center justify-center shrink-0 text-xs ${
+                                    isBento ? 'bg-[#bef264] text-black border border-black' : 'bg-indigo-600 text-white'
+                                }`}>1</span>
                                 <p className="pt-0.5">
-                                    Tap the <span className="font-bold inline-flex items-center gap-1 text-purple-600 dark:text-purple-400">Share button <Share className="w-3.5 h-3.5 inline" /></span> in Safari's bottom toolbar.
+                                    {tx('Tap the Share button', 'اضغط على زرار المشاركة')}{' '}
+                                    <Share className="w-3.5 h-3.5 inline text-indigo-600 dark:text-indigo-400" />{' '}
+                                    {tx("in Safari's bottom toolbar.", 'في شريط Safari تحت.')}
                                 </p>
                             </div>
 
-                            <div className="flex items-start gap-3 p-3 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5">
-                                <span className="w-6 h-6 rounded-full bg-purple-600 text-white font-black flex items-center justify-center shrink-0 text-xs">2</span>
+                            <div className={`flex items-start gap-3 p-3 rounded-2xl ${
+                                isBento ? 'bg-[#f8fafc] border-2 border-black/20' : 'bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5'
+                            }`}>
+                                <span className={`w-6 h-6 rounded-full font-black flex items-center justify-center shrink-0 text-xs ${
+                                    isBento ? 'bg-[#bef264] text-black border border-black' : 'bg-indigo-600 text-white'
+                                }`}>2</span>
                                 <p className="pt-0.5">
-                                    Scroll down and tap <span className="font-bold inline-flex items-center gap-1 text-purple-600 dark:text-purple-400">Add to Home Screen <PlusSquare className="w-3.5 h-3.5 inline" /></span>.
+                                    {tx('Scroll down and tap Add to Home Screen', 'انزل لتحت واضغط إضافة للشاشة الرئيسية')}{' '}
+                                    <PlusSquare className="w-3.5 h-3.5 inline text-indigo-600 dark:text-indigo-400" />.
                                 </p>
                             </div>
 
-                            <div className="flex items-start gap-3 p-3 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5">
-                                <span className="w-6 h-6 rounded-full bg-purple-600 text-white font-black flex items-center justify-center shrink-0 text-xs">3</span>
+                            <div className={`flex items-start gap-3 p-3 rounded-2xl ${
+                                isBento ? 'bg-[#f8fafc] border-2 border-black/20' : 'bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5'
+                            }`}>
+                                <span className={`w-6 h-6 rounded-full font-black flex items-center justify-center shrink-0 text-xs ${
+                                    isBento ? 'bg-[#bef264] text-black border border-black' : 'bg-indigo-600 text-white'
+                                }`}>3</span>
                                 <p className="pt-0.5">
-                                    Tap <span className="font-bold text-gray-900 dark:text-white">Add</span> in the top right corner to install Quiz Platform!
+                                    {tx('Tap Add in the top right corner to install Quiz Platform!', 'اضغط إضافة (Add) فوق لتثبيت Quiz Platform!')}
                                 </p>
                             </div>
                         </div>
 
                         <button
+                            type="button"
                             onClick={() => setShowIOSModal(false)}
-                            className="w-full mt-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold text-xs uppercase tracking-wider"
+                            className={`btn-unstyled w-full mt-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider cursor-pointer ${
+                                isBento
+                                    ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[3px_3px_0_#000]'
+                                    : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white'
+                            }`}
                         >
-                            Got It
+                            {tx('Got It', 'فهمت')}
                         </button>
                     </div>
                 </div>

@@ -1,0 +1,1711 @@
+34	Promise
+24	Cancel
+9	Description
+9	Locked
+8	Delete
+7	Classes
+6	Score
+6	Correct Answer
+6	Edit
+6	Title
+6	Completed
+6	Quizzes
+6	Close
+6	You
+5	Category
+5	Coins
+5	Students
+5	Avg Score
+5	Refresh
+5	Back
+5	Live
+5	Class Chat
+5	Sessions & Board
+4	XP
+4	Pass Rate
+4	XP Reward
+4	Roadmap
+4	All Modules
+4	Study Cards
+4	Save Changes
+4	Time Taken
+4	Admin Settings & Menu
+4	Shop Item Owned
+4	Skill Tracks
+4	Homework
+4	Start
+4	Move Up
+4	Move Down
+4	Class Rankings
+4	Students & Invites
+4	Live Classroom
+4	Rankings
+4	Progress
+3	Questions
+3	Download Sample JSON
+3	Class Name
+3	Add Question
+3	Language
+3	TypeScript
+3	Difficulty
+3	Date
+3	Gift Title
+3	Lessons
+3	All
+3	Points
+3	Delete Road
+3	Done
+3	Ready
+3	Lock
+3	Send Gift
+3	Dashboard
+3	Administrator
+3	Badges
+3	Tournaments
+3	Quiz Bank
+3	Offline
+3	Loading...
+3	Daily Challenge
+3	Mystery Loot Box
+3	Exams
+3	Send
+3	English
+3	Question
+3	Exit
+3	Friends
+3	Total Score
+3	Teacher
+3	Messages
+3	View profile
+3	Clear search
+3	Completion
+3	Analytics
+3	AI Studio
+3	Yellow
+3	White
+3	Sessions, Interactive Board & Presentations
+3	Logout
+3	Social Hub
+3	Best Score
+2	Duration
+2	Tab Switches
+2	More badge actions
+2	Milestones
+2	Perfection
+2	Streaks
+2	Speed
+2	XP & Levels
+2	Clans & Social
+2	Icon
+2	Sessions
+2	Access
+2	Challenge Title
+2	Python 3
+2	Hints
+2	Delete Question
+2	Daily Challenges
+2	Question Bank
+2	Actions
+2	Core
+2	Options
+2	Type
+2	Level
+2	Available
+2	All Quizzes
+2	Created:
+2	Updated:
+2	Roads
+2	Open Road
+2	Interactive visual roadmap
+2	Edit Road Info
+2	Download Road as ZIP (Roadmap + Quizzes)
+2	Upload File
+2	Requires:
+2	Modules
+2	Publish Quiz
+2	Quiz Title
+2	All Categories
+2	Module
+2	None (General Road)
+2	Rename Stack
+2	Delete Stack
+2	Pending Requests
+2	Participants
+2	Question Prompt
+2	Rank
+2	Previous
+2	Delete Tournament
+2	Email Identity
+2	Total XP
+2	Manage Track Permissions
+2	View Public Profile
+2	Admin
+2	Student View
+2	Log Out of Admin
+2	Admin Settings
+2	Quick Actions
+2	Overview & Content
+2	Light
+2	Dark
+2	Bento
+2	Total Attempts
+2	Randomize
+2	Customize Avatar
+2	Close modal
+2	Save
+2	Close Chat
+2	Online
+2	Another Clue
+2	Running...
+2	Run Code
+2	Accuracy
+2	YOU
+2	Quiz Platform
+2	Community
+2	Power-Up Shop
+2	Privacy Policy
+2	Terms of Service
+2	Claimed
+2	Add
+2	Clans
+2	Tracks
+2	Wait
+2	Live Challenge
+2	VS
+2	Opponent
+2	Correct Answers
+2	Notifications
+2	Refresh notifications
+2	Clear all notifications
+2	Delete notification
+2	Dark Tech
+2	Sample JSON
+2	Code Lab
+2	Check-Up Question
+2	Copy
+2	Session
+2	Next
+2	Add Friend
+2	Equipped
+2	Enter ↵
+2	Export
+2	Explanation
+2	Return to Question
+2	Add more AI hints with coins
+2	Multiple Choice
+2	Ordering
+2	Code Output
+2	Short Answer
+2	Compiler
+2	Sessions Finished
+2	Assistant
+2	Quick
+2	Search messages
+2	Finished
+2	Teaching Board
+2	Top performing classes across tracks and homework
+2	Loading class rankings...
+2	No Class Rankings Yet
+2	Classes will appear here as they earn XP through homework and quizzes.
+2	Copy Link
+2	Create a Class
+2	Leave Class
+2	View user profile
+2	Search student by name or email...
+2	Study
+2	Settings
+2	Lime
+2	Sky
+2	Edit Stack
+2	Command Center
+2	Analytics & Logs
+2	AI Quiz Studio
+2	Interactive Board
+2	Presentations & JSON
+2	Go back
+2	Open Chat Hub
+2	Teacher Profile
+2	Preview
+2	Neo-Brutalist
+2	Global Rank
+2	Days
+2	View Arena
+2	Inspect
+2	PDF
+2	No matching attempts found
+2	Try clearing your search query or filter tags.
+2	Export PDF Report
+2	Overview
+2	Certificates
+2	Join
+2	Active Road
+2	Pool Progress
+2	Complete roadmap
+2	Retake (Start Next Cycle)
+2	Retake
+2	Export PDF Study Sheet
+2	Home
+2	Live Ready
+1	Close Inspector
+1	Correct
+1	Wrong
+1	Skipped
+1	Exam Integrity & Security
+1	Focus Losses
+1	Copy / Paste
+1	Avg / Question
+1	Audit Trail Events:
+1	Loading attempt answers and questions...
+1	Tab Switch
+1	Copied Text
+1	Incorrect (0 pts)
+1	Skipped / Unanswered (0 pts)
+1	Required
+1	All Quiz Options Breakdown:
+1	Student's Pick (Correct)
+1	Student's Choice (Wrong)
+1	Student Response:
+1	Explanation / Correct Logic
+1	Student Quiz Submission Breakdown
+1	Loading badges...
+1	Achievement Badges
+1	Create and manage user recognition
+1	Upload Badges JSON
+1	New Badge
+1	No badges created yet
+1	Auto-seed 30 comprehensive achievement badges across 8 categories
+1	Delete Badge
+1	Badge ID
+1	Name
+1	Equip Title / Honorific
+1	Roadmaps & Skills
+1	Arena & Duels
+1	Other
+1	Rarity
+1	Common
+1	Rare
+1	Epic
+1	Legendary
+1	Mythic
+1	Color
+1	Threshold
+1	Curriculum Track
+1	Enrollment Mode
+1	Back to Classes
+1	No Classes Found
+1	Create First Class
+1	Tag (2-5 chars)
+1	Assign Teacher (Required)
+1	Class Emblem
+1	Assigned Teacher
+1	Refresh classes
+1	Search classes by name, tag, or teacher...
+1	Copy invite link
+1	Delete class
+1	WEB10
+1	Cohort schedule, goals, or syllabus summary...
+1	Search students to enroll...
+1	Search students to add or remove...
+1	Invite / Admin Assigned
+1	Open Join Link
+1	Group & Cohort Intelligence
+1	Student Cohort & Tier Performance Analytics
+1	Refresh Data
+1	Total Students
+1	High Performers
+1	Average score ≥ 80%
+1	Proficient Learners
+1	Average score 60-79%
+1	Needs Attention
+1	Experience & Gamification Cohorts
+1	Performance Tier Roster
+1	No students currently in this performance cohort.
+1	Topic & Category Mastery Matrix
+1	Search student by name or email in this tier...
+1	Compiler Questions
+1	Manage coding challenges for daily challenges
+1	Import/Export
+1	Import from JSON
+1	Description (Markdown supported)
+1	Reference Solution
+1	JavaScript (Node.js)
+1	Java
+1	Easy
+1	Medium
+1	Hard
+1	Coins Reward
+1	Loading questions...
+1	No Questions Yet
+1	Create your first compiler question to get started.
+1	Add First Question
+1	Inactive
+1	Submissions
+1	Rewards:
+1	Usage:
+1	Hints:
+1	Reference Code:
+1	Import Questions
+1	Describe the problem, input/output format, and constraints...
+1	Type a hint and press Enter...
+1	Manage Question Bank
+1	Schedule recurring coding tasks
+1	AI 3-Tier Generator
+1	Auto-Assign Week
+1	Notify Subscribers
+1	Schedule New
+1	Status & Date
+1	Questions & Tiers
+1	Rewards & Gifts
+1	User can solve all 3
+1	No active challenges found
+1	Discard Changes
+1	Save Challenge
+1	Compiler Question
+1	Select a Question...
+1	Rewards Override
+1	No Shop Item Bonus
+1	Description & Highlights
+1	Generating with AI...
+1	Generate & Schedule
+1	Language:
+1	Problem Statement
+1	Student Starter Stub
+1	AI Reference Solution
+1	Challenge Date
+1	Programming Language
+1	JavaScript (ES6+)
+1	Reference Quiz Inspiration
+1	Custom Concept or Focus (Optional)
+1	Configure 3 Tiers & Distinct Gifts
+1	Easy Tier
+1	Warm-up
+1	Medium Tier
+1	Hard Tier
+1	Grandmaster
+1	Generate 3-Tier Code Challenge using AI inspired by existing quizzes
+1	Auto-Assign Questions for the Week
+1	Broadcast Challenge Drop to Subscribers
+1	View & Edit Question Bank
+1	Schedule a New Daily Challenge
+1	Reschedule to Today
+1	Edit Schedule
+1	Weekly Challenge Notification Broadcast
+1	Explain the challenge, rewards, and key concepts...
+1	AI 3-Tier Challenge Studio
+1	Type e.g. 11/12/2026 04:12 PM or pick in Options
+1	Quick Date Presets
+1	Hour
+1	Minute
+1	Period
+1	Quick Time Steppers
+1	Quick Arena Window Presets
+1	Start + 2 Hours Window
+1	Start + 4 Hours Window
+1	Full Day Window (24h)
+1	MM/DD/YYYY hh:mm AM/PM or YYYY-MM-DD HH:mm
+1	Open Options & Pickers Freely
+1	Today
+1	Tomorrow
+1	Next Monday
+1	Module Inspector
+1	Basics
+1	Edit the main module details.
+1	Status
+1	X Position
+1	Y Position
+1	Resources and Rewards
+1	Attach video guidance, quizzes, and completion rewards.
+1	Video URL
+1	Reward Badge
+1	No badge
+1	Linked Quizzes
+1	Linked to this module
+1	No unlinked quizzes match this search.
+1	Break the module into smaller checkpoints.
+1	Prerequisites
+1	Choose which modules must be completed first.
+1	No other modules available yet.
+1	Save Roadmap
+1	Module title
+1	What should learners get from this module?
+1	Search quizzes to link
+1	Lesson title
+1	New Lesson
+1	Live Exam Security Center
+1	Real-Time Proctoring & Integrity Telemetry
+1	Live Refresh
+1	Avg Integrity
+1	High Risk Flags
+1	Rushing Flags
+1	Scanning active exam sessions and telemetry streams...
+1	Inspect Telemetry
+1	Search student by name, email, or quiz...
+1	Error Diagnostic Hub
+1	Question-Level Error & Misconception Analytics
+1	Export CSV / Excel
+1	Avg Failure Rate
+1	Across all evaluated attempts
+1	Overall Accuracy
+1	Global student correct rate
+1	Toughest Quiz
+1	Questions Analyzed
+1	Computing error distributions and ranking questions...
+1	No Problematic Questions Found
+1	Top Misconception:
+1	Failure Rate
+1	Option Choice Distribution (% of students who selected each option)
+1	Reference Guide / Explanation
+1	Search failed questions by text, quiz, or topic...
+1	All caught up! No pending reviews.
+1	Grading
+1	Adjustment
+1	Submit Review
+1	Open Text
+1	Student Response
+1	No answer provided by students.
+1	Reference Guide
+1	Score Adj.
+1	Written Feedback
+1	Review
+1	Importing & Replacing...
+1	Import Package
+1	Learning Roads
+1	Export All (ZIP)
+1	Import (ZIP)
+1	New Road
+1	All Roads
+1	Download all learning roads, roadmaps, and quizzes as a ZIP package
+1	Import roadmaps and quizzes from a ZIP package or JSON file
+1	Return to all roads
+1	Download Road Bundle as ZIP
+1	Edit Road Title & Details
+1	Create New Road
+1	Edit Road
+1	What is this road about?
+1	Delete Road?
+1	Road Details
+1	Create New Quiz
+1	No quizzes assigned yet
+1	Select quizzes from below to add them
+1	All quizzes are assigned
+1	Edit quiz
+1	Remove from this road
+1	Add to this road
+1	Edit Info
+1	Documents & AI Quiz Generator
+1	Study Flashcard Decks
+1	Edit Road Settings
+1	Visual Roadmap
+1	Quizzes & Assessment
+1	Learning Hub & AI
+1	Import Source
+1	From your computer
+1	Text Editor
+1	Write or paste code
+1	Note
+1	Click to upload JSON
+1	Supported formats: .json
+1	JSON Editor
+1	Import Roadmap Configuration
+1	Re-number Levels
+1	No Modules Found
+1	View Lessons & Quizzes
+1	No quizzes or sub-modules yet
+1	Search roadmap modules...
+1	Auto-organize levels sequentially from 0 to N
+1	Move step earlier
+1	Move step later
+1	Duplicate module
+1	Delete module
+1	Roadmap icon
+1	Roadmap title
+1	Short roadmap description
+1	Auto-organize modules sequentially
+1	Learning Path
+1	Introduction to Fundamentals
+1	Getting Started
+1	Setup & Environment Configuration
+1	First Hands-On Project
+1	Discard unsaved changes?
+1	This will reset the roadmap editor back to the last saved version.
+1	Leave without saving?
+1	You have unsaved roadmap changes. Leaving now will discard them.
+1	OPTIONAL
+1	ACHIEVEMENT
+1	ASSESSMENT
+1	CORE
+1	Optional
+1	Assessment
+1	Achievement
+1	Delete Module?
+1	This will remove the module and all its connections.
+1	New Module
+1	Resources
+1	No resources yet.
+1	Upload PDF or text files to get started.
+1	AI Generator
+1	Question Count
+1	Generate AI Quiz
+1	Select resources above first
+1	AI Quiz Generator
+1	Time Limit (mins)
+1	Passing Score (%)
+1	Process with AI
+1	Delete Resource?
+1	All Languages
+1	Sample CSV
+1	Upload CSV
+1	New Card
+1	No catgories found.
+1	Create a card to get started with stacks.
+1	Managing cards in this category
+1	Save Study Card
+1	Tags (comma-separated)
+1	Content / Code
+1	Paste code, notes, or explanations here
+1	Study Cards tab
+1	Import
+1	Preview:
+1	Stack Name
+1	Card Title
+1	Paste your code or notes here...
+1	Import Study Cards
+1	Delete Entire Stack
+1	Delete Study Card
+1	Tournaments List
+1	Upload JSON
+1	Create Tournament
+1	Live Arenas
+1	Scheduled
+1	Registrations
+1	Starts
+1	Quiz Source
+1	Open Control Center & Live Room
+1	Tournament Title
+1	Event Brief & Student Instructions
+1	Mins
+1	Remove Question
+1	Badge Reward
+1	No Badge Prize
+1	Shop Item Reward
+1	No Item Prize
+1	Coins Prize
+1	XP Prize
+1	JSON Import & Export Tools
+1	Upload Tournament JSON
+1	Upload Quiz JSON
+1	Results Revealed (Click to Lock)
+1	Reject All
+1	Student
+1	Percentage
+1	Submitted At
+1	Retrieving questions, student answers, and teacher explanations.
+1	Student Name
+1	Final Score
+1	Submitted Date
+1	Refresh tournament list and telemetry
+1	Upload Tournament JSON directly
+1	Search tournaments...
+1	Share Invite Link or Notify Users
+1	Edit Tournament
+1	Describe the topics, rules, and rewards...
+1	Start Datetime
+1	End Datetime (Window Closes)
+1	Subtract 5 Minutes
+1	Add 5 Minutes
+1	Download Tournament Sample JSON
+1	Download Quiz Sample JSON
+1	Refresh telemetry and participant statuses
+1	Check for new student join requests
+1	Revoke Approval
+1	What is the correct answer to this challenge?
+1	In 15 Minutes
+1	In 1 Hour
+1	Tomorrow at 10:00
+1	Tomorrow at 18:00
+1	This Saturday 14:00
+1	Active
+1	Approved
+1	Rejected
+1	Total Requests
+1	Student Reason:
+1	Student Re-Request Follow-Up Note:
+1	Admin Feedback / Decision Note:
+1	Approve...
+1	Reject...
+1	Re-Approve...
+1	Unlocked for User
+1	No track requests found
+1	Student:
+1	Requested Road:
+1	Student Note:
+1	Re-Request Note:
+1	Feedback / Decision Note for Student:
+1	Search by student, email, notes, or track...
+1	Refresh requests
+1	Write a guidance note explaining approval or reasons for rejection...
+1	Loading tracks...
+1	Primary Track
+1	No tracks found
+1	Status:
+1	Select Roadmap Track
+1	Select a Roadmap...
+1	Loading student roadmap progress...
+1	Open All Levels
+1	Complete All
+1	Reset All
+1	Quick Level Selector:
+1	Complete Level
+1	Lock Level
+1	Open Selected
+1	Complete Selected
+1	Deselect
+1	Complete
+1	Open
+1	Agent Name
+1	Access Key
+1	Assignment Role
+1	No identities found
+1	SCORE
+1	Inspect Answers
+1	No activity recorded for this agent
+1	Update Identity
+1	Display Name
+1	Platform Mode / Role
+1	Access Key Override
+1	Gift Type
+1	Coins Amount
+1	XP Amount
+1	Select Item
+1	Choose an item...
+1	Loading items...
+1	Set as primary track
+1	Manage Roadmap & Level Access
+1	Unlock all modules in this roadmap for the user
+1	Mark all modules complete
+1	Lock all modules
+1	Filter modules...
+1	Select module
+1	Lock module for user
+1	Unlock / Open module for user
+1	Mark module complete
+1	Create Identity
+1	Secure code (min. 6 chars)
+1	Search identities by name or email...
+1	Edit User
+1	Manage Roadmap
+1	Delete User
+1	Inspect question-by-question student answers
+1	Edit Agent
+1	Secure blank for status quo
+1	Enter coins amount
+1	Enter XP amount
+1	Abolish Agent?
+1	Learning Mode
+1	Appearance & Theme
+1	Platform Configuration
+1	Quiz limits, API, & platform settings
+1	Terminate active administrative session
+1	Student App
+1	Dashboard Overview
+1	Switch to Student App
+1	Boost your workflow
+1	Engagement Overview
+1	Top Quizzes
+1	View all
+1	No attempts yet.
+1	Recent Attempts
+1	Latest Activity
+1	No recent pulse activity
+1	Inspect student answers →
+1	Log Out of Admin?
+1	End your administrator session
+1	Yes, Log Out
+1	Toggle menu
+1	Go to Admin Overview
+1	Admin Menu & Settings
+1	Switch to Student / Home View
+1	Close menu
+1	Return to Admin Overview
+1	Click to inspect question-by-question breakdown
+1	Users
+1	Presentations
+1	Analytics & Proctoring
+1	Live Proctoring
+1	Cohort Intelligence
+1	Error Diagnostics
+1	Engagement
+1	Track Requests
+1	Reviews
+1	Total Users
+1	Total Quizzes
+1	Review Roads
+1	Manage Users
+1	Review Work
+1	Pending Reviews
+1	Avg Time
+1	Attempts Today
+1	Change your admin password
+1	Current Password
+1	New Password
+1	Confirm New Password
+1	Live Preview
+1	Reset
+1	Saving...
+1	Save Look
+1	Base
+1	Hair
+1	Clothing
+1	Accessory
+1	Mood
+1	Quiz Platform Academy
+1	Certificate of Excellence
+1	This certificate is proudly presented to
+1	For successfully completing the comprehensive assessment for
+1	Demonstrating exceptional proficiency with a score of
+1	Date Issued
+1	Quiz Master
+1	Certified Instructor
+1	No messages yet.
+1	Duel Challenge
+1	Your Score:
+1	Opponent:
+1	Game in progress...
+1	Setting up game room...
+1	Waiting for opponent to accept...
+1	Duel
+1	Send a message or challenge them to a quiz duel!
+1	QUIZ DUEL CHALLENGE
+1	Social Chat Hub
+1	Clan
+1	Hub
+1	No clan messages yet.
+1	Be the first to say hello to your team!
+1	No Clan Yet
+1	Select a Friend
+1	Send Message
+1	Search friends...
+1	Challenge to Duel
+1	Back to all friends
+1	Send Quiz Duel Challenge
+1	Current Question:
+1	Something Went Wrong
+1	Got It, Continue Quiz
+1	Keyboard Shortcuts & Accessibility
+1	Option Selection
+1	Quiz Navigation & Actions
+1	General & Accessibility
+1	Original Language (English)
+1	View untranslated original text
+1	Popular Languages
+1	Search by language (e.g. Arabic, French, Español, 日本語)...
+1	Listening Prompt / Audio Clip
+1	Video Comprehension Clip
+1	Video question prompt
+1	Close dialog
+1	Auto-translate
+1	Change translation language
+1	Automatically translate next questions to this language
+1	Search quizzes by title or description...
+1	Practice This Topic
+1	Challenge Friends to 1v1 Duel
+1	No Category Data Yet
+1	View Full History in Profile
+1	Loading challenge arena...
+1	Archive Mode
+1	ALL SOLVED
+1	Loading month challenges...
+1	Solve
+1	All Tiers Solved
+1	In Progress
+1	Available to Solve
+1	No Challenge
+1	Current Streak
+1	DAYS
+1	COINS
+1	Solved
+1	Solved & Gift Claimed
+1	Tier Solved
+1	Execution Error
+1	Run Output
+1	Tier Solved! Switch tier above to complete all 3.
+1	Zero-wait sandbox compiler runner
+1	Evaluating Tier...
+1	Tier Completed
+1	View past challenge calendar
+1	Previous Month
+1	Next Month
+1	Dismiss console
+1	Your Treasury
+1	Odyssey
+1	Atlas Grid
+1	Node Tree
+1	Go to Roads to Request Access
+1	No tracks match your current filter
+1	Try resetting the search query or status filter.
+1	Storyline Odyssey (Horizontal Scroll)
+1	Atlas Grid (All Chapters)
+1	Constellation Node Tree
+1	Search chapters, concepts, or algorithms...
+1	Start Studying
+1	No Study Stacks Available
+1	Check back soon for new study materials!
+1	No cards match your search.
+1	PREV
+1	NEXT
+1	View Card
+1	Search within this stack...
+1	Invite to Tournament
+1	Direct Invite Link
+1	Send Notification Invite
+1	Also send Email notification
+1	Close invite modal
+1	Search user by name or email (min 3 chars)...
+1	Optional note (e.g. Join this arena before kickoff!)
+1	Times automatically synced to your country:
+1	Gated Results Arena
+1	Real-Time Leaderboard
+1	Invite
+1	Kickoff
+1	Attempt Timer
+1	Roster
+1	Prize
+1	Check Status
+1	Join request was declined by the instructor.
+1	View Submission & Awaiting Holding Screen
+1	View My Rank & Official Leaderboard
+1	REQUEST PENDING INSTRUCTOR APPROVAL
+1	REQUEST TO JOIN TOURNAMENT
+1	INSTANT REGISTER FOR ARENA
+1	VIEW FINAL LEADERBOARD
+1	Notify Next Event
+1	Participant
+1	Submitted
+1	Top Champions
+1	View My Official Rank on Leaderboard
+1	Refresh tournaments and live statuses
+1	Share invite link or notify a player
+1	Check approval status
+1	Check if results were revealed
+1	LIVE NOW
+1	UPCOMING
+1	COMPLETED
+1	CS Learning Engine
+1	Explore
+1	Home Dashboard
+1	Study Flashcards
+1	Global Rankings
+1	Clans & Guilds
+1	Weekly Challenges
+1	Notifications Active
+1	VIP Challenge Alert
+1	Get notified when new algorithmic challenges and learning tracks drop.
+1	Made by
+1	Mohamed Tarek
+1	All rights reserved.
+1	Support
+1	Direct Support Email
+1	Inquiry Category
+1	Your Email Address *
+1	Your Name (Optional)
+1	Issue Subject *
+1	Description & Details *
+1	Dispatching Ticket...
+1	Submit Support Ticket
+1	How do XP and Leveling work?
+1	Can I create and share my own quizzes?
+1	How do I get help or report a question bug?
+1	Email us directly at
+1	Quiz Platform Home
+1	Enter your email
+1	Subscribe
+1	Enterprise Support & Help Desk
+1	Alex Dev
+1	Quiz question scoring, streak freeze, or bug report
+1	Frequently Asked Questions
+1	Technical Issue
+1	Bug Report
+1	Quiz Scoring
+1	Account & Auth
+1	Feature Request
+1	General Inquiry
+1	Mythic Streak Reward
+1	Tap the chest below to crack open your streak rewards!
+1	Cracking Mystery Vault...
+1	Current Streak:
+1	Log in every day to claim all 7 rewards without resetting.
+1	Daily Login Streak Calendar
+1	Install App
+1	Install on iOS
+1	Share button
+1	Add to Home Screen
+1	Install Quiz Platform App
+1	Dismiss install banner
+1	PTS
+1	Players
+1	Your Rank
+1	The Arena is Empty
+1	Check back later for rankings.
+1	Challengers
+1	Loading clan rankings...
+1	No Clans Yet
+1	Be the first to establish a clan and claim rank #1!
+1	Total Clans
+1	Total Members
+1	Your Clan Rank
+1	Clan Rankings
+1	Your Clan
+1	Global Leaderboard
+1	Google
+1	GitHub
+1	Live Submissions
+1	Who Answered Right
+1	Choice • Time • Points
+1	ON (Active Player):
+1	OFF (Monitor Only):
+1	What does Teacher plays and scores mean?
+1	Filter in track...
+1	Session Quizzes
+1	Creating Live Classroom Room...
+1	Invite User
+1	Practice Student
+1	Skip Turn
+1	Play Rematch
+1	Close Arena
+1	Invite Student / Peer
+1	Live Classroom Connected
+1	Copy PIN
+1	End & Close Classroom
+1	Host joins turns & scores
+1	Add a simulated student to practice or demo solo
+1	Remove Practice Student
+1	Search by name or email...
+1	PIN Copied
+1	Invitation Sent
+1	Turn-Based Duel
+1	Everyone Answers
+1	Join Live Classroom
+1	Joining Live Room...
+1	Enter Live Room
+1	Leave Room
+1	Leave Arena
+1	Enter your name
+1	Leave Classroom
+1	Waiting for Opponent...
+1	Get ready to race against
+1	Cancel & Return
+1	Quiz Completed!
+1	View Detailed Results
+1	Your Accuracy
+1	Their Accuracy
+1	Your Time
+1	Their Time
+1	Question Progress
+1	You Correct
+1	Opponent Correct
+1	Not Answered
+1	Live Activity
+1	Waiting for activity...
+1	Arrange Tabs
+1	Presets
+1	Reset Default
+1	Unpin
+1	Pin
+1	Close customizer
+1	Restore default navigation order
+1	Move Left
+1	Move Right
+1	Move to 'More' Dropdown
+1	Hide tab from navigation
+1	Pin to Main Navbar
+1	Mark Read
+1	Note:
+1	Close notifications
+1	View notifications
+1	Close notification
+1	English • LTR
+1	Choose Platform Language
+1	Hello
+1	Neo-Bento
+1	Editorial
+1	Neon Cyber
+1	Load Example
+1	Slide
+1	Check-Up
+1	Layout
+1	Hero Title
+1	Bullets List
+1	Interactive Wireframe
+1	Split Content
+1	Homework Brief
+1	Summary / Wrap-Up
+1	Motion Animation
+1	Fade Up
+1	Slide Left
+1	Zoom In
+1	Stagger Reveal
+1	Pop In
+1	Flip / Drop
+1	Duration (sec)
+1	Slide Title
+1	Subtitle
+1	Interactive Check-Up Question
+1	Body Paragraph
+1	Bullet Points (one per line)
+1	Code Lang
+1	Optional Code Snippet
+1	Download
+1	Save as New Deck
+1	Presentation title...
+1	Explanation shown when revealed...
+1	Convert Slides
+1	JSON / XML
+1	Paste Slide Text / Outline
+1	Upload PDF / PPTX / JSON / XML
+1	Import Raw JSON / XML
+1	Upload Presentation JSON
+1	Assign to Track
+1	All Tracks
+1	Present
+1	Assign
+1	Update JSON
+1	Search presentations...
+1	Filter by track
+1	Assign to module
+1	Open visual slide board & JSON editor
+1	Download JSON
+1	Section Inspector
+1	Heading + Paragraph Card
+1	Live Sync
+1	Got it
+1	Prev
+1	Interactive Pointer (Click Wireframes)
+1	Draw on Board
+1	Laser Pointer
+1	Undo Stroke
+1	Clear Drawings
+1	Projector Fullscreen
+1	No slides added yet
+1	Visual Board
+1	Raw JSON
+1	Full Preview
+1	Replace with .json File
+1	Add Slide
+1	Add Bullet
+1	Code Snippet
+1	Hello World
+1	Live Check-Up Quiz
+1	Presentation Visual Board & JSON Studio
+1	Presentation Title
+1	Presentation theme
+1	Open interactive whiteboard preview before saving
+1	Close board studio
+1	Duplicate Slide
+1	Delete Slide
+1	Optional subtitle
+1	Main explanation paragraph for this slide...
+1	Remove bullet
+1	Language (html, css, js, python)
+1	Tip / key takeaway...
+1	Private teacher reminder...
+1	Question prompt
+1	Mark as correct option
+1	Bento Brutal
+1	Editorial Paper
+1	Neon Synth
+1	Sun
+1	Mon
+1	Tue
+1	Wed
+1	Thu
+1	Fri
+1	Sat
+1	Less
+1	More
+1	Close profile modal
+1	Loading profile...
+1	User Not Found
+1	Message
+1	Friend Request Sent
+1	Accept Friend Request
+1	Daily Streak
+1	Quizzes Done
+1	Trophies
+1	No trophies unlocked yet
+1	Quizzes and challenges will unlock trophies for this challenger.
+1	No recent quizzes
+1	This user hasn't completed any quizzes recently.
+1	Share Profile Link
+1	Open Full Page View
+1	Application update available
+1	Dismiss update banner
+1	Dismiss
+1	Dismiss update notification
+1	Node / Python Runtime
+1	Select the predicted console output:
+1	Type the exact output printed to terminal:
+1	Type stdout output here...
+1	CONSOLE
+1	Run your code to see output...
+1	Reset Code
+1	Column A (Select to link)
+1	Linked
+1	Column B (Select to connect)
+1	Arrange items into the correct chronological or logical sequence:
+1	Short Answer / Text Fill
+1	Submit Answer
+1	Exact expected word:
+1	Result
+1	Performance Summary
+1	Incorrect Answers
+1	Assessment Result (PDF)
+1	Quiz Study Sheet (PDF)
+1	Email Scorecard to Me
+1	Continue
+1	Your Answer
+1	Enter Fullscreen
+1	Security Alert: Fullscreen Exit
+1	Return to Fullscreen
+1	Store
+1	Jump to question
+1	No explanation provided for this question.
+1	Flip Back
+1	Consulting AI Coach for a spoiler-free pointer...
+1	Guaranteed
+1	How to match:
+1	Click a term in
+1	Column A
+1	Column B
+1	Shortcuts
+1	Answer Submitted
+1	Unsubmitted Changes
+1	Re-submit
+1	Next Question
+1	Finish Quiz
+1	Item Shop
+1	Mid-Quiz Boosters
+1	Your Inventory
+1	Use
+1	Buy
+1	AI Coach Hints
+1	Socratic pointers • 0 spoilers
+1	Select a Hint Pack
+1	Get Pack
+1	Resume Quiz?
+1	Start Over
+1	Resume
+1	Get a different clue from a new angle
+1	Dismiss warning
+1	Re-submit this answer
+1	All questions submitted! Finish quiz now.
+1	Updating Quizzes...
+1	None (Unassigned / General)
+1	Strict Proctoring
+1	Force Fullscreen
+1	Block Copy/Paste
+1	Enter category (e.g. JavaScript, Math, System Design)
+1	Standard Quiz
+1	Exam Mode
+1	Delete Quiz?
+1	Live LaTeX / Math Preview:
+1	Snippet Window
+1	Image URL (Optional)
+1	Image Attached
+1	Mark Correct
+1	Add Sequence Step
+1	Add Matching Pair
+1	JavaScript
+1	Python
+1	Explanation & Solution Hint
+1	Explanation Formula Preview:
+1	Save Question
+1	Provide code to display with the question (e.g. console.log output)...
+1	Remove Step
+1	Left premise / term (e.g. HTML)...
+1	Right match / definition (e.g. Structure)...
+1	Remove Pair
+1	Why this answer is correct (supports LaTeX $...$)
+1	Matching Pairs
+1	Revision
+1	Host
+1	Host Live Classroom Arena game for this quiz
+1	Share
+1	Share this quiz
+1	Export this quiz
+1	Replace
+1	Replace this quiz questions & content with a JSON file
+1	Edit this quiz
+1	Delete this quiz
+1	Description & Objectives
+1	Time (min)
+1	Pass Score %
+1	Percent required
+1	On completion
+1	XP for ranking
+1	Road / Stack
+1	Uncategorized
+1	Difficulty Level
+1	Regular Quiz
+1	Official Exam
+1	Question Bank / Pool Mode
+1	Quiz Badge Icon
+1	Question Bank Configuration
+1	Questions Per Attempt
+1	Bank contains
+1	Update Points
+1	Update Part Section
+1	Update Question Type
+1	Shuffle Answer Options
+1	Provide a comprehensive summary of what this quiz covers...
+1	Category (e.g. Python Junior)
+1	Edit Question
+1	Matching
+1	Replacing...
+1	Confirm Replace
+1	Target Quiz
+1	Current
+1	Replacement
+1	Replace Quiz Questions
+1	Share Quiz
+1	Anyone with the link can take this quiz
+1	Challenge Accepted!
+1	Target Score
+1	Start Challenge
+1	Browse Other Quizzes
+1	Unable to load analytics right now.
+1	Ask AI Performance Coach
+1	Export CSV
+1	Class Avg Score
+1	Homework Done
+1	Quiz Activity
+1	Assign a Track to this class to see per-session analytics.
+1	No matching students in this class.
+1	Study Time
+1	Recent Score History
+1	Recent Mistakes to Review With Student
+1	No recent wrong answers logged for this student.
+1	Invite students to this class to inspect individual dossiers.
+1	Filter Log:
+1	All Event Types
+1	Quiz Submissions
+1	Homework Alerts Sent
+1	Student Enrollments
+1	All Students
+1	Filter students...
+1	Class Insights & Weak Concepts
+1	At Risk
+1	Watch
+1	On Track
+1	Asst
+1	Members
+1	Pinned Notice
+1	No students joined yet.
+1	Class Roster
+1	Fullscreen
+1	Enter to send · Shift+Enter for new line
+1	Chat privately
+1	Close roster
+1	View class roster
+1	Search chat...
+1	Delete Message
+1	Are you sure you want to delete this message from the class chat?
+1	No Track Sessions Loaded
+1	Upcoming
+1	Finished by Teacher
+1	Live Session
+1	Reopen Session
+1	Motion Slides
+1	Session Teaching Board
+1	No sub-lessons listed for this session.
+1	Upload Slides in Presentations
+1	No homework quizzes linked to this session.
+1	Send Homework Alert
+1	Session Topics
+1	Homework & Practice
+1	Loading Class...
+1	New Class
+1	My Class
+1	Action Link URL (Optional)
+1	Button Label (Optional)
+1	Presets:
+1	Copy Invite Link
+1	Invite Students
+1	New Class Announcement
+1	No announcements yet.
+1	Teacher updates and session reminders will appear here!
+1	Requested a while ago
+1	Promote to Assistant
+1	Set as Student
+1	Remove Student
+1	Invite Students to Class
+1	Enrollment Privacy
+1	Open (Public Class)
+1	Private (Invite Link / Approval)
+1	Pick a custom silhouette, emblem icon, colors, or upload picture
+1	Invite Link / Approval (Recommended)
+1	Open (Any student can join)
+1	Admin Only
+1	Class Settings & Emblem Studio
+1	Change Class Emblem
+1	Share important updates, session notes, or reminders with students...
+1	Generate new invite link
+1	Paste class invite code or link...
+1	PY101
+1	Describe the class schedule, goals, or track...
+1	Remove Member
+1	Are you sure you want to remove this student from the class?
+1	Discord
+1	WhatsApp
+1	Invites
+1	Delete Announcement
+1	Are you sure you want to delete this announcement?
+1	Create Class
+1	Click to preview
+1	Stamp Class Tag
+1	Click to browse or drag image here
+1	Max file size: 2MB. Square 1:1 ratio recommended.
+1	Close Studio
+1	Generate a random cool emblem
+1	Rounded
+1	Shield
+1	Circle
+1	Hexagon
+1	Diamond
+1	Purple
+1	Orange
+1	Rose
+1	Emerald
+1	Obsidian
+1	Sunset
+1	Cyber
+1	Gold
+1	Black
+1	Red
+1	Pre-Made Emblems
+1	Emblem Builder
+1	Upload Image / URL
+1	Start Live Challenge
+1	Async Challenge
+1	Start Async Challenge
+1	Hit "Add Friend" and find your crew!
+1	No friend requests waiting.
+1	Challenge a friend to show your skills!
+1	Chat & Challenge
+1	View requester profile
+1	Find users by name...
+1	Friend request sent!
+1	Requests
+1	Challenges
+1	Choose the battlefield for your challenge.
+1	No quizzes found matching your search.
+1	Search quizzes...
+1	Slide Deck Source
+1	Custom Notes / JSON
+1	Beginner
+1	Intermediate
+1	Advanced
+1	Mixed
+1	Balanced Mix
+1	Code Debugging
+1	Concept Check
+1	Exam Rigor
+1	EN + Arabic
+1	Arabic
+1	Include short answer
+1	JSON
+1	Publish to Class
+1	Send Alert
+1	Choose slide deck source
+1	Paste presentation JSON, XML, or plain lesson notes...
+1	Optional settings
+1	Pedagogy mode
+1	Focus topic (optional)...
+1	Remove question
+1	Correct answer
+1	Expected answer...
+1	Explanation...
+1	Quiz Title...
+1	Passing %
+1	Time limit (min)
+1	Ask Coach: e.g. Who needs help right now and what should we review?
+1	Optional focus or duration...
+1	Quiz Generator
+1	Class Coach
+1	Lesson Guide
+1	Import Quiz into Stack
+1	Delete Stack?
+1	Describe the contents of this stack...
+1	No tracks available
+1	Practice Sample Board
+1	No Matching Modules
+1	No Slides Yet
+1	Launch Board
+1	Upload Another Slide Deck for This Module
+1	Choose track for teaching board
+1	Search modules or slide decks...
+1	No Classes Assigned Yet
+1	Open Interactive Board Practice
+1	Enter Class Studio
+1	Chat
+1	Open Class Sessions
+1	My Classes
+1	Students Enrolled
+1	Active Tracks
+1	Loading your classes...
+1	Loading classes...
+1	Shareable Invite Link
+1	Invite Registered Students
+1	Approve
+1	Decline
+1	Set Student
+1	Make Assistant
+1	Copy student join link
+1	Back to Command Center
+1	Select class
+1	Search classes by name, tag, or track...
+1	Refresh assigned classes
+1	Filter classes by name or tag...
+1	Generate a fresh invite code
+1	Filter enrolled members...
+1	Remove from class
+1	Teacher Command Center
+1	Assigned Classes
+1	Analytics & Student Logs
+1	AI Quiz & Lesson Studio
+1	Class Chat & Updates
+1	Communicate directly with your class and post timely reminders.
+1	Tracks & Quiz Library
+1	Student Logs
+1	AI Quiz Gen
+1	Class Sessions
+1	Verified Educator
+1	Decks
+1	Edit Teaching Bio
+1	Educator Studio Shortcuts
+1	Track Progress
+1	Upload / Manage JSON Decks
+1	Open Teaching Board
+1	Click to customize your avatar
+1	Instructor Headline
+1	Specialties (comma-separated)
+1	Short teaching bio
+1	Cancel bio edit
+1	Class Analytics
+1	Teaching Portfolio
+1	Account & Security
+1	Profile
+1	Close sidebar
+1	Back to previous page
+1	Messages & Chat Hub
+1	Open Teacher Menu
+1	Studio & Classes
+1	Teaching & Content
+1	Tracks & Quizzes
+1	Insights & AI
+1	No curriculum tracks available yet.
+1	Choose a Curriculum Track
+1	No exams found for this track.
+1	No session quizzes found for this track.
+1	No homework tasks found for this track.
+1	Filter sessions, exams, quizzes, homework...
+1	Modern Light
+1	Clean daylight aesthetic with vibrant indigo accents
+1	Cyber Dark
+1	Deep slate night palette with glowing indicators
+1	Playful pop palette with bold borders & hard shadows
+1	Select Interface Theme
+1	Green
+1	Blue
+1	Light Mode
+1	Dark Mode
+1	Play
+1	Complete previous chapters to unlock
+1	Learning Road
+1	Please select your track to begin
+1	Enroll & Unlock Track
+1	Re-Submit Access Request
+1	Send Access Request
+1	Request Pending Approval
+1	Locked Road
+1	Access Request Under Review
+1	Previous Request Declined
+1	Admin Feedback Note:
+1	Request Additional Track Access
+1	Re-Request Follow-Up Note (Required)
+1	Note to Administrator (Optional)
+1	Track Access Required
+1	Master Achievement
+1	Progress Summary
+1	Next Goal
+1	Incomplete
+1	Completing...
+1	Mark as Complete
+1	Odyssey Progress
+1	Previous Chapter
+1	Next Chapter
+1	Streak & Activity Tracking
+1	Claimed Today
+1	Claim Day Reward
+1	Checked in today
+1	Open Full Analytics Page
+1	Explore Badge Vault
+1	No Badges Found
+1	Equip
+1	Tournaments Joined
+1	Browse Arenas
+1	Loading tournament history...
+1	Full Activity History
+1	Export PDF Transcript
+1	Question Pools
+1	Passed (≥60%)
+1	Pool
+1	Certificate
+1	Time
+1	Visit Power-Up Shop
+1	Browse Shop Items
+1	Explore Quizzes
+1	My Profile
+1	Evaluate all recent progress and sync new badge unlocks
+1	Search badges or titles...
+1	Refresh joined tournaments
+1	Download Academic Transcript PDF
+1	Search quiz, score or date...
+1	View question-by-question breakdown
+1	View Attempt Details
+1	Previous Page
+1	Next Page
+1	Quiz Centurion
+1	Scholar Adept
+1	Grandmaster Tier
+1	Knowledge Vault
+1	Activity
+1	Backpack
+1	Theme
+1	Overview & Stats
+1	Badges & Trophies
+1	Activity & History
+1	Backpack & Loot
+1	Theme Switcher
+1	Account Settings
+1	Roadmaps
+1	Arena
+1	View Details
+1	Learning Steps
+1	Watch Video
+1	No learning steps needed for this module.
+1	Module Quizzes
+1	Close View
+1	Total Experience
+1	Daily Streak Rewards
+1	Live Arena
+1	Join Classroom Duel
+1	Enter host game PIN to duel live in real-time.
+1	Clan Invitation
+1	You have been invited to join
+1	View
+1	ACADEMY PATHWAYS
+1	Your Learning Roads
+1	Restricted Track
+1	REQUEST PENDING REVIEW
+1	Request Track Access
+1	Mastered
+1	Continue Curriculum
+1	No tracks in this view
+1	You have filtered out all current curriculums.
+1	Show All Tracks
+1	About this Road
+1	Completed Quizzes
+1	Total Questions
+1	Road Milestones
+1	View Roadmap
+1	Road Insights
+1	Start Pool
+1	No quizzes found for this road
+1	Start Exam Pool
+1	No exams available for this road
+1	No study cards
+1	Coming soon! Quick-review cards for this subject.
+1	Generate a fresh quote via AI
+1	Back to Learning Roads
+1	Search quizzes in this road...
+1	Pool Completed
+1	Host a Live Classroom Arena game for this quiz
+1	Exam Pool Completed
+1	Host a Live Classroom Arena game for this exam
+1	Attempts
+1	Default LTR
+1	Arenas
+1	Daily
+1	Shop
+1	Social
+1	Arenas & Cups
+1	Reward Shop
+1	Analytics & Stats
+1	Admin Console
+1	Platform Balanced (Default)
+1	Accept Duel
+1	Join Duel
+1	Open Homework
+1	View Invite
+1	Open Arena
+1	Performance Analytics
+1	Loading Challenge...
+1	Quiz data not available.
+1	Return to Home
+1	Loading badge tree...
+1	Total Badges
+1	Earned
+1	Badge Progression Tree
+1	Join Room
+1	Launch Live Quiz
+1	Enter 6-Digit PIN...
+1	Refresh Active Rooms
+1	Loading class invitation...
+1	Invite Unavailable
+1	You are already enrolled in this class!
+1	Open Class Dashboard
+1	Configuration Error
+1	Login Failed
+1	Failed to sign in with Google. Please try again.
+1	Login Error
+1	Return Home
+1	Explore Tracks
+1	Leaderboard
+1	Page Not Found
+1	Player Public Dossier
+1	Create Quiz
+1	Question Banks
+1	Click any card or checkbox to select for bulk edit / delete
+1	Back to Collections
+1	More Options
+1	Clear selection
+1	Preparing Questions...
+1	Quiz
+1	Study Mode
+1	Reference Teacher Solution
+1	Accepted Answer
+1	Ask students what this outputs or equals, then click "Reveal Answer".
+1	Loading Teacher Revision Studio...
+1	Teacher Revision Mode
+1	Answers Visible
+1	Ask Class First
+1	Slideshow
+1	Full Sheet
+1	Part:
+1	Print Key
+1	Space
+1	Hide Answer
+1	Reveal Answer & Explanation
+1	Teacher Explanation & Key Takeaway
+1	No written explanation attached to this question.
+1	Previous Question
+1	Show All Answers
+1	Hide All Answers
+1	Answers & explanations always visible for review
+1	Hide answers initially to let students answer before revealing
+1	Decrease Text Size
+1	Increase Text Size (for classroom projector)
+1	Refresh latest questions and answers from server
+1	Launch interactive student attempt preview
+1	Search questions or explanations...
+1	Loading Game Data...
