@@ -1,11 +1,19 @@
 import { registerSW } from 'virtual:pwa-register';
 
+export interface BeforeInstallPromptEvent extends Event {
+    prompt: () => Promise<void>;
+    userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+}
+
 export interface PwaUpdateState {
     needRefresh: boolean;
     offlineReady: boolean;
     checking: boolean;
     lastChecked: Date | null;
     registration: ServiceWorkerRegistration | null;
+    canInstall: boolean;
+    isInstalled: boolean;
+    isIOS: boolean;
 }
 
 type UpdateListener = (state: PwaUpdateState) => void;
@@ -13,12 +21,16 @@ type UpdateListener = (state: PwaUpdateState) => void;
 class PwaUpdater {
     private listeners: Set<UpdateListener> = new Set();
     private updateSWFunction: ((reloadPage?: boolean) => Promise<void>) | null = null;
+    private deferredInstallPrompt: BeforeInstallPromptEvent | null = null;
     private state: PwaUpdateState = {
         needRefresh: false,
         offlineReady: false,
         checking: false,
         lastChecked: null,
         registration: null,
+        canInstall: false,
+        isInstalled: false,
+        isIOS: false,
     };
     private periodicCheckInterval: number | null = null;
     private initialized = false;
@@ -26,6 +38,29 @@ class PwaUpdater {
     public init() {
         if (this.initialized || typeof window === 'undefined') return;
         this.initialized = true;
+
+        const isStandalone =
+            window.matchMedia('(display-mode: standalone)').matches ||
+            (window.navigator as unknown as { standalone?: boolean }).standalone === true;
+        const ua = window.navigator.userAgent.toLowerCase();
+        const isIOSDevice = /iphone|ipad|ipod/.test(ua) && !(window as unknown as { MSStream?: unknown }).MSStream;
+
+        this.setState({
+            isInstalled: isStandalone,
+            isIOS: isIOSDevice,
+            canInstall: isIOSDevice && !isStandalone,
+        });
+
+        window.addEventListener('beforeinstallprompt', (e: Event) => {
+            e.preventDefault();
+            this.deferredInstallPrompt = e as BeforeInstallPromptEvent;
+            this.setState({ canInstall: true });
+        });
+
+        window.addEventListener('appinstalled', () => {
+            this.deferredInstallPrompt = null;
+            this.setState({ canInstall: false, isInstalled: true });
+        });
 
         if ('serviceWorker' in navigator) {
             this.updateSWFunction = registerSW({
@@ -131,19 +166,56 @@ class PwaUpdater {
         });
     }
 
+    public async promptInstall(): Promise<'accepted' | 'dismissed' | 'ios' | 'unavailable'> {
+        if (this.state.isInstalled) return 'unavailable';
+        if (this.deferredInstallPrompt) {
+            await this.deferredInstallPrompt.prompt();
+            const { outcome } = await this.deferredInstallPrompt.userChoice;
+            if (outcome === 'accepted') {
+                this.deferredInstallPrompt = null;
+                this.setState({ canInstall: false, isInstalled: true });
+            }
+            return outcome;
+        }
+        if (this.state.isIOS) {
+            return 'ios';
+        }
+        return 'unavailable';
+    }
+
     public async checkForUpdates(): Promise<boolean> {
-        if (!this.state.registration || !navigator.onLine) {
+        if (!navigator.onLine) {
+            return false;
+        }
+
+        let reg = this.state.registration;
+        if (!reg && 'serviceWorker' in navigator) {
+            try {
+                reg = (await navigator.serviceWorker.getRegistration()) || null;
+                if (reg) this.setState({ registration: reg });
+            } catch {
+                // ignore
+            }
+        }
+
+        if (!reg) {
+            this.setState({ lastChecked: new Date() });
             return false;
         }
 
         try {
             this.setState({ checking: true });
-            await this.state.registration.update();
-            this.setState({ checking: false, lastChecked: new Date() });
-            return this.state.needRefresh;
+            await reg.update();
+            const hasWaiting = Boolean(reg.waiting);
+            this.setState({
+                checking: false,
+                lastChecked: new Date(),
+                needRefresh: this.state.needRefresh || hasWaiting,
+            });
+            return this.state.needRefresh || hasWaiting;
         } catch (err) {
             console.debug('[PWA] Background update check error:', err);
-            this.setState({ checking: false });
+            this.setState({ checking: false, lastChecked: new Date() });
             return false;
         }
     }

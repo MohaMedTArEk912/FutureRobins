@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Eye, EyeOff, Mail, User as UserIcon, Lock, Check, AlertCircle, Sliders, Globe } from 'lucide-react';
+import { X, Eye, EyeOff, Mail, User as UserIcon, Lock, Check, AlertCircle, Sliders, Globe, Download, RefreshCw, Smartphone } from 'lucide-react';
 import type { UserData } from '../types/index.ts';
 import { api } from '../lib/api.ts';
+import { pwaUpdater, type PwaUpdateState } from '../lib/pwaUpdater.ts';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useLanguage } from '../context/LanguageContext.tsx';
 import { useNavArrangement } from '../context/NavArrangementContext';
@@ -29,6 +30,34 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
     const [isLoading, setIsLoading] = useState(false);
     const [isSavingLang, setIsSavingLang] = useState(false);
     const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+    const [pwaState, setPwaState] = useState<PwaUpdateState>(() => pwaUpdater.getState());
+    const [updateCheckStatus, setUpdateCheckStatus] = useState<'idle' | 'up_to_date' | 'update_found' | 'offline'>('idle');
+    const [installHint, setInstallHint] = useState<'none' | 'ios' | 'browser_menu'>('none');
+
+    useEffect(() => {
+        pwaUpdater.init();
+        return pwaUpdater.subscribe(setPwaState);
+    }, []);
+
+    const handleDownloadApp = async () => {
+        setInstallHint('none');
+        const outcome = await pwaUpdater.promptInstall();
+        if (outcome === 'ios') {
+            setInstallHint('ios');
+        } else if (outcome === 'unavailable') {
+            setInstallHint('browser_menu');
+        }
+    };
+
+    const handleCheckUpdates = async () => {
+        if (!navigator.onLine) {
+            setUpdateCheckStatus('offline');
+            return;
+        }
+        setUpdateCheckStatus('idle');
+        const hasUpdate = await pwaUpdater.checkForUpdates();
+        setUpdateCheckStatus(hasUpdate ? 'update_found' : 'up_to_date');
+    };
 
     useEffect(() => {
         setName(user.name || '');
@@ -302,6 +331,122 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
         </div>
     );
 
+    const appAndUpdatesSection = (
+        <div className={`pt-5 space-y-3 border-t ${isBento ? 'border-black/20' : 'border-gray-200 dark:border-white/5'}`}>
+            <div className="flex items-center justify-between gap-2">
+                <h3 className={`text-sm font-black uppercase tracking-wider flex items-center gap-2 ${
+                    isBento ? 'text-black' : 'text-gray-500 dark:text-gray-400'
+                }`}>
+                    <Smartphone className={`w-4 h-4 ${isBento ? 'text-black' : 'text-indigo-600 dark:text-indigo-400'}`} />
+                    {tx('App & Updates', 'التطبيق والتحديثات')}
+                </h3>
+                {pwaState.isInstalled && (
+                    <span className={`text-[10px] font-black px-2 py-0.5 rounded-full uppercase ${
+                        isBento ? 'bg-[#bef264] text-black border border-black' : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-300'
+                    }`}>
+                        {tx('Installed', 'متثبت')}
+                    </span>
+                )}
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <button
+                    type="button"
+                    onClick={handleDownloadApp}
+                    disabled={pwaState.isInstalled}
+                    className={`btn-unstyled p-3 rounded-xl text-xs font-black flex items-center justify-center gap-2 transition cursor-pointer disabled:opacity-60 disabled:cursor-default ${
+                        pwaState.isInstalled
+                            ? isBento
+                                ? 'bg-slate-100 text-black border-2 border-black/40'
+                                : 'bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-white/10'
+                            : isBento
+                                ? 'bg-[#fde047] hover:bg-[#facc15] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm'
+                    }`}
+                >
+                    <Download className="w-4 h-4 shrink-0" />
+                    <span>
+                        {pwaState.isInstalled
+                            ? tx('App Installed', 'التطبيق متثبت')
+                            : tx('Download App', 'تنزيل التطبيق')}
+                    </span>
+                </button>
+
+                {pwaState.needRefresh ? (
+                    <button
+                        type="button"
+                        onClick={() => void pwaUpdater.updateApp()}
+                        className={`btn-unstyled p-3 rounded-xl text-xs font-black flex items-center justify-center gap-2 transition cursor-pointer ${
+                            isBento
+                                ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm'
+                        }`}
+                    >
+                        <RefreshCw className="w-4 h-4 shrink-0" />
+                        <span>{tx('Install Update & Reload', 'تثبيت التحديث وإعادة التشغيل')}</span>
+                    </button>
+                ) : (
+                    <button
+                        type="button"
+                        onClick={handleCheckUpdates}
+                        disabled={pwaState.checking}
+                        className={`btn-unstyled p-3 rounded-xl text-xs font-black flex items-center justify-center gap-2 transition cursor-pointer disabled:opacity-60 ${
+                            isBento
+                                ? 'bg-white hover:bg-[#fef9c3] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                : 'bg-white dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-white/10'
+                        }`}
+                    >
+                        <RefreshCw className={`w-4 h-4 shrink-0 ${pwaState.checking ? 'animate-spin' : ''}`} />
+                        <span>
+                            {pwaState.checking
+                                ? tx('Checking...', 'بيدور على تحديث...')
+                                : tx('Check for Updates', 'فحص التحديثات')}
+                        </span>
+                    </button>
+                )}
+            </div>
+
+            {updateCheckStatus !== 'idle' && (
+                <div className={`px-3 py-2 rounded-xl text-[11px] font-bold flex items-center justify-between gap-2 ${
+                    updateCheckStatus === 'update_found'
+                        ? isBento ? 'bg-[#bef264] text-black border border-black' : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-300'
+                        : updateCheckStatus === 'offline'
+                            ? isBento ? 'bg-[#fecdd3] text-black border border-black' : 'bg-rose-500/15 text-rose-600 dark:text-rose-300'
+                            : isBento ? 'bg-white text-black border border-black/30' : 'bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300'
+                }`}>
+                    <span>
+                        {updateCheckStatus === 'update_found'
+                            ? tx('A new version is ready! Click "Install Update & Reload" above.', 'في نسخة جديدة جاهزة! اضغط "تثبيت التحديث" فوق.')
+                            : updateCheckStatus === 'offline'
+                                ? tx('You are offline. Connect to the internet to check for updates.', 'أنت غير متصل بالإنترنت. اتصل بالنت لفحص التحديثات.')
+                                : tx('You are on the latest version.', 'أنت على أحدث إصدار.')}
+                    </span>
+                    {pwaState.lastChecked && (
+                        <span className="text-[10px] opacity-70 shrink-0 font-mono">
+                            {pwaState.lastChecked.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                    )}
+                </div>
+            )}
+
+            {installHint !== 'none' && (
+                <div className={`px-3 py-2 rounded-xl text-[11px] font-semibold ${
+                    isBento ? 'bg-[#fef9c3] text-black border border-black' : 'bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20'
+                }`}>
+                    {installHint === 'ios'
+                        ? tx(
+                            'On iPhone/iPad: tap the Share button in Safari, then choose "Add to Home Screen".',
+                            'على iPhone/iPad: اضغط زرار المشاركة في Safari وبعدين اختار "إضافة إلى الشاشة الرئيسية".'
+                        )
+                        : tx(
+                            'If the prompt did not appear, open your browser menu (⋮) and choose "Install App" or "Add to Home Screen".',
+                            'لو نافذة التثبيت مظهرتش، افتح قائمة المتصفح (⋮) واختار "تثبيت التطبيق" أو "إضافة للشاشة الرئيسية".'
+                        )}
+                </div>
+            )}
+        </div>
+    );
+
     const navCustomizationSection = user.role !== 'teacher' && (
         <div className={`pt-5 space-y-3 border-t ${isBento ? 'border-black/20' : 'border-gray-200 dark:border-white/5'}`}>
             <div className="flex items-center justify-between">
@@ -509,6 +654,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
                         }`}>
                             {profileInfoSection}
                             {languageSection}
+                            {appAndUpdatesSection}
                             {navCustomizationSection}
                         </div>
 
@@ -575,6 +721,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
                     <div className="space-y-6">
                         {profileInfoSection}
                         {languageSection}
+                        {appAndUpdatesSection}
                         {navCustomizationSection}
                         <div className={`pt-6 border-t ${isBento ? 'border-black' : 'border-gray-200 dark:border-white/5'}`}>
                             {securitySection}

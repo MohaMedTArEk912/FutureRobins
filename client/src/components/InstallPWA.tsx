@@ -2,11 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Download, X, Share, PlusSquare, Sparkles } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
-
-interface BeforeInstallPromptEvent extends Event {
-    prompt: () => Promise<void>;
-    userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
-}
+import { pwaUpdater } from '../lib/pwaUpdater';
 
 const InstallPWA: React.FC = () => {
     const { isBento } = useTheme();
@@ -16,63 +12,22 @@ const InstallPWA: React.FC = () => {
         return typeof sessionStorage !== 'undefined' && sessionStorage.getItem('pwa_prompt_dismissed') === 'true';
     });
 
-    const [isIOS] = useState(() => {
-        if (typeof window === 'undefined') return false;
-        const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
-            (window.navigator as unknown as { standalone?: boolean }).standalone === true;
-        const userAgent = window.navigator.userAgent.toLowerCase();
-        const isIOSDevice = /iphone|ipad|ipod/.test(userAgent) && !(window as unknown as { MSStream?: unknown }).MSStream;
-        return isIOSDevice && !isStandalone;
-    });
-
-    const [supportsPWA, setSupportsPWA] = useState(() => {
-        if (typeof window === 'undefined') return false;
-        const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
-            (window.navigator as unknown as { standalone?: boolean }).standalone === true;
-        const userAgent = window.navigator.userAgent.toLowerCase();
-        const isIOSDevice = /iphone|ipad|ipod/.test(userAgent) && !(window as unknown as { MSStream?: unknown }).MSStream;
-        return isIOSDevice && !isStandalone;
-    });
-
-    const [promptInstall, setPromptInstall] = useState<BeforeInstallPromptEvent | null>(null);
+    const [pwaState, setPwaState] = useState(() => pwaUpdater.getState());
     const [showIOSModal, setShowIOSModal] = useState(false);
 
     useEffect(() => {
-        // Standard beforeinstallprompt for Chromium & Android
-        const handler = (e: Event) => {
-            e.preventDefault();
-            setSupportsPWA(true);
-            setPromptInstall(e as BeforeInstallPromptEvent);
-        };
-
-        window.addEventListener('beforeinstallprompt', handler);
-
-        // App installed handler
-        const handleAppInstalled = () => {
-            setSupportsPWA(false);
-            setPromptInstall(null);
-        };
-        window.addEventListener('appinstalled', handleAppInstalled);
-
-        return () => {
-            window.removeEventListener('beforeinstallprompt', handler);
-            window.removeEventListener('appinstalled', handleAppInstalled);
-        };
+        pwaUpdater.init();
+        return pwaUpdater.subscribe(setPwaState);
     }, []);
+
+    const isIOS = pwaState.isIOS;
+    const supportsPWA = pwaState.canInstall && !pwaState.isInstalled;
 
     const handleInstallClick = async (evt: React.MouseEvent) => {
         evt.preventDefault();
-        if (isIOS) {
+        const outcome = await pwaUpdater.promptInstall();
+        if (outcome === 'ios') {
             setShowIOSModal(true);
-            return;
-        }
-
-        if (!promptInstall) return;
-
-        await promptInstall.prompt();
-        const { outcome } = await promptInstall.userChoice;
-        if (outcome === 'accepted') {
-            setSupportsPWA(false);
         }
     };
 
