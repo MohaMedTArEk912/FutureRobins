@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback, Suspense } from 'react';
-import { Clock, CheckCircle, XCircle, Target, Zap, Shield, Lightbulb, ArrowLeft, ShoppingBag, Coins, Keyboard, WifiOff, Globe, List, Flag, Sparkles, RotateCcw, RefreshCw, AlertCircle, Plus } from 'lucide-react';
+import { Clock, CheckCircle, XCircle, Target, Zap, Shield, Lightbulb, ArrowLeft, ShoppingBag, Coins, Keyboard, WifiOff, Globe, List, Flag, Sparkles, RotateCcw, RefreshCw, AlertCircle, Plus, Link2, ListOrdered, Code, Type } from 'lucide-react';
 import type { Quiz, Question, UserData, QuizResult, AttemptAnswers, PoolProgressData, IntegrityTelemetry, IntegrityTelemetryEvent } from '../types';
 import { api } from '../lib/api';
 import { AmbientBackground } from './AmbientBackground';
@@ -15,6 +15,7 @@ import { generateShuffledIndices as buildShuffledIndices } from '../utils/shuffl
 import CodeOutputQuestion from './question-types/CodeOutputQuestion';
 import TextQuestion from './question-types/TextQuestion';
 import { useTheme } from '../context/ThemeContext';
+import { useLanguage } from '../context/LanguageContext';
 import { evaluateTextAnswer } from '../lib/stringSimilarity';
 
 const CompilerQuestion = React.lazy(() => import('./question-types/CompilerQuestion'));
@@ -80,6 +81,7 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
     poolProgress
 }) => {
     const { theme, isBento } = useTheme();
+    const { tx } = useLanguage();
 
     const getQuestionTypeLabel = useCallback((qObj: Question) => {
         if (qObj.isCompiler) return 'Coding';
@@ -101,6 +103,7 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
     const [localCoins, setLocalCoins] = useState(user.coins || 0);
     const [localPowerUps, setLocalPowerUps] = useState(powerUps || []);
     const [hiddenOptions, setHiddenOptions] = useState<Record<number, number[]>>({}); // actualIndex -> [originalOptionsToHide]
+    const [revealedPowerUpClues, setRevealedPowerUpClues] = useState<Record<number, { type: string; title: string; text: string; code?: string }[]>>({});
     const [activePowerUpAnimation, setActivePowerUpAnimation] = useState<string | null>(null);
 
     // --- TRANSLATION STATES ---
@@ -1313,6 +1316,85 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
             const toHide = wrongIndices.slice(0, Math.min(2, wrongIndices.length));
             setHiddenOptions(prev => ({ ...prev, [actualIdx]: [...(prev[actualIdx] || []), ...toHide] }));
         }
+        else if (type === 'auto_pair' && q && q.type === 'matching' && q.matchingPairs?.length) {
+            const currentMatches = (answers[actualIdx] && typeof answers[actualIdx] === 'object' && !Array.isArray(answers[actualIdx]))
+                ? (answers[actualIdx] as Record<string, string>)
+                : {};
+            const existingCount = (revealedPowerUpClues[actualIdx] || []).filter(c => c.type === 'auto_pair').length;
+            const unrevealedPair = q.matchingPairs.find(p => currentMatches[p.left] !== p.right) || q.matchingPairs[existingCount % q.matchingPairs.length];
+            if (unrevealedPair) {
+                setRevealedPowerUpClues(prev => ({
+                    ...prev,
+                    [actualIdx]: [
+                        ...(prev[actualIdx] || []),
+                        {
+                            type: 'auto_pair',
+                            title: tx('Auto-Match Pair', 'توصيلة مضمونة'),
+                            text: `${unrevealedPair.left}  ⟶  ${unrevealedPair.right}`
+                        }
+                    ]
+                }));
+            }
+        }
+        else if (type === 'lock_step' && q && q.type === 'ordering') {
+            const expectedOrder = q.orderingItems || q.options || [];
+            const usedCount = (revealedPowerUpClues[actualIdx] || []).filter(c => c.type === 'lock_step').length;
+            const stepIdx = Math.min(usedCount, Math.max(0, expectedOrder.length - 1));
+            if (expectedOrder[stepIdx]) {
+                setRevealedPowerUpClues(prev => ({
+                    ...prev,
+                    [actualIdx]: [
+                        ...(prev[actualIdx] || []),
+                        {
+                            type: 'lock_step',
+                            title: tx(`Order Anchor (#${stepIdx + 1})`, `ترتيب مؤكد (#${stepIdx + 1})`),
+                            text: tx(`Position ${stepIdx + 1}: "${expectedOrder[stepIdx]}"`, `الخطوة رقم ${stepIdx + 1}: "${expectedOrder[stepIdx]}"`)
+                        }
+                    ]
+                }));
+            }
+        }
+        else if (type === 'letter_reveal' && q) {
+            if (q.type === 'code-output' && q.options && q.options.length > 2 && typeof q.correctAnswer === 'number') {
+                const wrongIndices = q.options.map((_, i) => i).filter(i => i !== q.correctAnswer);
+                const toHide = wrongIndices.slice(0, Math.min(2, wrongIndices.length));
+                setHiddenOptions(prev => ({ ...prev, [actualIdx]: [...(prev[actualIdx] || []), ...toHide] }));
+            } else {
+                const ansStr = String(q.correctAnswer ?? '').trim();
+                const previewLen = Math.min(2, Math.max(1, Math.floor(ansStr.length / 3)));
+                const masked = ansStr
+                    ? `${ansStr.slice(0, previewLen)}${' _'.repeat(Math.max(0, Math.min(10, ansStr.length - previewLen)))} (${ansStr.length} ${tx('chars', 'حرف')})`
+                    : tx('Check the question carefully!', 'راجع السؤال كويس!');
+                setRevealedPowerUpClues(prev => ({
+                    ...prev,
+                    [actualIdx]: [
+                        ...(prev[actualIdx] || []),
+                        {
+                            type: 'letter_reveal',
+                            title: tx('Answer Clue', 'تلميح الإجابة'),
+                            text: masked
+                        }
+                    ]
+                }));
+            }
+        }
+        else if (type === 'code_hint' && q) {
+            const refCode = q.compilerConfig?.referenceCode || q.explanation || '';
+            const lines = refCode.split('\n').filter(Boolean);
+            const snippet = lines.slice(0, Math.max(2, Math.ceil(lines.length * 0.45))).join('\n');
+            setRevealedPowerUpClues(prev => ({
+                ...prev,
+                [actualIdx]: [
+                    ...(prev[actualIdx] || []),
+                    {
+                        type: 'code_hint',
+                        title: tx('Starter Code Snippet', 'كود مساعد للبداية'),
+                        text: snippet ? '' : (q.explanation || tx('Break the problem into small steps.', 'قسّم المسألة لخطوات صغيرة.')),
+                        code: snippet || undefined
+                    }
+                ]
+            }));
+        }
         else if (type === 'time') {
             setTimeLeft(prev => countUpTimer ? prev : prev + 30); // Add 30s to countdown
         }
@@ -1342,7 +1424,7 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
             // Auto-advance
             setTimeout(() => nextQuestion(), 600);
         }
-    }, [getActualQuestionIndex, quiz.questions, countUpTimer, handleAnswer, nextQuestion]);
+    }, [getActualQuestionIndex, quiz.questions, countUpTimer, handleAnswer, nextQuestion, answers, revealedPowerUpClues, tx]);
 
 
     const handleUseOwnedItem = (type: string) => {
@@ -1464,6 +1546,10 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
             case 'time': return <Clock className={sizeClass} />;
             case 'skip': return <Target className={sizeClass} />;
             case 'shield': return <Shield className={sizeClass} />;
+            case 'auto_pair': return <Link2 className={sizeClass} />;
+            case 'lock_step': return <ListOrdered className={sizeClass} />;
+            case 'letter_reveal': return <Type className={sizeClass} />;
+            case 'code_hint': return <Code className={sizeClass} />;
             default: return <Zap className={sizeClass} />;
         }
     };
@@ -1474,9 +1560,48 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
             case 'time': return 'from-blue-500 to-cyan-500';
             case 'skip': return 'from-purple-500 to-pink-500';
             case 'shield': return 'from-green-500 to-emerald-500';
+            case 'auto_pair': return 'from-teal-500 to-emerald-500';
+            case 'lock_step': return 'from-violet-500 to-indigo-500';
+            case 'letter_reveal': return 'from-amber-500 to-orange-500';
+            case 'code_hint': return 'from-sky-500 to-indigo-500';
             default: return 'from-indigo-500 to-purple-500';
         }
     };
+
+    const currentQuestionType: 'compiler' | 'ordering' | 'matching' | 'code-output' | 'text' | 'multiple-choice' =
+        q.isCompiler || q.type === 'compiler'
+            ? 'compiler'
+            : q.type === 'ordering'
+                ? 'ordering'
+                : q.type === 'matching'
+                    ? 'matching'
+                    : q.type === 'code-output'
+                        ? 'code-output'
+                        : q.type === 'text'
+                            ? 'text'
+                            : 'multiple-choice';
+
+    const isPowerUpRelevantForType = (powerUpType: string, qType: typeof currentQuestionType) => {
+        if (powerUpType === 'skip') return true;
+        if (powerUpType === 'time') return !countUpTimer && !isUnlimitedTime;
+        if (powerUpType === 'hint') return qType === 'multiple-choice' && Boolean(q.options && q.options.length > 2);
+        if (powerUpType === 'auto_pair') return qType === 'matching';
+        if (powerUpType === 'lock_step') return qType === 'ordering';
+        if (powerUpType === 'letter_reveal') return qType === 'text' || qType === 'code-output';
+        if (powerUpType === 'code_hint') return qType === 'compiler';
+        return false;
+    };
+
+    const currentQuestionTypeLabel = (() => {
+        switch (currentQuestionType) {
+            case 'matching': return tx('Matching', 'توصيل');
+            case 'ordering': return tx('Ordering', 'ترتيب');
+            case 'text': return tx('Short Answer', 'إجابة نصية');
+            case 'code-output': return tx('Code Output', 'مخرجات الكود');
+            case 'compiler': return tx('Code Compiler', 'كتابة كود');
+            default: return tx('Multiple Choice', 'اختيار من متعدد');
+        }
+    })();
 
     return (
         <div className={`w-full transition-colors flex flex-col font-sans relative ${embedded
@@ -1651,7 +1776,7 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                                 }`}
                             >
                                 <ShoppingBag className="w-4 h-4" />
-                                <span className="hidden sm:inline">Store</span>
+                                <span className="hidden sm:inline">{tx('Store', 'المتجر')}</span>
                             </button>
                         )}
                         
@@ -1696,7 +1821,7 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                         {/* Progress Header */}
                         <div className="relative flex items-center justify-between p-4 px-4 sm:px-6 lg:px-7 pb-2">
                             <div className="flex items-center gap-2">
-                                <span className={`text-[10px] sm:text-xs font-semibold uppercase tracking-wider ${isBento ? 'text-slate-600 dark:text-slate-300 font-black' : 'text-slate-400'}`}>Question</span>
+                                <span className={`text-[10px] sm:text-xs font-semibold uppercase tracking-wider ${isBento ? 'text-slate-600 dark:text-slate-300 font-black' : 'text-slate-400'}`}>{tx('Question', 'سؤال')}</span>
                                 <span className="font-tabular text-sm sm:text-base font-extrabold text-slate-900 dark:text-white">{currentQuestion + 1} / {quiz.questions.length}</span>
                             </div>
                             <div className="flex items-center gap-1.5 sm:gap-2">
@@ -2279,6 +2404,31 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                         aria-label={`Options for Question ${currentQuestion + 1}`}
                         className="flex-1 w-full p-4 sm:p-6 lg:p-7 pt-4 sm:pt-6 landscape:pt-4 lg:landscape:pt-6 pb-6 landscape:pb-8 lg:landscape:pb-8 flex flex-col justify-start gap-3 sm:gap-3.5 no-scrollbar"
                     >
+                        {(revealedPowerUpClues[actualIndex] || []).length > 0 && (
+                            <div className="space-y-2">
+                                {(revealedPowerUpClues[actualIndex] || []).map((clue, cIdx) => (
+                                    <div
+                                        key={`${clue.type}-${cIdx}`}
+                                        className={`p-3 rounded-2xl text-xs animate-in fade-in slide-in-from-top-2 duration-200 ${
+                                            isBento
+                                                ? 'bg-[#fef9c3] text-black border-2 border-black shadow-[3px_3px_0px_#000]'
+                                                : 'bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200'
+                                        }`}
+                                    >
+                                        <div className="flex items-center gap-1.5 font-black uppercase tracking-wider text-[10px] mb-1">
+                                            {getPowerUpIcon(clue.type, 'w-3.5 h-3.5')}
+                                            <span>{clue.title}</span>
+                                        </div>
+                                        {clue.text && <div className="font-bold leading-snug">{clue.text}</div>}
+                                        {clue.code && (
+                                            <pre className="mt-1.5 p-2.5 rounded-xl bg-slate-900 text-lime-300 font-mono text-[11px] overflow-x-auto">
+                                                <code>{clue.code}</code>
+                                            </pre>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                         {q.isCompiler ? (
                             <Suspense fallback={<div className="animate-spin w-8 h-8 border-4 border-indigo-500 rounded-full border-t-transparent mx-auto"></div>}>
                                 <div className={`h-[400px] rounded-2xl overflow-hidden ${
@@ -2556,7 +2706,7 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                         }`}
                     >
                         <span>←</span>
-                        <span>Previous</span>
+                        <span>{tx('Previous', 'السابق')}</span>
                     </button>
 
                     {/* Quiz Mode: Optional quick re-submit button if already submitted */}
@@ -2589,7 +2739,7 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                                     : 'bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white shadow-lg shadow-indigo-600/25 active:scale-[0.985]'
                             }`}
                         >
-                            <span>{hasChangedFromSubmitted ? 'Re-submit Answer' : 'Submit Answer'}</span>
+                            <span>{hasChangedFromSubmitted ? tx('Re-submit Answer', 'إرسال التعديل') : tx('Submit Answer', 'تسليم الإجابة')}</span>
                             <CheckCircle className="w-4 h-4" />
                         </button>
                     )}
@@ -2607,7 +2757,7 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                                         : 'bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white shadow-lg shadow-indigo-600/25 active:scale-[0.985]'
                                 }`}
                             >
-                                <span>Next Question</span>
+                                <span>{tx('Next Question', 'السؤال الجاي')}</span>
                                 <span>→</span>
                             </button>
 
@@ -2623,7 +2773,7 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                                             : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/25 active:scale-[0.985]'
                                     }`}
                                 >
-                                    <span>Finish Quiz</span>
+                                    <span>{tx('Finish Quiz', 'إنهاء الكويز')}</span>
                                     <Target className="w-4 h-4" />
                                 </button>
                             )}
@@ -2645,10 +2795,10 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                         >
                             <span>
                                 {isSubmitting
-                                    ? 'Submitting...'
+                                    ? tx('Submitting...', 'جاري التسليم...')
                                     : allQuestionsSubmitted
-                                        ? 'Finish Quiz'
-                                        : `Finish Quiz (${unsubmittedQuestionsList.length} left)`}
+                                        ? tx('Finish Quiz', 'إنهاء الكويز')
+                                        : tx(`Finish Quiz (${unsubmittedQuestionsList.length} left)`, `إنهاء الكويز (${unsubmittedQuestionsList.length} متبقي)`)}
                             </span>
                             <Target className="w-4 h-4" />
                         </button>
@@ -2711,19 +2861,21 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                             </div>
                         </div>
 
-                        {/* Owned Inventory Quick Access inside Store */}
-                        {localPowerUps.some(p => p.quantity > 0) && (
+                        {/* Owned Inventory Quick Access inside Store (Filtered by Question Type) */}
+                        {localPowerUps.some(p => p.quantity > 0 && isPowerUpRelevantForType(p.type, currentQuestionType)) && (
                             <div className={`px-6 pb-4 border-b ${isBento ? 'border-black' : 'border-gray-100 dark:border-gray-800'}`}>
-                                <div className={`text-xs font-black uppercase tracking-wider mb-2 text-left ${isBento ? 'text-black' : 'text-gray-400 dark:text-gray-500'}`}>Your Inventory</div>
+                                <div className={`text-xs font-black uppercase tracking-wider mb-2 text-start ${isBento ? 'text-black' : 'text-gray-400 dark:text-gray-500'}`}>
+                                    {tx('Your Inventory', 'أدواتك الجاهزة')}
+                                </div>
                                 <div className="flex gap-2 flex-wrap justify-start">
-                                    {localPowerUps.map(p => p.quantity > 0 && (
+                                    {localPowerUps.map(p => p.quantity > 0 && isPowerUpRelevantForType(p.type, currentQuestionType) && (
                                         <button
                                             key={p.type}
                                             onClick={() => {
                                                 handleUseOwnedItem(p.type);
                                                 setShowShop(false);
                                             }}
-                                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-black text-xs transition-all ${
+                                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-black text-xs transition-all cursor-pointer ${
                                                 isBento
                                                     ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000] active:translate-x-0.5 active:translate-y-0.5'
                                                     : `bg-gradient-to-r ${getPowerUpColor(p.type)} text-white font-extrabold shadow-md hover:scale-105`
@@ -2731,7 +2883,7 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                                             title={`Use ${p.type}`}
                                         >
                                             {getPowerUpIcon(p.type, "w-3.5 h-3.5")}
-                                            <span className="capitalize">{p.type}</span>
+                                            <span className="capitalize">{p.type.replace('_', ' ')}</span>
                                             <span className={`px-1.5 py-0.5 rounded-md text-[10px] ${isBento ? 'bg-black text-white font-black' : 'bg-white/20'}`}>{p.quantity}</span>
                                         </button>
                                     ))}
@@ -2739,21 +2891,32 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                             </div>
                         )}
 
-                        {/* Shop Items List */}
-                        <div className={`flex-1 overflow-y-auto p-6 pt-2 flex flex-col gap-4 ${isBento ? 'bg-white' : 'bg-white dark:bg-transparent'}`}>
+                        {/* Shop Items List (Filtered by Current Question Type) */}
+                        <div className={`flex-1 overflow-y-auto p-6 pt-3 flex flex-col gap-3.5 ${isBento ? 'bg-white' : 'bg-white dark:bg-transparent'}`}>
+                            <div className="flex items-center justify-between gap-2">
+                                <span className={`text-[11px] font-black uppercase tracking-wider ${isBento ? 'text-black/70' : 'text-slate-500 dark:text-slate-400'}`}>
+                                    {tx('Items for this question type:', 'أدوات مناسبة لنوع السؤال ده:')}
+                                </span>
+                                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase ${
+                                    isBento ? 'bg-[#bae6fd] text-black border border-black' : 'bg-indigo-500/15 text-indigo-600 dark:text-indigo-300'
+                                }`}>
+                                    {currentQuestionTypeLabel}
+                                </span>
+                            </div>
                             {[
-                                { type: 'hint', name: '50/50 Hint', desc: 'Disables two wrong answers to boost your chances.', price: 75, icon: 'hint' },
-                                { type: 'skip', name: 'Skip Pass', desc: 'Automatically marks current question correct and advances.', price: 150, icon: 'skip' },
-                                { type: 'time', name: 'Time Boost', desc: 'Add 30 extra seconds to the clock!', price: 100, icon: 'time' }
-                            ].map(item => {
+                                { type: 'hint', apiId: 'smart-hint', name: tx('50/50 Hint', 'حذف إجابتين (50/50)'), desc: tx('Disables two wrong answers to boost your chances.', 'بيشيل إجابتين غلط عشان يسهل الاختيار.'), price: 75, icon: 'hint' },
+                                { type: 'auto_pair', apiId: 'auto-pair', name: tx('Auto-Match Pair', 'توصيلة مضمونة'), desc: tx('Reveals one guaranteed correct pair for this Matching question.', 'بيكشفلك توصيلة صح مضمونة في سؤال التوصيل.'), price: 80, icon: 'auto_pair' },
+                                { type: 'lock_step', apiId: 'order-lock', name: tx('Order Anchor', 'تثبيت خطوة'), desc: tx('Reveals the exact position of the next step in this Ordering question.', 'بيقولك مكان الخطوة الصح في سؤال الترتيب.'), price: 80, icon: 'lock_step' },
+                                { type: 'letter_reveal', apiId: 'letter-reveal', name: tx('Answer Clue', 'تلميح الإجابة'), desc: tx('Reveals starting characters and length for Text / Code Output.', 'بيظهرلك أول حروف وطول الإجابة الصح.'), price: 65, icon: 'letter_reveal' },
+                                { type: 'code_hint', apiId: 'code-hint', name: tx('Starter Snippet', 'كود مساعد للبداية'), desc: tx('Reveals a helpful starter snippet for this Compiler challenge.', 'بيظهرلك جزء من الكود كبداية للمسألة.'), price: 90, icon: 'code_hint' },
+                                { type: 'skip', apiId: 'skip-question', name: tx('Skip Pass', 'تخطي السؤال'), desc: tx('Automatically marks current question correct and advances.', 'بيعدي السؤال ده ويحسبه صح تلقائياً.'), price: 150, icon: 'skip' },
+                                { type: 'time', apiId: 'time-freeze', name: tx('Time Boost', 'وقت إضافي (+30 ث)'), desc: tx('Add 30 extra seconds to the clock!', 'بيزود 30 ثانية زيادة على المؤقت!'), price: 100, icon: 'time' }
+                            ]
+                                .filter(item => isPowerUpRelevantForType(item.type, currentQuestionType))
+                                .map(item => {
                                 const ownedQuantity = localPowerUps.find(p => p.type === item.type)?.quantity || 0;
                                 const canAfford = localCoins >= item.price;
-                                const actualItemIdMap: Record<string, string> = { 
-                                    hint: 'smart-hint', 
-                                    skip: 'skip-question', 
-                                    time: 'time-freeze' 
-                                };
-                                const apiId = actualItemIdMap[item.type];
+                                const apiId = item.apiId;
 
                                 return (
                                     <div key={item.type} className={`flex flex-row items-center gap-4 p-4 rounded-2xl relative overflow-hidden transition-all ${

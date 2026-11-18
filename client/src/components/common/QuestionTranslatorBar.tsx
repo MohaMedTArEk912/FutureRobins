@@ -13,6 +13,7 @@ import {
 } from '../../lib/translationService';
 import { LanguageSelectModal } from './LanguageSelectModal';
 import { useTheme } from '../../context/ThemeContext';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface QuestionTranslatorBarProps {
     currentLanguage: string;
@@ -36,6 +37,7 @@ export const QuestionTranslatorBar: React.FC<QuestionTranslatorBarProps> = ({
     className = ''
 }) => {
     const { isBento } = useTheme();
+    const { tx } = useLanguage();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const selectedLangInfo = getLanguageByCode(currentLanguage);
 
@@ -73,7 +75,7 @@ export const QuestionTranslatorBar: React.FC<QuestionTranslatorBarProps> = ({
                     <span className="truncate max-w-[100px] sm:max-w-[140px]">
                         {currentLanguage && currentLanguage !== 'original'
                             ? `${selectedLangInfo.flag} ${selectedLangInfo.nativeName}`
-                            : 'Translate'}
+                            : tx('Translate', 'ترجم')}
                     </span>
 
                     <ChevronDown className="w-3 h-3 opacity-70" />

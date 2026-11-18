@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import type { UserData, ShopItem } from '../../types';
 import { api } from '../../lib/api';
 import { useTheme } from '../../context/ThemeContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { ShoppingBag, Coins, Zap, Clock, Target, CheckCircle2, AlertCircle, Sparkles, TrendingUp, Shield } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SHOP_ITEM_GRADIENTS, DEFAULT_SHOP_LOADING_MESSAGE, PURCHASE_SUCCESS_MESSAGE } from '../../constants/shopDefaults';
@@ -13,6 +14,7 @@ interface ShopProps {
 
 const Shop: React.FC<ShopProps> = ({ user, onUserUpdate }) => {
   const { isBento } = useTheme();
+  const { tx } = useLanguage();
   const [items, setItems] = useState<ShopItem[]>([]);
   const [activeTab, setActiveTab] = useState<'powerups' | 'style'>('powerups');
   const [loading, setLoading] = useState(true);
@@ -159,14 +161,14 @@ const Shop: React.FC<ShopProps> = ({ user, onUserUpdate }) => {
               <div>
                 <p className={`text-xs uppercase tracking-wider mb-0.5 ${
                   isBento ? 'text-black/80 font-black' : 'text-slate-500 dark:text-slate-400 font-semibold'
-                }`}>Your Treasury</p>
+                }`}>{tx('Your Treasury', 'خزنتك')}</p>
                 <div className="flex items-baseline gap-2">
                   <span className={`font-tabular text-3xl sm:text-4xl font-black ${
                     isBento ? 'text-black' : 'text-slate-900 dark:text-white'
                   }`}>{(user.coins || 0).toLocaleString()}</span>
                   <span className={`text-xs uppercase tracking-wider font-black ${
                     isBento ? 'text-black/70' : 'text-amber-500 font-bold'
-                  }`}>Coins</span>
+                  }`}>{tx('Coins', 'عملة')}</span>
                 </div>
               </div>
             </div>
@@ -175,7 +177,7 @@ const Shop: React.FC<ShopProps> = ({ user, onUserUpdate }) => {
                 ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
                 : 'glass-card border border-slate-200/80 dark:border-white/10 text-slate-600 dark:text-slate-300 font-semibold'
             }`}>
-              ✨ Earn rewards by completing daily quizzes & skill modules
+              ✨ {tx('Earn rewards by completing daily quizzes & skill modules', 'اكسب عملات لما تخلص الكويزات والتحديات اليومية')}
             </div>
           </div>
         </div>
@@ -211,7 +213,7 @@ const Shop: React.FC<ShopProps> = ({ user, onUserUpdate }) => {
             isBento ? 'text-black uppercase' : 'text-slate-900 dark:text-white font-extrabold'
           }`}>
             <ShoppingBag className={`w-6 h-6 ${isBento ? 'text-black' : 'text-indigo-500'}`} />
-            {activeTab === 'powerups' ? 'Power-Ups & Boosters' : 'Style & Cosmetics'}
+            {activeTab === 'powerups' ? tx('Power-Ups & Boosters', 'القدرات والمساعدات') : tx('Style & Cosmetics', 'الأشكال والإكسسوارات')}
           </h2>
 
           {/* Segmented Tabs */}
@@ -232,7 +234,7 @@ const Shop: React.FC<ShopProps> = ({ user, onUserUpdate }) => {
                     : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'
               }`}
             >
-              Power-Ups
+              {tx('Power-Ups', 'المساعدات')}
             </button>
             <button
               onClick={() => setActiveTab('style')}
@@ -246,7 +248,7 @@ const Shop: React.FC<ShopProps> = ({ user, onUserUpdate }) => {
                     : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'
               }`}
             >
-              Style Shop
+              {tx('Style Shop', 'متجر الأشكال')}
             </button>
           </div>
         </div>

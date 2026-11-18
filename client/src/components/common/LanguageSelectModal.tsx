@@ -1,5 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { X, Search, Globe, Check, Sparkles, Languages } from 'lucide-react';
+import { useTheme } from '../../context/ThemeContext';
+import { useLanguage } from '../../context/LanguageContext';
 import {
     ALL_SUPPORTED_LANGUAGES,
     POPULAR_LANGUAGES
@@ -17,6 +19,8 @@ const LanguageSelectModalContent: React.FC<Omit<LanguageSelectModalProps, 'isOpe
     currentLanguage,
     onSelectLanguage
 }) => {
+    const { isBento } = useTheme();
+    const { tx } = useLanguage();
     const [searchQuery, setSearchQuery] = useState('');
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -43,25 +47,43 @@ const LanguageSelectModalContent: React.FC<Omit<LanguageSelectModalProps, 'isOpe
             <div className="absolute inset-0" onClick={onClose} />
 
             {/* Modal Card */}
-            <div className="relative w-full max-w-xl max-h-[85vh] bg-white dark:bg-[#111322] border border-gray-200 dark:border-white/10 rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className={`relative w-full max-w-xl max-h-[85vh] rounded-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 ${
+                isBento
+                    ? 'bg-white text-black border-[3px] border-black shadow-[6px_6px_0px_#000]'
+                    : 'bg-white dark:bg-[#111322] border border-gray-200 dark:border-white/10 shadow-2xl'
+            }`}>
                 {/* Header */}
-                <div className="p-5 sm:p-6 border-b border-gray-100 dark:border-white/5 flex items-center justify-between bg-gray-50/50 dark:bg-white/[0.02]">
+                <div className={`p-5 sm:p-6 flex items-center justify-between ${
+                    isBento
+                        ? 'border-b-[2.5px] border-black bg-[#faf8f1]'
+                        : 'border-b border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/[0.02]'
+                }`}>
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
+                        <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${
+                            isBento
+                                ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                : 'bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-md shadow-indigo-500/20'
+                        }`}>
                             <Languages className="w-5 h-5" />
                         </div>
                         <div>
-                            <h3 className="text-base sm:text-lg font-black text-gray-900 dark:text-white flex items-center gap-2">
-                                Choose Question Language
+                            <h3 className={`text-base sm:text-lg font-black flex items-center gap-2 ${
+                                isBento ? 'text-black' : 'text-gray-900 dark:text-white'
+                            }`}>
+                                {tx('Choose Question Language', 'اختار لغة السؤال')}
                             </h3>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                                Translate question, options, and explanations into any language
+                            <p className={`text-xs ${isBento ? 'text-slate-700 font-semibold' : 'text-gray-500 dark:text-gray-400'}`}>
+                                {tx('Translate question, options, and explanations into any language', 'ترجم السؤال والاختيارات والشرح لأي لغة')}
                             </p>
                         </div>
                     </div>
                     <button
                         onClick={onClose}
-                        className="p-2 rounded-xl text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-colors cursor-pointer"
+                        className={`p-2 rounded-xl transition-colors cursor-pointer ${
+                            isBento
+                                ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#fde047]'
+                                : 'text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10'
+                        }`}
                         aria-label="Close"
                     >
                         <X className="w-5 h-5" />

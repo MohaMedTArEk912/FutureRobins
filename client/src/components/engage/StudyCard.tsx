@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import type { StudyCard } from '../../types';
 import { api } from '../../lib/api';
 import { useTheme } from '../../context/ThemeContext';
+import { useLanguage } from '../../context/LanguageContext';
 import {
   BookOpen, ChevronLeft, ChevronRight, Grid3x3, Search, LayoutGrid, Filter, Folder, ArrowLeft
 } from 'lucide-react';
@@ -9,6 +10,7 @@ import { MathRenderer } from '../common/MathRenderer';
 
 const StudyCardComponent: React.FC = () => {
   const { isBento } = useTheme();
+  const { tx } = useLanguage();
   const [cards, setCards] = useState<StudyCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -166,12 +168,14 @@ const StudyCardComponent: React.FC = () => {
                 <h1 className={`text-3xl md:text-4xl font-black mb-1 tracking-tight ${
                   isBento ? 'text-black uppercase' : 'text-gray-900 dark:text-white'
                 }`}>
-                  {activeStack || 'Cards'}
+                  {activeStack || tx('Cards', 'كروت المذاكرة')}
                 </h1>
                 <p className={`text-sm ${
                   isBento ? 'text-black/70 font-semibold' : 'text-gray-600 dark:text-gray-400 font-medium'
                 }`}>
-                  {activeStack ? `${searchFilteredCards.length} Cards in this stack` : `${stacks.length} Stacks available`}
+                  {activeStack
+                    ? `${searchFilteredCards.length} ${tx('Cards in this stack', 'كارت في المجموعة دي')}`
+                    : `${stacks.length} ${tx('Stacks available', 'مجموعة متاحة')}`}
                 </p>
               </div>
             </div>
@@ -461,7 +465,7 @@ const StudyCardComponent: React.FC = () => {
                           : 'bg-gray-100 dark:bg-white/5 text-gray-500 hover:bg-gray-200 dark:hover:bg-white/10 font-bold'
                       }`}
                     >
-                      <ChevronLeft className="w-5 h-5" /> PREV
+                      <ChevronLeft className="w-5 h-5" /> {tx('PREV', 'السابق')}
                     </button>
                     <button
                       onClick={() => setCurrentIndex(prev => Math.min(searchFilteredCards.length - 1, prev + 1))}
@@ -472,7 +476,7 @@ const StudyCardComponent: React.FC = () => {
                           : 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 font-bold'
                       }`}
                     >
-                      NEXT <ChevronRight className="w-5 h-5" />
+                      {tx('NEXT', 'التالي')} <ChevronRight className="w-5 h-5" />
                     </button>
                   </div>
                 </div>
@@ -491,7 +495,7 @@ const StudyCardComponent: React.FC = () => {
                   <p className={`line-clamp-2 text-sm mb-4 ${isBento ? 'text-black/70 font-medium' : 'text-gray-500 dark:text-gray-400'}`}>{card.content}</p>
                   <button onClick={() => { setCurrentIndex(idx); setViewMode('card'); }} className={`font-black text-xs uppercase tracking-wider underline cursor-pointer ${
                     isBento ? 'text-black' : 'text-indigo-500 hover:underline'
-                  }`}>View Card</button>
+                  }`}>{tx('View Card', 'عرض الكارت')}</button>
                 </div>
               ))}
             </div>

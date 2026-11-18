@@ -21,6 +21,7 @@ import type { AppNotification } from '../types';
 import { api } from '../lib/api';
 import { useTheme } from '../context/ThemeContext';
 import { useSocket } from '../context/SocketContext';
+import { useLanguage } from '../context/LanguageContext';
 
 interface NotificationCenterProps {
     currentUser?: { userId: string; name?: string; role?: string } | null;
@@ -37,6 +38,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
 }) => {
     const { isBento } = useTheme();
     const { socket } = useSocket();
+    const { tx } = useLanguage();
     const [isOpen, setIsOpen] = useState(false);
     const [notifications, setNotifications] = useState<AppNotification[]>([]);
     const [unreadCount, setUnreadCount] = useState<number>(0);
@@ -431,12 +433,12 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                         <h3 className={`text-xs font-black uppercase tracking-tight truncate ${
                             isBento ? 'text-black font-mono' : 'text-gray-900 dark:text-white'
                         }`}>
-                            Notifications
+                            {tx('Notifications', 'الإشعارات')}
                         </h3>
                         <div className={`text-[10px] font-bold truncate ${
                             isBento ? 'text-black/75 font-mono' : 'text-gray-400'
                         }`}>
-                            {unreadCount} unread alert{unreadCount !== 1 ? 's' : ''}
+                            {tx(`${unreadCount} unread alert${unreadCount !== 1 ? 's' : ''}`, `${unreadCount} إشعار غير مقروء`)}
                         </div>
                     </div>
                 </div>
@@ -469,7 +471,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                             }`}
                         >
                             <CheckCheck className="w-3 h-3 shrink-0" />
-                            <span>Mark Read</span>
+                            <span>{tx('Mark Read', 'تحديد كمقروء')}</span>
                         </button>
                     )}
 
@@ -520,7 +522,13 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                             ? notifications.filter(n => n.type === 'new_quiz').length
                             : notifications.filter(n => n.type.includes('request') || n.type === 'tournament_invite').length;
 
-                        const label = tab === 'all' ? 'All' : tab === 'unread' ? 'Unread' : tab === 'quizzes' ? 'Quizzes' : 'Invites & Req';
+                        const label = tab === 'all'
+                            ? tx('All', 'الكل')
+                            : tab === 'unread'
+                                ? tx('Unread', 'غير مقروء')
+                                : tab === 'quizzes'
+                                    ? tx('Quizzes', 'كويزات')
+                                    : tx('Invites & Req', 'دعوات وطلبات');
 
                         return (
                             <button

@@ -6,11 +6,13 @@ import Footer from '../components/Footer';
 import { AmbientBackground } from '../components/AmbientBackground';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { useLanguage } from '../context/LanguageContext';
 
 const NotFoundPage: React.FC = () => {
     const navigate = useNavigate();
     const { currentUser, logout } = useAuth();
     const { isBento } = useTheme();
+    const { tx } = useLanguage();
 
     return (
         <div className={`min-h-screen flex flex-col justify-between transition-colors ${
@@ -23,7 +25,7 @@ const NotFoundPage: React.FC = () => {
             {/* Navbar */}
             <Navbar
                 user={currentUser}
-                title="Page Not Found"
+                title={tx('Page Not Found', 'الصفحة مش موجودة')}
                 onViewProfile={() => navigate('/profile')}
                 onViewLeaderboard={() => navigate('/leaderboard')}
                 onLogout={logout}
@@ -42,7 +44,7 @@ const NotFoundPage: React.FC = () => {
                     {/* Glowing Number Pill */}
                     <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider mb-6 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
                         <Search className="w-3.5 h-3.5" />
-                        Error 404: Not Found
+                        {tx('Error 404: Not Found', 'خطأ 404: مش موجودة')}
                     </div>
 
                     {/* Massive 404 Hero Display */}
@@ -57,14 +59,17 @@ const NotFoundPage: React.FC = () => {
                         <p className={`text-base sm:text-xl font-bold tracking-tight mt-2 ${
                             isBento ? 'text-black font-mono' : 'text-slate-800 dark:text-slate-200'
                         }`}>
-                            Question Not Found In This Dimension
+                            {tx('Question Not Found In This Dimension', 'الصفحة دي مش موجودة في البُعد ده')}
                         </p>
                     </div>
 
                     <p className={`text-xs sm:text-sm leading-relaxed mb-8 max-w-md mx-auto ${
                         isBento ? 'text-slate-700 font-medium' : 'text-slate-600 dark:text-slate-400'
                     }`}>
-                        The learning track, quiz, or resource you are trying to access might have been renamed, removed, or never existed in the database.
+                        {tx(
+                            'The learning track, quiz, or resource you are trying to access might have been renamed, removed, or never existed in the database.',
+                            'المسار أو الكويز أو الصفحة اللي بتدور عليها ممكن تكون اتنقلت أو اتمسحت أو الرابط فيه غلطة.'
+                        )}
                     </p>
 
                     {/* Action Buttons */}
@@ -79,7 +84,7 @@ const NotFoundPage: React.FC = () => {
                             }`}
                         >
                             <Home className="w-4 h-4 shrink-0" />
-                            <span>Return Home</span>
+                            <span>{tx('Return Home', 'ارجع الرئيسية')}</span>
                         </button>
 
                         <button
@@ -92,7 +97,7 @@ const NotFoundPage: React.FC = () => {
                             }`}
                         >
                             <Compass className="w-4 h-4 text-indigo-500 shrink-0" />
-                            <span>Explore Tracks</span>
+                            <span>{tx('Explore Tracks', 'استكشف المسارات')}</span>
                         </button>
 
                         <button

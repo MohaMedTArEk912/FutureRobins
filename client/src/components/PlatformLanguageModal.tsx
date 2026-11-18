@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Globe, Check, ArrowRight, Sparkles, X } from 'lucide-react';
 import { useLanguage, type AppLanguage } from '../context/LanguageContext';
@@ -16,13 +16,28 @@ export const PlatformLanguageModal: React.FC = () => {
     const { isBento } = useTheme();
     const [selectedChoice, setSelectedChoice] = useState<AppLanguage>(language);
     const [saving, setSaving] = useState(false);
+    const initialLangRef = useRef<AppLanguage>(language);
+
+    useEffect(() => {
+        if (isLanguageModalOpen) {
+            initialLangRef.current = language;
+            setSelectedChoice(language);
+        }
+    }, [isLanguageModalOpen, language]);
 
     if (!isLanguageModalOpen || typeof document === 'undefined') return null;
 
     const handlePreviewPick = async (choice: AppLanguage) => {
         setSelectedChoice(choice);
-        // Live preview without permanently locking until user hits Confirm (unless manual reopen)
+        // Live preview without permanently locking until user hits Confirm
         await setLanguage(choice, false);
+    };
+
+    const handleCancel = async () => {
+        if (language !== initialLangRef.current) {
+            await setLanguage(initialLangRef.current, false);
+        }
+        closeLanguageModal();
     };
 
     const handleConfirm = async () => {
@@ -38,7 +53,7 @@ export const PlatformLanguageModal: React.FC = () => {
         <div
             className="fixed inset-0 z-[260] flex items-center justify-center p-3 sm:p-6 bg-black/50 dark:bg-black/70 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200"
             onClick={() => {
-                if (!needsAccountSelection) closeLanguageModal();
+                if (!needsAccountSelection) handleCancel();
             }}
         >
             <div
@@ -55,8 +70,8 @@ export const PlatformLanguageModal: React.FC = () => {
                 {!needsAccountSelection && (
                     <button
                         type="button"
-                        onClick={closeLanguageModal}
-                        className={`btn-unstyled absolute top-4 right-4 p-2 rounded-xl cursor-pointer transition-all ${
+                        onClick={handleCancel}
+                        className={`btn-unstyled absolute top-4 end-4 p-2 rounded-xl cursor-pointer transition-all ${
                             isBento
                                 ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#fde047]'
                                 : 'text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10'
@@ -85,10 +100,12 @@ export const PlatformLanguageModal: React.FC = () => {
                             ? 'أهلاً بيك! اختار لغة المنصة'
                             : 'Choose Your Platform Language'}
                     </h2>
-                    <p className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400 leading-relaxed">
+                    <p className={`text-xs sm:text-sm font-semibold leading-relaxed ${
+                        isBento ? 'text-slate-700' : 'text-slate-500 dark:text-slate-400'
+                    }`}>
                         {selectedChoice === 'ar-EG'
-                            ? 'اختار اللغة اللي تريحك للشغل والمذاكرة. تقدر تغيرها في أي وقت من الإعدادات.'
-                            : 'Select Egyptian Arabic or English for menus, quizzes, classes & settings. You can change this anytime in Settings.'}
+                            ? 'اختار اللغة اللي تريحك للشغل والمذاكرة. تقدر تغيرها في أي وقت من البروفايل.'
+                            : 'Select Egyptian Arabic or English for menus, quizzes, classes & settings. You can change this anytime from your Profile.'}
                     </p>
                 </div>
 
@@ -190,13 +207,17 @@ export const PlatformLanguageModal: React.FC = () => {
                 </div>
 
                 {/* Confirm Footer */}
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-slate-200/80 dark:border-white/10">
-                    <div className="flex items-center gap-2 text-xs font-bold text-slate-500 dark:text-slate-400">
+                <div className={`flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t ${
+                    isBento ? 'border-black/15' : 'border-slate-200/80 dark:border-white/10'
+                }`}>
+                    <div className={`flex items-center gap-2 text-xs font-bold ${
+                        isBento ? 'text-black/75' : 'text-slate-500 dark:text-slate-400'
+                    }`}>
                         <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                         <span>
                             {selectedChoice === 'ar-EG'
-                                ? 'الاختيار الحالي: العربية المصرية (تقدر تغيرها من الإعدادات)'
-                                : 'Active Selection: English (Changeable anytime in Settings)'}
+                                ? 'الاختيار الحالي: العربية المصرية (تقدر تغيرها من البروفايل)'
+                                : 'Active Selection: English (Changeable anytime in Profile)'}
                         </span>
                     </div>
 

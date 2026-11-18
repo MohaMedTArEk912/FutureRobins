@@ -36,6 +36,7 @@ import confetti from 'canvas-confetti';
 import { useTheme } from '../../context/ThemeContext';
 import { useNotification } from '../../context/NotificationContext';
 import { useSocket } from '../../context/SocketContext';
+import { useLanguage } from '../../context/LanguageContext';
 import TournamentInviteModal from './TournamentInviteModal';
 import {
   getUserTimezoneInfo,
@@ -51,6 +52,7 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
   const { isBento } = useTheme();
   const { showNotification } = useNotification();
   const { socket, connected } = useSocket();
+  const { tx } = useLanguage();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -460,8 +462,8 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    const s = status.toLowerCase();
+  const getStatusBadge = (status?: string) => {
+    const s = (status || '').toLowerCase();
     if (s === 'active' || s === 'live') {
       return {
         bentoClass: 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000]',
@@ -610,7 +612,7 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
               }`}
             >
               <FileSpreadsheet className="w-4 h-4" />
-              Tournament Leaderboards
+              {tx('Tournament Leaderboards', 'ترتيب البطولات')}
             </button>
 
             <button
@@ -626,13 +628,13 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
               }`}
             >
               <History className="w-4 h-4" />
-              Past Archives & History
+              {tx('Past Archives & History', 'السجل والبطولات السابقة')}
             </button>
           </div>
 
           <div className="flex items-center gap-2.5 shrink-0">
             <span className="hidden md:inline text-[11px] font-bold text-gray-500 dark:text-gray-400">
-              Updated {lastRefreshedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+              {tx('Updated', 'اتحدث')} {lastRefreshedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
             </span>
             <button
               type="button"
@@ -643,10 +645,10 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
                   ? 'bg-[#fde047] !text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#bef264] hover:shadow-[3px_3px_0px_#000] disabled:opacity-60'
                   : 'bg-white/80 dark:bg-white/5 hover:bg-indigo-50 dark:hover:bg-white/10 text-gray-800 dark:text-gray-200 border border-gray-200/80 dark:border-white/10 disabled:opacity-60'
               }`}
-              title="Refresh tournaments and live statuses"
+              title={tx('Refresh tournaments and live statuses', 'تحديث البطولات والحالات المباشرة')}
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isBento ? 'text-black' : 'text-indigo-500'} ${isRefreshing || loading ? 'animate-spin' : ''}`} />
-              <span>{isRefreshing || loading ? 'Refreshing...' : 'Refresh'}</span>
+              <span>{isRefreshing || loading ? tx('Refreshing...', 'جاري التحديث...') : tx('Refresh', 'تحديث')}</span>
             </button>
           </div>
         </div>

@@ -10,6 +10,7 @@ import { api } from '../lib/api';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { useUserProfileModal } from '../context/UserProfileModalContext';
+import { useLanguage } from '../context/LanguageContext';
 
 
 interface ClanLeaderboardEntry {
@@ -36,6 +37,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ users, currentUser, onBack })
     const { logout } = useAuth();
     const { isBento } = useTheme();
     const { openUserProfile } = useUserProfileModal();
+    const { tx } = useLanguage();
     const [activeTab, setActiveTab] = useState<'players' | 'clans'>('players');
     const [clanLeaderboard, setClanLeaderboard] = useState<ClanLeaderboardEntry[]>([]);
     const [loadingClans, setLoadingClans] = useState(false);
@@ -176,7 +178,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ users, currentUser, onBack })
                 user={currentUser}
                 onBack={onBack}
                 showBack={true}
-                title="Global Leaderboard"
+                title={tx('Global Leaderboard', 'لوحة المتصدرين')}
                 onViewProfile={() => navigate('/profile')}
                 onViewLeaderboard={() => navigate('/leaderboard')}
                 onLogout={logout}
@@ -203,7 +205,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ users, currentUser, onBack })
                         }`}
                     >
                         <Users className="w-4 h-4" />
-                        Players
+                        {tx('Players', 'اللاعبين')}
                     </button>
                     <button
                         onClick={() => setActiveTab('clans')}
@@ -218,7 +220,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ users, currentUser, onBack })
                         }`}
                     >
                         <Shield className="w-4 h-4" />
-                        Clans
+                        {tx('Clans', 'الكلاسات')}
                     </button>
                 </div>
             </div>
@@ -241,7 +243,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ users, currentUser, onBack })
                                     <Users className="w-6 h-6" />
                                 </div>
                                 <div>
-                                    <div className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black/60' : 'text-slate-500 dark:text-slate-400 font-semibold'}`}>Participants</div>
+                                    <div className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black/60' : 'text-slate-500 dark:text-slate-400 font-semibold'}`}>{tx('Participants', 'المشاركين')}</div>
                                     <div className={`font-tabular text-2xl sm:text-3xl font-black ${isBento ? 'text-black' : 'text-slate-900 dark:text-white font-extrabold'}`}>{users.length.toLocaleString()}</div>
                                 </div>
                             </div>
@@ -258,7 +260,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ users, currentUser, onBack })
                                     <TrendingUp className="w-6 h-6" />
                                 </div>
                                 <div>
-                                    <div className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black/60' : 'text-slate-500 dark:text-slate-400 font-semibold'}`}>Total Attempts</div>
+                                    <div className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black/60' : 'text-slate-500 dark:text-slate-400 font-semibold'}`}>{tx('Total Attempts', 'إجمالي المحاولات')}</div>
                                     <div className={`font-tabular text-2xl sm:text-3xl font-black ${isBento ? 'text-black' : 'text-slate-900 dark:text-white font-extrabold'}`}>{users.reduce((acc, u) => acc + (u.totalAttempts || 0), 0).toLocaleString()}</div>
                                 </div>
                             </div>
@@ -281,10 +283,10 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ users, currentUser, onBack })
                                     )}
                                 </div>
                                 <div className="relative z-10 min-w-0">
-                                    <div className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black/70' : 'text-indigo-200 font-semibold'}`}>Your Rank</div>
+                                    <div className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black/70' : 'text-indigo-200 font-semibold'}`}>{tx('Your Rank', 'ترتيبك')}</div>
                                     <div className={`font-tabular text-2xl sm:text-3xl font-black truncate ${isBento ? 'text-black' : 'text-white font-extrabold'}`}>
                                         {(currentUser.role === 'admin' || currentUser.isAdmin)
-                                            ? 'Admin (Unranked)'
+                                            ? tx('Admin (Unranked)', 'أدمن (بدون ترتيب)')
                                             : `#${currentUserRank?.rank || 'N/A'}`}
                                     </div>
                                 </div>
@@ -298,8 +300,8 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ users, currentUser, onBack })
                                     : 'bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 border-dashed shadow-xl dark:shadow-none'
                             }`}>
                                 <Trophy className="w-24 h-24 text-gray-400 dark:text-gray-700 mx-auto mb-6" />
-                                <h2 className="text-3xl font-bold text-gray-500">The Arena is Empty</h2>
-                                <p className="text-gray-500 dark:text-gray-600 mt-2">Check back later for rankings.</p>
+                                <h2 className="text-3xl font-bold text-gray-500">{tx('The Arena is Empty', 'لوحة المتصدرين فاضية لسه')}</h2>
+                                <p className="text-gray-500 dark:text-gray-600 mt-2">{tx('Check back later for rankings.', 'ارجع تاني بعد ما الناس تبدأ تحل كويزات.')}</p>
                             </div>
                         ) : (
                             <div className="space-y-12">
@@ -328,14 +330,14 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ users, currentUser, onBack })
                                     }`}>
                                         <div className="flex items-center gap-2.5">
                                             <Star className={`w-5 h-5 ${isBento ? 'text-black fill-black' : 'text-amber-400 fill-amber-400'}`} />
-                                            <h3 className={`font-black text-base sm:text-lg uppercase tracking-tight ${isBento ? 'text-black' : 'text-slate-900 dark:text-white'}`}>Challengers</h3>
+                                            <h3 className={`font-black text-base sm:text-lg uppercase tracking-tight ${isBento ? 'text-black' : 'text-slate-900 dark:text-white'}`}>{tx('Challengers', 'المنافسين')}</h3>
                                         </div>
                                         <span className={`px-3 py-1 rounded-full text-xs font-black font-tabular ${
                                             isBento
                                                 ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
                                                 : 'bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/5'
                                         }`}>
-                                            {restOfUsers.length} Remaining
+                                            {restOfUsers.length} {tx('Remaining', 'متبقي')}
                                         </span>
                                     </div>
 

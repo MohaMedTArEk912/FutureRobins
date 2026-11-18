@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import ThemeToggle from './ThemeToggle.tsx';
-import LanguageToggle from './LanguageToggle.tsx';
 import TransparentLogo from './TransparentLogo.tsx';
 import { AmbientBackground } from './AmbientBackground';
 import { AnimatedCharacter } from './AnimatedCharacter.tsx';
@@ -91,9 +90,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSwitchToRegister, 
                 </button>
             </div>
 
-            {/* Language + Theme Toggles - Floating */}
+            {/* Theme Toggle - Floating */}
             <div className="absolute top-6 end-6 z-50 mt-safe me-safe flex items-center gap-2">
-                <LanguageToggle compact />
                 <ThemeToggle />
             </div>
 

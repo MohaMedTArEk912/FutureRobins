@@ -36,7 +36,9 @@ import {
     Send,
     Layers,
     Compass,
-    Quote
+    Quote,
+    RotateCcw,
+    XCircle
 } from 'lucide-react';
 import Navbar from './Navbar.tsx';
 import Footer from './Footer.tsx';
@@ -49,6 +51,7 @@ import LivePlayerController from './multiplayer/LivePlayerController';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import { useTheme } from '../context/ThemeContext';
+import { useLanguage } from '../context/LanguageContext';
 import { api } from '../lib/api';
 import { getQuizIconOption } from '../utils/quizIcons';
 import { getQuizPoolStatus, calculateSubjectProgress } from '../utils/poolUtils';
@@ -116,6 +119,7 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
     const { showNotification } = useNotification();
     const { updateUser } = useAuth();
     const { isBento } = useTheme();
+    const { tx } = useLanguage();
     const [searchParams, setSearchParams] = useSearchParams();
 
     // Track requests and access states
@@ -718,7 +722,7 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                         {/* XP Progress Bar */}
                         <div className="space-y-2 mt-auto pt-2">
                             <div className="flex items-center justify-between text-xs font-semibold">
-                                <span className="text-slate-500 dark:text-slate-400">Total Experience</span>
+                                <span className="text-slate-500 dark:text-slate-400">{tx('Total Experience', 'إجمالي الخبرة')}</span>
                                 <span className="font-tabular text-slate-900 dark:text-white font-bold">{user.xp || 0} XP</span>
                             </div>
                             <div className="w-full h-2.5 bg-slate-200/80 dark:bg-white/[0.06] rounded-full overflow-hidden p-0.5">
@@ -740,7 +744,7 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                 <span className="text-xs font-black tracking-wider opacity-60">01</span>
                             </div>
                             <div>
-                                <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Global Rank</div>
+                                <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{tx('Global Rank', 'الترتيب العام')}</div>
                                 <div className="text-lg sm:text-2xl font-extrabold font-tabular text-slate-900 dark:text-white mt-0.5">
                                     #{user.rank || '-'}
                                 </div>
@@ -755,7 +759,7 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                 <span className="text-xs font-black tracking-wider opacity-60">02</span>
                             </div>
                             <div>
-                                <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Total Score</div>
+                                <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{tx('Total Score', 'مجموع النقط')}</div>
                                 <div className="text-lg sm:text-2xl font-extrabold font-tabular text-slate-900 dark:text-white mt-0.5">
                                     {user.totalScore || 0}
                                 </div>
@@ -770,7 +774,7 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                 <span className="text-xs font-black tracking-wider opacity-60">03</span>
                             </div>
                             <div>
-                                <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Quizzes</div>
+                                <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{tx('Quizzes', 'الكويزات')}</div>
                                 <div className="text-lg sm:text-2xl font-extrabold font-tabular text-slate-900 dark:text-white mt-0.5">
                                     {user.totalAttempts || 0}
                                 </div>
@@ -801,21 +805,21 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                             ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
                                             : 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
                                     }`}>
-                                        {user.streak || 1} Day Streak
+                                        {user.streak || 1} {tx('Day Streak', 'يوم ستريك')}
                                     </span>
                                     {isStreakClaimedToday ? (
-                                        <span className="text-[10px] font-medium text-emerald-600 dark:text-emerald-400">Claimed</span>
+                                        <span className="text-[10px] font-medium text-emerald-600 dark:text-emerald-400">{tx('Claimed', 'اتاخد')}</span>
                                     ) : (
-                                        <span className="text-[10px] font-medium text-amber-600 dark:text-amber-400 animate-pulse">Ready</span>
+                                        <span className="text-[10px] font-medium text-amber-600 dark:text-amber-400 animate-pulse">{tx('Ready', 'جاهز')}</span>
                                     )}
                                 </div>
                                 <h4 className="text-sm font-bold text-slate-900 dark:text-white tracking-tight truncate mt-0.5">
-                                    Daily Streak Rewards
+                                    {tx('Daily Streak Rewards', 'مكافآت الستريك اليومية')}
                                 </h4>
                                 <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
                                     {isStreakClaimedToday
-                                        ? 'Reward claimed. Come back tomorrow!'
-                                        : 'Claim daily XP bonus & mystery prizes.'}
+                                        ? tx('Reward claimed. Come back tomorrow!', 'اخدت مكافأة النهارده، تعال بكرة!')
+                                        : tx('Claim daily XP bonus & mystery prizes.', 'خد بونص XP يومي وجوايز مفاجأة.')}
                                 </p>
                             </div>
                         </div>
@@ -824,13 +828,13 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                 ? 'bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-white/5'
                                 : 'bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/20'
                         }`}>
-                            {isStreakClaimedToday ? 'Claimed' : 'Claim'}
+                            {isStreakClaimedToday ? tx('Claimed', 'اتاخد') : tx('Claim', 'استلم')}
                         </div>
                     </div>
 
-                    {/* Live Classroom / Multiplayer Gamepad Card */}
+                    {/* Live Arena / Multiplayer Gamepad Card */}
                     <div
-                        onClick={() => navigate('/classroom')}
+                        onClick={() => navigate('/live-arena')}
                         className="glass-card p-5 rounded-3xl flex items-center justify-between cursor-pointer group active:scale-[0.99] transition-all"
                     >
                         <div className="flex items-center gap-3.5 min-w-0">
@@ -840,20 +844,20 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                             <div className="min-w-0">
                                 <div className="flex items-center gap-1.5">
                                     <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
-                                        Live Arena
+                                        {tx('Live Arena', 'الساحة المباشرة')}
                                     </span>
-                                    <span className="text-[10px] font-medium text-indigo-500">6-Digit PIN</span>
+                                    <span className="text-[10px] font-medium text-indigo-500">{tx('6-Digit PIN', 'كود 6 أرقام')}</span>
                                 </div>
                                 <h4 className="text-sm font-bold text-slate-900 dark:text-white tracking-tight truncate mt-0.5">
-                                    Join Classroom Duel
+                                    {tx('Enter Live Arena', 'ادخل الساحة المباشرة')}
                                 </h4>
                                 <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
-                                    Enter host game PIN to duel live in real-time.
+                                    {tx('Join with a 6-digit PIN or host a Turn-Based / Everyone Answers battle!', 'ادخل بكود غرفة أو اعمل تحدي أدوار أو الكل يجاوب مباشر!')}
                                 </p>
                             </div>
                         </div>
                         <div className="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-sm shadow-indigo-500/20 shrink-0 transition-all">
-                            Join
+                            {tx('Open', 'افتح')}
                         </div>
                     </div>
                 </div>
@@ -887,7 +891,7 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                             className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 border border-slate-200/80 dark:border-white/5 text-slate-600 dark:text-slate-400 rounded-xl font-medium text-xs transition-all disabled:opacity-50 active:scale-95 cursor-pointer"
                         >
                             <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
-                            {isRefreshing ? 'Syncing...' : 'Sync Data'}
+                            {isRefreshing ? tx('Syncing...', 'جاري التحديث...') : tx('Sync Data', 'تحديث البيانات')}
                         </button>
                     </div>
                 )}
@@ -906,17 +910,20 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                                 : 'font-bold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20'
                                         }`}>
                                             <Compass className="w-3.5 h-3.5" />
-                                            ACADEMY PATHWAYS
+                                            {tx('ACADEMY PATHWAYS', 'مسارات الأكاديمية')}
                                         </span>
                                         <span className="text-[11px] font-black text-slate-500 dark:text-slate-400 tracking-wider uppercase">
-                                            {subjects.length} Available Curriculums
+                                            {subjects.length} {tx('Available Curriculums', 'مسار متاح')}
                                         </span>
                                     </div>
                                     <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-                                        Your Learning Roads
+                                        {tx('Your Learning Roads', 'مسارات التعلم بتاعتك')}
                                     </h2>
                                     <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm mt-1 max-w-xl">
-                                        Select an active curriculum to continue your progress, or submit an access request to unlock restricted tracks.
+                                        {tx(
+                                            'Select an active curriculum to continue your progress, or submit an access request to unlock restricted tracks.',
+                                            'اختار مسار عشان تكمل تقدمك، أو ابعت طلب عشان تفتح المسارات المقفولة.'
+                                        )}
                                     </p>
                                 </div>
 
@@ -937,7 +944,7 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                                 : 'font-bold text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white'
                                         }`}
                                     >
-                                        All Tracks ({subjects.length})
+                                        {tx('All Tracks', 'كل المسارات')} ({subjects.length})
                                     </button>
                                     <button
                                         type="button"
@@ -950,7 +957,7 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                                 : 'font-bold text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white'
                                         }`}
                                     >
-                                        ● Active ({unlockedCount})
+                                        ● {tx('Active', 'مفتوح')} ({unlockedCount})
                                     </button>
                                     <button
                                         type="button"
@@ -963,7 +970,7 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                                 : 'font-bold text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white'
                                         }`}
                                     >
-                                        🔒 Restricted ({restrictedCount})
+                                        🔒 {tx('Restricted', 'مقفول')} ({restrictedCount})
                                     </button>
                                 </div>
                             </div>
@@ -974,7 +981,9 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                     const { progress, subjectQuizzes } = subjectProgressMap.get(subject._id) || { progress: 0, subjectQuizzes: [] };
                                     const isUnlocked = isRoadUnlocked(subject._id);
                                     const pendingRequest = myRequests.find(r => r.subjectId === subject._id && r.status === 'pending');
+                                    const rejectedRequest = myRequests.find(r => r.subjectId === subject._id && r.status === 'rejected');
                                     const isPending = !!pendingRequest;
+                                    const isRejected = !isPending && !!rejectedRequest;
                                     const theme = getSubjectTheme(subject, index);
 
                                     if (!isUnlocked) {
@@ -1005,14 +1014,25 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                                         </div>
                                                         
                                                         <div className="flex flex-col items-end gap-1">
-                                                            <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] uppercase tracking-wider ${
-                                                                isBento
-                                                                    ? 'font-black bg-[#fef08a] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000] -rotate-1'
-                                                                    : 'font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'
-                                                            }`}>
-                                                                <Lock className="w-2.5 h-2.5" />
-                                                                Restricted Track
-                                                            </span>
+                                                            {isRejected ? (
+                                                                <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] uppercase tracking-wider ${
+                                                                    isBento
+                                                                        ? 'font-black bg-[#fecdd3] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000] -rotate-1'
+                                                                        : 'font-bold bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30'
+                                                                }`}>
+                                                                    <XCircle className="w-2.5 h-2.5" />
+                                                                    {tx('Request Rejected', 'الطلب اترفض')}
+                                                                </span>
+                                                            ) : (
+                                                                <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] uppercase tracking-wider ${
+                                                                    isBento
+                                                                        ? 'font-black bg-[#fef08a] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000] -rotate-1'
+                                                                        : 'font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'
+                                                                }`}>
+                                                                    <Lock className="w-2.5 h-2.5" />
+                                                                    {tx('Restricted Track', 'مسار مقفول')}
+                                                                </span>
+                                                            )}
                                                             <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 dark:text-slate-500">
                                                                 {theme.badgeText}
                                                             </span>
@@ -1039,12 +1059,36 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                                         ))}
                                                     </div>
 
-                                                    {/* Access Notice Callout */}
-                                                    <div className="bg-amber-50/80 dark:bg-amber-950/20 border-2 border-dashed border-amber-300 dark:border-amber-600/40 rounded-xl p-3 mb-4">
-                                                        <p className="text-[11px] font-medium text-amber-900 dark:text-amber-300 leading-snug">
-                                                            Enrolled cohort track. Submit a request to your mentor to unlock this road.
-                                                        </p>
-                                                    </div>
+                                                    {/* Access Notice / Rejection Reason Callout */}
+                                                    {isRejected ? (
+                                                        <div className={`rounded-xl p-3 mb-4 border-2 ${
+                                                            isBento
+                                                                ? 'bg-[#fee2e2] border-black text-black'
+                                                                : 'bg-rose-50 dark:bg-rose-950/30 border-rose-300 dark:border-rose-600/40 text-rose-900 dark:text-rose-200'
+                                                        }`}>
+                                                            <div className="text-[10px] font-black uppercase tracking-wider mb-1 flex items-center gap-1">
+                                                                <XCircle className="w-3 h-3 shrink-0" />
+                                                                <span>{tx('Rejection Reason', 'سبب الرفض')}</span>
+                                                            </div>
+                                                            <p className="text-[11px] font-semibold leading-snug">
+                                                                {rejectedRequest?.adminNote?.trim()
+                                                                    ? rejectedRequest.adminNote
+                                                                    : tx(
+                                                                        'Your previous request was declined. You can ask again with an updated note.',
+                                                                        'طلبك اللي فات اترفض. تقدر تبعت طلب تاني مع توضيح السبب.'
+                                                                    )}
+                                                            </p>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="bg-amber-50/80 dark:bg-amber-950/20 border-2 border-dashed border-amber-300 dark:border-amber-600/40 rounded-xl p-3 mb-4">
+                                                            <p className="text-[11px] font-medium text-amber-900 dark:text-amber-300 leading-snug">
+                                                                {tx(
+                                                                    'Enrolled cohort track. Submit a request to your mentor to unlock this road.',
+                                                                    'المسار ده محتاج موافقة. ابعت طلب للمشرف عشان يتفتحلك.'
+                                                                )}
+                                                            </p>
+                                                        </div>
+                                                    )}
                                                 </div>
 
                                                 {/* Action Button */}
@@ -1056,8 +1100,24 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                                                 : 'bg-amber-500/10 text-amber-700 dark:text-amber-300 font-bold border border-amber-500/20'
                                                         }`}>
                                                             <Clock className="w-3.5 h-3.5 animate-spin" />
-                                                            <span>REQUEST PENDING REVIEW</span>
+                                                            <span>{tx('REQUEST PENDING REVIEW', 'الطلب قيد المراجعة')}</span>
                                                         </div>
+                                                    ) : isRejected ? (
+                                                        <button
+                                                            type="button"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                setRequestingAccessSubject(subject);
+                                                            }}
+                                                            className={`w-full py-2.5 px-4 rounded-xl text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                                                                isBento
+                                                                    ? 'bg-[#fecdd3] hover:bg-[#fda4af] text-black font-black border-2 border-black shadow-[3px_3px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-[1px_1px_0px_#000]'
+                                                                    : 'bg-gradient-to-r from-rose-600 to-orange-600 hover:from-rose-700 hover:to-orange-700 text-white font-bold shadow-md shadow-rose-500/20 active:scale-95'
+                                                            }`}
+                                                        >
+                                                            <RotateCcw className="w-3.5 h-3.5" />
+                                                            <span>{tx('Ask Again (Re-request)', 'اطلب تاني')}</span>
+                                                        </button>
                                                     ) : (
                                                         <button
                                                             type="button"
@@ -1072,7 +1132,7 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                                             }`}
                                                         >
                                                             <Send className="w-3.5 h-3.5" />
-                                                            <span>Request Track Access</span>
+                                                            <span>{tx('Request Track Access', 'طلب فتح المسار')}</span>
                                                         </button>
                                                     )}
                                                 </div>
@@ -1238,11 +1298,11 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                         {/* Road Navigation Tabs */}
                         <div className="flex items-center gap-1 p-1 bg-slate-100/80 dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/[0.06] rounded-2xl mb-8 overflow-x-auto no-scrollbar">
                             {[
-                                { id: 'overview', label: 'Overview', icon: <BookOpen className="w-4 h-4" /> },
-                                { id: 'roadmap', label: 'Roadmap', icon: <Brain className="w-4 h-4" /> },
-                                { id: 'quizzes', label: 'Quizzes', icon: <Award className="w-4 h-4" /> },
-                                { id: 'exams', label: 'Exams', icon: <Clipboard className="w-4 h-4" /> },
-                                { id: 'study-cards', label: 'Study Cards', icon: <FileText className="w-4 h-4" /> },
+                                { id: 'overview', label: tx('Overview', 'نظرة عامة'), icon: <BookOpen className="w-4 h-4" /> },
+                                { id: 'roadmap', label: tx('Roadmap', 'الخريطة'), icon: <Brain className="w-4 h-4" /> },
+                                { id: 'quizzes', label: tx('Quizzes', 'الكويزات'), icon: <Award className="w-4 h-4" /> },
+                                { id: 'exams', label: tx('Exams', 'الامتحانات'), icon: <Clipboard className="w-4 h-4" /> },
+                                { id: 'study-cards', label: tx('Study Cards', 'كروت المذاكرة'), icon: <FileText className="w-4 h-4" /> },
                             ].map((tab) => (
                                 <button
                                     key={tab.id}

@@ -50,8 +50,9 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const loadPublicData = async () => {
             setLoadingQuizzes(true);
             try {
+                const canSeeHiddenQuizzes = isAdmin || currentUser?.role === 'teacher';
                 const [quizzesRes, subjectsRes, tracksRes, cardsRes, leaderboardRes] = await Promise.allSettled([
-                    isAdmin ? api.getQuizzes(undefined, true) : api.getQuizzes(),
+                    canSeeHiddenQuizzes ? api.getQuizzes(undefined, true) : api.getQuizzes(),
                     api.getSubjects(),
                     api.getSkillTracks(),
                     api.getStudyCards(),
@@ -119,7 +120,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 // Also fetch quizzes, skill tracks, study cards, and subjects for regular users
                 try {
                     const [freshQuizzes, tracksRes, cardsRes, subjectsRes] = await Promise.all([
-                        api.getQuizzes(),
+                        api.getQuizzes(undefined, currentUser?.role === 'teacher' ? true : undefined),
                         api.getSkillTracks(),
                         api.getStudyCards(),
                         api.getSubjects()
@@ -142,7 +143,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         } finally {
             setLoadingData(false);
         }
-    }, [currentUser?.userId, isAdmin]);
+    }, [currentUser?.userId, currentUser?.role, isAdmin]);
 
     useEffect(() => {
         if (currentUser?.userId) {

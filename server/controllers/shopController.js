@@ -43,7 +43,11 @@ const SHOP_CATALOG = [
     { itemId: 'coin-magnet-1h', name: 'Coin Magnet (1h)', description: 'Earn 1.5x Coins for 1 hour', type: 'boost', price: 300, payload: { boost: 'coins', multiplier: 1.5, duration: 3600 } },
     { itemId: 'ai-coach-1', name: '1 AI Coach Hint', description: 'Unlock 1 AI Coach Socratic hint during quiz', type: 'power-up', price: 25, payload: { powerUpType: 'ai-hint', uses: 1 } },
     { itemId: 'ai-coach-3', name: '3 AI Coach Hints', description: 'Unlock 3 AI Coach Socratic hints during quiz', type: 'power-up', price: 60, payload: { powerUpType: 'ai-hint', uses: 3 } },
-    { itemId: 'ai-coach-5', name: '5 AI Coach Hints', description: 'Unlock 5 AI Coach Socratic hints during quiz', type: 'power-up', price: 95, payload: { powerUpType: 'ai-hint', uses: 5 } }
+    { itemId: 'ai-coach-5', name: '5 AI Coach Hints', description: 'Unlock 5 AI Coach Socratic hints during quiz', type: 'power-up', price: 95, payload: { powerUpType: 'ai-hint', uses: 5 } },
+    { itemId: 'auto-pair', name: 'Auto-Match Pair', description: 'Automatically matches one correct pair in Matching questions', type: 'power-up', price: 80, payload: { powerUpType: 'auto_pair', uses: 1 } },
+    { itemId: 'order-lock', name: 'Order Anchor', description: 'Places the next item in its exact correct position in Ordering questions', type: 'power-up', price: 80, payload: { powerUpType: 'lock_step', uses: 1 } },
+    { itemId: 'letter-reveal', name: 'Answer Clue', description: 'Reveals the starting characters and length of Text / Code-Output answers', type: 'power-up', price: 65, payload: { powerUpType: 'letter_reveal', uses: 1 } },
+    { itemId: 'code-hint', name: 'Starter Snippet', description: 'Reveals a helpful starter code snippet for Compiler questions', type: 'power-up', price: 90, payload: { powerUpType: 'code_hint', uses: 1 } }
 ];
 
 async function ensureShopSeed() {

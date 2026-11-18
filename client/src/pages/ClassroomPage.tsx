@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate, useParams } from 'react-router-dom';
 import {
     Gamepad2,
     ArrowRight,
@@ -8,25 +8,30 @@ import {
     RefreshCw,
     Radio,
     Rocket,
-    KeyRound
+    KeyRound,
+    Clock
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { api } from '../lib/api';
 import LivePlayerController from '../components/multiplayer/LivePlayerController';
 import LiveHostMode from '../components/multiplayer/LiveHostMode';
 import ClassroomQuizPicker from '../components/multiplayer/ClassroomQuizPicker';
 import { HostParticipatesControl } from '../components/multiplayer/ClassroomArenaShared';
-import type { Quiz, ClassroomMode, ClassroomLobbySummary } from '../types';
+import { formatRoomTimeLeft } from '../components/multiplayer/classroomHelpers';
+import type { Quiz, ClassroomMode, ClassroomLobbySummary, ClassroomRoomState } from '../types';
 
 export const ClassroomPage: React.FC = () => {
     const [searchParams] = useSearchParams();
-    const pinParam = searchParams.get('pin') || '';
+    const { pin: routePin } = useParams<{ pin?: string }>();
+    const pinParam = routePin || searchParams.get('pin') || '';
     const navigate = useNavigate();
     const { isBento } = useTheme();
     const { availableQuizzes, skillTracks } = useData();
     const { currentUser } = useAuth();
+    const { tx } = useLanguage();
 
     const isInsideTeacherShell = currentUser?.role === 'teacher';
 
@@ -34,12 +39,22 @@ export const ClassroomPage: React.FC = () => {
     const [isPlayerOpen, setIsPlayerOpen] = useState(Boolean(pinParam));
     const [selectedPin, setSelectedPin] = useState(pinParam);
     const [hostQuiz, setHostQuiz] = useState<Quiz | null>(null);
+    const [promotedRoom, setPromotedRoom] = useState<ClassroomRoomState | null>(null);
     const [hostMode, setHostMode] = useState<ClassroomMode>('turn_based');
     const [hostParticipates, setHostParticipates] = useState(true);
+    const [questionTimeSec, setQuestionTimeSec] = useState<number>(25);
     const [enteredPin, setEnteredPin] = useState('');
 
     const [activeRooms, setActiveRooms] = useState<ClassroomLobbySummary[]>([]);
     const [loadingRooms, setLoadingRooms] = useState(false);
+    const [nowMs, setNowMs] = useState(() => Date.now());
+
+    useEffect(() => {
+        if (activeRooms.length === 0) return;
+        setNowMs(Date.now());
+        const ticker = setInterval(() => setNowMs(Date.now()), 1000);
+        return () => clearInterval(ticker);
+    }, [activeRooms.length]);
 
     useEffect(() => {
         if (pinParam) {
@@ -70,8 +85,10 @@ export const ClassroomPage: React.FC = () => {
     const handleJoinWithPin = (e: React.FormEvent) => {
         e.preventDefault();
         if (enteredPin.trim().length >= 4) {
-            setSelectedPin(enteredPin.trim());
+            const clean = enteredPin.trim();
+            setSelectedPin(clean);
             setIsPlayerOpen(true);
+            navigate(`/live-arena/room/${encodeURIComponent(clean)}`);
         }
     };
 
@@ -80,24 +97,44 @@ export const ClassroomPage: React.FC = () => {
         : 'bg-white dark:bg-[#111322]/90 text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 shadow-xl backdrop-blur-xl';
 
     const modeSelectorBlock = (compactMode = false) => (
-        <div className="space-y-2">
+        <div className="space-y-2.5">
             <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                    Session Mode
+                    {tx('Arena Mode & Timer', 'نظام الساحة والوقت')}
                 </span>
-                <HostParticipatesControl
-                    checked={hostParticipates}
-                    onChange={setHostParticipates}
-                    isBento={isBento}
-                    label={isInsideTeacherShell ? 'Teacher plays & scores' : 'Host plays & scores'}
-                />
+                <div className="flex flex-wrap items-center gap-2">
+                    <div className={`inline-flex items-center gap-1 p-0.5 rounded-xl ${
+                        isBento ? 'bg-slate-100 border border-black' : 'bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10'
+                    }`}>
+                        {[15, 25, 40, 60].map(sec => (
+                            <button
+                                key={sec}
+                                type="button"
+                                onClick={() => setQuestionTimeSec(sec)}
+                                className={`btn-unstyled px-2 py-1 rounded-lg text-[10px] font-black cursor-pointer transition ${
+                                    questionTimeSec === sec
+                                        ? isBento ? 'bg-[#fde047] text-black border border-black' : 'bg-indigo-600 text-white'
+                                        : 'opacity-70 hover:opacity-100 bg-transparent border-0'
+                                }`}
+                            >
+                                <span>{sec}s</span>
+                            </button>
+                        ))}
+                    </div>
+                    <HostParticipatesControl
+                        checked={hostParticipates}
+                        onChange={setHostParticipates}
+                        isBento={isBento}
+                        label={isInsideTeacherShell ? tx('Teacher plays & scores', 'المدرس يلعب وياخد نقط') : tx('Host plays & scores', 'المضيف يلعب وياخد نقط')}
+                    />
+                </div>
             </div>
 
             <div className={`grid grid-cols-1 ${compactMode ? 'sm:grid-cols-2' : 'md:grid-cols-2'} gap-2`}>
                 <button
                     type="button"
                     onClick={() => setHostMode('turn_based')}
-                    className={`btn-unstyled p-2.5 rounded-xl text-left transition cursor-pointer ${
+                    className={`btn-unstyled p-2.5 rounded-xl text-start transition cursor-pointer ${
                         hostMode === 'turn_based'
                             ? isBento
                                 ? 'bg-[#bef264] border-2 border-black shadow-[2px_2px_0_#000] text-black'
@@ -107,16 +144,16 @@ export const ClassroomPage: React.FC = () => {
                                 : 'bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10'
                     }`}
                 >
-                    <div className="text-xs font-black">🎯 Mode 1: Turn-Based Duel</div>
+                    <div className="text-xs font-black">{tx('🎯 Mode 1: Turn-Based Duel', '🎯 نظام ١: تحدي الأدوار')}</div>
                     <div className="text-[10px] opacity-75 leading-tight mt-0.5">
-                        Student &amp; teacher take turns answering each question with live scores
+                        {tx('Student & teacher take turns answering each question with live scores', 'الطلاب والمدرس بياخدوا أدوارهم على كل سؤال مع لوحة نقط مباشرة')}
                     </div>
                 </button>
 
                 <button
                     type="button"
                     onClick={() => setHostMode('simultaneous')}
-                    className={`btn-unstyled p-2.5 rounded-xl text-left transition cursor-pointer ${
+                    className={`btn-unstyled p-2.5 rounded-xl text-start transition cursor-pointer ${
                         hostMode === 'simultaneous'
                             ? isBento
                                 ? 'bg-[#bae6fd] border-2 border-black shadow-[2px_2px_0_#000] text-black'
@@ -126,9 +163,9 @@ export const ClassroomPage: React.FC = () => {
                                 : 'bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10'
                     }`}
                 >
-                    <div className="text-xs font-black">⚡ Mode 2: Everyone Answers</div>
+                    <div className="text-xs font-black">{tx('⚡ Mode 2: Everyone Answers', '⚡ نظام ٢: الكل يجاوب')}</div>
                     <div className="text-[10px] opacity-75 leading-tight mt-0.5">
-                        Each answers alone → loading until all submit → full reveal
+                        {tx('Each answers alone → loading until all submit → full reveal', 'كل واحد بيجاوب لوحده ← انتظار لحد ما الكل يبعت ← كشف النتائج')}
                     </div>
                 </button>
             </div>
@@ -148,10 +185,10 @@ export const ClassroomPage: React.FC = () => {
                     </div>
                     <div>
                         <h2 className="text-sm sm:text-base font-black uppercase tracking-tight leading-none">
-                            Join Live Room
+                            {tx('Join Live Arena', 'ادخل غرفة مباشرة')}
                         </h2>
                         <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                            Enter a 6-digit PIN or click any open room below
+                            {tx('Enter a 6-digit PIN or click any open room below', 'اكتب كود الـ 6 أرقام أو اختار أي غرفة مفتوحة تحت')}
                         </p>
                     </div>
                 </div>
@@ -160,7 +197,7 @@ export const ClassroomPage: React.FC = () => {
                     <input
                         type="text"
                         maxLength={6}
-                        placeholder="Enter 6-Digit PIN..."
+                        placeholder={tx('Enter 6-Digit PIN...', 'اكتب كود الغرفة (6 أرقام)...')}
                         value={enteredPin}
                         onChange={(e) => setEnteredPin(e.target.value.replace(/\D/g, ''))}
                         className={`w-full py-2.5 px-3 rounded-xl text-center text-lg font-mono font-black tracking-widest transition-all ${
@@ -179,7 +216,7 @@ export const ClassroomPage: React.FC = () => {
                                 : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed'
                         }`}
                     >
-                        <span>Join Room</span>
+                        <span>{tx('Join Room', 'دخول الغرفة')}</span>
                         <ArrowRight className="w-3.5 h-3.5 stroke-[3]" />
                     </button>
                 </form>
@@ -187,13 +224,13 @@ export const ClassroomPage: React.FC = () => {
 
             <div className="pt-2 border-t border-black/10 dark:border-white/10 space-y-2 flex-1 min-h-0 flex flex-col">
                 <div className="flex items-center justify-between text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 shrink-0">
-                    <span>Open Live Rooms ({activeRooms.length})</span>
+                    <span>{tx('Open Live Rooms', 'الغرف المفتوحة دلوقتي')} ({activeRooms.length})</span>
                     <button
                         type="button"
                         onClick={fetchActiveRooms}
                         disabled={loadingRooms}
                         className="btn-unstyled p-1 rounded hover:bg-black/5 dark:hover:bg-white/10 cursor-pointer bg-transparent border-0"
-                        title="Refresh Active Rooms"
+                        title={tx('Refresh Active Rooms', 'تحديث الغرف')}
                     >
                         <RefreshCw className={`w-3.5 h-3.5 ${loadingRooms ? 'animate-spin' : ''}`} />
                     </button>
@@ -203,23 +240,43 @@ export const ClassroomPage: React.FC = () => {
                     <div className={`p-3 rounded-xl text-center text-[11px] font-semibold flex-1 flex items-center justify-center ${
                         isBento ? 'bg-slate-50 border border-black/20 text-slate-500' : 'bg-slate-50 dark:bg-white/5 text-slate-400'
                     }`}>
-                        No live rooms active right now.
+                        {tx('No live rooms active right now.', 'مفيش غرف مباشرة شغالة دلوقتي.')}
                     </div>
                 ) : (
                     <div className="space-y-1.5 flex-1 min-h-0 overflow-y-auto pr-0.5">
-                        {activeRooms.map(r => (
+                        {activeRooms
+                            .filter(r => !formatRoomTimeLeft(r.expiresAt, nowMs)?.expired)
+                            .map(r => {
+                                const timeLeft = formatRoomTimeLeft(r.expiresAt, nowMs);
+                                return (
                             <div
                                 key={r.pin}
-                                className={`p-2 rounded-xl flex items-center justify-between gap-2 ${
+                                className={`p-2.5 rounded-xl flex items-center justify-between gap-2 ${
                                     isBento
                                         ? 'bg-[#f8fafc] border border-black/30'
                                         : 'bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10'
                                 }`}
                             >
                                 <div className="min-w-0">
-                                    <div className="text-xs font-black truncate">{r.quizTitle}</div>
+                                    <div className="flex items-center gap-1.5 min-w-0">
+                                        <span className="text-xs font-black truncate">{r.quizTitle}</span>
+                                        {timeLeft && (
+                                            <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] font-mono font-black shrink-0 ${
+                                                timeLeft.isUrgent
+                                                    ? isBento
+                                                        ? 'bg-[#fecdd3] text-black border border-black'
+                                                        : 'bg-rose-500/15 text-rose-600 dark:text-rose-300'
+                                                    : isBento
+                                                        ? 'bg-[#fef9c3] text-black border border-black/40'
+                                                        : 'bg-slate-200/80 dark:bg-white/10 text-slate-600 dark:text-slate-300'
+                                            }`}>
+                                                <Clock className="w-2.5 h-2.5" />
+                                                <span>{timeLeft.text}</span>
+                                            </span>
+                                        )}
+                                    </div>
                                     <div className="text-[10px] opacity-75 font-bold truncate">
-                                        PIN {r.pin} • {r.hostName} • {r.mode === 'simultaneous' ? 'All Submit' : 'Turns'} • {r.playerCount} active
+                                        PIN {r.pin} • {r.hostName} • {r.mode === 'simultaneous' ? tx('All Submit', 'الكل يجاوب') : tx('Turns', 'أدوار')} • {r.playerCount} {tx('active', 'متصل')}
                                     </div>
                                 </div>
                                 <button
@@ -227,6 +284,7 @@ export const ClassroomPage: React.FC = () => {
                                     onClick={() => {
                                         setSelectedPin(r.pin);
                                         setIsPlayerOpen(true);
+                                        navigate(`/live-arena/room/${encodeURIComponent(r.pin)}`);
                                     }}
                                     className={`btn-unstyled px-2.5 py-1 rounded-lg text-[10px] font-black uppercase shrink-0 cursor-pointer ${
                                         isBento
@@ -234,15 +292,61 @@ export const ClassroomPage: React.FC = () => {
                                             : 'bg-indigo-600 text-white'
                                     }`}
                                 >
-                                    <span>Join</span>
+                                    <span>{tx('Join', 'دخول')}</span>
                                 </button>
                             </div>
-                        ))}
+                                );
+                            })}
                     </div>
                 )}
             </div>
         </div>
     );
+
+    // =========================================================================
+    // 0. DEDICATED FULL-PAGE TAKING / HOSTING VIEW (No hub rendered behind it)
+    // =========================================================================
+    if (isPlayerOpen) {
+        return (
+            <LivePlayerController
+                initialPin={selectedPin}
+                onPromotedToHost={(room) => {
+                    setPromotedRoom(room);
+                    setIsPlayerOpen(false);
+                    setSelectedPin('');
+                }}
+                onClose={() => {
+                    setIsPlayerOpen(false);
+                    setSelectedPin('');
+                    fetchActiveRooms();
+                    if (routePin) navigate('/live-arena', { replace: true });
+                }}
+                onBack={() => {
+                    setIsPlayerOpen(false);
+                    setSelectedPin('');
+                    if (routePin) navigate('/live-arena', { replace: true });
+                }}
+            />
+        );
+    }
+
+    if (hostQuiz || promotedRoom) {
+        return (
+            <LiveHostMode
+                quiz={hostQuiz || undefined}
+                existingRoom={promotedRoom || undefined}
+                initialMode={promotedRoom?.mode || hostMode}
+                initialHostParticipates={promotedRoom?.hostParticipates ?? hostParticipates}
+                initialQuestionTimeSec={promotedRoom?.questionTimeSec || questionTimeSec}
+                onClose={() => {
+                    setHostQuiz(null);
+                    setPromotedRoom(null);
+                    fetchActiveRooms();
+                    if (routePin) navigate('/live-arena', { replace: true });
+                }}
+            />
+        );
+    }
 
     // =========================================================================
     // 1. TEACHER STUDIO DEDICATED LAYOUT (Full-width host workspace next to sidebar)
@@ -259,7 +363,7 @@ export const ClassroomPage: React.FC = () => {
                                     ? 'bg-[#93c5fd] text-black border border-black'
                                     : 'bg-indigo-500/15 text-indigo-600 dark:text-indigo-300 border border-indigo-500/30'
                             }`}>
-                                Teacher Live Studio
+                                {tx('Teacher Live Arena', 'استوديو الساحة للمدرس')}
                             </span>
                             <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
                                 isBento
@@ -267,11 +371,11 @@ export const ClassroomPage: React.FC = () => {
                                     : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
                             }`}>
                                 <Radio className="w-3 h-3 animate-pulse" />
-                                <span>Live Ready</span>
+                                <span>{tx('Live Ready', 'جاهز للبث')}</span>
                             </span>
                         </div>
                         <h1 className="text-xl font-black uppercase tracking-tight leading-tight">
-                            Live Classroom Arena
+                            {tx('Live Arena Studio', 'الساحة المباشرة (Live Arena)')}
                         </h1>
                     </div>
 
@@ -293,7 +397,7 @@ export const ClassroomPage: React.FC = () => {
                             }`}
                         >
                             <Rocket className="w-3.5 h-3.5" />
-                            <span>Launch Live Quiz</span>
+                            <span>{tx('Launch Live Arena', 'افتح ساحة جديدة')}</span>
                         </button>
 
                         <button
@@ -308,7 +412,7 @@ export const ClassroomPage: React.FC = () => {
                             }`}
                         >
                             <KeyRound className="w-3.5 h-3.5" />
-                            <span>Join PIN ({activeRooms.length})</span>
+                            <span>{tx('Join PIN', 'ادخل بكود')} ({activeRooms.length})</span>
                         </button>
                     </div>
                 </div>
@@ -352,6 +456,7 @@ export const ClassroomPage: React.FC = () => {
                         quiz={hostQuiz}
                         initialMode={hostMode}
                         initialHostParticipates={hostParticipates}
+                        initialQuestionTimeSec={questionTimeSec}
                         onClose={() => {
                             setHostQuiz(null);
                             fetchActiveRooms();
@@ -377,7 +482,7 @@ export const ClassroomPage: React.FC = () => {
                                 ? 'bg-[#93c5fd] text-black border border-black'
                                 : 'bg-indigo-500/15 text-indigo-600 dark:text-indigo-300 border border-indigo-500/30'
                         }`}>
-                            Interactive Multiplayer
+                            {tx('Interactive Multiplayer', 'منافسة تفاعلية مباشرة')}
                         </span>
                         <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
                             isBento
@@ -385,14 +490,17 @@ export const ClassroomPage: React.FC = () => {
                                 : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
                         }`}>
                             <Radio className="w-3 h-3 animate-pulse" />
-                            <span>Live Ready</span>
+                            <span>{tx('Live Ready', 'جاهز للبث')}</span>
                         </span>
                     </div>
                     <h1 className="text-xl sm:text-2xl font-black uppercase tracking-tight leading-none pt-0.5">
-                        Live Classroom Arena
+                        {tx('Live Arena', 'الساحة المباشرة (Live Arena)')}
                     </h1>
                     <p className={`text-xs leading-snug ${isBento ? 'text-slate-700 font-semibold' : 'text-slate-500 dark:text-slate-400'}`}>
-                        Join a live teacher session with your 6-digit PIN or launch a turn-based / simultaneous peer challenge!
+                        {tx(
+                            'Join a live session with your 6-digit PIN or host a Turn-Based / Everyone Answers challenge!',
+                            'ادخل أي غرفة مباشرة بكود الـ 6 أرقام أو اعمل تحدي أدوار أو الكل يجاوب مع صحابك!'
+                        )}
                     </p>
                 </div>
 
@@ -406,7 +514,7 @@ export const ClassroomPage: React.FC = () => {
                     }`}
                 >
                     <ArrowLeft className="w-3.5 h-3.5" />
-                    <span>Dashboard</span>
+                    <span>{tx('Dashboard', 'الرئيسية')}</span>
                 </button>
             </div>
 
@@ -426,10 +534,10 @@ export const ClassroomPage: React.FC = () => {
                         </div>
                         <div>
                             <h2 className="text-sm sm:text-base font-black uppercase tracking-tight leading-none">
-                                Host a Peer Duel
+                                {tx('Host a Live Arena', 'اعمل ساحة مباشرة')}
                             </h2>
                             <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                                Choose your mode, then pick a Track &amp; Quiz Category
+                                {tx('Choose your mode & timer, then pick a Track & Quiz Category', 'اختار النظام والوقت، وبعدين اختار المسار والكويز')}
                             </p>
                         </div>
                     </div>
@@ -467,6 +575,7 @@ export const ClassroomPage: React.FC = () => {
                     quiz={hostQuiz}
                     initialMode={hostMode}
                     initialHostParticipates={hostParticipates}
+                    initialQuestionTimeSec={questionTimeSec}
                     onClose={() => {
                         setHostQuiz(null);
                         fetchActiveRooms();

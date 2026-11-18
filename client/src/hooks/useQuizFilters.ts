@@ -16,8 +16,9 @@ export const useQuizFilters = ({ quizzes, selectedStackId, viewMode }: UseQuizFi
             if (q.isTournamentOnly) return false;
 
             // Filter by Search
-            const matchesSearch = (q.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                q.description.toLowerCase().includes(searchTerm.toLowerCase()));
+            const term = (searchTerm || '').toLowerCase();
+            const matchesSearch = ((q.title || '').toLowerCase().includes(term) ||
+                (q.description || '').toLowerCase().includes(term));
 
             // Filter by Stack (Subject)
             if (viewMode === 'list' && selectedStackId) {

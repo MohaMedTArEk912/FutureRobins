@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import type { SkillModule, SkillTrack, UserData, BadgeTree, BadgeNode, Badge, BadgeTreeNode } from '../../types';
 import { api } from '../../lib/api';
 import { useTheme } from '../../context/ThemeContext';
+import { useLanguage } from '../../context/LanguageContext';
 import {
   Target,
   Lock,
@@ -37,6 +38,7 @@ interface ModuleNode {
 
 const SkillTracks: React.FC<SkillTracksProps> = ({ user, onUserUpdate }) => {
   const { isBento } = useTheme();
+  const { tx } = useLanguage();
   const navigate = useNavigate();
 
   const [tracks, setTracks] = useState<SkillTrack[]>([]);
@@ -481,7 +483,13 @@ const SkillTracks: React.FC<SkillTracksProps> = ({ user, onUserUpdate }) => {
                     : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-white/5'
               }`}
             >
-              {filter === 'all' ? 'All' : filter === 'in-progress' ? 'In Progress' : filter === 'completed' ? 'Completed' : 'Not Started'}
+              {filter === 'all'
+                ? tx('All', 'الكل')
+                : filter === 'in-progress'
+                  ? tx('In Progress', 'شغال عليه')
+                  : filter === 'completed'
+                    ? tx('Completed', 'خلصان')
+                    : tx('Not Started', 'لسه مبدأش')}
             </button>
           ))}
         </div>

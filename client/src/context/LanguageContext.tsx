@@ -88,7 +88,6 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
     });
     const [manualModalOpen, setManualModalOpen] = useState(false);
     const [needsAccountSelection, setNeedsAccountSelection] = useState(false);
-    const [dismissedForUserId, setDismissedForUserId] = useState<string | null>(null);
     const accountRef = useRef<AccountUpdater>({ user: null, updateUser: undefined });
 
     useEffect(() => {
@@ -108,7 +107,6 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
         // Optimistically update local session immediately
         updateUser?.({ preferredLanguage: nextLang });
         setNeedsAccountSelection(false);
-        setDismissedForUserId(user.userId);
 
         try {
             await api.updateUser(user.userId, { preferredLanguage: nextLang });
@@ -129,10 +127,6 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
     }, [language, setLanguage]);
 
     const confirmLanguageChoice = useCallback(async (chosenLang: AppLanguage) => {
-        const { user } = accountRef.current;
-        if (user?.userId && user.userId !== 'guest') {
-            setDismissedForUserId(user.userId);
-        }
         setNeedsAccountSelection(false);
         setManualModalOpen(false);
         await setLanguage(chosenLang, true);
@@ -156,7 +150,6 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
 
         if (!user || user.userId === 'guest') {
             setNeedsAccountSelection(false);
-            setDismissedForUserId(null);
             return;
         }
 
@@ -174,11 +167,9 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
             return;
         }
 
-        // First login or legacy user with no saved preferredLanguage on their account
-        if (dismissedForUserId !== user.userId) {
-            setNeedsAccountSelection(true);
-        }
-    }, [dismissedForUserId, language]);
+        // Language selection is controlled from Profile Settings only (never auto-popup on login)
+        setNeedsAccountSelection(false);
+    }, [language]);
 
     const isArabic = language === 'ar-EG';
     const dir: 'ltr' | 'rtl' = isArabic ? 'rtl' : 'ltr';

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { CheckCircle, XCircle, CornerDownLeft, Sparkles } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { evaluateTextAnswer } from '../../lib/stringSimilarity';
 
 interface TextQuestionProps {
@@ -22,9 +23,11 @@ export const TextQuestion: React.FC<TextQuestionProps> = ({
     onChange,
     onSubmit,
     readOnly = false,
-    placeholder = 'Type your answer here...'
+    placeholder
 }) => {
     const { theme, isBento } = useTheme();
+    const { tx } = useLanguage();
+    const resolvedPlaceholder = placeholder ?? tx('Type your answer here...', 'اكتب إجابتك هنا...');
     const [localValue, setLocalValue] = useState(value);
 
     useEffect(() => {
@@ -68,13 +71,13 @@ export const TextQuestion: React.FC<TextQuestionProps> = ({
                 theme === 'bento' ? 'text-black dark:text-white' : theme === 'dark' ? 'text-slate-400' : 'text-slate-600'
             }`}>
                 <span className="flex items-center gap-1.5">
-                    <span>Short Answer / Text Fill</span>
+                    <span>{tx('Short Answer / Text Fill', 'إجابة نصية قصيرة')}</span>
                     <span className="text-[10px] px-2 py-0.5 rounded-md font-black bg-purple-100 text-purple-900 dark:bg-purple-950/60 dark:text-purple-300 border border-purple-300 dark:border-purple-800">
-                        70%+ Match Passes
+                        {tx('70%+ Match Passes', 'تطابق 70%+ بينجح')}
                     </span>
                 </span>
                 <span className="text-[10px] font-bold lowercase opacity-70">
-                    (fuzzy matching • case & punctuation insensitive)
+                    {tx('(fuzzy matching • case & punctuation insensitive)', '(تطابق ذكي • مش فارق حالة الحروف)')}
                 </span>
             </div>
 
@@ -86,7 +89,7 @@ export const TextQuestion: React.FC<TextQuestionProps> = ({
                         onChange={handleChange}
                         onKeyDown={handleKeyDown}
                         readOnly={readOnly || submitted}
-                        placeholder={placeholder}
+                        placeholder={resolvedPlaceholder}
                         autoFocus
                         className={`w-full p-4 sm:p-4.5 rounded-2xl text-base sm:text-lg font-bold transition-all duration-150 outline-none ${
                             theme === 'bento'

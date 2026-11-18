@@ -4,6 +4,7 @@ import { useSocket } from '../context/SocketContext';
 import { useNotification } from '../context/NotificationContext';
 import { useOptionalAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { useLanguage } from '../context/LanguageContext';
 import { TeacherWorkspaceProvider, useTeacherWorkspace } from '../context/TeacherWorkspaceContext';
 import { getTeacherThemeStyles } from '../components/teacher/teacherTheme';
 import TeacherSidebar from '../components/teacher/TeacherSidebar';
@@ -77,6 +78,7 @@ const TeacherShellFrame: React.FC<{ isQuizOrGame: boolean }> = ({ isQuizOrGame }
 const MainLayout: React.FC = () => {
     const { socket } = useSocket();
     const { showNotification } = useNotification();
+    const { tx } = useLanguage();
     const auth = useOptionalAuth();
     const currentUser = auth?.currentUser ?? null;
     const updateUser = auth?.updateUser;
@@ -93,10 +95,10 @@ const MainLayout: React.FC = () => {
 
         const handleInvite = (invite: { fromId: string; fromName: string; quizId: string; roomId: string }) => {
             setGameInvite(invite);
-            showNotification('info', `${invite.fromName} challenged you to a quiz!`, {
-                title: '⚔️ Quiz Challenge',
+            showNotification('info', tx(`${invite.fromName} challenged you to a quiz!`, `${invite.fromName} اتحداك في كويز مباشر!`), {
+                title: tx('⚔️ Quiz Challenge', '⚔️ تحدي كويز'),
                 action: {
-                    label: 'Accept Duel',
+                    label: tx('Accept Duel', 'اقبل التحدي'),
                     onClick: () => {
                         navigate('/game/vs', {
                             state: {
@@ -111,35 +113,41 @@ const MainLayout: React.FC = () => {
         };
 
         const handleClassroomInvite = (invite: { fromUser?: { name: string }; pin: string; quizTitle?: string }) => {
-            const senderName = invite.fromUser?.name || 'A classmate';
-            showNotification('info', `${senderName} invited you to join Classroom Duel: ${invite.quizTitle || 'Live Arena'}!`, {
-                title: '🎓 Classroom Invite',
+            const senderName = invite.fromUser?.name || tx('A classmate', 'زميلك');
+            showNotification('info', tx(
+                `${senderName} invited you to join Live Arena: ${invite.quizTitle || 'Live Arena'}!`,
+                `${senderName} بعتلك دعوة للساحة المباشرة: ${invite.quizTitle || 'الساحة المباشرة'}!`
+            ), {
+                title: tx('🎮 Live Arena Invite', '🎮 دعوة للساحة المباشرة'),
                 action: {
-                    label: 'Join Duel',
+                    label: tx('Join Arena', 'ادخل الساحة'),
                     onClick: () => {
-                        navigate(`/classroom?pin=${invite.pin}`);
+                        navigate(`/live-arena?pin=${invite.pin}`);
                     }
                 }
             });
         };
 
         const handleHomeworkAlert = (alert: { title?: string; message?: string; link?: string; className?: string }) => {
-            showNotification('warning', alert.message || 'You have pending homework to complete!', {
-                title: alert.title || '📚 Homework Reminder',
+            showNotification('warning', alert.message || tx('You have pending homework to complete!', 'عندك واجب لسه مخلصش!'), {
+                title: alert.title || tx('📚 Homework Reminder', '📚 تذكير بالواجب'),
                 duration: 8000,
                 action: alert.link ? {
-                    label: 'Open Homework',
+                    label: tx('Open Homework', 'افتح الواجب'),
                     onClick: () => navigate(alert.link!)
                 } : undefined
             });
         };
 
         const handleClassInvite = (invite: { clanName?: string; inviterName?: string }) => {
-            showNotification('info', `${invite.inviterName || 'A teacher'} invited you to join "${invite.clanName || 'Class'}"`, {
-                title: '🎓 Class Invitation',
+            showNotification('info', tx(
+                `${invite.inviterName || 'A teacher'} invited you to join "${invite.clanName || 'Class'}"`,
+                `${invite.inviterName || 'مدرس'} بعتلك دعوة تنضم لكلاس "${invite.clanName || 'الكلاس'}"`
+            ), {
+                title: tx('🎓 Class Invitation', '🎓 دعوة كلاس'),
                 duration: 7000,
                 action: {
-                    label: 'View Invite',
+                    label: tx('View Invite', 'شوف الدعوة'),
                     onClick: () => navigate('/classes')
                 }
             });
@@ -149,9 +157,13 @@ const MainLayout: React.FC = () => {
             if (payload?.role) {
                 updateUser?.({ role: payload.role });
                 refreshUser?.();
-                const label = payload.role === 'teacher' ? 'Teacher Mode' : payload.role === 'admin' ? 'Admin Mode' : 'Student Mode';
-                showNotification('info', `Your account role was updated to ${label}.`, {
-                    title: '🔄 Role Updated',
+                const label = payload.role === 'teacher'
+                    ? tx('Teacher Mode', 'وضع المدرس')
+                    : payload.role === 'admin'
+                        ? tx('Admin Mode', 'وضع الإدارة')
+                        : tx('Student Mode', 'وضع الطالب');
+                showNotification('info', tx(`Your account role was updated to ${label}.`, `تم تحديث صلاحية حسابك إلى ${label}.`), {
+                    title: tx('🔄 Role Updated', '🔄 تحديث الصلاحية'),
                     duration: 7000
                 });
             }
@@ -159,11 +171,11 @@ const MainLayout: React.FC = () => {
 
         const handleNewNotification = (payload: { type?: string; title?: string; message?: string; link?: string }) => {
             if (payload?.type === 'tournament_invite') {
-                showNotification('info', payload.message || 'You were invited to a tournament!', {
-                    title: payload.title || '🏆 Tournament Invite',
+                showNotification('info', payload.message || tx('You were invited to a tournament!', 'اتدعيت لبطولة جديدة!'), {
+                    title: payload.title || tx('🏆 Tournament Invite', '🏆 دعوة بطولة'),
                     duration: 8000,
                     action: {
-                        label: 'View Arena',
+                        label: tx('View Arena', 'افتح البطولة'),
                         onClick: () => navigate(payload.link || '/tournaments')
                     }
                 });

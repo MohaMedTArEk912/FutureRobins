@@ -56,9 +56,14 @@ export const NAV_AR_TRANSLATIONS: Record<string, { label: string; shortLabel: st
         description: 'الترتيب العالمي وأعلى النقاط'
     },
     '/classroom': {
-        label: 'الكلاس لايف',
-        shortLabel: 'الكلاس لايف',
-        description: 'منافسات مباشرة جوه الكلاس مع المدرس'
+        label: 'الساحة المباشرة',
+        shortLabel: 'الساحة',
+        description: 'منافسات مباشرة، تحدي الأدوار وتحدي الكل يجاوب'
+    },
+    '/live-arena': {
+        label: 'الساحة المباشرة',
+        shortLabel: 'الساحة',
+        description: 'منافسات مباشرة، تحدي الأدوار وتحدي الكل يجاوب'
     },
     '/daily': {
         label: 'تحدي النهارده',
@@ -163,11 +168,11 @@ export const ALL_NAV_REGISTRY: Record<string, NavItemDef> = {
         category: 'core'
     },
     '/classroom': {
-        path: '/classroom',
-        label: 'Live Classroom',
-        shortLabel: 'Classroom',
+        path: '/live-arena',
+        label: 'Live Arena',
+        shortLabel: 'Live Arena',
         icon: Gamepad2,
-        description: 'Turn-based live duels & classroom host games',
+        description: 'Real-time turn-based duels & everyone-answers battles',
         category: 'multiplayer'
     },
     '/daily': {

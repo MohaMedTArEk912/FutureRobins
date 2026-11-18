@@ -24,6 +24,7 @@ import {
 import type { UserData, ClassSummary, Clan } from '../../types';
 import { useAuth } from '../../context/AuthContext';
 import { useChat } from '../../context/ChatContext';
+import { useLanguage } from '../../context/LanguageContext';
 import NotificationCenter from '../NotificationCenter';
 import Avatar from '../Avatar';
 import type { TeacherSectionId, TeacherThemeStyles } from './teacherTheme';
@@ -63,16 +64,17 @@ interface TeacherSidebarProps {
 
 const DASHBOARD_PATHS = new Set(['/', '/dashboard', '/teacher']);
 
-const ROUTE_TITLES: { prefix: string; label: string; icon: LucideIcon }[] = [
-    { prefix: '/classroom', label: 'Live Classroom', icon: Gamepad2 },
-    { prefix: '/leaderboard', label: 'Rankings', icon: Award },
-    { prefix: '/social', label: 'Social Hub', icon: Users },
-    { prefix: '/profile', label: 'Teacher Profile', icon: User },
-    { prefix: '/tracks', label: 'Skill Tracks', icon: Compass },
-    { prefix: '/quizzes', label: 'Quiz Bank', icon: BookOpen },
-    { prefix: '/analytics', label: 'Analytics', icon: BarChart3 },
-    { prefix: '/classes', label: 'Classes', icon: GraduationCap },
-    { prefix: '/clans', label: 'Classes', icon: GraduationCap }
+const ROUTE_TITLES: { prefix: string; label: string; arLabel: string; icon: LucideIcon }[] = [
+    { prefix: '/live-arena', label: 'Live Arena', arLabel: 'الساحة المباشرة', icon: Gamepad2 },
+    { prefix: '/classroom', label: 'Live Arena', arLabel: 'الساحة المباشرة', icon: Gamepad2 },
+    { prefix: '/leaderboard', label: 'Rankings', arLabel: 'المتصدرين', icon: Award },
+    { prefix: '/social', label: 'Social Hub', arLabel: 'السوشيال', icon: Users },
+    { prefix: '/profile', label: 'Teacher Profile', arLabel: 'ملف المدرس', icon: User },
+    { prefix: '/tracks', label: 'Skill Tracks', arLabel: 'مسارات التعلم', icon: Compass },
+    { prefix: '/quizzes', label: 'Quiz Bank', arLabel: 'بنك الكويزات', icon: BookOpen },
+    { prefix: '/analytics', label: 'Analytics', arLabel: 'التحليلات', icon: BarChart3 },
+    { prefix: '/classes', label: 'Classes', arLabel: 'الكلاسات', icon: GraduationCap },
+    { prefix: '/clans', label: 'Classes', arLabel: 'الكلاسات', icon: GraduationCap }
 ];
 
 export const TeacherSidebar: React.FC<TeacherSidebarProps> = ({
@@ -91,6 +93,7 @@ export const TeacherSidebar: React.FC<TeacherSidebarProps> = ({
     const location = useLocation();
     const { logout } = useAuth();
     const { isOpen: isChatOpen, openChat, closeChat, unreadCount: chatUnreadCount } = useChat();
+    const { tx } = useLanguage();
 
     const isOnDashboard = DASHBOARD_PATHS.has(location.pathname);
     const isOnProfile = location.pathname === '/profile';
@@ -100,13 +103,13 @@ export const TeacherSidebar: React.FC<TeacherSidebarProps> = ({
     const navGroups: NavGroup[] = [
         {
             id: 'studio',
-            label: 'Studio & Classes',
+            label: tx('Studio & Classes', 'الاستوديو والكلاسات'),
             items: [
                 {
                     id: 'overview',
                     section: 'overview',
                     matchRoutes: ['/classes', '/clans'],
-                    label: 'Command Center',
+                    label: tx('Command Center', 'غرفة التحكم'),
                     icon: LayoutDashboard,
                     badge: myClasses.length
                 }
@@ -114,61 +117,61 @@ export const TeacherSidebar: React.FC<TeacherSidebarProps> = ({
         },
         {
             id: 'teaching',
-            label: 'Teaching & Content',
+            label: tx('Teaching & Content', 'التدريس والمحتوى'),
             items: [
                 {
                     id: 'sessions',
                     section: 'sessions',
                     matchSections: ['sessions', 'board_studio', 'presentations'],
-                    label: 'Sessions & Board',
+                    label: tx('Sessions & Board', 'السيشنات والسبورة'),
                     icon: MonitorPlay
                 },
                 {
                     id: 'library',
                     section: 'library',
                     matchRoutes: ['/tracks', '/quizzes'],
-                    label: 'Tracks & Quizzes',
+                    label: tx('Tracks & Quizzes', 'المسارات والكويزات'),
                     icon: BookOpen
                 },
-                { id: 'classroom', route: '/classroom', label: 'Live Classroom', icon: Gamepad2 }
+                { id: 'classroom', route: '/live-arena', matchRoutes: ['/classroom', '/live-arena'], label: tx('Live Arena', 'الساحة المباشرة'), icon: Gamepad2 }
             ]
         },
         {
             id: 'insights',
-            label: 'Insights & AI',
+            label: tx('Insights & AI', 'التحليلات والذكاء الاصطناعي'),
             items: [
                 {
                     id: 'analytics',
                     section: 'analytics',
                     matchRoutes: ['/analytics'],
-                    label: 'Analytics & Logs',
+                    label: tx('Analytics & Logs', 'التحليلات والسجلات'),
                     icon: BarChart3,
                     requiresClass: true
                 },
-                { id: 'ai_studio', section: 'ai_studio', label: 'AI Quiz Studio', icon: Sparkles, requiresClass: true }
+                { id: 'ai_studio', section: 'ai_studio', label: tx('AI Quiz Studio', 'استوديو الكويزات بالذكاء'), icon: Sparkles, requiresClass: true }
             ]
         },
         {
             id: 'community',
-            label: 'Community',
+            label: tx('Community', 'المجتمع'),
             items: [
-                { id: 'leaderboard', route: '/leaderboard', label: 'Rankings', icon: Award },
-                { id: 'social', route: '/social', label: 'Social Hub', icon: Users }
+                { id: 'leaderboard', route: '/leaderboard', label: tx('Rankings', 'المتصدرين'), icon: Award },
+                { id: 'social', route: '/social', label: tx('Social Hub', 'السوشيال'), icon: Users }
             ]
         }
     ];
 
     const isItemActive = (item: NavItemConfig) => {
+        if (item.matchRoutes) {
+            if (item.matchRoutes.some(p => location.pathname === p || location.pathname.startsWith(`${p}/`))) {
+                return true;
+            }
+        }
         if (item.route) {
             return location.pathname === item.route || location.pathname.startsWith(`${item.route}/`);
         }
         if (isOnDashboard && item.section) {
             return item.matchSections ? item.matchSections.includes(activeSection) : activeSection === item.section;
-        }
-        if (item.matchRoutes) {
-            return item.matchRoutes.some(
-                p => location.pathname === p || location.pathname.startsWith(`${p}/`)
-            );
         }
         return false;
     };
@@ -180,8 +183,8 @@ export const TeacherSidebar: React.FC<TeacherSidebarProps> = ({
         .flatMap(g => g.items)
         .find(i => i.matchSections ? i.matchSections.includes(activeSection) : i.section === activeSection);
     const mobileHeaderLabel = isOnDashboard
-        ? (activeSectionMeta?.label || 'Command Center')
-        : (activeRouteMeta?.label || 'Teacher Studio');
+        ? (activeSectionMeta?.label || tx('Command Center', 'غرفة التحكم'))
+        : (activeRouteMeta ? tx(activeRouteMeta.label, activeRouteMeta.arLabel) : tx('Teacher Studio', 'استوديو المدرس'));
     const MobileHeaderIcon = isOnDashboard
         ? (activeSectionMeta?.icon || LayoutDashboard)
         : (activeRouteMeta?.icon || LayoutDashboard);

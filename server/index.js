@@ -57,6 +57,7 @@ import supportRoutes from './routes/support.js';
 import newsletterRoutes from './routes/newsletter.js';
 import presentationRoutes from './routes/presentations.js';
 import classroomRoutes from './routes/classroom.js';
+import { cleanupExpiredClassroomRooms } from './controllers/classroomController.js';
 import { verifyEmailService } from './services/emailService.js';
 
 // Strictly whitelisted origins (No broad wildcard *.vercel.app or *.netlify.app domains)
@@ -1158,6 +1159,11 @@ if (!isServerless) {
       verifyEmailService().catch(err => {
         console.warn('⚠️  [EmailService] Non-blocking startup check failed:', err.message);
       });
+      // Periodically close and clean up expired Live Arena rooms
+      const classroomCleanupTimer = setInterval(() => {
+        cleanupExpiredClassroomRooms(app);
+      }, 15_000);
+      classroomCleanupTimer.unref?.();
     });
   }
 }

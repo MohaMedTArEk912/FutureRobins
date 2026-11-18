@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { Sun, Moon, LayoutGrid } from 'lucide-react';
 import { useTheme, type AppTheme } from '../context/ThemeContext';
+import { useLanguage } from '../context/LanguageContext';
 import { getTeacherThemeStyles } from './teacher/teacherTheme';
 
 interface WorkspaceThemeSwitcherProps {
@@ -8,24 +9,26 @@ interface WorkspaceThemeSwitcherProps {
     className?: string;
 }
 
-const THEME_OPTIONS: { id: AppTheme; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
-    { id: 'light', label: 'Light', icon: Sun },
-    { id: 'dark', label: 'Dark', icon: Moon },
-    { id: 'bento', label: 'Bento', icon: LayoutGrid }
+const THEME_OPTIONS: { id: AppTheme; label: string; arLabel: string; icon: React.ComponentType<{ className?: string }> }[] = [
+    { id: 'light', label: 'Light', arLabel: 'فاتح', icon: Sun },
+    { id: 'dark', label: 'Dark', arLabel: 'غامق', icon: Moon },
+    { id: 'bento', label: 'Bento', arLabel: 'بينتو', icon: LayoutGrid }
 ];
 
 export const WorkspaceThemeSwitcher: React.FC<WorkspaceThemeSwitcherProps> = ({
-    label = 'Workspace Theme',
+    label,
     className = ''
 }) => {
     const { theme, setTheme } = useTheme();
+    const { tx } = useLanguage();
+    const resolvedLabel = label ?? tx('Workspace Theme', 'ثيم المنصة');
     const styles = useMemo(() => getTeacherThemeStyles(theme), [theme]);
 
     return (
         <div className={`space-y-1.5 ${className}`}>
-            {label && (
+            {resolvedLabel && (
                 <div className={`text-[10px] uppercase tracking-widest px-1 ${styles.sidebarSectionLabel}`}>
-                    {label}
+                    {resolvedLabel}
                 </div>
             )}
             <div className={`grid grid-cols-3 gap-1 p-1 rounded-xl ${styles.themeSwitcherBox}`}>
@@ -43,7 +46,7 @@ export const WorkspaceThemeSwitcher: React.FC<WorkspaceThemeSwitcherProps> = ({
                             }`}
                         >
                             <Icon className="w-3.5 h-3.5 shrink-0" />
-                            <span>{opt.label}</span>
+                            <span>{tx(opt.label, opt.arLabel)}</span>
                         </button>
                     );
                 })}

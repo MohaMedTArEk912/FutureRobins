@@ -974,12 +974,20 @@ button:active {
 }
 
 /* Modals & Dialogs: outer fixed overlay must remain transparent */
-[data-layout="bento"] .fixed.inset-0:not(.chat-overlay-shell),
-[data-theme="bento"] .fixed.inset-0:not(.chat-overlay-shell) {
+[data-layout="bento"] .fixed.inset-0:not(.chat-overlay-shell):not(.live-arena-stage),
+[data-theme="bento"] .fixed.inset-0:not(.chat-overlay-shell):not(.live-arena-stage) {
   background-color: transparent !important;
   border: none !important;
   box-shadow: none !important;
   border-radius: 0 !important;
+}
+
+/* Live Arena full-screen stage: frosted blurred backdrop in Bento */
+[data-layout="bento"] .fixed.inset-0.live-arena-stage,
+[data-theme="bento"] .fixed.inset-0.live-arena-stage {
+  background-color: rgba(245, 243, 236, 0.82) !important;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
 }
 
 /* Ensure ambient background is completely crisp and never blurred */

@@ -3,20 +3,25 @@ import { ClassroomRoom } from '../models/ClassroomRoom.js';
 import { User } from '../models/User.js';
 import { createAndSendNotification } from './notificationController.js';
 
-const ROOM_TTL_MS = 4 * 60 * 60 * 1000; // 4 hours
+const LOBBY_TTL_MS = 10 * 60 * 1000; // 10 minutes in lobby before auto-closing
+const ACTIVE_GAME_TTL_MS = 30 * 60 * 1000; // 30 minutes once a live session starts
 
-function nextExpiryDate() {
-  return new Date(Date.now() + ROOM_TTL_MS);
+function nextExpiryDate(ttlMs = LOBBY_TTL_MS) {
+  return new Date(Date.now() + ttlMs);
 }
 
 function resolveCorrectIndex(question) {
   if (!question) return 0;
   const raw = question.correctAnswer;
-  const num = Number(raw);
-  if (Number.isInteger(num) && num >= 0) return num;
+  if (typeof raw === 'number' && Number.isInteger(raw) && raw >= 0) return raw;
+  const rawStr = String(raw ?? '').trim();
+  if (rawStr !== '' && /^\d+$/.test(rawStr)) {
+    const num = Number(rawStr);
+    if (Number.isInteger(num) && num >= 0) return num;
+  }
   if (Array.isArray(question.options)) {
     const idx = question.options.findIndex(
-      opt => String(opt).trim().toLowerCase() === String(raw ?? '').trim().toLowerCase()
+      opt => String(opt).trim().toLowerCase() === rawStr.toLowerCase()
     );
     if (idx >= 0) return idx;
   }
@@ -116,6 +121,7 @@ export function sanitizeRoomForClient(roomDoc) {
       : null,
     lastTurnResult: revealAnswers ? room.lastTurnResult || null : null,
     roundReveal: revealAnswers ? room.roundReveal || null : null,
+    expiresAt: room.expiresAt ? new Date(room.expiresAt).toISOString() : null,
     version: room.version || 1
   };
 }
@@ -226,17 +232,27 @@ async function mutateRoomAtomically(pin, mutatorFn, maxRetries = 5) {
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     const doc = await ClassroomRoom.findOne({ pin: String(pin).trim() });
     if (!doc) return { notFound: true };
+    if (doc.expiresAt && new Date(doc.expiresAt) <= new Date()) {
+      await ClassroomRoom.deleteOne({ _id: doc._id }).catch(() => {});
+      return { notFound: true };
+    }
 
     const working = doc.toObject();
     const outcome = await mutatorFn(working);
     if (outcome?.abort) {
       return outcome;
     }
+    if (outcome?.noChange) {
+      return { room: doc, outcome };
+    }
 
     const updated = await ClassroomRoom.findOneAndUpdate(
       { _id: doc._id, version: doc.version },
       {
         $set: {
+          hostId: working.hostId,
+          hostName: working.hostName,
+          hostRole: working.hostRole,
           mode: working.mode,
           hostParticipates: working.hostParticipates,
           questionTimeSec: working.questionTimeSec,
@@ -249,7 +265,7 @@ async function mutateRoomAtomically(pin, mutatorFn, maxRetries = 5) {
           submissions: working.submissions,
           lastTurnResult: working.lastTurnResult,
           roundReveal: working.roundReveal,
-          expiresAt: nextExpiryDate()
+          expiresAt: working.expiresAt || nextExpiryDate()
         },
         $inc: { version: 1 }
       },
@@ -272,7 +288,7 @@ export const listActiveRooms = async (req, res) => {
     })
       .sort({ updatedAt: -1 })
       .limit(8)
-      .select('pin hostName hostRole mode quizData.title quizData.questions gameState players updatedAt')
+      .select('pin hostName hostRole mode quizData.title quizData.questions gameState players expiresAt updatedAt')
       .lean();
 
     const summaries = rooms.map(r => ({
@@ -283,7 +299,8 @@ export const listActiveRooms = async (req, res) => {
       quizTitle: r.quizData?.title || 'Live Quiz',
       totalQuestions: Array.isArray(r.quizData?.questions) ? r.quizData.questions.length : 0,
       gameState: r.gameState,
-      playerCount: Array.isArray(r.players) ? r.players.filter(p => !p.isSpectator).length : 0
+      playerCount: Array.isArray(r.players) ? r.players.filter(p => !p.isSpectator).length : 0,
+      expiresAt: r.expiresAt ? new Date(r.expiresAt).toISOString() : null
     }));
 
     return res.json({ rooms: summaries });
@@ -297,7 +314,7 @@ export const createRoom = async (req, res) => {
     const {
       hostId,
       hostName,
-      hostRole = 'teacher',
+      hostRole = 'student',
       mode = 'turn_based',
       hostParticipates = true,
       questionTimeSec = 25,
@@ -444,6 +461,10 @@ export const getRoomState = async (req, res) => {
     if (!room) {
       return res.status(404).json({ message: 'Classroom room closed or expired' });
     }
+    if (room.expiresAt && new Date(room.expiresAt) <= new Date()) {
+      await ClassroomRoom.deleteOne({ _id: room._id }).catch(() => {});
+      return res.status(404).json({ message: 'Classroom room closed or expired' });
+    }
 
     if (clientVersion && room.version === clientVersion) {
       return res.json({ unchanged: true, version: room.version, serverNow: new Date().toISOString() });
@@ -564,6 +585,14 @@ export const startRoom = async (req, res) => {
       }));
 
       room.turnOrder = rebuildTurnOrder(room.players);
+      const realNonHostPlayers = room.players.filter(p => !p.isBot && !p.isHost && !p.isSpectator);
+      if (realNonHostPlayers.length === 0) {
+        return {
+          abort: true,
+          status: 400,
+          message: 'At least 1 real player must join the room before starting.'
+        };
+      }
       if (room.turnOrder.length === 0) {
         return { abort: true, status: 400, message: 'At least one active participant is needed before starting.' };
       }
@@ -575,6 +604,7 @@ export const startRoom = async (req, res) => {
       room.lastTurnResult = null;
       room.roundReveal = null;
       room.gameState = 'question';
+      room.expiresAt = nextExpiryDate(ACTIVE_GAME_TTL_MS);
     });
 
     if (result.abort) return res.status(result.status || 400).json({ message: result.message });
@@ -709,7 +739,9 @@ export const submitAnswer = async (req, res) => {
     if (result.notFound) return res.status(404).json({ message: 'Classroom room not found' });
     if (result.conflict) return res.status(409).json({ message: 'Submission conflict, please try again' });
 
-    broadcastRoom(req.app, result.room);
+    if (!result.outcome?.noChange) {
+      broadcastRoom(req.app, result.room);
+    }
     return res.json({ room: sanitizeRoomForClient(result.room) });
   } catch (error) {
     return res.status(500).json({ message: 'Failed to submit answer', error: error.message });
@@ -755,7 +787,9 @@ export const revealQuestion = async (req, res) => {
     if (result.notFound) return res.status(404).json({ message: 'Classroom room not found' });
     if (result.conflict) return res.status(409).json({ message: 'Could not reveal question, please retry' });
 
-    broadcastRoom(req.app, result.room);
+    if (!result.outcome?.noChange) {
+      broadcastRoom(req.app, result.room);
+    }
     return res.json({ room: sanitizeRoomForClient(result.room) });
   } catch (error) {
     return res.status(500).json({ message: 'Failed to reveal question results', error: error.message });
@@ -806,8 +840,8 @@ export const inviteToRoom = async (req, res) => {
     }
 
     const senderName = fromUser?.name || 'Your Teacher';
-    const roomTitle = quizTitle || 'Live Classroom Session';
-    const inviteLink = `/classroom?pin=${encodeURIComponent(pin)}`;
+    const roomTitle = quizTitle || 'Live Arena Session';
+    const inviteLink = `/live-arena?pin=${encodeURIComponent(pin)}`;
 
     const io = req.app?.get?.('io');
     if (io) {
@@ -845,14 +879,63 @@ export const leaveRoom = async (req, res) => {
     const { userId } = req.body || {};
     if (!userId) return res.json({ success: true });
 
-    const result = await mutateRoomAtomically(pin, (room) => {
+    const cleanPin = String(pin).trim();
+    const result = await mutateRoomAtomically(cleanPin, (room) => {
+      const leavingPlayer = room.players.find(p => p.id === userId);
+      const wasHost = room.hostId === userId || Boolean(leavingPlayer?.isHost);
+      const wasActiveTurn = room.currentTurnUserId === userId;
+
       room.players = room.players.filter(p => p.id !== userId);
       room.submissions = (room.submissions || []).filter(s => s.userId !== userId);
+
+      const remainingRealPlayers = room.players.filter(p => !p.isBot);
+
+      if (wasHost && remainingRealPlayers.length === 0) {
+        return { abort: true, shouldCloseRoom: true };
+      }
+
+      if (wasHost && remainingRealPlayers.length > 0) {
+        const nextHost = remainingRealPlayers[0];
+        room.hostId = nextHost.id;
+        room.hostName = nextHost.name;
+        room.hostRole = nextHost.role || 'student';
+        room.players = room.players.map((p) => {
+          if (p.id === nextHost.id) {
+            return { ...p, isHost: true, isSpectator: false };
+          }
+          return p.isHost ? { ...p, isHost: false } : p;
+        });
+      }
+
       room.turnOrder = rebuildTurnOrder(room.players);
-      if (room.currentTurnUserId === userId) {
+
+      if (wasActiveTurn) {
         room.currentTurnUserId = room.turnOrder[0] || '';
+        if (room.gameState === 'question' && room.mode === 'turn_based' && room.currentTurnUserId) {
+          room.questionStartedAt = new Date();
+        }
+      }
+
+      if (room.gameState === 'question' && room.mode === 'simultaneous') {
+        const activeQIndex = room.currentQuestionIndex || 0;
+        const eligibleIds = getEligiblePlayers(room.players).map(p => p.id);
+        const submittedSet = new Set(
+          (room.submissions || []).filter(s => s.questionIndex === activeQIndex).map(s => s.userId)
+        );
+        if (eligibleIds.length > 0 && eligibleIds.every(id => submittedSet.has(id))) {
+          finalizeSimultaneousRound(room);
+        }
       }
     });
+
+    if (result?.shouldCloseRoom) {
+      await ClassroomRoom.deleteOne({ pin: cleanPin });
+      const io = req.app?.get?.('io');
+      if (io) {
+        io.to(`classroom_${cleanPin}`).emit('classroom_room_closed', { pin: cleanPin });
+      }
+      return res.json({ success: true, closed: true });
+    }
 
     if (!result.notFound && result.room) {
       broadcastRoom(req.app, result.room);
@@ -876,5 +959,25 @@ export const closeRoom = async (req, res) => {
     return res.json({ success: true });
   } catch (error) {
     return res.status(500).json({ message: 'Failed to close classroom room', error: error.message });
+  }
+};
+
+export const cleanupExpiredClassroomRooms = async (app) => {
+  try {
+    const now = new Date();
+    const expired = await ClassroomRoom.find({ expiresAt: { $lte: now } })
+      .select('_id pin')
+      .lean();
+    if (!expired.length) return;
+
+    await ClassroomRoom.deleteMany({ _id: { $in: expired.map(r => r._id) } });
+    const io = app?.get?.('io');
+    if (io) {
+      for (const r of expired) {
+        io.to(`classroom_${r.pin}`).emit('classroom_room_closed', { pin: r.pin, reason: 'expired' });
+      }
+    }
+  } catch (err) {
+    console.error('⚠️ [Classroom] Failed to clean up expired rooms:', err.message);
   }
 };

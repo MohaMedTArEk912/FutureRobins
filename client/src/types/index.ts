@@ -1614,6 +1614,7 @@ export interface ClassroomRoomState {
     currentQuestion: ClassroomQuestionDTO | null;
     lastTurnResult: ClassroomTurnResult | null;
     roundReveal: ClassroomRoundReveal | null;
+    expiresAt?: string | null;
     version: number;
 }
 
@@ -1626,6 +1627,7 @@ export interface ClassroomLobbySummary {
     totalQuestions: number;
     gameState: ClassroomGameState;
     playerCount: number;
+    expiresAt?: string | null;
 }
 
 declare global {

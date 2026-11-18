@@ -13,6 +13,7 @@ import {
 import { useTheme } from '../context/ThemeContext';
 import { useNotification } from '../context/NotificationContext';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { api } from '../lib/api';
 import Modal from './common/Modal';
 
@@ -22,6 +23,7 @@ const Footer: React.FC = () => {
     const { isBento } = useTheme();
     const { showNotification } = useNotification();
     const { currentUser } = useAuth();
+    const { tx } = useLanguage();
 
     const [emailInput, setEmailInput] = useState('');
     const [isSubscribing, setIsSubscribing] = useState(false);
@@ -191,19 +193,19 @@ const Footer: React.FC = () => {
         const trimmedMessage = supportMessage.trim();
 
         if (!trimmedEmail || !trimmedEmail.includes('@')) {
-            const err = 'Please provide a valid email address.';
+            const err = tx('Please provide a valid email address.', 'من فضلك اكتب بريد إلكتروني صحيح.');
             setSupportError(err);
             showNotification('error', err);
             return;
         }
         if (trimmedSubject.length < 3) {
-            const err = 'Subject must be at least 3 characters.';
+            const err = tx('Subject must be at least 3 characters.', 'الموضوع لازم يكون 3 حروف على الأقل.');
             setSupportError(err);
             showNotification('error', err);
             return;
         }
         if (trimmedMessage.length < 5) {
-            const err = 'Please provide a description of your issue (at least 5 characters).';
+            const err = tx('Please provide a description of your issue (at least 5 characters).', 'من فضلك اوصف المشكلة (5 حروف على الأقل).');
             setSupportError(err);
             showNotification('error', err);
             return;
@@ -221,7 +223,10 @@ const Footer: React.FC = () => {
 
             showNotification(
                 'success',
-                response.message || `Ticket #${response.ticketId || ''} dispatched! We will reply within 24 hours.`
+                response.message || tx(
+                    `Ticket #${response.ticketId || ''} dispatched! We will reply within 24 hours.`,
+                    `تم إرسال التذكرة #${response.ticketId || ''}! هنرد عليك خلال 24 ساعة.`
+                )
             );
             setSupportSubject('');
             setSupportMessage('');
@@ -230,7 +235,10 @@ const Footer: React.FC = () => {
         } catch (error: unknown) {
             console.error('Failed to submit support ticket:', error);
             const err = error as Error;
-            const msg = err.message || 'Failed to dispatch ticket. You can email us directly at mohaamedtariq12@gmail.com.';
+            const msg = err.message || tx(
+                'Failed to dispatch ticket. You can email us directly at mohaamedtariq12@gmail.com.',
+                'فشل إرسال التذكرة. تقدر تراسلنا مباشرة على mohaamedtariq12@gmail.com.'
+            );
             setSupportError(msg);
             showNotification('error', msg);
         } finally {
@@ -244,7 +252,7 @@ const Footer: React.FC = () => {
         e.preventDefault();
         const email = emailInput.trim();
         if (!email || !email.includes('@')) {
-            showNotification('error', 'Please enter a valid email address.');
+            showNotification('error', tx('Please enter a valid email address.', 'من فضلك اكتب بريد إلكتروني صحيح.'));
             return;
         }
 
@@ -266,9 +274,12 @@ const Footer: React.FC = () => {
                 }));
             }
             setEmailInput('');
-            showNotification('success', res.message || '🎉 Subscribed! You will be notified automatically anytime challenges drop.');
+            showNotification('success', res.message || tx(
+                '🎉 Subscribed! You will be notified automatically anytime challenges drop.',
+                '🎉 تم الاشتراك! هيوصلك إشعار تلقائي أول ما تنزل تحديات جديدة.'
+            ));
         } catch (err: unknown) {
-            const msg = err instanceof Error ? err.message : 'Failed to subscribe. Please try again.';
+            const msg = err instanceof Error ? err.message : tx('Failed to subscribe. Please try again.', 'فشل الاشتراك. حاول تاني.');
             showNotification('error', msg);
         } finally {
             setIsSubscribing(false);
@@ -292,9 +303,12 @@ const Footer: React.FC = () => {
             setSubscribedEmail('');
             localStorage.removeItem('weekly_challenge_subscriber');
             sessionStorage.removeItem('weekly_challenge_anon_subscriber');
-            showNotification('success', res.message || 'You have unsubscribed from Weekly Challenges notifications.');
+            showNotification('success', res.message || tx(
+                'You have unsubscribed from Weekly Challenges notifications.',
+                'تم إلغاء اشتراكك في إشعارات التحديات الأسبوعية.'
+            ));
         } catch (err: unknown) {
-            const msg = err instanceof Error ? err.message : 'Failed to unsubscribe.';
+            const msg = err instanceof Error ? err.message : tx('Failed to unsubscribe.', 'فشل إلغاء الاشتراك.');
             showNotification('error', msg);
         } finally {
             setIsUnsubscribing(false);
@@ -321,8 +335,8 @@ const Footer: React.FC = () => {
                             <button
                                 type="button"
                                 onClick={() => handleFooterNav('/')}
-                                className="flex items-center gap-2.5 group cursor-pointer text-left outline-none focus:outline-none border-0"
-                                aria-label="Quiz Platform Home"
+                                className="flex items-center gap-2.5 group cursor-pointer text-start outline-none focus:outline-none border-0"
+                                aria-label={tx('Quiz Platform Home', 'الصفحة الرئيسية لمنصة Quiz Platform')}
                             >
                                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-black text-base transition-transform group-hover:scale-105 ${
                                     isBento
@@ -338,7 +352,7 @@ const Footer: React.FC = () => {
                                         Quiz Platform
                                     </span>
                                     <span className="text-[10px] uppercase font-bold tracking-widest text-indigo-500">
-                                        CS Learning Engine
+                                        {tx('CS Learning Engine', 'محرك تعلّم علوم الحاسب')}
                                     </span>
                                 </div>
                             </button>
@@ -346,7 +360,10 @@ const Footer: React.FC = () => {
                             <p className={`text-xs sm:text-sm leading-relaxed max-w-sm ${
                                 isBento ? 'text-slate-800 font-medium' : 'text-slate-400'
                             }`}>
-                                Next-generation gamified learning platform for computer science students, software engineers, and code enthusiasts. Master algorithms, languages, and architecture.
+                                {tx(
+                                    'Next-generation gamified learning platform for computer science students, software engineers, and code enthusiasts. Master algorithms, languages, and architecture.',
+                                    'منصة تعليمية تفاعلية حديثة لطلاب علوم الحاسب ومهندسي البرمجيات ومحبي الكود. اتقن الخوارزميات ولغات البرمجة وهندسة الأنظمة.'
+                                )}
                             </p>
 
                         </div>
@@ -356,52 +373,52 @@ const Footer: React.FC = () => {
                             <h4 className={`text-xs font-black uppercase tracking-wider ${
                                 isBento ? 'text-black font-mono' : 'text-white'
                             }`}>
-                                Explore
+                                {tx('Explore', 'استكشف')}
                             </h4>
                             <ul className="space-y-2 text-xs">
                                 <li>
                                     <button
                                         type="button"
                                         onClick={() => handleFooterNav('/')}
-                                        className="hover:text-indigo-400 transition-colors text-left cursor-pointer outline-none focus:outline-none border-0"
+                                        className="hover:text-indigo-400 transition-colors text-start cursor-pointer outline-none focus:outline-none border-0"
                                     >
-                                        Home Dashboard
+                                        {tx('Home Dashboard', 'لوحة التحكم')}
                                     </button>
                                 </li>
                                 <li>
                                     <button
                                         type="button"
                                         onClick={() => handleFooterNav('/tracks')}
-                                        className="hover:text-indigo-400 transition-colors text-left cursor-pointer outline-none focus:outline-none border-0"
+                                        className="hover:text-indigo-400 transition-colors text-start cursor-pointer outline-none focus:outline-none border-0"
                                     >
-                                        Skill Tracks
+                                        {tx('Skill Tracks', 'مسارات التعلم')}
                                     </button>
                                 </li>
                                 <li>
                                     <button
                                         type="button"
                                         onClick={() => handleFooterNav('/study')}
-                                        className="hover:text-indigo-400 transition-colors text-left cursor-pointer outline-none focus:outline-none border-0"
+                                        className="hover:text-indigo-400 transition-colors text-start cursor-pointer outline-none focus:outline-none border-0"
                                     >
-                                        Study Flashcards
+                                        {tx('Study Flashcards', 'بطاقات المراجعة')}
                                     </button>
                                 </li>
                                 <li>
                                     <button
                                         type="button"
                                         onClick={() => handleFooterNav('/tournaments')}
-                                        className="hover:text-indigo-400 transition-colors text-left cursor-pointer outline-none focus:outline-none border-0"
+                                        className="hover:text-indigo-400 transition-colors text-start cursor-pointer outline-none focus:outline-none border-0"
                                     >
-                                        Tournaments
+                                        {tx('Tournaments', 'البطولات')}
                                     </button>
                                 </li>
                                 <li>
                                     <button
                                         type="button"
                                         onClick={() => handleFooterNav('/daily')}
-                                        className="hover:text-indigo-400 transition-colors text-left cursor-pointer outline-none focus:outline-none border-0"
+                                        className="hover:text-indigo-400 transition-colors text-start cursor-pointer outline-none focus:outline-none border-0"
                                     >
-                                        Daily Challenge
+                                        {tx('Daily Challenge', 'التحدي اليومي')}
                                     </button>
                                 </li>
                             </ul>
@@ -412,43 +429,43 @@ const Footer: React.FC = () => {
                             <h4 className={`text-xs font-black uppercase tracking-wider ${
                                 isBento ? 'text-black font-mono' : 'text-white'
                             }`}>
-                                Community
+                                {tx('Community', 'المجتمع')}
                             </h4>
                             <ul className="space-y-2 text-xs">
                                 <li>
                                     <button
                                         type="button"
                                         onClick={() => handleFooterNav('/leaderboard')}
-                                        className="hover:text-indigo-400 transition-colors text-left cursor-pointer outline-none focus:outline-none border-0"
+                                        className="hover:text-indigo-400 transition-colors text-start cursor-pointer outline-none focus:outline-none border-0"
                                     >
-                                        Global Rankings
+                                        {tx('Global Rankings', 'الترتيب العالمي')}
                                     </button>
                                 </li>
                                 <li>
                                     <button
                                         type="button"
                                         onClick={() => handleFooterNav('/clans')}
-                                        className="hover:text-indigo-400 transition-colors text-left cursor-pointer outline-none focus:outline-none border-0"
+                                        className="hover:text-indigo-400 transition-colors text-start cursor-pointer outline-none focus:outline-none border-0"
                                     >
-                                        Clans & Guilds
+                                        {tx('Clans & Guilds', 'الكلانات والفرق')}
                                     </button>
                                 </li>
                                 <li>
                                     <button
                                         type="button"
                                         onClick={() => handleFooterNav('/social')}
-                                        className="hover:text-indigo-400 transition-colors text-left cursor-pointer outline-none focus:outline-none border-0"
+                                        className="hover:text-indigo-400 transition-colors text-start cursor-pointer outline-none focus:outline-none border-0"
                                     >
-                                        1v1 Live Duels
+                                        {tx('1v1 Live Duels', 'مواجهات 1 ضد 1')}
                                     </button>
                                 </li>
                                 <li>
                                     <button
                                         type="button"
                                         onClick={() => handleFooterNav('/shop')}
-                                        className="hover:text-indigo-400 transition-colors text-left cursor-pointer outline-none focus:outline-none border-0"
+                                        className="hover:text-indigo-400 transition-colors text-start cursor-pointer outline-none focus:outline-none border-0"
                                     >
-                                        Power-Up Shop
+                                        {tx('Power-Up Shop', 'متجر المساعدات')}
                                     </button>
                                 </li>
                             </ul>
@@ -460,7 +477,7 @@ const Footer: React.FC = () => {
                                 isBento ? 'text-black font-mono' : 'text-white'
                             }`}>
                                 <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-                                Weekly Challenges
+                                {tx('Weekly Challenges', 'التحديات الأسبوعية')}
                             </h4>
                             {isAlreadySubscribed ? (
                                 <div className={`p-4 rounded-2xl border transition-all animate-in fade-in duration-300 ${
@@ -477,14 +494,17 @@ const Footer: React.FC = () => {
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-1.5">
                                                 <span className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-white'}`}>
-                                                    Notifications Active
+                                                    {tx('Notifications Active', 'الإشعارات شغالة')}
                                                 </span>
                                                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                                             </div>
                                             <p className={`text-[11px] leading-relaxed mt-1 ${
                                                 isBento ? 'text-black/80 font-semibold' : 'text-slate-300'
                                             }`}>
-                                                You're subscribed! You'll be notified automatically anytime new algorithmic challenges and learning tracks drop.
+                                                {tx(
+                                                    "You're subscribed! You'll be notified automatically anytime new algorithmic challenges and learning tracks drop.",
+                                                    'أنت مشترك! هيوصلك إشعار تلقائي أول ما تنزل تحديات خوارزميات أو مسارات تعلم جديدة.'
+                                                )}
                                             </p>
                                             {subscribedEmail && (
                                                 <div className={`mt-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono font-bold truncate max-w-full ${
@@ -501,7 +521,7 @@ const Footer: React.FC = () => {
 
                                     <div className="mt-3 pt-2.5 border-t border-black/10 dark:border-white/10 flex items-center justify-between text-[10px]">
                                         <span className={`font-semibold ${isBento ? 'text-black/60' : 'text-slate-400'}`}>
-                                            VIP Challenge Alert
+                                            {tx('VIP Challenge Alert', 'تنبيه التحديات المميز')}
                                         </span>
                                         <button
                                             type="button"
@@ -511,14 +531,17 @@ const Footer: React.FC = () => {
                                                 isBento ? 'text-red-700' : 'text-rose-400'
                                             }`}
                                         >
-                                            {isUnsubscribing ? 'Updating...' : 'Unsubscribe / Change'}
+                                            {isUnsubscribing ? tx('Updating...', 'جاري التحديث...') : tx('Unsubscribe / Change', 'إلغاء الاشتراك / تغيير')}
                                         </button>
                                     </div>
                                 </div>
                             ) : (
                                 <>
                                     <p className={`text-xs ${isBento ? 'text-slate-700 font-medium' : 'text-slate-400'}`}>
-                                        Get notified when new algorithmic challenges and learning tracks drop.
+                                        {tx(
+                                            'Get notified when new algorithmic challenges and learning tracks drop.',
+                                            'استلم إشعار أول ما تنزل تحديات خوارزميات ومسارات تعلم جديدة.'
+                                        )}
                                     </p>
                                     <form onSubmit={handleNewsletterSubmit} className="space-y-2">
                                         <div className="relative">
@@ -526,9 +549,9 @@ const Footer: React.FC = () => {
                                                 type="email"
                                                 value={emailInput}
                                                 onChange={(e) => setEmailInput(e.target.value)}
-                                                placeholder="Enter your email"
+                                                placeholder={tx('Enter your email', 'اكتب بريدك الإلكتروني')}
                                                 disabled={isSubscribing}
-                                                className={`w-full py-2 pl-3 pr-9 rounded-xl text-xs outline-none transition-all ${
+                                                className={`w-full py-2 ps-3 pe-9 rounded-xl text-xs outline-none transition-all ${
                                                     isBento
                                                         ? 'bg-white border-2 border-black text-black font-bold focus:ring-2 focus:ring-black placeholder:text-slate-400 disabled:opacity-50'
                                                         : 'bg-white/5 border border-white/10 text-white placeholder:text-slate-500 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 disabled:opacity-50'
@@ -537,12 +560,12 @@ const Footer: React.FC = () => {
                                             <button
                                                 type="submit"
                                                 disabled={isSubscribing || !emailInput.trim()}
-                                                className={`absolute right-1 top-1 bottom-1 px-2.5 rounded-lg flex items-center justify-center transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
+                                                className={`absolute end-1 top-1 bottom-1 px-2.5 rounded-lg flex items-center justify-center transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
                                                     isBento
                                                         ? 'bg-[#bef264] text-black border border-black hover:bg-[#a3e635]'
                                                         : 'bg-indigo-600 hover:bg-indigo-500 text-white'
                                                 }`}
-                                                aria-label="Subscribe"
+                                                aria-label={tx('Subscribe', 'اشتراك')}
                                             >
                                                 {isSubscribing ? (
                                                     <Loader2 className="w-3 h-3 animate-spin" />
@@ -568,10 +591,10 @@ const Footer: React.FC = () => {
                             <span>&copy; {currentYear} Quiz Platform.</span>
                             <span className="hidden sm:inline text-slate-500 dark:text-slate-600">•</span>
                             <span className="inline-flex items-center gap-1">
-                                Made by <span className={`font-bold ${isBento ? 'text-black font-black underline decoration-2' : 'text-indigo-400 font-semibold'}`}>Mohamed Tarek</span>
+                                {tx('Made by', 'تطوير')} <span className={`font-bold ${isBento ? 'text-black font-black underline decoration-2' : 'text-indigo-400 font-semibold'}`}>Mohamed Tarek</span>
                             </span>
                             <span className="hidden sm:inline text-slate-500 dark:text-slate-600">•</span>
-                            <span>All rights reserved.</span>
+                            <span>{tx('All rights reserved.', 'جميع الحقوق محفوظة.')}</span>
                         </div>
 
                         {/* Legal & Help Modal Triggers */}
@@ -581,14 +604,14 @@ const Footer: React.FC = () => {
                                 onClick={() => setActiveModal('privacy')}
                                 className="hover:text-indigo-400 transition-colors cursor-pointer outline-none focus:outline-none border-0"
                             >
-                                Privacy Policy
+                                {tx('Privacy Policy', 'سياسة الخصوصية')}
                             </button>
                             <button
                                 type="button"
                                 onClick={() => setActiveModal('terms')}
                                 className="hover:text-indigo-400 transition-colors cursor-pointer outline-none focus:outline-none border-0"
                             >
-                                Terms of Service
+                                {tx('Terms of Service', 'شروط الاستخدام')}
                             </button>
                             <button
                                 type="button"
@@ -596,14 +619,14 @@ const Footer: React.FC = () => {
                                 className="btn-unstyled hover:text-indigo-400 transition-colors cursor-pointer flex items-center gap-1 outline-none focus:outline-none !border-0 !shadow-none"
                             >
                                 <LifeBuoy className="w-3.5 h-3.5 text-indigo-400" />
-                                Support
+                                {tx('Support', 'الدعم الفني')}
                             </button>
                             <button
                                 type="button"
                                 onClick={() => setActiveModal('faq')}
                                 className="hover:text-indigo-400 transition-colors cursor-pointer outline-none focus:outline-none border-0"
                             >
-                                FAQ &amp; Help
+                                {tx('FAQ & Help', 'الأسئلة الشائعة')}
                             </button>
                         </div>
                     </div>
@@ -614,25 +637,37 @@ const Footer: React.FC = () => {
             <Modal
                 isOpen={activeModal === 'privacy'}
                 onClose={() => setActiveModal(null)}
-                title="Privacy Policy"
+                title={tx('Privacy Policy', 'سياسة الخصوصية')}
                 maxWidth="max-w-xl"
             >
-                <div className="space-y-4 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed max-h-[65vh] overflow-y-auto pr-1">
-                    <p className="font-bold text-slate-900 dark:text-white">Last updated: {currentYear}</p>
+                <div className="space-y-4 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed max-h-[65vh] overflow-y-auto pe-1">
+                    <p className="font-bold text-slate-900 dark:text-white">{tx(`Last updated: ${currentYear}`, `آخر تحديث: ${currentYear}`)}</p>
                     <p>
-                        At Quiz Platform, your privacy is our core priority. We only collect the minimal information necessary to deliver our educational experience, track learning progress, and facilitate multiplayer challenges.
+                        {tx(
+                            'At Quiz Platform, your privacy is our core priority. We only collect the minimal information necessary to deliver our educational experience, track learning progress, and facilitate multiplayer challenges.',
+                            'في Quiz Platform خصوصيتك أولوية أساسية. بنجمع فقط الحد الأدنى من البيانات اللازمة لتقديم التجربة التعليمية ومتابعة تقدمك وتشغيل التحديات الجماعية.'
+                        )}
                     </p>
-                    <h4 className="font-bold text-slate-900 dark:text-white text-sm">1. Information We Collect</h4>
+                    <h4 className="font-bold text-slate-900 dark:text-white text-sm">{tx('1. Information We Collect', '1. البيانات اللي بنجمعها')}</h4>
                     <p>
-                        We collect your username, email address, avatar selections, quiz completion statistics, and scores. We do not sell or share personal data with third-party advertisers.
+                        {tx(
+                            'We collect your username, email address, avatar selections, quiz completion statistics, and scores. We do not sell or share personal data with third-party advertisers.',
+                            'بنجمع اسم المستخدم، البريد الإلكتروني، الأفاتار، وإحصائيات الكويزات والنقاط. مبنبيعش أو نشارك بياناتك الشخصية مع أي جهات إعلانية.'
+                        )}
                     </p>
-                    <h4 className="font-bold text-slate-900 dark:text-white text-sm">2. How We Use Information</h4>
+                    <h4 className="font-bold text-slate-900 dark:text-white text-sm">{tx('2. How We Use Information', '2. إزاي بنستخدم البيانات')}</h4>
                     <p>
-                        Your statistics are used to compute leaderboard ranks, award achievement badges, customize recommendation paths, and display verified completion certificates.
+                        {tx(
+                            'Your statistics are used to compute leaderboard ranks, award achievement badges, customize recommendation paths, and display verified completion certificates.',
+                            'بنستخدم إحصائياتك لحساب ترتيب لوحة المتصدرين، ومنح الشارات، وتخصيص مسارات التعلم، وعرض شهادات الإتمام الموثقة.'
+                        )}
                     </p>
-                    <h4 className="font-bold text-slate-900 dark:text-white text-sm">3. Security</h4>
+                    <h4 className="font-bold text-slate-900 dark:text-white text-sm">{tx('3. Security', '3. الأمان')}</h4>
                     <p>
-                        All passwords are cryptographically hashed, and data transmissions are encrypted using standard TLS protocols.
+                        {tx(
+                            'All passwords are cryptographically hashed, and data transmissions are encrypted using standard TLS protocols.',
+                            'كل كلمات المرور مشفرة بالكامل، ونقل البيانات بيتم عبر بروتوكولات TLS القياسية المؤمنة.'
+                        )}
                     </p>
                 </div>
             </Modal>
@@ -641,21 +676,30 @@ const Footer: React.FC = () => {
             <Modal
                 isOpen={activeModal === 'terms'}
                 onClose={() => setActiveModal(null)}
-                title="Terms of Service"
+                title={tx('Terms of Service', 'شروط الاستخدام')}
                 maxWidth="max-w-xl"
             >
-                <div className="space-y-4 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed max-h-[65vh] overflow-y-auto pr-1">
-                    <p className="font-bold text-slate-900 dark:text-white">Effective Date: {currentYear}</p>
+                <div className="space-y-4 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed max-h-[65vh] overflow-y-auto pe-1">
+                    <p className="font-bold text-slate-900 dark:text-white">{tx(`Effective Date: ${currentYear}`, `تاريخ السريان: ${currentYear}`)}</p>
                     <p>
-                        By using Quiz Platform, you agree to treat fellow learners respectfully, refrain from automated bot scraping, and maintain fair play during competitive multiplayer tournaments and duels.
+                        {tx(
+                            'By using Quiz Platform, you agree to treat fellow learners respectfully, refrain from automated bot scraping, and maintain fair play during competitive multiplayer tournaments and duels.',
+                            'باستخدامك Quiz Platform بتوافق على احترام باقي المتعلمين، والامتناع عن استخدام البوتات أو السكربتات الآلية، والالتزام باللعب النظيف في البطولات والمواجهات.'
+                        )}
                     </p>
-                    <h4 className="font-bold text-slate-900 dark:text-white text-sm">1. Fair Play & Academic Integrity</h4>
+                    <h4 className="font-bold text-slate-900 dark:text-white text-sm">{tx('1. Fair Play & Academic Integrity', '1. اللعب النظيف والنزاهة')}</h4>
                     <p>
-                        Users are encouraged to learn through active recall. The use of automated scripts to artificially manipulate leaderboard scores or tournament results is strictly prohibited.
+                        {tx(
+                            'Users are encouraged to learn through active recall. The use of automated scripts to artificially manipulate leaderboard scores or tournament results is strictly prohibited.',
+                            'بنشجع التعلم الحقيقي والممارسة. ممنوع تماماً استخدام أي سكربتات آلية للتلاعب بالنقاط أو نتائج البطولات.'
+                        )}
                     </p>
-                    <h4 className="font-bold text-slate-900 dark:text-white text-sm">2. Account Responsibility</h4>
+                    <h4 className="font-bold text-slate-900 dark:text-white text-sm">{tx('2. Account Responsibility', '2. مسؤولية الحساب')}</h4>
                     <p>
-                        You are responsible for keeping your login credentials confidential. Notify support immediately if you suspect unauthorized account activity.
+                        {tx(
+                            'You are responsible for keeping your login credentials confidential. Notify support immediately if you suspect unauthorized account activity.',
+                            'أنت مسؤول عن الحفاظ على سرية بيانات الدخول الخاصة بك. تواصل مع الدعم فوراً لو شكيت في أي نشاط غير مصرح به.'
+                        )}
                     </p>
                 </div>
             </Modal>
@@ -664,12 +708,12 @@ const Footer: React.FC = () => {
             <Modal
                 isOpen={activeModal === 'support'}
                 onClose={() => setActiveModal(null)}
-                title="Enterprise Support & Help Desk"
-                description="Get fast assistance from our technical team"
+                title={tx('Enterprise Support & Help Desk', 'الدعم الفني ومكتب المساعدة')}
+                description={tx('Get fast assistance from our technical team', 'احصل على مساعدة سريعة من فريقنا التقني')}
                 icon={<LifeBuoy className="w-5 h-5 text-indigo-500" />}
                 maxWidth="max-w-xl"
             >
-                <div className="space-y-5 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed max-h-[70vh] overflow-y-auto pr-1 pb-3">
+                <div className="space-y-5 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed max-h-[70vh] overflow-y-auto pe-1 pb-3">
                     <a
                         href="mailto:mohaamedtariq12@gmail.com"
                         className={`p-4 rounded-2xl transition-all flex items-center gap-3.5 ${
@@ -684,7 +728,9 @@ const Footer: React.FC = () => {
                             <Mail className="w-5 h-5" />
                         </div>
                         <div>
-                            <p className={`text-[10px] uppercase font-bold tracking-wider ${isBento ? 'text-black/70' : 'text-slate-400'}`}>Direct Support Email</p>
+                            <p className={`text-[10px] uppercase font-bold tracking-wider ${isBento ? 'text-black/70' : 'text-slate-400'}`}>
+                                {tx('Direct Support Email', 'إيميل الدعم المباشر')}
+                            </p>
                             <p className="font-extrabold text-sm">mohaamedtariq12@gmail.com</p>
                         </div>
                     </a>
@@ -693,16 +739,16 @@ const Footer: React.FC = () => {
                         {/* Category Selector Chips */}
                         <div>
                             <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1.5 ${isBento ? 'text-black' : 'text-slate-700 dark:text-slate-300'}`}>
-                                Inquiry Category
+                                {tx('Inquiry Category', 'نوع الاستفسار')}
                             </label>
                             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                                 {[
-                                    { id: 'technical', label: 'Technical Issue' },
-                                    { id: 'bug', label: 'Bug Report' },
-                                    { id: 'scoring', label: 'Quiz Scoring' },
-                                    { id: 'account', label: 'Account & Auth' },
-                                    { id: 'feature', label: 'Feature Request' },
-                                    { id: 'general', label: 'General Inquiry' },
+                                    { id: 'technical', label: tx('Technical Issue', 'مشكلة تقنية') },
+                                    { id: 'bug', label: tx('Bug Report', 'تبليغ عن خطأ') },
+                                    { id: 'scoring', label: tx('Quiz Scoring', 'حساب النقاط') },
+                                    { id: 'account', label: tx('Account & Auth', 'الحساب والدخول') },
+                                    { id: 'feature', label: tx('Feature Request', 'اقتراح ميزة') },
+                                    { id: 'general', label: tx('General Inquiry', 'استفسار عام') },
                                 ].map((cat) => (
                                     <button
                                         type="button"
@@ -728,7 +774,7 @@ const Footer: React.FC = () => {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
                                 <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1 ${isBento ? 'text-black' : 'text-slate-700 dark:text-slate-300'}`}>
-                                    Your Email Address *
+                                    {tx('Your Email Address *', 'بريدك الإلكتروني *')}
                                 </label>
                                 <input
                                     type="email"
@@ -745,13 +791,13 @@ const Footer: React.FC = () => {
                             </div>
                             <div>
                                 <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1 ${isBento ? 'text-black' : 'text-slate-700 dark:text-slate-300'}`}>
-                                    Your Name (Optional)
+                                    {tx('Your Name (Optional)', 'اسمك (اختياري)')}
                                 </label>
                                 <input
                                     type="text"
                                     value={supportName}
                                     onChange={(e) => setSupportName(e.target.value)}
-                                    placeholder="Alex Dev"
+                                    placeholder={tx('Alex Dev', 'اسمك')}
                                     className={`w-full py-2.5 px-3.5 rounded-xl text-xs outline-none transition-all ${
                                         isBento
                                             ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] focus:shadow-[4px_4px_0px_#000] focus:border-black placeholder:text-neutral-400 font-medium'
@@ -763,14 +809,14 @@ const Footer: React.FC = () => {
 
                         <div>
                             <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1 ${isBento ? 'text-black' : 'text-slate-700 dark:text-slate-300'}`}>
-                                Issue Subject *
+                                {tx('Issue Subject *', 'عنوان المشكلة *')}
                             </label>
                             <input
                                 type="text"
                                 required
                                 value={supportSubject}
                                 onChange={(e) => setSupportSubject(e.target.value)}
-                                placeholder="Quiz question scoring, streak freeze, or bug report"
+                                placeholder={tx('Quiz question scoring, streak freeze, or bug report', 'مشكلة في حساب النقاط أو الـ Streak أو خطأ في سؤال')}
                                 className={`w-full py-2.5 px-3.5 rounded-xl text-xs outline-none transition-all ${
                                     isBento
                                         ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] focus:shadow-[4px_4px_0px_#000] focus:border-black placeholder:text-neutral-400 font-medium'
@@ -782,7 +828,7 @@ const Footer: React.FC = () => {
                         <div>
                             <div className="flex justify-between items-center mb-1">
                                 <label className={`block text-[11px] font-bold uppercase tracking-wider ${isBento ? 'text-black' : 'text-slate-700 dark:text-slate-300'}`}>
-                                    Description & Details *
+                                    {tx('Description & Details *', 'الوصف والتفاصيل *')}
                                 </label>
                                 <span className={`text-[10px] ${supportMessage.length < 5 ? 'text-amber-500' : 'text-emerald-500 font-bold'}`}>
                                     {supportMessage.length}/5000
@@ -793,7 +839,10 @@ const Footer: React.FC = () => {
                                 required
                                 value={supportMessage}
                                 onChange={(e) => setSupportMessage(e.target.value)}
-                                placeholder="Please describe what happened, what you expected, and any steps to reproduce..."
+                                placeholder={tx(
+                                    'Please describe what happened, what you expected, and any steps to reproduce...',
+                                    'احكي لنا إيه اللي حصل، واللي كنت متوقعه، وخطوات تكرار المشكلة...'
+                                )}
                                 className={`w-full py-2.5 px-3.5 rounded-xl text-xs outline-none transition-all resize-none ${
                                     isBento
                                         ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] focus:shadow-[4px_4px_0px_#000] focus:border-black placeholder:text-neutral-400 font-medium'
@@ -823,7 +872,7 @@ const Footer: React.FC = () => {
                                         : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'
                                 }`}
                             >
-                                Cancel
+                                {tx('Cancel', 'إلغاء')}
                             </button>
                             <button
                                 type="submit"
@@ -837,12 +886,12 @@ const Footer: React.FC = () => {
                                 {isSubmittingSupport ? (
                                     <>
                                         <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                        <span>Dispatching Ticket...</span>
+                                        <span>{tx('Dispatching Ticket...', 'جاري إرسال التذكرة...')}</span>
                                     </>
                                 ) : (
                                     <>
                                         <Send className="w-3.5 h-3.5" />
-                                        <span>Submit Support Ticket</span>
+                                        <span>{tx('Submit Support Ticket', 'إرسال تذكرة الدعم')}</span>
                                     </>
                                 )}
                             </button>
@@ -855,26 +904,39 @@ const Footer: React.FC = () => {
             <Modal
                 isOpen={activeModal === 'faq'}
                 onClose={() => setActiveModal(null)}
-                title="Frequently Asked Questions"
+                title={tx('Frequently Asked Questions', 'الأسئلة الشائعة')}
                 maxWidth="max-w-xl"
             >
-                <div className="space-y-4 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed max-h-[65vh] overflow-y-auto pr-1">
+                <div className="space-y-4 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed max-h-[65vh] overflow-y-auto pe-1">
                     <div>
-                        <h4 className="font-bold text-slate-900 dark:text-white mb-1">How do XP and Leveling work?</h4>
+                        <h4 className="font-bold text-slate-900 dark:text-white mb-1">
+                            {tx('How do XP and Leveling work?', 'إزاي نظام النقاط (XP) والمستويات شغال؟')}
+                        </h4>
                         <p>
-                            Every completed quiz and daily challenge earns you XP based on accuracy and speed. Earning 1,000 XP advances you to the next Scholar tier!
+                            {tx(
+                                'Every completed quiz and daily challenge earns you XP based on accuracy and speed. Earning 1,000 XP advances you to the next Scholar tier!',
+                                'كل كويز وتحدي يومي بتخلصه بيديك XP حسب الدقة والسرعة. كل 1,000 XP بيرقّيك للمستوى اللي بعده!'
+                            )}
                         </p>
                     </div>
                     <div>
-                        <h4 className="font-bold text-slate-900 dark:text-white mb-1">Can I create and share my own quizzes?</h4>
+                        <h4 className="font-bold text-slate-900 dark:text-white mb-1">
+                            {tx('Can I create and share my own quizzes?', 'هل أقدر أعمل وأشارك كويزاتي الخاصة؟')}
+                        </h4>
                         <p>
-                            Yes! Quiz creators and administrators can compose custom quiz tracks, code snippet tests, and share deep links with friends and study groups.
+                            {tx(
+                                'Yes! Quiz creators and administrators can compose custom quiz tracks, code snippet tests, and share deep links with friends and study groups.',
+                                'أيوه! المدرسين ومنشئي الكويزات يقدروا يعملوا مسارات وكويزات مخصصة واختبارات كود ويشاركوا الروابط مع الطلاب والأصدقاء.'
+                            )}
                         </p>
                     </div>
                     <div>
-                        <h4 className="font-bold text-slate-900 dark:text-white mb-1">How do I get help or report a question bug?</h4>
+                        <h4 className="font-bold text-slate-900 dark:text-white mb-1">
+                            {tx('How do I get help or report a question bug?', 'إزاي أطلب مساعدة أو أبلّغ عن خطأ في سؤال؟')}
+                        </h4>
                         <p>
-                            Email us directly at <a href="mailto:mohaamedtariq12@gmail.com" className="text-indigo-500 underline font-semibold">mohaamedtariq12@gmail.com</a>.
+                            {tx('Email us directly at', 'راسلنا مباشرة على')}{' '}
+                            <a href="mailto:mohaamedtariq12@gmail.com" className="text-indigo-500 underline font-semibold">mohaamedtariq12@gmail.com</a>.
                         </p>
                     </div>
                 </div>

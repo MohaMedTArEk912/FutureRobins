@@ -11,6 +11,7 @@ import { QuestionTranslatorBar } from './common/QuestionTranslatorBar';
 import { translateQuestion, isRTL, type TranslatedQuestionData } from '../lib/translationService';
 import { AmbientBackground } from './AmbientBackground';
 import { useTheme } from '../context/ThemeContext';
+import { useLanguage } from '../context/LanguageContext';
 import { evaluateTextAnswer } from '../lib/stringSimilarity';
 import { api } from '../lib/api';
 
@@ -24,6 +25,7 @@ interface QuizResultsProps {
 
 const QuizResults: React.FC<QuizResultsProps> = ({ result, quiz, user, onBackToQuizzes, onRetake }) => {
     const { isBento } = useTheme();
+    const { tx } = useLanguage();
     const [showReview, setShowReview] = useState(false);
     const rightPanelRef = useRef<HTMLDivElement>(null);
 
@@ -324,7 +326,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ result, quiz, user, onBackToQ
                         <span className={`text-[11px] sm:text-xs font-extrabold uppercase tracking-widest truncate max-w-xs sm:max-w-md ${
                             isBento ? 'text-black font-black' : 'text-indigo-600 dark:text-indigo-400'
                         }`}>
-                            {quiz.title} <span className="opacity-40 mx-1">•</span> Result
+                            {quiz.title} <span className="opacity-40 mx-1">•</span> {tx('Result', 'النتيجة')}
                         </span>
                     </div>
 
@@ -339,7 +341,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ result, quiz, user, onBackToQ
                             }`}
                         >
                             <List className="w-3.5 h-3.5" />
-                            <span className="hidden sm:inline">{showReview ? 'Hide Review' : 'Review'}</span>
+                            <span className="hidden sm:inline">{showReview ? tx('Hide Review', 'اخفي المراجعة') : tx('Review', 'مراجعة الإجابات')}</span>
                         </button>
                     </div>
                 </header>
@@ -367,10 +369,12 @@ const QuizResults: React.FC<QuizResultsProps> = ({ result, quiz, user, onBackToQ
                             </div>
 
                             <h2 className={`text-xl sm:text-2xl font-extrabold text-center mb-1 tracking-tight ${isBento ? 'text-black dark:text-white font-black' : 'text-slate-900 dark:text-white'}`}>
-                                {result.passed ? 'Outstanding Work!' : 'Quiz Needs Review'}
+                                {result.passed ? tx('Outstanding Work!', 'عاش! شغل عالي أوي') : tx('Quiz Needs Review', 'محتاج مراجعة سريعة')}
                             </h2>
                             <p className={`text-center mb-3 text-xs leading-relaxed max-w-xs ${isBento ? 'text-slate-600 dark:text-slate-400 font-medium' : 'text-slate-500 dark:text-slate-400'}`}>
-                                {result.passed ? 'You have demonstrated strong mastery of this assessment.' : 'Review your question breakdown, learn from mistakes, and give it another try.'}
+                                {result.passed
+                                    ? tx('You have demonstrated strong mastery of this assessment.', 'ممتاز! أثبتّ إنك فاهم الموضوع كويس أوي.')
+                                    : tx('Review your question breakdown, learn from mistakes, and give it another try.', 'راجع الأسئلة اللي غلطت فيها واتعلم منها وجرب تاني.')}
                             </p>
 
                             {/* Circular Score Gauge */}
@@ -394,7 +398,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ result, quiz, user, onBackToQ
                                     <span className={`font-tabular text-3xl sm:text-4xl font-black ${isBento ? 'text-black dark:text-white' : 'text-slate-900 dark:text-white'}`}>
                                         {Math.round(result.percentage)}<span className="text-xl sm:text-2xl opacity-50">%</span>
                                     </span>
-                                    <span className={`text-[10px] font-black tracking-widest uppercase mt-0.5 ${isBento ? 'text-slate-500 dark:text-slate-400' : 'text-slate-400'}`}>Accuracy</span>
+                                    <span className={`text-[10px] font-black tracking-widest uppercase mt-0.5 ${isBento ? 'text-slate-500 dark:text-slate-400' : 'text-slate-400'}`}>{tx('Accuracy', 'الدقة')}</span>
                                 </div>
                             </div>
 
@@ -409,7 +413,9 @@ const QuizResults: React.FC<QuizResultsProps> = ({ result, quiz, user, onBackToQ
                                             ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
                                             : 'bg-rose-500/10 text-rose-600 border-rose-500/20'
                                 }`}>
-                                    {result.passed ? `PASSED (≥${quiz.passingScore || 70}% REQUIRED)` : `NEEDS PRACTICE (PASSING IS ${quiz.passingScore || 70}%)`}
+                                    {result.passed
+                                        ? tx(`PASSED (≥${quiz.passingScore || 70}% REQUIRED)`, `ناجح (المطلوب ≥${quiz.passingScore || 70}%)`)
+                                        : tx(`NEEDS PRACTICE (PASSING IS ${quiz.passingScore || 70}%)`, `محتاج تدريب (النجاح من ${quiz.passingScore || 70}%)`)}
                                 </span>
 
                                 <span className={`px-3 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider border ${
@@ -417,7 +423,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ result, quiz, user, onBackToQ
                                         ? 'bg-[#fef9c3] text-black border-2 border-black shadow-[1px_1px_0px_#000]'
                                         : 'bg-indigo-500/10 text-indigo-600 border-indigo-500/20'
                                 }`}>
-                                    {result.score?.toLocaleString() || 0} Total Points
+                                    {result.score?.toLocaleString() || 0} {tx('Total Points', 'نقطة إجمالي')}
                                 </span>
                             </div>
 
@@ -536,10 +542,10 @@ const QuizResults: React.FC<QuizResultsProps> = ({ result, quiz, user, onBackToQ
                                     isBento ? 'text-black dark:text-white border-b-2 border-black dark:border-white/20' : 'text-gray-800 dark:text-gray-200 border-b border-gray-200 dark:border-gray-800'
                                 }`}>
                                     <h3 className="text-xs sm:text-sm font-black uppercase tracking-tight flex items-center gap-1.5">
-                                        <Flag className="w-3.5 h-3.5" /> Performance Summary
+                                        <Flag className="w-3.5 h-3.5" /> {tx('Performance Summary', 'ملخص الأداء')}
                                     </h3>
                                     <span className={`text-[11px] font-bold ${isBento ? 'text-slate-600 dark:text-slate-400' : 'text-slate-400'}`}>
-                                        {correctCount} of {result.totalQuestions} questions correct
+                                        {tx(`${correctCount} of ${result.totalQuestions} questions correct`, `${correctCount} من ${result.totalQuestions} سؤال صح`)}
                                     </span>
                                 </div>
                                 
@@ -554,7 +560,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ result, quiz, user, onBackToQ
                                             <Clock className="w-4 h-4" />
                                         </div>
                                         <div>
-                                            <div className={`text-[9px] uppercase tracking-wider mb-0.5 ${isBento ? 'font-black text-slate-500 dark:text-slate-400' : 'font-semibold text-slate-400'}`}>Time Taken</div>
+                                            <div className={`text-[9px] uppercase tracking-wider mb-0.5 ${isBento ? 'font-black text-slate-500 dark:text-slate-400' : 'font-semibold text-slate-400'}`}>{tx('Time Taken', 'الوقت المستغرق')}</div>
                                             <div className={`font-tabular text-base sm:text-lg font-black ${isBento ? 'text-black dark:text-white' : 'text-slate-900 dark:text-white'}`}>{formatTime(result.timeTaken || 0)}</div>
                                         </div>
                                     </div>
@@ -567,8 +573,8 @@ const QuizResults: React.FC<QuizResultsProps> = ({ result, quiz, user, onBackToQ
                                             <Target className="w-4 h-4" />
                                         </div>
                                         <div>
-                                            <div className={`text-[9px] uppercase tracking-wider mb-0.5 ${isBento ? 'font-black text-slate-500 dark:text-slate-400' : 'font-semibold text-slate-400'}`}>Total Score</div>
-                                            <div className={`font-tabular text-base sm:text-lg font-black ${isBento ? 'text-black dark:text-white' : 'text-slate-900 dark:text-white'}`}>{result.score?.toLocaleString() || 0} pts</div>
+                                            <div className={`text-[9px] uppercase tracking-wider mb-0.5 ${isBento ? 'font-black text-slate-500 dark:text-slate-400' : 'font-semibold text-slate-400'}`}>{tx('Total Score', 'مجموع النقط')}</div>
+                                            <div className={`font-tabular text-base sm:text-lg font-black ${isBento ? 'text-black dark:text-white' : 'text-slate-900 dark:text-white'}`}>{result.score?.toLocaleString() || 0} {tx('pts', 'نقطة')}</div>
                                         </div>
                                     </div>
                                     
@@ -580,7 +586,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ result, quiz, user, onBackToQ
                                             <CheckCircle className="w-4 h-4 text-emerald-800" />
                                         </div>
                                         <div>
-                                            <div className={`text-[9px] uppercase tracking-wider mb-0.5 ${isBento ? 'font-black text-emerald-800 dark:text-emerald-300' : 'font-bold text-emerald-600'}`}>Correct Answers</div>
+                                            <div className={`text-[9px] uppercase tracking-wider mb-0.5 ${isBento ? 'font-black text-emerald-800 dark:text-emerald-300' : 'font-bold text-emerald-600'}`}>{tx('Correct Answers', 'إجابات صح')}</div>
                                             <div className="font-tabular text-base sm:text-lg font-black">
                                                 {correctCount} <span className="text-xs font-bold opacity-60">/ {result.totalQuestions}</span>
                                             </div>
@@ -595,7 +601,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ result, quiz, user, onBackToQ
                                             <XCircle className="w-4 h-4 text-rose-800" />
                                         </div>
                                         <div>
-                                            <div className={`text-[9px] uppercase tracking-wider mb-0.5 ${isBento ? 'font-black text-rose-800 dark:text-rose-300' : 'font-bold text-rose-600'}`}>Incorrect Answers</div>
+                                            <div className={`text-[9px] uppercase tracking-wider mb-0.5 ${isBento ? 'font-black text-rose-800 dark:text-rose-300' : 'font-bold text-rose-600'}`}>{tx('Incorrect Answers', 'إجابات غلط')}</div>
                                             <div className="font-tabular text-base sm:text-lg font-black">
                                                 {incorrectCount} <span className="text-xs font-bold opacity-60">/ {result.totalQuestions}</span>
                                             </div>
@@ -628,9 +634,9 @@ const QuizResults: React.FC<QuizResultsProps> = ({ result, quiz, user, onBackToQ
                                     <span>
                                         {hasValidPoolProgress
                                             ? (poolRemaining > 0
-                                                ? `Remaining (${poolRemaining})`
-                                                : 'Next Cycle')
-                                            : 'Retake Quiz'}
+                                                ? tx(`Remaining (${poolRemaining})`, `الأسئلة الباقية (${poolRemaining})`)
+                                                : tx('Next Cycle', 'الدورة الجاية'))
+                                            : tx('Retake Quiz', 'إعادة الكويز')}
                                     </span>
                                 </button>
 
@@ -646,51 +652,51 @@ const QuizResults: React.FC<QuizResultsProps> = ({ result, quiz, user, onBackToQ
                                     }`}
                                 >
                                     <Download className="w-3.5 h-3.5 text-black" />
-                                    <span>Export</span>
+                                    <span>{tx('Export', 'تصدير')}</span>
                                     <ChevronDown className="w-3 h-3 opacity-60" />
                                 </button>
 
                                 {isExportMenuOpen && (
-                                    <div className={`absolute left-0 sm:left-auto sm:right-0 bottom-full mb-2 w-52 rounded-xl shadow-2xl z-50 overflow-hidden text-left p-1 ${
+                                    <div className={`absolute left-0 sm:left-auto sm:right-0 bottom-full mb-2 w-52 rounded-xl shadow-2xl z-50 overflow-hidden text-start p-1 ${
                                         isBento
                                             ? 'bg-white text-black border-2 border-black shadow-[4px_4px_0px_#000]'
                                             : 'glass-panel border border-slate-200 dark:border-white/10'
                                     }`}>
                                         <div className={`px-2.5 py-1 text-[9px] uppercase tracking-wider ${isBento ? 'text-black font-black' : 'font-extrabold text-slate-400'}`}>
-                                            PDF Export Options
+                                            {tx('PDF Export Options', 'خيارات التصدير')}
                                         </div>
                                         <button
                                             type="button"
                                             onClick={handleExportResultPDF}
                                             disabled={isExportingResult}
-                                            className={`w-full text-left px-2.5 py-1.5 rounded-lg flex items-center gap-2 text-xs font-bold cursor-pointer transition-colors ${
+                                            className={`w-full text-start px-2.5 py-1.5 rounded-lg flex items-center gap-2 text-xs font-bold cursor-pointer transition-colors ${
                                                 isBento ? 'hover:bg-[#fde047] text-black' : 'hover:bg-slate-100 dark:hover:bg-white/10 text-slate-800'
                                             }`}
                                         >
                                             {isExportingResult ? <Loader2 className="w-3 h-3 animate-spin" /> : <FileText className="w-3 h-3 text-black" />}
-                                            <span>Assessment Result (PDF)</span>
+                                            <span>{tx('Assessment Result (PDF)', 'نتيجة الكويز (PDF)')}</span>
                                         </button>
                                         <button
                                             type="button"
                                             onClick={handleExportQuizPDF}
                                             disabled={isExportingQuiz}
-                                            className={`w-full text-left px-2.5 py-1.5 rounded-lg flex items-center gap-2 text-xs font-bold cursor-pointer transition-colors ${
+                                            className={`w-full text-start px-2.5 py-1.5 rounded-lg flex items-center gap-2 text-xs font-bold cursor-pointer transition-colors ${
                                                 isBento ? 'hover:bg-[#fde047] text-black' : 'hover:bg-slate-100 dark:hover:bg-white/10 text-slate-800'
                                             }`}
                                         >
                                             {isExportingQuiz ? <Loader2 className="w-3 h-3 animate-spin" /> : <FileText className="w-3 h-3 text-black" />}
-                                            <span>Quiz Study Sheet (PDF)</span>
+                                            <span>{tx('Quiz Study Sheet (PDF)', 'ملخص المذاكرة (PDF)')}</span>
                                         </button>
                                         <button
                                             type="button"
                                             onClick={handleEmailResult}
                                             disabled={isEmailingResult}
-                                            className={`w-full text-left px-2.5 py-1.5 rounded-lg flex items-center gap-2 text-xs font-bold cursor-pointer transition-colors ${
+                                            className={`w-full text-start px-2.5 py-1.5 rounded-lg flex items-center gap-2 text-xs font-bold cursor-pointer transition-colors ${
                                                 isBento ? "hover:bg-[#bef264] text-black" : "hover:bg-slate-100 dark:hover:bg-white/10 text-slate-800 dark:text-slate-200"
                                             }`}
                                         >
                                             {isEmailingResult ? <Loader2 className="w-3 h-3 animate-spin" /> : <Mail className="w-3 h-3 text-indigo-500" />}
-                                            <span>Email Scorecard to Me</span>
+                                            <span>{tx('Email Scorecard to Me', 'ابعت النتيجة على إيميلي')}</span>
                                         </button>
                                     </div>
                                 )}
@@ -704,7 +710,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ result, quiz, user, onBackToQ
                                         : 'bg-indigo-600 hover:bg-indigo-700 shadow-lg text-white'
                                 }`}
                             >
-                                <span>Continue</span>
+                                <span>{tx('Continue', 'كمل')}</span>
                                 <Target className="w-3.5 h-3.5 text-black" />
                             </button>
                         </div>

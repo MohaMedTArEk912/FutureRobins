@@ -3,7 +3,6 @@ import { Mail, Lock, ArrowLeft, Eye, EyeOff, CheckCircle2, XCircle, AlertCircle 
 import { api } from '../lib/api';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
-import LanguageToggle from './LanguageToggle';
 
 interface ForgotPasswordProps {
     onBack: () => void;
@@ -263,10 +262,6 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
                     <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-200/40 dark:bg-purple-500/15 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
                 </div>
             )}
-
-            <div className="fixed top-4 end-4 z-50">
-                <LanguageToggle compact />
-            </div>
 
             <div className={`forgot-password-card relative z-10 w-full max-w-4xl overflow-hidden grid grid-cols-1 md:grid-cols-12 transition-all duration-300 ${
                 isBento

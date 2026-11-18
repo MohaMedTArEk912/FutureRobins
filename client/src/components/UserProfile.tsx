@@ -7,7 +7,7 @@ import {
     ShieldCheck, Gift, CheckCircle2, Sparkles, Pencil,
     Search, ChevronLeft, ChevronRight, CheckCircle, Package, X, Lock,
     LayoutDashboard, Palette, RefreshCw, Check, Compass, Swords, Shield,
-    ShoppingBag, BarChart2, ArrowRight
+    ShoppingBag, BarChart2, ArrowRight, Globe
 } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Navbar from './Navbar.tsx';
@@ -26,6 +26,7 @@ import Avatar from './Avatar';
 import AvatarEditor from './AvatarEditor';
 import { StreakRewardModal } from './gamification/StreakRewardModal';
 import { useTheme } from '../context/ThemeContext.tsx';
+import { useLanguage } from '../context/LanguageContext.tsx';
 import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
 import Footer from './Footer';
@@ -176,6 +177,7 @@ export type ProfileTab =
 
 const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onBack, onUserUpdate }) => {
     const { theme, isBento } = useTheme();
+    const { language, openLanguageModal, tx } = useLanguage();
     const { logout } = useAuth();
     const { showNotification } = useNotification();
     const { socket } = useSocket();
@@ -769,13 +771,13 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                     : 'bg-white/90 dark:bg-[#090d16]/90 border-slate-200 dark:border-white/10'
             }`}>
                 {[
-                    { id: 'overview' as ProfileTab, label: 'Overview', icon: LayoutDashboard },
-                    { id: 'badges' as ProfileTab, label: 'Badges', icon: Award, badge: `${unlockedBadgesCount}` },
-                    { id: 'history' as ProfileTab, label: 'Activity', icon: History, badge: `${attempts.length}` },
-                    { id: 'inventory' as ProfileTab, label: 'Backpack', icon: Package, badge: `${(currentUser.inventory || []).length}` },
-                    { id: 'certificates' as ProfileTab, label: 'Certificates', icon: ShieldCheck, badge: `${activityCounts.mastered}` },
-                    { id: 'appearance' as ProfileTab, label: 'Theme', icon: Palette },
-                    { id: 'settings' as ProfileTab, label: 'Settings', icon: Settings }
+                    { id: 'overview' as ProfileTab, label: tx('Overview', 'نظرة عامة'), icon: LayoutDashboard },
+                    { id: 'badges' as ProfileTab, label: tx('Badges', 'الشارات'), icon: Award, badge: `${unlockedBadgesCount}` },
+                    { id: 'history' as ProfileTab, label: tx('Activity', 'السجل'), icon: History, badge: `${attempts.length}` },
+                    { id: 'inventory' as ProfileTab, label: tx('Backpack', 'الحقيبة'), icon: Package, badge: `${(currentUser.inventory || []).length}` },
+                    { id: 'certificates' as ProfileTab, label: tx('Certificates', 'الشهادات'), icon: ShieldCheck, badge: `${activityCounts.mastered}` },
+                    { id: 'appearance' as ProfileTab, label: tx('Theme', 'الثيم'), icon: Palette },
+                    { id: 'settings' as ProfileTab, label: tx('Settings', 'الإعدادات'), icon: Settings }
                 ].map((tab) => {
                     const Icon = tab.icon;
                     const isActive = activeTab === tab.id;
@@ -820,19 +822,19 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                     }`}>
                         <div className="px-3 py-2 mb-2 border-b border-slate-200/60 dark:border-white/10">
                             <p className={`text-[10px] font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-slate-400'}`}>
-                                Profile Navigation
+                                {tx('Profile Navigation', 'أقسام البروفايل')}
                             </p>
                         </div>
 
                         <nav className="flex flex-col gap-1.5">
                             {[
-                                { id: 'overview' as ProfileTab, label: 'Overview & Stats', icon: LayoutDashboard, badge: `Lvl ${level}` },
-                                { id: 'badges' as ProfileTab, label: 'Badges & Trophies', icon: Award, badge: `${unlockedBadgesCount} Earned` },
-                                { id: 'history' as ProfileTab, label: 'Activity & History', icon: History, badge: `${attempts.length} Quizzes` },
-                                { id: 'inventory' as ProfileTab, label: 'Backpack & Loot', icon: Package, badge: `${(currentUser.inventory || []).length} Items` },
-                                { id: 'certificates' as ProfileTab, label: 'Certificates', icon: ShieldCheck, badge: `${activityCounts.mastered} Earned` },
-                                { id: 'appearance' as ProfileTab, label: 'Theme Switcher', icon: Palette, badge: isBento ? 'BENTO' : theme.toUpperCase() },
-                                { id: 'settings' as ProfileTab, label: 'Account Settings', icon: Settings }
+                                { id: 'overview' as ProfileTab, label: tx('Overview & Stats', 'نظرة عامة والإحصائيات'), icon: LayoutDashboard, badge: `${tx('Lvl', 'مستوى')} ${level}` },
+                                { id: 'badges' as ProfileTab, label: tx('Badges & Trophies', 'الشارات والألقاب'), icon: Award, badge: `${unlockedBadgesCount} ${tx('Earned', 'مكتسبة')}` },
+                                { id: 'history' as ProfileTab, label: tx('Activity & History', 'النشاط والسجل'), icon: History, badge: `${attempts.length} ${tx('Quizzes', 'كويز')}` },
+                                { id: 'inventory' as ProfileTab, label: tx('Backpack & Loot', 'الحقيبة والمقتنيات'), icon: Package, badge: `${(currentUser.inventory || []).length} ${tx('Items', 'عنصر')}` },
+                                { id: 'certificates' as ProfileTab, label: tx('Certificates', 'الشهادات'), icon: ShieldCheck, badge: `${activityCounts.mastered} ${tx('Earned', 'مكتسبة')}` },
+                                { id: 'appearance' as ProfileTab, label: tx('Theme Switcher', 'تغيير الثيم'), icon: Palette, badge: isBento ? 'BENTO' : theme.toUpperCase() },
+                                { id: 'settings' as ProfileTab, label: tx('Account Settings', 'إعدادات الحساب'), icon: Settings }
                             ].map((tab) => {
                                 const Icon = tab.icon;
                                 const isActive = activeTab === tab.id;
@@ -898,12 +900,31 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                     </div>
 
                     {/* Quick Workspace Theme Switcher in Profile */}
-                    <div className={`p-4 rounded-2xl ${
+                    <div className={`p-4 rounded-2xl space-y-3 ${
                         isBento
                             ? 'bg-white text-black border-2 border-black shadow-[4px_4px_0px_#000]'
                             : 'bg-white dark:bg-[#111625] border border-slate-200/90 dark:border-white/10 shadow-sm'
                     }`}>
                         <WorkspaceThemeSwitcher />
+                        <div className="pt-2 border-t border-black/10 dark:border-white/10">
+                            <button
+                                type="button"
+                                onClick={openLanguageModal}
+                                className={`w-full py-2.5 px-3 rounded-xl text-xs font-black flex items-center justify-between gap-2 cursor-pointer transition ${
+                                    isBento
+                                        ? 'bg-[#fef9c3] hover:bg-[#fde047] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                        : 'bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-white/10'
+                                }`}
+                            >
+                                <span className="flex items-center gap-2">
+                                    <Globe className="w-4 h-4 shrink-0" />
+                                    <span>{tx('Platform Language', 'لغة المنصة')}</span>
+                                </span>
+                                <span className="px-2 py-0.5 rounded-lg text-[10px] font-black bg-black/10 dark:bg-white/10">
+                                    {language === 'ar-EG' ? '🇪🇬 مصري' : '🇺🇸 EN'}
+                                </span>
+                            </button>
+                        </div>
                     </div>
                 </aside>
 
@@ -2689,12 +2710,14 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                             ) : (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                     {currentUser.inventory.map((item, idx) => {
-                                        const cleanName = item.itemId
+                                        const safeId = String(item?.itemId || 'item');
+                                        const cleanName = safeId
                                             .replace(/[-_]/g, ' ')
                                             .replace(/\b\w/g, c => c.toUpperCase());
-                                        const isShield = item.itemId.toLowerCase().includes('shield');
-                                        const isHint = item.itemId.toLowerCase().includes('hint') || item.itemId.toLowerCase().includes('50');
-                                        const isFreeze = item.itemId.toLowerCase().includes('freeze') || item.itemId.toLowerCase().includes('time');
+                                        const lowerId = safeId.toLowerCase();
+                                        const isShield = lowerId.includes('shield');
+                                        const isHint = lowerId.includes('hint') || lowerId.includes('50');
+                                        const isFreeze = lowerId.includes('freeze') || lowerId.includes('time');
                                         const emoji = isShield ? '🛡️' : isHint ? '💡' : isFreeze ? '⏳' : '🎁';
 
                                         return (

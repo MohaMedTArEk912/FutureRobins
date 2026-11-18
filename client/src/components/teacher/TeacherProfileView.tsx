@@ -16,11 +16,13 @@ import {
     BookOpen,
     Sparkles,
     Save,
-    X
+    X,
+    Globe
 } from 'lucide-react';
 import type { UserData, MotionPresentation } from '../../types';
 import { api } from '../../lib/api';
 import { useTheme } from '../../context/ThemeContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { useTeacherWorkspace } from '../../context/TeacherWorkspaceContext';
 import { useData } from '../../context/DataContext';
 import Avatar from '../Avatar';
@@ -56,6 +58,7 @@ export const TeacherProfileView: React.FC<TeacherProfileViewProps> = ({
 }) => {
     const navigate = useNavigate();
     const { theme } = useTheme();
+    const { language, openLanguageModal, tx } = useLanguage();
     const styles = useMemo(() => getTeacherThemeStyles(theme), [theme]);
     const { myClasses, loadingClasses, navigateToSection } = useTeacherWorkspace();
     const { skillTracks } = useData();
@@ -176,14 +179,14 @@ export const TeacherProfileView: React.FC<TeacherProfileViewProps> = ({
                                 <div className="flex items-center gap-2 flex-wrap">
                                     <span className={`inline-flex items-center gap-1 px-3 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest ${styles.pillSuccess}`}>
                                         <BadgeCheck className="w-3.5 h-3.5" />
-                                        <span>Verified Educator</span>
+                                        <span>{tx('Verified Educator', 'معلم موثق')}</span>
                                     </span>
                                     <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${styles.pillPrimary}`}>
-                                        Teacher Profile
+                                        {tx('Teacher Profile', 'ملف المدرس')}
                                     </span>
                                     {user.createdAt && (
                                         <span className={`text-xs font-bold ${styles.mutedText}`}>
-                                            Teaching since {new Date(user.createdAt).toLocaleDateString()}
+                                            {tx('Teaching since', 'بيدرس من')} {new Date(user.createdAt).toLocaleDateString()}
                                         </span>
                                     )}
                                 </div>
@@ -207,19 +210,19 @@ export const TeacherProfileView: React.FC<TeacherProfileViewProps> = ({
                         {/* Live Teaching Metrics (No Student XP/Badges) */}
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 shrink-0">
                             <div className={`px-4 py-3 rounded-2xl text-center ${styles.kpiTile('neutral')}`}>
-                                <div className={`text-[10px] font-black uppercase ${styles.mutedText}`}>Classes</div>
+                                <div className={`text-[10px] font-black uppercase ${styles.mutedText}`}>{tx('Classes', 'الكلاسات')}</div>
                                 <div className="text-xl font-black mt-0.5">{stats.classesCount}</div>
                             </div>
                             <div className={`px-4 py-3 rounded-2xl text-center ${styles.kpiTile('indigo')}`}>
-                                <div className={`text-[10px] font-black uppercase ${styles.mutedText}`}>Students</div>
+                                <div className={`text-[10px] font-black uppercase ${styles.mutedText}`}>{tx('Students', 'الطلاب')}</div>
                                 <div className="text-xl font-black mt-0.5">{stats.studentsTaught}</div>
                             </div>
                             <div className={`px-4 py-3 rounded-2xl text-center ${styles.kpiTile('emerald')}`}>
-                                <div className={`text-[10px] font-black uppercase ${styles.mutedText}`}>Sessions</div>
+                                <div className={`text-[10px] font-black uppercase ${styles.mutedText}`}>{tx('Sessions', 'السيشنات')}</div>
                                 <div className="text-xl font-black mt-0.5">{stats.sessionsDelivered}</div>
                             </div>
                             <div className={`px-4 py-3 rounded-2xl text-center ${styles.kpiTile('amber')}`}>
-                                <div className={`text-[10px] font-black uppercase ${styles.mutedText}`}>Decks</div>
+                                <div className={`text-[10px] font-black uppercase ${styles.mutedText}`}>{tx('Decks', 'العروض')}</div>
                                 <div className="text-xl font-black mt-0.5">{stats.decksCount}</div>
                             </div>
                         </div>
@@ -295,7 +298,7 @@ export const TeacherProfileView: React.FC<TeacherProfileViewProps> = ({
                                     className={`px-3.5 py-2 rounded-xl text-xs uppercase flex items-center gap-1.5 cursor-pointer shrink-0 self-start lg:self-center ${styles.secondaryBtn}`}
                                 >
                                     <Pencil className="w-3.5 h-3.5" />
-                                    <span>Edit Teaching Bio</span>
+                                    <span>{tx('Edit Teaching Bio', 'تعديل النبذة')}</span>
                                 </button>
                             </>
                         )}
@@ -318,9 +321,9 @@ export const TeacherProfileView: React.FC<TeacherProfileViewProps> = ({
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                     <div className={`inline-flex flex-wrap items-center gap-1.5 p-1.5 rounded-2xl max-w-full ${styles.surfaceCard}`}>
                         {([
-                            { id: 'portfolio' as const, label: 'Teaching Portfolio', icon: GraduationCap },
-                            { id: 'decks' as const, label: `Slide Decks (${stats.decksCount})`, icon: FileCode },
-                            { id: 'settings' as const, label: 'Account & Security', icon: Settings }
+                            { id: 'portfolio' as const, label: tx('Teaching Portfolio', 'ملف التدريس'), icon: GraduationCap },
+                            { id: 'decks' as const, label: `${tx('Slide Decks', 'العروض التقديمية')} (${stats.decksCount})`, icon: FileCode },
+                            { id: 'settings' as const, label: tx('Account & Security', 'الحساب والأمان'), icon: Settings }
                         ]).map(tab => {
                             const Icon = tab.icon;
                             const active = activeTab === tab.id;
@@ -340,8 +343,19 @@ export const TeacherProfileView: React.FC<TeacherProfileViewProps> = ({
                         })}
                     </div>
 
-                    <div className={`p-3 rounded-2xl w-full lg:w-[290px] shrink-0 ${styles.surfaceCard}`}>
-                        <WorkspaceThemeSwitcher />
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto shrink-0">
+                        <button
+                            type="button"
+                            onClick={openLanguageModal}
+                            className={`px-4 py-3 rounded-2xl text-xs font-black flex items-center justify-center gap-2 cursor-pointer transition shrink-0 ${styles.surfaceCard} hover:opacity-90`}
+                        >
+                            <Globe className="w-4 h-4 shrink-0" />
+                            <span>{language === 'ar-EG' ? '🇪🇬 العربية المصرية' : '🇺🇸 English'}</span>
+                            <span className="opacity-60">• {tx('Language', 'اللغة')}</span>
+                        </button>
+                        <div className={`p-3 rounded-2xl w-full sm:w-[290px] shrink-0 ${styles.surfaceCard}`}>
+                            <WorkspaceThemeSwitcher />
+                        </div>
                     </div>
                 </div>
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
     Gamepad2,
@@ -9,7 +9,8 @@ import {
     Send,
     Wifi,
     Radio,
-    Loader2
+    Loader2,
+    Clock
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { MathRenderer } from '../common/MathRenderer';
@@ -17,9 +18,11 @@ import { sounds } from '../../lib/soundEffects';
 import { api } from '../../lib/api';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { useClassroomSync } from './useClassroomSync';
 import {
     ClassroomScoreStrip,
+    ClassroomParticipantsScoreboard,
     ClassroomWaitingCard,
     ClassroomRevealSection,
     ClassroomPodiumSection,
@@ -28,19 +31,23 @@ import {
 import {
     OPTION_SHAPES,
     getOptionThemeClass,
-    getRoleTag
+    getRoleTag,
+    formatRoomTimeLeft
 } from './classroomHelpers';
+import ConfirmDialog from '../ConfirmDialog';
 import type { ClassroomRoomState } from '../../types';
 
 interface LivePlayerControllerProps {
     onBack?: () => void;
     onClose?: () => void;
+    onPromotedToHost?: (room: ClassroomRoomState) => void;
     initialPin?: string;
 }
 
 export const LivePlayerController: React.FC<LivePlayerControllerProps> = ({
     onBack,
     onClose,
+    onPromotedToHost,
     initialPin
 }) => {
     const handleClose = useCallback(() => {
@@ -50,6 +57,7 @@ export const LivePlayerController: React.FC<LivePlayerControllerProps> = ({
 
     const { isBento } = useTheme();
     const { currentUser } = useAuth();
+    const { tx } = useLanguage();
     const [searchParams] = useSearchParams();
     const urlPin = searchParams?.get('pin') || '';
     const resolvedInitialPin = (initialPin || urlPin || '').trim();
@@ -67,10 +75,15 @@ export const LivePlayerController: React.FC<LivePlayerControllerProps> = ({
 
     const autoJoinedRef = useRef(false);
     const activePinRef = useRef<string | null>(null);
+    const selectedOptionRef = useRef<number | null>(null);
 
     useEffect(() => {
         activePinRef.current = activePin;
     }, [activePin]);
+
+    useEffect(() => {
+        selectedOptionRef.current = selectedOption;
+    }, [selectedOption]);
 
     const handleRoomUpdate = useCallback((next: ClassroomRoomState, prev: ClassroomRoomState | null) => {
         if (prev && prev.currentQuestionIndex !== next.currentQuestionIndex) {
@@ -112,16 +125,17 @@ export const LivePlayerController: React.FC<LivePlayerControllerProps> = ({
             }).catch(() => {});
         } else if (expiredRoom.mode === 'simultaneous') {
             const already = expiredRoom.submittedUserIds?.includes(myUserId);
+            const latestOption = selectedOptionRef.current;
             if (!already) {
                 await api.submitClassroomAnswer(expiredRoom.pin, {
                     userId: myUserId,
                     questionIndex: expiredRoom.currentQuestionIndex,
-                    answerIndex: selectedOption !== null ? selectedOption : -1,
-                    timedOut: selectedOption === null
+                    answerIndex: latestOption !== null ? latestOption : -1,
+                    timedOut: latestOption === null
                 }).catch(() => {});
             }
         }
-    }, [myUserId, selectedOption]);
+    }, [myUserId]);
 
     const {
         room,
@@ -137,7 +151,7 @@ export const LivePlayerController: React.FC<LivePlayerControllerProps> = ({
         onRoomClosed: () => {
             resetSync();
             setActivePin(null);
-            setJoinError('This live classroom session has ended.');
+            setJoinError(tx('This live arena session has ended.', 'جلسة الساحة المباشرة انتهت.'));
         },
         onTimerExpired: handleTimerExpired
     });
@@ -175,28 +189,33 @@ export const LivePlayerController: React.FC<LivePlayerControllerProps> = ({
         }
     }, [resolvedInitialPin, currentUser?.name, nickname, performJoin]);
 
-    // Clean leave on unmount
+    // Clean leave on unmount (skip if promoted to host so room session stays active)
+    const promotedToHostRef = useRef(false);
+    const [showExitConfirm, setShowExitConfirm] = useState(false);
+    const [leavingArena, setLeavingArena] = useState(false);
+    const [roomNowMs, setRoomNowMs] = useState(() => Date.now());
+
     useEffect(() => {
         return () => {
-            if (activePinRef.current) {
+            if (activePinRef.current && !promotedToHostRef.current) {
                 api.leaveClassroomRoom(activePinRef.current, myUserId);
             }
         };
     }, [myUserId]);
 
-    // Escape key & scroll lock
+    // Escape key to leave when on pre-join screen or prompt confirmation in active room
     useEffect(() => {
         const onKey = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') handleClose();
+            if (e.key !== 'Escape') return;
+            if (!room) {
+                handleClose();
+            } else if (room.gameState !== 'game_over') {
+                setShowExitConfirm(true);
+            }
         };
-        const prevOverflow = document.body.style.overflow;
-        document.body.style.overflow = 'hidden';
         window.addEventListener('keydown', onKey);
-        return () => {
-            document.body.style.overflow = prevOverflow;
-            window.removeEventListener('keydown', onKey);
-        };
-    }, [handleClose]);
+        return () => window.removeEventListener('keydown', onKey);
+    }, [handleClose, room]);
 
     const handleJoinSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -220,18 +239,86 @@ export const LivePlayerController: React.FC<LivePlayerControllerProps> = ({
         }
     };
 
-    const handleLeaveArena = async () => {
+    const handleLeaveArena = useCallback(async () => {
+        setLeavingArena(true);
         if (activePin) {
-            await api.leaveClassroomRoom(activePin, myUserId);
+            try {
+                await api.leaveClassroomRoom(activePin, myUserId);
+            } catch {
+                // Allow local exit even if room already closed
+            }
         }
+        setLeavingArena(false);
+        setShowExitConfirm(false);
         handleClose();
-    };
+    }, [activePin, myUserId, handleClose]);
+
+    const requestLeaveArena = useCallback(() => {
+        if (!room || room.gameState === 'game_over') {
+            void handleLeaveArena();
+            return;
+        }
+        setShowExitConfirm(true);
+    }, [room, handleLeaveArena]);
+
+    // Seamless transition when backend promotes this player to host
+    useEffect(() => {
+        if (!room || !onPromotedToHost || promotedToHostRef.current) return;
+        if (room.hostId === myUserId) {
+            promotedToHostRef.current = true;
+            onPromotedToHost(room);
+        }
+    }, [room, myUserId, onPromotedToHost]);
+
+    const roomTimeLeft = useMemo(
+        () => formatRoomTimeLeft(room?.expiresAt, roomNowMs),
+        [room?.expiresAt, roomNowMs]
+    );
+
+    useEffect(() => {
+        if (!room?.expiresAt) return;
+        setRoomNowMs(Date.now());
+        const ticker = setInterval(() => setRoomNowMs(Date.now()), 1000);
+        return () => clearInterval(ticker);
+    }, [room?.expiresAt]);
+
+    useEffect(() => {
+        if (roomTimeLeft?.expired) {
+            handleClose();
+        }
+    }, [roomTimeLeft?.expired, handleClose]);
 
     const me = room?.players.find(p => p.id === myUserId);
     const iHaveSubmitted = Boolean(me?.hasSubmitted || room?.submittedUserIds?.includes(myUserId));
     const isMyTurn = room?.mode === 'turn_based' && room.currentTurnUserId === myUserId;
     const activeTurnPlayer = room?.players.find(p => p.id === room.currentTurnUserId);
     const currentQ = room?.currentQuestion;
+    const totalSec = room?.questionTimeSec || 25;
+    const timerPct = Math.max(0, Math.min(100, (timeLeft / totalSec) * 100));
+
+    // Keyboard shortcuts: 1-4 to pick option, Enter to submit in simultaneous mode
+    useEffect(() => {
+        if (!room || room.gameState !== 'question' || !currentQ || me?.isSpectator || submitting) return;
+        const locked = room.mode === 'turn_based' ? !isMyTurn : iHaveSubmitted;
+        if (locked) return;
+
+        const onKeyDown = (e: KeyboardEvent) => {
+            if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+            const num = Number(e.key);
+            if (num >= 1 && num <= currentQ.options.length) {
+                const idx = num - 1;
+                setSelectedOption(idx);
+                if (room.mode === 'turn_based') {
+                    handleSubmitAnswer(idx);
+                }
+            } else if (e.key === 'Enter' && room.mode === 'simultaneous' && selectedOption !== null) {
+                handleSubmitAnswer(selectedOption);
+            }
+        };
+        window.addEventListener('keydown', onKeyDown);
+        return () => window.removeEventListener('keydown', onKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [room, currentQ, me?.isSpectator, isMyTurn, iHaveSubmitted, submitting, selectedOption]);
 
     // 1. PRE-JOIN SCREEN (if guest needs to type PIN or nickname)
     if (!room) {
@@ -242,6 +329,7 @@ export const LivePlayerController: React.FC<LivePlayerControllerProps> = ({
                     if (e.target === e.currentTarget) handleClose();
                 }}
             >
+                <div className="modal-backdrop absolute inset-0 -z-10" />
                 <div
                     className={`relative w-full max-w-md p-6 rounded-2xl transition-all animate-in zoom-in-95 duration-200 ${
                         isBento
@@ -271,9 +359,9 @@ export const LivePlayerController: React.FC<LivePlayerControllerProps> = ({
                         }`}>
                             <Gamepad2 className="w-6 h-6 stroke-[2.5]" />
                         </div>
-                        <h2 className="text-2xl font-black uppercase tracking-tight">Join Live Classroom</h2>
+                        <h2 className="text-2xl font-black uppercase tracking-tight">{tx('Join Live Arena', 'ادخل الساحة المباشرة')}</h2>
                         <p className="text-xs text-slate-500 dark:text-slate-400">
-                            Enter the 6-digit PIN shared by your teacher or host.
+                            {tx('Enter the 6-digit PIN shared by your teacher or host.', 'اكتب كود الغرفة المكون من 6 أرقام اللي بعته المدرس أو المضيف.')}
                         </p>
                     </div>
 
@@ -286,19 +374,19 @@ export const LivePlayerController: React.FC<LivePlayerControllerProps> = ({
                     {joining ? (
                         <div className="py-8 flex flex-col items-center gap-2">
                             <Loader2 className="w-7 h-7 animate-spin text-indigo-500" />
-                            <span className="text-xs font-black uppercase tracking-wider">Joining Live Room...</span>
+                            <span className="text-xs font-black uppercase tracking-wider">{tx('Joining Live Room...', 'بندخلك الغرفة...')}</span>
                         </div>
                     ) : (
                         <form onSubmit={handleJoinSubmit} className="space-y-3.5">
                             <div>
                                 <label className="block text-[11px] font-black uppercase tracking-wider mb-1">
-                                    Room PIN
+                                    {tx('Room PIN', 'كود الغرفة (PIN)')}
                                 </label>
                                 <input
                                     type="text"
                                     maxLength={6}
                                     autoFocus
-                                    placeholder="e.g. 482910"
+                                    placeholder={tx('e.g. 482910', 'مثال: 482910')}
                                     value={pinInput}
                                     onChange={(e) => setPinInput(e.target.value.replace(/\D/g, ''))}
                                     className={`w-full p-3 rounded-xl text-center text-xl font-mono font-black tracking-widest ${
@@ -311,12 +399,12 @@ export const LivePlayerController: React.FC<LivePlayerControllerProps> = ({
 
                             <div>
                                 <label className="block text-[11px] font-black uppercase tracking-wider mb-1">
-                                    Your Name
+                                    {tx('Your Name', 'اسمك')}
                                 </label>
                                 <input
                                     type="text"
                                     maxLength={24}
-                                    placeholder="Enter your name"
+                                    placeholder={tx('Enter your name', 'اكتب اسمك')}
                                     value={nickname}
                                     onChange={(e) => setNickname(e.target.value)}
                                     className={`w-full p-3 rounded-xl text-center text-sm font-bold ${
@@ -336,7 +424,7 @@ export const LivePlayerController: React.FC<LivePlayerControllerProps> = ({
                                         : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed'
                                 }`}
                             >
-                                <span>Enter Live Room</span>
+                                <span>{tx('Enter Live Room', 'ادخل الغرفة المباشرة')}</span>
                                 <ArrowRight className="w-4 h-4 stroke-[3]" />
                             </button>
                         </form>
@@ -346,9 +434,9 @@ export const LivePlayerController: React.FC<LivePlayerControllerProps> = ({
         );
     }
 
-    // 2. LIVE CONNECTED CLASSROOM STAGE (Compact, fits cleanly inside viewport)
+    // 2. LIVE CONNECTED ARENA PAGE (Full dedicated page with Participants Scoreboard)
     return (
-        <div className={`fixed inset-0 z-[100] flex flex-col font-sans overflow-hidden ${
+        <div className={`min-h-screen w-full flex flex-col font-sans overflow-x-hidden ${
             isBento ? 'bg-[#f5f3ec] text-black' : 'bg-slate-50 dark:bg-[#090d16] text-slate-900 dark:text-white'
         }`}>
             {/* Slim Header Bar */}
@@ -368,11 +456,11 @@ export const LivePlayerController: React.FC<LivePlayerControllerProps> = ({
                     <span className={`hidden sm:inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-black uppercase ${
                         isBento ? 'bg-[#bae6fd] text-black border border-black' : 'bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300'
                     }`}>
-                        {room.mode === 'simultaneous' ? '⚡ Everyone Answers' : '🎯 Turn-Based'}
+                        {room.mode === 'simultaneous' ? tx('⚡ Everyone Answers', '⚡ الكل يجاوب') : tx('🎯 Turn-Based', '🎯 تحدي الأدوار')}
                     </span>
                     {room.gameState !== 'lobby' && (
                         <span className="text-xs font-mono font-black opacity-75 shrink-0">
-                            Q{(room.currentQuestionIndex || 0) + 1}/{room.totalQuestions}
+                            {tx('Q', 'س')}{(room.currentQuestionIndex || 0) + 1}/{room.totalQuestions}
                         </span>
                     )}
                 </div>
@@ -382,8 +470,26 @@ export const LivePlayerController: React.FC<LivePlayerControllerProps> = ({
                         socketConnected ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'
                     }`}>
                         {socketConnected ? <Wifi className="w-3.5 h-3.5" /> : <Radio className="w-3.5 h-3.5 animate-pulse" />}
-                        <span>Live</span>
+                        <span>{tx('Live', 'مباشر')}</span>
                     </span>
+
+                    {roomTimeLeft && (
+                        <span
+                            className={`inline-flex items-center gap-1 px-2 py-1 rounded-xl text-[11px] font-mono font-black ${
+                                roomTimeLeft.isUrgent
+                                    ? isBento
+                                        ? 'bg-[#fecdd3] text-black border-2 border-black'
+                                        : 'bg-rose-500/15 border border-rose-500/30 text-rose-600 dark:text-rose-300'
+                                    : isBento
+                                        ? 'bg-slate-100 text-black border-2 border-black'
+                                        : 'bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-200'
+                            }`}
+                            title={tx('Room auto-closes when timer ends', 'الغرفة هتقفل تلقائياً لما الوقت يخلص')}
+                        >
+                            <Clock className="w-3 h-3" />
+                            <span>{roomTimeLeft.text}</span>
+                        </span>
+                    )}
 
                     <span className={`px-2.5 py-1 rounded-xl text-xs font-mono font-black ${
                         isBento
@@ -395,33 +501,33 @@ export const LivePlayerController: React.FC<LivePlayerControllerProps> = ({
 
                     <button
                         type="button"
-                        onClick={handleLeaveArena}
+                        onClick={requestLeaveArena}
                         className={`btn-unstyled p-1.5 rounded-xl cursor-pointer transition active:scale-95 ${
                             isBento
                                 ? 'bg-[#fecdd3] hover:bg-rose-300 text-black border-2 border-black shadow-[2px_2px_0_#000]'
                                 : 'bg-rose-500/10 hover:bg-rose-500/20 text-rose-500'
                         }`}
-                        title="Leave Classroom"
+                        title={tx('Leave Arena', 'اخرج من الساحة')}
                     >
                         <X className="w-4 h-4 stroke-[2.5]" />
                     </button>
                 </div>
             </header>
 
-            {/* Live Scoreboard Strip */}
+            {/* Compact Mobile Score Strip */}
             {room.gameState !== 'lobby' && (
-                <div className={`px-4 py-2 border-b shrink-0 ${
-                    isBento ? 'bg-white/70 border-black/15' : 'bg-white/50 dark:bg-white/[0.02] border-slate-200 dark:border-white/10'
+                <div className={`lg:hidden px-4 py-2 border-b shrink-0 ${
+                    isBento ? 'bg-white/80 border-black/15' : 'bg-white/50 dark:bg-white/[0.02] border-slate-200 dark:border-white/10'
                 }`}>
-                    <div className="max-w-4xl mx-auto">
+                    <div className="max-w-6xl mx-auto">
                         <ClassroomScoreStrip room={room} myUserId={myUserId} isBento={isBento} />
                     </div>
                 </div>
             )}
 
             {/* Main Centered Stage */}
-            <main className="flex-1 min-h-0 overflow-y-auto flex items-center justify-center p-3 sm:p-5">
-                <div className="w-full max-w-4xl">
+            <main className="flex-1 min-h-0 overflow-y-auto flex items-start lg:items-center justify-center p-3 sm:p-5">
+                <div className="w-full max-w-6xl">
                     {/* A. WAITING LOBBY */}
                     {room.gameState === 'lobby' && (
                         <div className={`max-w-xl mx-auto p-6 rounded-2xl text-center space-y-4 animate-in zoom-in-95 duration-200 ${
@@ -433,35 +539,37 @@ export const LivePlayerController: React.FC<LivePlayerControllerProps> = ({
                                 <span className={`px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider ${
                                     isBento ? 'bg-[#fde047] text-black border border-black' : 'bg-amber-500/15 text-amber-500'
                                 }`}>
-                                    Hosted by {room.hostName}
+                                    {tx(`Hosted by ${room.hostName}`, `باستضافة ${room.hostName}`)}
                                 </span>
                                 <span className={`px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider ${
                                     isBento ? 'bg-[#bae6fd] text-black border border-black' : 'bg-indigo-500/15 text-indigo-400'
                                 }`}>
-                                    {room.mode === 'simultaneous' ? 'Everyone Answers Mode' : 'Turn-Based Duel Mode'}
+                                    {room.mode === 'simultaneous'
+                                        ? tx('Everyone Answers Mode', 'نظام الكل يجاوب')
+                                        : tx('Turn-Based Duel Mode', 'نظام تحدي الأدوار')}
                                 </span>
                             </div>
 
                             <div>
                                 <h2 className="text-2xl sm:text-3xl font-black tracking-tight">
-                                    You&apos;re In! Waiting for Host...
+                                    {tx("You're In! Waiting for Host...", 'دخلت بنجاح! مستنيين المضيف يبدأ...')}
                                 </h2>
                                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                                     {room.mode === 'simultaneous'
-                                        ? 'Everyone answers each question privately; results reveal when all click Submit.'
-                                        : 'Teacher and students take turns answering questions and competing for top score!'}
+                                        ? tx('Everyone answers each question privately; results reveal when all click Submit.', 'كل واحد بيجاوب لوحده في سره، والنتايج بتظهر لما الكل يبعت.')
+                                        : tx('Teacher and students take turns answering questions and competing for top score!', 'المدرس والطلاب بياخدوا أدوارهم على كل سؤال ويتنافسوا على المركز الأول!')}
                                 </p>
                             </div>
 
-                            <div className={`p-3.5 rounded-xl text-left space-y-2 ${
+                            <div className={`p-3.5 rounded-xl text-start space-y-2 ${
                                 isBento ? 'bg-slate-50 border-2 border-black' : 'bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10'
                             }`}>
                                 <div className="flex items-center justify-between text-[11px] font-black uppercase tracking-wider opacity-70">
                                     <span className="flex items-center gap-1.5">
                                         <Users className="w-3.5 h-3.5" />
-                                        Live Classroom Roster ({room.players.filter(p => !p.isSpectator).length})
+                                        {tx('Live Arena Roster', 'المشاركين في الساحة')} ({room.players.filter(p => !p.isSpectator).length})
                                     </span>
-                                    <span className="text-emerald-600 dark:text-emerald-400 animate-pulse">● Connected</span>
+                                    <span className="text-emerald-600 dark:text-emerald-400 animate-pulse">● {tx('Connected', 'متصل')}</span>
                                 </div>
 
                                 <div className="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto">
@@ -474,7 +582,7 @@ export const LivePlayerController: React.FC<LivePlayerControllerProps> = ({
                                                     : isBento ? 'bg-white border border-black/40 text-black' : 'bg-white dark:bg-white/10 border border-slate-200 dark:border-white/10'
                                             }`}
                                         >
-                                            <span>{p.name}{p.id === myUserId ? ' (You)' : ''}</span>
+                                            <span>{p.name}{p.id === myUserId ? tx(' (You)', ' (أنت)') : ''}</span>
                                             <span className="text-[9px] uppercase opacity-70">{getRoleTag(p)}</span>
                                         </span>
                                     ))}
@@ -483,17 +591,18 @@ export const LivePlayerController: React.FC<LivePlayerControllerProps> = ({
 
                             <button
                                 type="button"
-                                onClick={handleLeaveArena}
+                                onClick={requestLeaveArena}
                                 className="btn-unstyled text-xs font-bold text-slate-500 hover:underline cursor-pointer bg-transparent border-0"
                             >
-                                <span>Leave Room</span>
+                                <span>{tx('Leave Room', 'اخرج من الغرفة')}</span>
                             </button>
                         </div>
                     )}
 
                     {/* B. QUESTION PHASE */}
                     {room.gameState === 'question' && currentQ && (
-                        <div className="space-y-3 animate-in fade-in duration-150">
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start animate-in fade-in duration-150">
+                            <div className="lg:col-span-8 space-y-3">
                             <div className={`px-4 py-2.5 rounded-2xl flex items-center justify-between gap-3 ${
                                 room.mode === 'turn_based'
                                     ? isMyTurn
@@ -508,17 +617,17 @@ export const LivePlayerController: React.FC<LivePlayerControllerProps> = ({
                                     <div className="min-w-0">
                                         <div className="text-[10px] font-black uppercase tracking-wider opacity-75">
                                             {room.mode === 'turn_based'
-                                                ? (isMyTurn ? 'Active Turn' : 'Spectating Turn')
-                                                : `Everyone Answers (${room.submittedCount}/${room.eligibleCount} Submitted)`}
+                                                ? (isMyTurn ? tx('Active Turn', 'دورك دلوقتي') : tx('Spectating Turn', 'بتتفرج على الدور'))
+                                                : tx(`Everyone Answers (${room.submittedCount}/${room.eligibleCount} Submitted)`, `الكل يجاوب (${room.submittedCount}/${room.eligibleCount} سلموا)`)}
                                         </div>
                                         <div className="text-sm sm:text-base font-black truncate">
                                             {room.mode === 'turn_based'
                                                 ? (isMyTurn
-                                                    ? 'Your Turn to Answer!'
-                                                    : `Waiting for ${activeTurnPlayer?.name || 'participant'} to answer...`)
+                                                    ? tx('Your Turn to Answer!', 'دورك تجاوب دلوقتي!')
+                                                    : tx(`Waiting for ${activeTurnPlayer?.name || 'participant'} to answer...`, `مستنيين ${activeTurnPlayer?.name || 'المتسابق'} يجاوب...`))
                                                 : iHaveSubmitted
-                                                    ? 'Submitted! Waiting for everyone else...'
-                                                    : 'Answer privately and click Submit!'}
+                                                    ? tx('Submitted! Waiting for everyone else...', 'تم التسليم! مستنيين الباقي...')
+                                                    : tx('Answer privately and click Submit!', 'جاوب لوحدك واضغط تسليم!')}
                                         </div>
                                     </div>
                                 </div>
@@ -530,6 +639,20 @@ export const LivePlayerController: React.FC<LivePlayerControllerProps> = ({
                                 }`}>
                                     {timeLeft}s
                                 </div>
+                            </div>
+
+                            {/* Smooth Countdown Progress Bar */}
+                            <div className={`w-full h-1.5 rounded-full overflow-hidden ${
+                                isBento ? 'bg-slate-200 border border-black' : 'bg-slate-200 dark:bg-white/10'
+                            }`}>
+                                <div
+                                    className={`h-full transition-all duration-300 ${
+                                        timeLeft <= 5
+                                            ? 'bg-rose-500'
+                                            : isBento ? 'bg-black' : 'bg-indigo-500'
+                                    }`}
+                                    style={{ width: `${timerPct}%` }}
+                                />
                             </div>
 
                             {room.mode === 'simultaneous' && iHaveSubmitted ? (
@@ -577,7 +700,7 @@ export const LivePlayerController: React.FC<LivePlayerControllerProps> = ({
                                                     {locked && (
                                                         <span className="flex items-center gap-1 text-[10px] font-black uppercase px-2 py-0.5 rounded bg-black/10 shrink-0">
                                                             <Lock className="w-3 h-3" />
-                                                            <span>Wait</span>
+                                                            <span>{tx('Wait', 'استنى')}</span>
                                                         </span>
                                                     )}
                                                 </button>
@@ -598,23 +721,40 @@ export const LivePlayerController: React.FC<LivePlayerControllerProps> = ({
                                                 }`}
                                             >
                                                 <Send className="w-3.5 h-3.5" />
-                                                <span>{submitting ? 'Submitting...' : selectedOption === null ? 'Select an Answer First' : 'Submit Answer'}</span>
+                                                <span>
+                                                    {submitting
+                                                        ? tx('Submitting...', 'جاري الإرسال...')
+                                                        : selectedOption === null
+                                                            ? tx('Select an Answer First', 'اختار إجابة الأول')
+                                                            : tx('Submit Answer', 'ابعت الإجابة')}
+                                                </span>
                                             </button>
                                         </div>
                                     )}
                                 </>
                             )}
+                            </div>
+
+                            <div className="hidden lg:block lg:col-span-4 lg:sticky lg:top-4">
+                                <ClassroomParticipantsScoreboard room={room} myUserId={myUserId} isBento={isBento} />
+                            </div>
                         </div>
                     )}
 
                     {/* C. REVEAL PHASE */}
                     {room.gameState === 'reveal' && (
-                        <div className="space-y-4 animate-in zoom-in-95 duration-200">
-                            <ClassroomRevealSection room={room} myUserId={myUserId} isBento={isBento} />
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start animate-in zoom-in-95 duration-200">
+                            <div className="lg:col-span-8 space-y-4">
+                                <ClassroomRevealSection room={room} myUserId={myUserId} isBento={isBento} />
 
-                            <div className="text-center text-xs font-black uppercase tracking-wider opacity-70 flex items-center justify-center gap-2">
-                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                <span>Waiting for {room.hostName} to start next question...</span>
+                                <div className="text-center text-xs font-black uppercase tracking-wider opacity-70 flex items-center justify-center gap-2">
+                                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                    <span>{tx(`Waiting for ${room.hostName} to start next question...`, `مستنيين ${room.hostName} يفتح السؤال الجاي...`)}</span>
+                                </div>
+                            </div>
+
+                            <div className="hidden lg:block lg:col-span-4 lg:sticky lg:top-4">
+                                <ClassroomParticipantsScoreboard room={room} myUserId={myUserId} isBento={isBento} />
                             </div>
                         </div>
                     )}
@@ -633,13 +773,28 @@ export const LivePlayerController: React.FC<LivePlayerControllerProps> = ({
                                             : 'bg-indigo-600 hover:bg-indigo-500 text-white'
                                     }`}
                                 >
-                                    <span>Leave Arena</span>
+                                    <span>{tx('Leave Arena', 'اخرج من الساحة')}</span>
                                 </button>
                             </div>
                         </div>
                     )}
                 </div>
             </main>
+
+            <ConfirmDialog
+                isOpen={showExitConfirm}
+                title={tx('Exit Live Arena?', 'تخرج من الساحة المباشرة؟')}
+                message={tx(
+                    'If you leave now, you will lose all your points, streak, and progress in this session.',
+                    'لو خرجت دلوقتي هتخسر كل نقطك وسلسلة إجاباتك وتقدمك في الجلسة دي.'
+                )}
+                confirmText={tx('Exit Arena', 'اخرج من الساحة')}
+                cancelText={tx('Stay in Arena', 'كمّل في الساحة')}
+                type="warning"
+                isLoading={leavingArena}
+                onConfirm={handleLeaveArena}
+                onCancel={() => setShowExitConfirm(false)}
+            />
         </div>
     );
 };

@@ -104,8 +104,10 @@ export function groupQuizzesForTrack(
 
     quizzes.forEach(q => {
         const qid = String(q.id || q._id || '');
+        const altQid = q._id ? String(q._id) : '';
         const linkedMeta: ModuleMatchMeta | undefined =
             (qid ? moduleByQuizId.get(qid) : undefined)
+            || (altQid ? moduleByQuizId.get(altQid) : undefined)
             || (q.linkedModuleId ? moduleById.get(q.linkedModuleId) : undefined)
             || (q.moduleId ? moduleById.get(q.moduleId) : undefined);
 
@@ -120,6 +122,7 @@ export function groupQuizzesForTrack(
 
         if (!matchesTrack) return;
         if (qid) matchedIds.add(qid);
+        if (altQid) matchedIds.add(altQid);
 
         let resolvedMeta = linkedMeta;
         if (!resolvedMeta && q.title) {
@@ -162,7 +165,7 @@ export function groupQuizzesForTrack(
             order: idx + 1,
             items: sessionBuckets.get(mod.moduleId) || []
         }))
-        .filter(s => !qSearch || s.items.length > 0 || s.module.title.toLowerCase().includes(qSearch));
+        .filter(s => !qSearch || s.items.length > 0 || (s.module.title || '').toLowerCase().includes(qSearch));
 
     const toItem = (m: { quiz: Quiz; meta?: ModuleMatchMeta; kind: TrackAssessmentKind }): TrackQuizItem => ({
         quiz: m.quiz,

@@ -27,6 +27,14 @@ const ROUTE_METADATA: Record<string, RouteMetadata> = {
         title: 'Live Tournaments & Arenas | Quiz Platform',
         description: 'Compete in scheduled and live multiplayer quiz tournaments to earn prestigious badges and rewards.'
     },
+    '/live-arena': {
+        title: 'Live Arena | Quiz Platform',
+        description: 'Host or join real-time Turn-Based Duels and Everyone Answers live quiz battles.'
+    },
+    '/classroom': {
+        title: 'Live Arena | Quiz Platform',
+        description: 'Host or join real-time Turn-Based Duels and Everyone Answers live quiz battles.'
+    },
     '/daily': {
         title: 'Daily Code Challenge | Quiz Platform',
         description: 'Solve the daily programming puzzle, maintain your streak, and earn bonus XP.'
@@ -100,6 +108,14 @@ const ROUTE_METADATA_AR: Record<string, RouteMetadata> = {
     '/tournaments': {
         title: 'البطولات والتحديات المباشرة | منصة الكويزات',
         description: 'نافس زمايلك في بطولات كويزات مباشرة واكسب شارات وجوائز.'
+    },
+    '/live-arena': {
+        title: 'الساحة المباشرة | منصة الكويزات',
+        description: 'اعمل غرفة مباشرة أو ادخل بـ PIN ونافس في تحدي الأدوار أو الكل يجاوب.'
+    },
+    '/classroom': {
+        title: 'الساحة المباشرة | منصة الكويزات',
+        description: 'اعمل غرفة مباشرة أو ادخل بـ PIN ونافس في تحدي الأدوار أو الكل يجاوب.'
     },
     '/daily': {
         title: 'تحدي النهارده | منصة الكويزات',

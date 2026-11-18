@@ -19,7 +19,6 @@ import { useChat } from '../context/ChatContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useNavArrangement } from '../context/NavArrangementContext';
 import { NavbarCustomizerModal } from './nav/NavbarCustomizerModal';
-import LanguageToggle from './LanguageToggle';
 
 interface NavbarProps {
     user?: UserData | null;
@@ -413,7 +412,6 @@ const Navbar: React.FC<NavbarProps> = ({
                                 )}
                             </>
                         )}
-                        <LanguageToggle compact />
                         {!isGuest && (
                             <button
                                 type="button"
@@ -493,7 +491,6 @@ const Navbar: React.FC<NavbarProps> = ({
 
                     {/* Mobile & Tablet Right Controls */}
                     <div className="flex items-center gap-2 shrink-0">
-                        <LanguageToggle compact />
                         {!isGuest && (
                             <button
                                 type="button"

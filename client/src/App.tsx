@@ -156,7 +156,10 @@ const App: React.FC = () => {
                               <Route path="/tournaments" element={<TournamentsPage />} />
                               <Route path="/t/:tournamentId" element={<TournamentInviteRedirect />} />
                               <Route path="/badge-tree/:treeId" element={<BadgeTreeDetailPage />} />
+                              <Route path="/live-arena" element={<ClassroomPage />} />
+                              <Route path="/live-arena/room/:pin" element={<ClassroomPage />} />
                               <Route path="/classroom" element={<ClassroomPage />} />
+                              <Route path="/classroom/room/:pin" element={<ClassroomPage />} />
                               <Route path="/profile/:userId" element={<ProfilePage />} />
 
                               {/* Protected Routes (require login) */}

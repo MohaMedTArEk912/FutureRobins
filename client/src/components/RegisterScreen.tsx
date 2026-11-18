@@ -14,7 +14,6 @@ import {
     ShieldCheck
 } from 'lucide-react';
 import ThemeToggle from './ThemeToggle.tsx';
-import LanguageToggle from './LanguageToggle.tsx';
 import TransparentLogo from './TransparentLogo.tsx';
 import { AmbientBackground } from './AmbientBackground';
 import { AnimatedCharacter } from './AnimatedCharacter.tsx';
@@ -236,9 +235,8 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onVerified, onSwitchToL
                 </button>
             </div>
 
-            {/* Language + Theme Toggles - Floating */}
+            {/* Theme Toggle - Floating */}
             <div className="absolute top-5 end-5 z-50 mt-safe me-safe flex items-center gap-2">
-                <LanguageToggle compact />
                 <ThemeToggle />
             </div>
 

@@ -31,6 +31,28 @@ export function getOptionThemeClass(idx: number, isBento: boolean, selected: boo
 
 export function getRoleTag(player: ClassroomPlayer): string {
     if (player.isBot) return 'BOT';
-    if (player.isHost || player.role === 'teacher' || player.role === 'admin') return 'TEACHER';
+    if (player.role === 'teacher' || player.role === 'admin') return 'TEACHER';
+    if (player.isHost) return 'HOST';
     return 'STUDENT';
+}
+
+export function formatRoomTimeLeft(
+    expiresAt?: string | null,
+    nowMs: number = Date.now()
+): { text: string; isUrgent: boolean; expired: boolean } | null {
+    if (!expiresAt) return null;
+    const expiryMs = new Date(expiresAt).getTime();
+    if (!Number.isFinite(expiryMs)) return null;
+    const diffMs = expiryMs - nowMs;
+    if (diffMs <= 0) {
+        return { text: '00:00', isUrgent: true, expired: true };
+    }
+    const totalSec = Math.ceil(diffMs / 1000);
+    const mins = Math.floor(totalSec / 60);
+    const secs = totalSec % 60;
+    return {
+        text: `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`,
+        isUrgent: totalSec <= 120,
+        expired: false
+    };
 }
