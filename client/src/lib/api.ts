@@ -1520,7 +1520,7 @@ export const api = {
 
     async adminAssignClass(
         clanId: string,
-        data: { teacherId?: string; studentIds?: string[]; trackId?: string | null; name?: string; description?: string; isPublic?: boolean },
+        data: { teacherId?: string; studentIds?: string[]; trackId?: string | null; name?: string; description?: string; isPublic?: boolean; logo?: ClanLogo },
         adminId: string
     ) {
         const response = await fetchWithFallback(`/classes/admin/${clanId}/assign`, {

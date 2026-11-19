@@ -1,11 +1,9 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import {
     GraduationCap,
     Plus,
     Users,
     Search,
-    CheckSquare,
-    Square,
     Trash2,
     Save,
     Copy,
@@ -49,6 +47,15 @@ interface ClassManagementProps {
     onNotification: (type: 'success' | 'error' | 'warning', message: string) => void;
 }
 
+const emptyClassForm = {
+    name: '',
+    tag: '',
+    description: '',
+    trackId: '',
+    isPublic: false,
+    teacherId: ''
+};
+
 export const ClassManagement: React.FC<ClassManagementProps> = ({
     users,
     currentUser,
@@ -74,32 +81,30 @@ export const ClassManagement: React.FC<ClassManagementProps> = ({
         [users]
     );
 
-    // Create Class State
-    const [createForm, setCreateForm] = useState({
-        name: '',
-        tag: '',
-        description: '',
-        trackId: '',
-        isPublic: false,
-        teacherId: ''
-    });
+    const [createForm, setCreateForm] = useState(emptyClassForm);
     const [createStudentIds, setCreateStudentIds] = useState<string[]>([]);
-    const [createStudentSearch, setCreateStudentSearch] = useState('');
-    const [createLogo, setCreateLogo] = useState<ClanLogo | null>(null);
-    const [showCreateLogoStudio, setShowCreateLogoStudio] = useState(false);
-    const [creating, setCreating] = useState(false);
+    const [createLogo, setCreateLogo] = useState<ClanLogo>();
 
-    // Manage / Assign Existing Class State
     const [selectedClass, setSelectedClass] = useState<AdminClassItem | null>(null);
-    const [assignTeacherId, setAssignTeacherId] = useState('');
-    const [assignStudentIds, setAssignStudentIds] = useState<string[]>([]);
-    const [assignTrackId, setAssignTrackId] = useState('');
-    const [assignName, setAssignName] = useState('');
-    const [assignDescription, setAssignDescription] = useState('');
-    const [assignIsPublic, setAssignIsPublic] = useState(false);
-    const [assignStudentSearch, setAssignStudentSearch] = useState('');
-    const [savingAssign, setSavingAssign] = useState(false);
+    const [editForm, setEditForm] = useState(emptyClassForm);
+    const [editStudentIds, setEditStudentIds] = useState<string[]>([]);
+    const [editLogo, setEditLogo] = useState<ClanLogo>();
+
+    const [studentSearch, setStudentSearch] = useState('');
+    const [showEmblemStudio, setShowEmblemStudio] = useState(false);
+    const customizeEmblemRef = useRef<HTMLButtonElement>(null);
+    const [saving, setSaving] = useState(false);
     const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+
+    const isCreating = mode === 'create';
+    const form = isCreating ? createForm : editForm;
+    const setForm = isCreating ? setCreateForm : setEditForm;
+    const studentIds = isCreating ? createStudentIds : editStudentIds;
+    const setStudentIds = isCreating ? setCreateStudentIds : setEditStudentIds;
+    const draftLogo = isCreating ? createLogo : editLogo;
+    const emblem = draftLogo ?? (isCreating ? undefined : selectedClass?.logo);
+    const className = form.name.trim() || 'New Class';
+    const classTag = form.tag || 'CLASS';
 
     const loadData = useCallback(async () => {
         setLoading(true);
@@ -121,16 +126,30 @@ export const ClassManagement: React.FC<ClassManagementProps> = ({
         loadData();
     }, [loadData]);
 
+    const showClassMode = (nextMode: typeof mode) => {
+        setShowEmblemStudio(false);
+        setStudentSearch('');
+        setMode(nextMode);
+    };
+
+    const closeEmblemStudio = () => {
+        setShowEmblemStudio(false);
+        requestAnimationFrame(() => customizeEmblemRef.current?.focus());
+    };
+
     const openManageClass = (cls: AdminClassItem) => {
         setSelectedClass(cls);
-        setAssignTeacherId(cls.leaderId || '');
-        setAssignStudentIds(Array.isArray(cls.studentIds) ? cls.studentIds : []);
-        setAssignTrackId(cls.trackId || '');
-        setAssignName(cls.name || '');
-        setAssignDescription(cls.description || '');
-        setAssignIsPublic(Boolean(cls.isPublic));
-        setAssignStudentSearch('');
-        setMode('manage');
+        setEditForm({
+            teacherId: cls.leaderId || '',
+            trackId: cls.trackId || '',
+            name: cls.name || '',
+            tag: cls.tag,
+            description: cls.description || '',
+            isPublic: Boolean(cls.isPublic)
+        });
+        setEditStudentIds(Array.isArray(cls.studentIds) ? cls.studentIds : []);
+        setEditLogo(undefined);
+        showClassMode('manage');
     };
 
     const filteredClasses = useMemo(() => {
@@ -143,80 +162,65 @@ export const ClassManagement: React.FC<ClassManagementProps> = ({
         );
     }, [classes, classSearch]);
 
-    const filteredCreateStudents = useMemo(() => {
-        const q = createStudentSearch.trim().toLowerCase();
+    const filteredStudents = useMemo(() => {
+        const q = studentSearch.trim().toLowerCase();
         if (!q) return students;
         return students.filter(s =>
             (s.name || '').toLowerCase().includes(q) || (s.email || '').toLowerCase().includes(q)
         );
-    }, [students, createStudentSearch]);
+    }, [students, studentSearch]);
+    const selectedStudentIds = useMemo(() => new Set(studentIds), [studentIds]);
 
-    const filteredAssignStudents = useMemo(() => {
-        const q = assignStudentSearch.trim().toLowerCase();
-        if (!q) return students;
-        return students.filter(s =>
-            (s.name || '').toLowerCase().includes(q) || (s.email || '').toLowerCase().includes(q)
-        );
-    }, [students, assignStudentSearch]);
-
-    const toggleIdInList = (id: string, list: string[], setter: React.Dispatch<React.SetStateAction<string[]>>) => {
-        setter(list.includes(id) ? list.filter(item => item !== id) : [...list, id]);
-    };
-
-    const handleCreateClass = async (e: React.FormEvent) => {
+    const handleSaveClass = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (!createForm.teacherId) {
-            onNotification('warning', 'Please select a teacher to assign to this class');
+        if (saving || showEmblemStudio || (!isCreating && !selectedClass)) return;
+
+        const name = form.name.trim();
+        const tag = form.tag.trim().toUpperCase();
+        if (!name || (isCreating && !form.teacherId)) {
+            onNotification('warning', name ? 'Please select a teacher.' : 'Please enter a class name.');
             return;
         }
-        setCreating(true);
-        try {
-            await api.createClan({
-                name: createForm.name.trim(),
-                tag: createForm.tag.trim().toUpperCase(),
-                description: createForm.description.trim(),
-                isPublic: createForm.isPublic,
-                trackId: createForm.trackId || undefined,
-                logo: createLogo || undefined,
-                teacherId: createForm.teacherId,
-                studentIds: createStudentIds
-            }, currentUser.userId);
-            onNotification('success', `Class "${createForm.name}" created with teacher & ${createStudentIds.length} students!`);
-            setCreateForm({ name: '', tag: '', description: '', trackId: '', isPublic: false, teacherId: '' });
-            setCreateStudentIds([]);
-            setCreateLogo(null);
-            setShowCreateLogoStudio(false);
-            setMode('list');
-            await loadData();
-            await onRefresh();
-        } catch (err) {
-            onNotification('error', err instanceof Error ? err.message : 'Failed to create class');
-        } finally {
-            setCreating(false);
-        }
-    };
 
-    const handleSaveAssignments = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!selectedClass) return;
-        setSavingAssign(true);
+        if (isCreating && tag.length < 2) {
+            onNotification('warning', 'The class tag needs at least two characters.');
+            return;
+        }
+
+        setSaving(true);
+        const settings = {
+            name,
+            description: isCreating ? form.description.trim() : form.description,
+            isPublic: form.isPublic,
+            teacherId: form.teacherId || undefined,
+            studentIds,
+            logo: draftLogo
+        };
         try {
-            await api.adminAssignClass(selectedClass.clanId, {
-                teacherId: assignTeacherId || undefined,
-                studentIds: assignStudentIds,
-                trackId: assignTrackId || null,
-                name: assignName.trim(),
-                description: assignDescription,
-                isPublic: assignIsPublic
-            }, currentUser.userId);
-            onNotification('success', `Updated teacher & ${assignStudentIds.length} enrolled students for "${assignName}"`);
+            if (isCreating) {
+                await api.createClan({
+                    ...settings,
+                    tag,
+                    trackId: form.trackId || undefined
+                }, currentUser.userId);
+                setCreateForm(emptyClassForm);
+                setCreateStudentIds([]);
+                setCreateLogo(undefined);
+            } else if (selectedClass) {
+                await api.adminAssignClass(selectedClass.clanId, {
+                    ...settings,
+                    trackId: form.trackId || null
+                }, currentUser.userId);
+            }
+
+            onNotification('success', isCreating ? `Class "${name}" created.` : `Class "${name}" updated.`);
+            showClassMode('list');
             await loadData();
             await onRefresh();
-            setMode('list');
         } catch (err) {
-            onNotification('error', err instanceof Error ? err.message : 'Failed to save class assignments');
+            onNotification('error', err instanceof Error ? err.message : 'Failed to save class');
         } finally {
-            setSavingAssign(false);
+            setSaving(false);
         }
     };
 
@@ -246,9 +250,9 @@ export const ClassManagement: React.FC<ClassManagementProps> = ({
         selectedTrackId: string,
         onSelectTrack: (trackId: string) => void
     ) => (
-        <div className="space-y-1.5">
+        <div className="space-y-2" role="group" aria-labelledby="class-curriculum-label">
             <div className="flex items-center justify-between gap-2">
-                <label className="block text-xs font-black uppercase">Curriculum Track</label>
+                <span id="class-curriculum-label" className="text-xs font-black uppercase">Curriculum track</span>
                 {selectedTrackId && (
                     <button
                         type="button"
@@ -259,7 +263,7 @@ export const ClassManagement: React.FC<ClassManagementProps> = ({
                     </button>
                 )}
             </div>
-            <div className={`max-h-44 overflow-y-auto rounded-2xl p-2 space-y-1.5 ${styles.subtleBox}`}>
+            <div className={`max-h-64 overflow-y-auto rounded-xl p-2.5 space-y-2 custom-scrollbar ${styles.subtleBox}`}>
                 {tracks.length === 0 ? (
                     <div className={`p-3 text-center text-xs font-bold ${styles.mutedText}`}>
                         No curriculum tracks available.
@@ -271,7 +275,7 @@ export const ClassManagement: React.FC<ClassManagementProps> = ({
                             <label
                                 key={t.trackId}
                                 className={`p-2.5 rounded-xl flex items-center gap-2.5 cursor-pointer transition text-xs ${
-                                    checked ? styles.navItemActive : styles.secondaryBtn
+                                    checked ? styles.navItemActive : styles.navItemIdle
                                 }`}
                             >
                                 <input
@@ -280,7 +284,7 @@ export const ClassManagement: React.FC<ClassManagementProps> = ({
                                     onChange={() => onSelectTrack(checked ? '' : t.trackId)}
                                     className="w-4 h-4 rounded accent-indigo-600 cursor-pointer shrink-0"
                                 />
-                                <span className="font-bold flex-1 min-w-0 truncate">{t.title}</span>
+                                <span className="font-bold flex-1 min-w-0 wrap-anywhere">{t.title}</span>
                                 <span className={`text-[10px] font-black shrink-0 ${checked ? '' : styles.mutedText}`}>
                                     {t.modules?.length || 0} sessions
                                 </span>
@@ -296,9 +300,9 @@ export const ClassManagement: React.FC<ClassManagementProps> = ({
         isPublic: boolean,
         onChangePublic: (nextPublic: boolean) => void
     ) => (
-        <div className="space-y-1.5">
-            <label className="block text-xs font-black uppercase">Enrollment Mode</label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <div className="space-y-2" role="radiogroup" aria-labelledby="class-enrollment-label">
+            <span id="class-enrollment-label" className="block text-xs font-black uppercase">Enrollment mode</span>
+            <div className="flex flex-wrap gap-2">
                 {([
                     { value: false, label: 'Invite / Admin Assigned' },
                     { value: true, label: 'Open Join Link' }
@@ -307,12 +311,13 @@ export const ClassManagement: React.FC<ClassManagementProps> = ({
                     return (
                         <label
                             key={opt.label}
-                            className={`p-3 rounded-xl flex items-center gap-2.5 cursor-pointer transition text-xs ${
+                            className={`flex flex-[1_1_10rem] items-center gap-2.5 rounded-xl p-3 text-xs cursor-pointer transition ${
                                 checked ? styles.navItemActive : styles.subtleBox
                             }`}
                         >
                             <input
-                                type="checkbox"
+                                type="radio"
+                                name="class-enrollment"
                                 checked={checked}
                                 onChange={() => onChangePublic(opt.value)}
                                 className="w-4 h-4 rounded accent-indigo-600 cursor-pointer shrink-0"
@@ -327,57 +332,46 @@ export const ClassManagement: React.FC<ClassManagementProps> = ({
 
     return (
         <div className="space-y-6">
-            {/* Top Header */}
-            <div className={`p-5 sm:p-6 rounded-[2rem] flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${styles.heroBanner}`}>
-                <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest ${styles.pillPrimary}`}>
-                            Admin Class Provisioning
-                        </span>
-                        <span className={`text-xs font-bold ${styles.mutedText}`}>
-                            {classes.length} Classes • {teachers.length} Teachers • {students.length} Students
-                        </span>
+            {mode === 'list' ? (
+                <div className={`flex flex-col justify-between gap-4 rounded-[2rem] p-5 sm:flex-row sm:items-center sm:p-6 ${styles.heroBanner}`}>
+                    <div className="min-w-0 space-y-1">
+                        <h2 className="text-xl font-black tracking-tight sm:text-2xl">
+                            Classes, Teachers &amp; Student Assignments
+                        </h2>
+                        <p className={`text-xs font-bold ${styles.mutedText}`}>
+                            {classes.length} classes · {teachers.length} teachers · {students.length} students
+                        </p>
                     </div>
-                    <h2 className="text-xl sm:text-2xl font-black tracking-tight">
-                        Classes, Teachers &amp; Student Assignments
-                    </h2>
-                    <p className={`text-xs sm:text-sm font-medium ${styles.mutedText}`}>
-                        Only administrators can create classes and assign teachers or enroll students into cohorts.
-                    </p>
-                </div>
-
-                <div className="flex items-center gap-2 shrink-0 flex-wrap">
-                    {mode !== 'list' ? (
+                    <div className="flex flex-wrap items-center gap-2">
                         <button
                             type="button"
-                            onClick={() => setMode('list')}
-                            className={`px-4 py-2.5 rounded-xl text-xs uppercase flex items-center gap-1.5 cursor-pointer ${styles.secondaryBtn}`}
+                            onClick={loadData}
+                            className={`cursor-pointer rounded-xl p-2.5 ${styles.secondaryBtn}`}
+                            aria-label="Refresh classes"
                         >
-                            <ArrowLeft className="w-4 h-4" />
-                            <span>Back to Classes</span>
+                            <RefreshCw aria-hidden="true" className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
                         </button>
-                    ) : (
-                        <>
-                            <button
-                                type="button"
-                                onClick={loadData}
-                                className={`p-2.5 rounded-xl cursor-pointer ${styles.secondaryBtn}`}
-                                title="Refresh classes"
-                            >
-                                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setMode('create')}
-                                className={`px-5 py-2.5 rounded-xl text-xs uppercase flex items-center gap-2 cursor-pointer ${styles.primaryBtn}`}
-                            >
-                                <Plus className="w-4 h-4" />
-                                <span>Create Class &amp; Assign</span>
-                            </button>
-                        </>
-                    )}
+                        <button
+                            type="button"
+                            onClick={() => showClassMode('create')}
+                            className={`flex cursor-pointer items-center gap-2 rounded-xl px-4 py-2.5 text-xs ${styles.primaryBtn}`}
+                        >
+                            <Plus aria-hidden="true" className="h-4 w-4" />
+                            Create class
+                        </button>
+                    </div>
                 </div>
-            </div>
+            ) : (
+                <button
+                    type="button"
+                    onClick={() => showClassMode('list')}
+                    disabled={saving}
+                    className={`inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-xl px-3 py-2 text-xs disabled:opacity-50 ${styles.secondaryBtn}`}
+                >
+                    <ArrowLeft aria-hidden="true" className="h-4 w-4" />
+                    Back to classes
+                </button>
+            )}
 
             {/* MODE 1: LIST CLASSES */}
             {mode === 'list' && (
@@ -405,7 +399,7 @@ export const ClassManagement: React.FC<ClassManagementProps> = ({
                             </p>
                             <button
                                 type="button"
-                                onClick={() => setMode('create')}
+                                onClick={() => showClassMode('create')}
                                 className={`px-5 py-3 rounded-2xl text-xs uppercase inline-flex items-center gap-2 cursor-pointer ${styles.primaryBtn}`}
                             >
                                 <Plus className="w-4 h-4" />
@@ -480,7 +474,7 @@ export const ClassManagement: React.FC<ClassManagementProps> = ({
                                                 className={`flex-1 py-2.5 px-4 rounded-xl text-xs uppercase flex items-center justify-center gap-1.5 cursor-pointer ${styles.primaryBtn}`}
                                             >
                                                 <Users className="w-3.5 h-3.5" />
-                                                <span>Assign Teacher &amp; Students</span>
+                                                <span>Edit Class</span>
                                             </button>
 
                                             {isConfirmingDelete ? (
@@ -519,309 +513,221 @@ export const ClassManagement: React.FC<ClassManagementProps> = ({
                 </div>
             )}
 
-            {/* MODE 2: CREATE CLASS + ASSIGN TEACHER & STUDENTS */}
-            {mode === 'create' && (
-                <form onSubmit={handleCreateClass} className={`rounded-[2rem] p-6 sm:p-8 space-y-6 ${styles.surfaceCard}`}>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        {/* Left Column: Class Details & Assigned Teacher */}
-                        <div className="space-y-4">
-                            <h3 className="text-base font-black uppercase tracking-tight">1. Class Details &amp; Teacher</h3>
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                <div className="sm:col-span-2">
-                                    <label className="block text-xs font-black uppercase mb-1">Class Name</label>
+            {(isCreating || (mode === 'manage' && selectedClass)) && (
+                <form
+                    onSubmit={handleSaveClass}
+                    className={`@container min-w-0 space-y-5 rounded-2xl p-3 sm:rounded-[2rem] sm:p-6 ${styles.surfaceCard}`}
+                >
+                    <div className={`flex min-w-0 items-center gap-3 border-b px-1 pb-4 ${styles.divider}`}>
+                        <ClassEmblem logo={emblem} tag={classTag} name={className} size="md" />
+                        <div className="min-w-0">
+                            <h3 className="text-xl font-black tracking-tight">
+                                {isCreating ? 'Create class' : 'Edit class'}
+                            </h3>
+                            {!isCreating && (
+                                <p className={`wrap-anywhere text-sm font-semibold ${styles.mutedText}`}>
+                                    [{selectedClass?.tag}] {selectedClass?.name}
+                                </p>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="grid items-start gap-5 @min-[46rem]:grid-cols-2">
+                        <section aria-labelledby="class-details-heading" className={`min-w-0 space-y-4 rounded-2xl border p-3 @sm:p-4 ${styles.divider}`}>
+                            <h4 id="class-details-heading" className="text-base font-black">Class details</h4>
+                            <div className="flex flex-wrap gap-3">
+                                <div className="min-w-0 flex-[1_1_12rem]">
+                                    <label htmlFor="admin-class-name" className="mb-1 block text-xs font-black uppercase">Class name</label>
                                     <input
+                                        id="admin-class-name"
                                         required
-                                        value={createForm.name}
-                                        onChange={e => setCreateForm(prev => ({ ...prev, name: e.target.value }))}
+                                        value={form.name}
+                                        onChange={e => setForm(prev => ({ ...prev, name: e.target.value }))}
                                         placeholder="e.g. Web Front-End Cohort A"
-                                        className={`w-full p-3 rounded-xl font-bold text-sm ${styles.input}`}
+                                        className={`w-full rounded-xl p-3 text-sm font-bold ${styles.input}`}
                                     />
                                 </div>
-                                <div>
-                                    <label className="block text-xs font-black uppercase mb-1">Tag (2-5 chars)</label>
-                                    <input
-                                        required
-                                        minLength={2}
-                                        maxLength={5}
-                                        value={createForm.tag}
-                                        onChange={e => setCreateForm(prev => ({ ...prev, tag: e.target.value.toUpperCase() }))}
-                                        placeholder="WEB10"
-                                        className={`w-full p-3 rounded-xl font-bold font-mono uppercase text-sm ${styles.input}`}
-                                    />
-                                </div>
+                                {isCreating && (
+                                    <div className="min-w-0 flex-[1_0_7rem]">
+                                        <label htmlFor="admin-class-tag" className="mb-1 block text-xs font-black uppercase">Tag (2–5 chars)</label>
+                                        <input
+                                            id="admin-class-tag"
+                                            required
+                                            minLength={2}
+                                            maxLength={5}
+                                            value={form.tag}
+                                            onChange={e => setForm(prev => ({ ...prev, tag: e.target.value.toUpperCase() }))}
+                                            placeholder="WEB10"
+                                            className={`w-full rounded-xl p-3 font-mono text-sm font-bold uppercase ${styles.input}`}
+                                        />
+                                    </div>
+                                )}
                             </div>
 
                             <div>
-                                <label className="block text-xs font-black uppercase mb-1">Assign Teacher (Required)</label>
+                                <label htmlFor="admin-class-teacher" className="mb-1 block text-xs font-black uppercase">Assigned teacher</label>
                                 <select
-                                    required
-                                    value={createForm.teacherId}
-                                    onChange={e => setCreateForm(prev => ({ ...prev, teacherId: e.target.value }))}
-                                    className={`w-full p-3 rounded-xl font-bold text-sm ${styles.select}`}
+                                    id="admin-class-teacher"
+                                    required={isCreating}
+                                    value={form.teacherId}
+                                    onChange={e => setForm(prev => ({ ...prev, teacherId: e.target.value }))}
+                                    className={`w-full min-w-0 rounded-xl p-3 text-sm font-bold ${styles.select}`}
                                 >
-                                    <option value="">-- Select Assigned Teacher --</option>
+                                    <option value="" disabled>Select a teacher</option>
+                                    {!isCreating && form.teacherId && !teachers.some(t => t.userId === form.teacherId) && (
+                                        <option value={form.teacherId}>{selectedClass?.leaderName || 'Current teacher'}</option>
+                                    )}
                                     {teachers.map(t => (
                                         <option key={t.userId} value={t.userId}>
                                             {t.name} ({t.email}) [{t.role === 'admin' ? 'Admin' : 'Teacher'}]
                                         </option>
                                     ))}
                                 </select>
-                                {teachers.filter(t => t.role === 'teacher').length === 0 && (
-                                    <p className={`text-[11px] font-semibold mt-1 ${styles.mutedText}`}>
-                                        Tip: Promote an account to Teacher in the Users tab to assign them here.
+                                {isCreating && !teachers.some(t => t.role === 'teacher') && (
+                                    <p className={`mt-2 text-xs ${styles.mutedText}`}>
+                                        You can promote an account to Teacher in the Users tab.
                                     </p>
                                 )}
                             </div>
 
-                            <div className="space-y-3">
-                                {renderTrackCheckboxGroup(
-                                    createForm.trackId,
-                                    (trackId) => setCreateForm(prev => ({ ...prev, trackId }))
-                                )}
-                                {renderEnrollmentCheckboxGroup(
-                                    createForm.isPublic,
-                                    (isPublic) => setCreateForm(prev => ({ ...prev, isPublic }))
-                                )}
-                            </div>
+                            {renderTrackCheckboxGroup(form.trackId, trackId => setForm(prev => ({ ...prev, trackId })))}
+                            {renderEnrollmentCheckboxGroup(form.isPublic, isPublic => setForm(prev => ({ ...prev, isPublic })))}
 
                             <div>
-                                <label className="block text-xs font-black uppercase mb-1">Description</label>
+                                <label htmlFor="admin-class-description" className="mb-1 block text-xs font-black uppercase">Description</label>
                                 <textarea
-                                    rows={3}
-                                    value={createForm.description}
-                                    onChange={e => setCreateForm(prev => ({ ...prev, description: e.target.value }))}
-                                    placeholder="Cohort schedule, goals, or syllabus summary..."
-                                    className={`w-full p-3 rounded-xl font-bold text-sm ${styles.input}`}
+                                    id="admin-class-description"
+                                    rows={2}
+                                    value={form.description}
+                                    onChange={e => setForm(prev => ({ ...prev, description: e.target.value }))}
+                                    placeholder="Cohort schedule, goals, or syllabus summary"
+                                    className={`block w-full resize-y rounded-xl p-3 text-sm ${styles.input}`}
+                                />
+                            </div>
+                        </section>
+
+                        <section aria-labelledby="class-students-heading" className={`min-w-0 space-y-3 rounded-2xl border p-3 @sm:p-4 ${styles.divider}`}>
+                            <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+                                <h4 id="class-students-heading" className="text-base font-black">Students</h4>
+                                <span aria-live="polite" className={`rounded-lg px-2 py-1 text-xs font-bold ${styles.pillNeutral}`}>
+                                    {studentIds.length} selected
+                                </span>
+                            </div>
+
+                            <div className="relative">
+                                <Search aria-hidden="true" className={`pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 ${styles.mutedText}`} />
+                                <input
+                                    aria-label="Search students by name or email"
+                                    type="search"
+                                    value={studentSearch}
+                                    onChange={e => setStudentSearch(e.target.value)}
+                                    onKeyDown={e => { if (e.key === 'Enter') e.preventDefault(); }}
+                                    placeholder="Search names or emails"
+                                    className={`w-full rounded-xl py-2.5 pl-9 pr-3 text-sm ${styles.input}`}
                                 />
                             </div>
 
-                            <div className={`p-3.5 rounded-2xl flex items-center justify-between gap-3 ${styles.subtleBox}`}>
-                                <div className="flex items-center gap-3">
-                                    <ClassEmblem
-                                        logo={createLogo || { shape: 'rounded', icon: 'Shield', bgColor: '#fde047', iconColor: '#000000', showTag: true }}
-                                        tag={createForm.tag || 'CLASS'}
-                                        name={createForm.name || 'New Class'}
-                                        size="sm"
-                                    />
-                                    <span className="text-xs font-black uppercase">Class Emblem</span>
-                                </div>
+                            <div className="flex flex-wrap gap-2">
                                 <button
                                     type="button"
-                                    onClick={() => setShowCreateLogoStudio(v => !v)}
-                                    className={`px-3 py-1.5 rounded-xl text-xs flex items-center gap-1 cursor-pointer ${styles.secondaryBtn}`}
+                                    disabled={!filteredStudents.some(s => !selectedStudentIds.has(s.userId))}
+                                    onClick={() => setStudentIds(ids => [...new Set([...ids, ...filteredStudents.map(s => s.userId)])])}
+                                    className={`min-h-8 rounded-lg px-2.5 py-1 text-xs cursor-pointer disabled:opacity-50 ${styles.secondaryBtn}`}
                                 >
-                                    <Palette className="w-3.5 h-3.5" />
-                                    <span>{showCreateLogoStudio ? 'Hide Studio' : 'Customize'}</span>
+                                    {studentSearch.trim() ? 'Select matches' : 'Select all'}
+                                </button>
+                                <button
+                                    type="button"
+                                    disabled={studentIds.length === 0}
+                                    onClick={() => setStudentIds([])}
+                                    className={`min-h-8 rounded-lg px-2.5 py-1 text-xs cursor-pointer disabled:opacity-50 ${styles.secondaryBtn}`}
+                                >
+                                    Clear selection
                                 </button>
                             </div>
 
-                            {showCreateLogoStudio && (
-                                <ClanLogoMakerModal
-                                    inline={true}
-                                    isOpen={true}
-                                    onClose={() => setShowCreateLogoStudio(false)}
-                                    clanName={createForm.name || 'New Class'}
-                                    clanTag={createForm.tag || 'CLASS'}
-                                    initialLogo={createLogo}
-                                    onSave={logo => {
-                                        setCreateLogo(logo);
-                                        setShowCreateLogoStudio(false);
-                                    }}
-                                />
-                            )}
-                        </div>
-
-                        {/* Right Column: Student Multi-Select Assignment */}
-                        <div className="space-y-4">
-                            <div className="flex items-center justify-between gap-2">
-                                <h3 className="text-base font-black uppercase tracking-tight">
-                                    2. Assign Students ({createStudentIds.length} selected)
-                                </h3>
-                                <div className="flex items-center gap-1.5">
-                                    <button
-                                        type="button"
-                                        onClick={() => setCreateStudentIds(filteredCreateStudents.map(s => s.userId))}
-                                        className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase cursor-pointer ${styles.secondaryBtn}`}
-                                    >
-                                        Select All
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => setCreateStudentIds([])}
-                                        className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase cursor-pointer ${styles.secondaryBtn}`}
-                                    >
-                                        Clear
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div className="relative">
-                                <Search className={`w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 ${styles.mutedText}`} />
-                                <input
-                                    value={createStudentSearch}
-                                    onChange={e => setCreateStudentSearch(e.target.value)}
-                                    placeholder="Search students to enroll..."
-                                    className={`w-full pl-9 pr-3 py-2.5 rounded-xl text-xs font-bold ${styles.input}`}
-                                />
-                            </div>
-
-                            <div className="space-y-2 max-h-[380px] overflow-y-auto pr-1">
-                                {filteredCreateStudents.map(stu => {
-                                    const checked = createStudentIds.includes(stu.userId);
+                            <div className={`max-h-[25rem] overflow-y-auto rounded-xl border px-2 py-1 custom-scrollbar ${styles.divider}`}>
+                                {filteredStudents.length === 0 && (
+                                    <p className={`p-4 text-sm ${styles.mutedText}`}>
+                                        {studentSearch.trim() ? 'No students match your search.' : 'No students are available.'}
+                                    </p>
+                                )}
+                                {filteredStudents.map(student => {
+                                    const checked = selectedStudentIds.has(student.userId);
                                     return (
-                                        <button
-                                            key={stu.userId}
-                                            type="button"
-                                            onClick={() => toggleIdInList(stu.userId, createStudentIds, setCreateStudentIds)}
-                                            className={`w-full p-3 rounded-xl flex items-center justify-between gap-3 text-left cursor-pointer transition ${
-                                                checked
-                                                    ? styles.navItemActive
-                                                    : styles.subtleBox
-                                            }`}
+                                        <label
+                                            key={student.userId}
+                                            className={`my-1 flex min-w-0 cursor-pointer items-center gap-3 rounded-lg px-2 py-2 transition-colors ${checked ? styles.pillSuccess : styles.navItemIdle}`}
                                         >
-                                            <div className="min-w-0">
-                                                <div className="font-black text-xs sm:text-sm truncate">{stu.name}</div>
-                                                <div className="text-[11px] opacity-75 truncate">{stu.email}</div>
-                                            </div>
-                                            {checked ? <CheckSquare className="w-4 h-4 shrink-0" /> : <Square className="w-4 h-4 shrink-0 opacity-60" />}
-                                        </button>
+                                            <input
+                                                type="checkbox"
+                                                checked={checked}
+                                                onChange={(e) => {
+                                                    const nextChecked = e.target.checked;
+                                                    setStudentIds(ids => nextChecked
+                                                        ? [...ids, student.userId]
+                                                        : ids.filter(id => id !== student.userId));
+                                                }}
+                                                className="h-4 w-4 shrink-0 cursor-pointer accent-indigo-600"
+                                            />
+                                            <span className="min-w-0 text-left">
+                                                <span className="block wrap-anywhere text-sm font-bold">{student.name}</span>
+                                                <span className={`block wrap-anywhere text-xs ${checked ? 'opacity-80' : styles.mutedText}`}>{student.email}</span>
+                                            </span>
+                                        </label>
                                     );
                                 })}
                             </div>
-                        </div>
+                        </section>
                     </div>
 
-                    <button
-                        type="submit"
-                        disabled={creating}
-                        className={`w-full py-4 rounded-2xl text-sm uppercase tracking-wider cursor-pointer disabled:opacity-50 ${styles.primaryBtn}`}
-                    >
-                        {creating ? 'Creating Class & Assigning Members...' : `Create Class & Assign Teacher + ${createStudentIds.length} Students`}
-                    </button>
-                </form>
-            )}
-
-            {/* MODE 3: EDIT EXISTING CLASS TEACHER & STUDENT ASSIGNMENTS */}
-            {mode === 'manage' && selectedClass && (
-                <form onSubmit={handleSaveAssignments} className={`rounded-[2rem] p-6 sm:p-8 space-y-6 ${styles.surfaceCard}`}>
-                    <div className="flex items-center justify-between gap-3 flex-wrap">
-                        <div className="flex items-center gap-3">
-                            <ClassEmblem logo={selectedClass.logo} tag={selectedClass.tag} name={selectedClass.name} size="md" />
-                            <div>
-                                <div className="text-[10px] font-black uppercase tracking-widest opacity-65">
-                                    Editing Class Assignments
-                                </div>
-                                <h3 className="text-xl font-black">[{selectedClass.tag}] {selectedClass.name}</h3>
+                    {showEmblemStudio ? (
+                        <ClanLogoMakerModal
+                            inline
+                            isOpen
+                            saveWithClass
+                            onClose={closeEmblemStudio}
+                            clanName={className}
+                            clanTag={classTag}
+                            initialLogo={emblem}
+                            onSave={isCreating ? setCreateLogo : setEditLogo}
+                        />
+                    ) : (
+                        <section
+                            aria-labelledby="class-emblem-heading"
+                            className={`flex min-w-0 flex-wrap items-center justify-between gap-3 rounded-2xl p-3 @sm:p-4 ${styles.subtleBox}`}
+                        >
+                            <div className="flex min-w-0 items-center gap-3">
+                                <ClassEmblem logo={emblem} tag={classTag} name={className} size="sm" />
+                                <h4 id="class-emblem-heading" className="font-black">Class emblem</h4>
                             </div>
-                        </div>
+                            <button
+                                type="button"
+                                ref={customizeEmblemRef}
+                                onClick={() => setShowEmblemStudio(true)}
+                                className={`inline-flex min-h-10 items-center gap-2 rounded-xl px-3 py-2 text-xs cursor-pointer ${styles.secondaryBtn}`}
+                            >
+                                <Palette aria-hidden="true" className="h-4 w-4 shrink-0" />
+                                Customize emblem
+                            </button>
+                        </section>
+                    )}
+
+                    <div className={`flex flex-wrap items-center justify-between gap-3 border-t px-1 pt-4 ${styles.divider}`}>
+                        <p className={`text-sm ${styles.mutedText}`}>
+                            {showEmblemStudio
+                                ? 'Apply or cancel the emblem draft before saving the class.'
+                                : `${studentIds.length} ${studentIds.length === 1 ? 'student' : 'students'} selected for enrollment`}
+                        </p>
+                        <button
+                            type="submit"
+                            disabled={saving || showEmblemStudio}
+                            className={`inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm cursor-pointer disabled:opacity-50 @sm:w-auto ${styles.primaryBtn}`}
+                        >
+                            {isCreating ? <Plus aria-hidden="true" className="h-4 w-4" /> : <Save aria-hidden="true" className="h-4 w-4" />}
+                            {saving ? 'Saving class…' : isCreating ? 'Create class' : 'Save class changes'}
+                        </button>
                     </div>
-
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div className="space-y-4">
-                            <div>
-                                <label className="block text-xs font-black uppercase mb-1">Assigned Teacher</label>
-                                <select
-                                    value={assignTeacherId}
-                                    onChange={e => setAssignTeacherId(e.target.value)}
-                                    className={`w-full p-3 rounded-xl font-bold text-sm ${styles.select}`}
-                                >
-                                    {teachers.map(t => (
-                                        <option key={t.userId} value={t.userId}>
-                                            {t.name} ({t.email}) [{t.role === 'admin' ? 'Admin' : 'Teacher'}]
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            {renderTrackCheckboxGroup(assignTrackId, setAssignTrackId)}
-
-                            <div>
-                                <label className="block text-xs font-black uppercase mb-1">Class Name</label>
-                                <input
-                                    value={assignName}
-                                    onChange={e => setAssignName(e.target.value)}
-                                    className={`w-full p-3 rounded-xl font-bold text-sm ${styles.input}`}
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-xs font-black uppercase mb-1">Description</label>
-                                <textarea
-                                    rows={3}
-                                    value={assignDescription}
-                                    onChange={e => setAssignDescription(e.target.value)}
-                                    className={`w-full p-3 rounded-xl font-bold text-sm ${styles.input}`}
-                                />
-                            </div>
-
-                            {renderEnrollmentCheckboxGroup(assignIsPublic, setAssignIsPublic)}
-                        </div>
-
-                        <div className="space-y-4">
-                            <div className="flex items-center justify-between gap-2">
-                                <h4 className="text-sm font-black uppercase">
-                                    Enrolled Students ({assignStudentIds.length} assigned)
-                                </h4>
-                                <div className="flex items-center gap-1.5">
-                                    <button
-                                        type="button"
-                                        onClick={() => setAssignStudentIds(filteredAssignStudents.map(s => s.userId))}
-                                        className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase cursor-pointer ${styles.secondaryBtn}`}
-                                    >
-                                        Select Filtered
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => setAssignStudentIds([])}
-                                        className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase cursor-pointer ${styles.secondaryBtn}`}
-                                    >
-                                        Clear
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div className="relative">
-                                <Search className={`w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 ${styles.mutedText}`} />
-                                <input
-                                    value={assignStudentSearch}
-                                    onChange={e => setAssignStudentSearch(e.target.value)}
-                                    placeholder="Search students to add or remove..."
-                                    className={`w-full pl-9 pr-3 py-2.5 rounded-xl text-xs font-bold ${styles.input}`}
-                                />
-                            </div>
-
-                            <div className="space-y-2 max-h-[380px] overflow-y-auto pr-1">
-                                {filteredAssignStudents.map(stu => {
-                                    const checked = assignStudentIds.includes(stu.userId);
-                                    return (
-                                        <button
-                                            key={stu.userId}
-                                            type="button"
-                                            onClick={() => toggleIdInList(stu.userId, assignStudentIds, setAssignStudentIds)}
-                                            className={`w-full p-3 rounded-xl flex items-center justify-between gap-3 text-left cursor-pointer transition ${
-                                                checked ? styles.navItemActive : styles.subtleBox
-                                            }`}
-                                        >
-                                            <div className="min-w-0">
-                                                <div className="font-black text-xs sm:text-sm truncate">{stu.name}</div>
-                                                <div className="text-[11px] opacity-75 truncate">{stu.email}</div>
-                                            </div>
-                                            {checked ? <CheckSquare className="w-4 h-4 shrink-0" /> : <Square className="w-4 h-4 shrink-0 opacity-60" />}
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    </div>
-
-                    <button
-                        type="submit"
-                        disabled={savingAssign}
-                        className={`w-full py-4 rounded-2xl text-sm uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 ${styles.primaryBtn}`}
-                    >
-                        <Save className="w-4 h-4" />
-                        <span>{savingAssign ? 'Saving Assignments...' : 'Save Teacher & Student Assignments'}</span>
-                    </button>
                 </form>
             )}
         </div>

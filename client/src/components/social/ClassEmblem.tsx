@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import React from 'react';
+import React, { useState } from 'react';
 import {
     Shield,
     Sword,
@@ -168,6 +168,8 @@ export const ClanEmblem: React.FC<ClanEmblemProps> = ({
     const iconColor = logo?.iconColor || '#000000';
     const showTag = logo?.showTag ?? true;
     const customUrl = logo?.customUrl?.trim();
+    const [failedImageUrl, setFailedImageUrl] = useState<string>();
+    const showCustomImage = Boolean(customUrl && customUrl !== failedImageUrl);
 
     const IconComponent = CLAN_EMBLEM_ICONS[iconName] || Shield;
 
@@ -208,20 +210,17 @@ export const ClanEmblem: React.FC<ClanEmblemProps> = ({
                         : 'border border-white/20 shadow-md backdrop-blur-sm'
                 }`}
                 style={{
-                    backgroundColor: customUrl ? '#ffffff' : (bgColor.startsWith('linear') ? undefined : bgColor),
-                    backgroundImage: !customUrl && bgColor.startsWith('linear') ? bgColor : undefined,
+                    backgroundColor: showCustomImage ? '#ffffff' : (bgColor.startsWith('linear') ? undefined : bgColor),
+                    backgroundImage: !showCustomImage && bgColor.startsWith('linear') ? bgColor : undefined,
                     ...clipStyle
                 }}
             >
-                {customUrl ? (
+                {showCustomImage ? (
                     <img
                         src={customUrl}
                         alt={name || 'Class logo'}
                         className={`w-full h-full object-cover ${shape === 'diamond' ? '-rotate-45 scale-125' : ''}`}
-                        onError={(e) => {
-                            // Fallback to default emblem on image error
-                            (e.currentTarget as HTMLElement).style.display = 'none';
-                        }}
+                        onError={() => setFailedImageUrl(customUrl)}
                     />
                 ) : (
                     <div className={`flex items-center justify-center ${shape === 'diamond' ? '-rotate-45' : ''}`}>
