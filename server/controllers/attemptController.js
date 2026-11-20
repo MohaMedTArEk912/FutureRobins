@@ -337,6 +337,9 @@ export const getAttemptDetails = async (req, res) => {
     if (!quiz) {
       quiz = await Quiz.findById(attempt.quizId).lean().catch(() => null);
     }
+    if (!quiz && attempt.quizTitle) {
+      quiz = await Quiz.findOne({ title: attempt.quizTitle }).lean().catch(() => null);
+    }
 
     const allQuizQuestions = quiz?.questions || [];
     let quizQuestions = attempt.attemptQuestions;
@@ -383,8 +386,8 @@ export const getAttemptDetails = async (req, res) => {
       }
     }
 
-    // Map each question with student's answer evaluation
-    const questionsBreakdown = (quizQuestions || []).map((q, idx) => {
+    // Map each question with student's answer evaluation (with synthetic fallback if quiz was archived/changed)
+    let questionsBreakdown = (quizQuestions || []).map((q, idx) => {
       const userAnsObj = attempt.answers?.[idx] ?? attempt.answers?.[String(idx)] ?? attempt.answers?.[q.id] ?? attempt.answers?.[String(q.id)];
       let selected = undefined;
       let isCorrect = false;
@@ -426,6 +429,33 @@ export const getAttemptDetails = async (req, res) => {
         isAnswered: isAnswered && selected !== undefined && selected !== null && selected !== ''
       };
     });
+
+    if (questionsBreakdown.length === 0 && attempt.answers && typeof attempt.answers === 'object') {
+      const answerEntries = attempt.answers instanceof Map
+        ? Array.from(attempt.answers.entries())
+        : Object.entries(attempt.answers);
+      questionsBreakdown = answerEntries.map(([key, val], idx) => {
+        const isObj = typeof val === 'object' && val !== null;
+        const selected = isObj && 'selected' in val ? val.selected : val;
+        const isCorrect = isObj && typeof val.isCorrect === 'boolean' ? val.isCorrect : false;
+        const questionText = isObj && val.question ? String(val.question) : `Question ${idx + 1} (Archived / ID: ${key})`;
+        return {
+          questionId: key,
+          questionIndex: idx,
+          question: questionText,
+          options: isObj && Array.isArray(val.options) ? val.options : [],
+          correctAnswer: isObj && val.correctAnswer !== undefined ? val.correctAnswer : null,
+          explanation: '',
+          points: 1,
+          imageUrl: '',
+          codeSnippet: '',
+          type: 'multiple-choice',
+          studentAnswer: selected,
+          isCorrect,
+          isAnswered: selected !== undefined && selected !== null && selected !== ''
+        };
+      });
+    }
 
     const correctCount = questionsBreakdown.filter(q => q.isCorrect).length;
     const wrongCount = questionsBreakdown.filter(q => !q.isCorrect && q.isAnswered).length;

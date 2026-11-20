@@ -2,12 +2,11 @@ import React, { useState, useEffect, useMemo } from 'react';
 import {
     Edit2, Trash2, Users, Eye, EyeOff, Search, BarChart3, Mail, Trophy, Calendar,
     Map as MapIcon, Lock, Unlock, CheckCircle, Gift, ChevronDown, ChevronRight, Route,
-    CheckSquare, Square, Layers, ListChecks, Sparkles, RotateCcw
+    CheckSquare, Square, Layers, ListChecks, Sparkles, RotateCcw, ExternalLink, Clock
 } from 'lucide-react';
 import Modal from '../common/Modal';
 import ConfirmDialog from '../ConfirmDialog';
 import Avatar from '../Avatar.tsx';
-import AttemptDetailsModal from './AttemptDetailsModal';
 import type { UserData, AttemptData, SkillTrack, SkillModule, Quiz, ShopItem, Subject } from '../../types/index.ts';
 import { api } from '../../lib/api.ts';
 import { useTheme } from '../../context/ThemeContext.tsx';
@@ -1346,7 +1345,6 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
         setManagedUsers(Array.isArray(users) ? users : []);
     }, [users]);
     const [viewingAttempts, setViewingAttempts] = useState<UserData | null>(null);
-    const [inspectingAttempt, setInspectingAttempt] = useState<AttemptData | null>(null);
     const [managingRoadmap, setManagingRoadmap] = useState<UserData | null>(null);
     const [managingTrackAccess, setManagingTrackAccess] = useState<UserData | null>(null);
     const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -1859,43 +1857,63 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
             >
                 <div className="space-y-3">
                     {viewingAttempts && attempts.filter(a => a.userId === viewingAttempts.userId).length > 0 ? (
-                        attempts.filter(a => a.userId === viewingAttempts.userId).sort((a, b) => new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime()).map(attempt => (
-                            <div key={attempt.attemptId} className="bg-gray-50/50 dark:bg-black/20 p-5 rounded-[2rem] border border-gray-200 dark:border-white/5 flex flex-col sm:flex-row justify-between items-center gap-4 hover:border-indigo-500/20 transition-all">
-                                <div className="flex items-center gap-4 min-w-0">
-                                    <div className="p-3 rounded-xl bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 shrink-0">
-                                        <Trophy className={`w-5 h-5 ${attempt.percentage >= 70 ? 'text-emerald-500' : 'text-red-500'}`} />
-                                    </div>
-                                    <div className="min-w-0">
-                                        <div className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-tight mb-0.5 truncate">{attempt.quizTitle}</div>
-                                        <div className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                                            <Calendar className="w-3 h-3" />
-                                            {new Date(attempt.completedAt).toLocaleDateString()}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
-                                    <div className="text-right">
-                                        <div className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-0.5">SCORE</div>
-                                        <div className={`text-lg font-black ${attempt.percentage >= 70 ? 'text-emerald-500' : 'text-red-500'}`}>
-                                            {attempt.percentage}%
-                                        </div>
-                                    </div>
-                                    <button
-                                        type="button"
-                                        onClick={() => setInspectingAttempt(attempt)}
-                                        className="px-4 py-2 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shrink-0 border border-indigo-500/20"
-                                        title="Inspect question-by-question student answers"
+                        attempts
+                            .filter(a => a.userId === viewingAttempts.userId)
+                            .sort((a, b) => new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime())
+                            .map(attempt => {
+                                const passed = attempt.percentage >= 70;
+                                const mins = attempt.timeTaken ? Math.floor(attempt.timeTaken / 60) : 0;
+                                const secs = attempt.timeTaken ? attempt.timeTaken % 60 : 0;
+                                return (
+                                    <div
+                                        key={attempt.attemptId}
+                                        className="bg-[#f5f3ec] dark:bg-zinc-900 p-4 rounded-2xl border-2 border-black dark:border-zinc-700 shadow-[3px_3px_0px_#000] dark:shadow-[3px_3px_0px_#3f3f46] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 hover:-translate-y-0.5 transition-all"
                                     >
-                                        <Eye className="w-3.5 h-3.5" />
-                                        <span>Inspect Answers</span>
-                                    </button>
-                                </div>
-                            </div>
-                        ))
+                                        <div className="flex items-center gap-3.5 min-w-0">
+                                            <div className={`w-10 h-10 rounded-xl border-2 border-black shadow-[2px_2px_0px_#000] flex items-center justify-center shrink-0 ${passed ? 'bg-[#bef264] text-black' : 'bg-[#fca5a5] text-black'}`}>
+                                                <Trophy className="w-4 h-4" />
+                                            </div>
+                                            <div className="min-w-0">
+                                                <div className="text-xs font-black text-black dark:text-white uppercase tracking-tight mb-1 truncate">
+                                                    {attempt.quizTitle}
+                                                </div>
+                                                <div className="flex flex-wrap items-center gap-2 text-[10px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                                                    <span className="inline-flex items-center gap-1">
+                                                        <Calendar className="w-3 h-3" />
+                                                        {new Date(attempt.completedAt).toLocaleDateString()}
+                                                    </span>
+                                                    {typeof attempt.timeTaken === 'number' && attempt.timeTaken > 0 && (
+                                                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-white dark:bg-zinc-800 border border-black/20 dark:border-zinc-700 text-black dark:text-gray-200 font-black">
+                                                            <Clock className="w-3 h-3" />
+                                                            {mins > 0 ? `${mins}m ${secs}s` : `${secs}s`}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end shrink-0">
+                                            <div className={`px-2.5 py-1 rounded-lg border-2 border-black shadow-[2px_2px_0px_#000] text-center ${passed ? 'bg-white dark:bg-zinc-800 text-emerald-700 dark:text-emerald-400' : 'bg-white dark:bg-zinc-800 text-red-600 dark:text-red-400'}`}>
+                                                <div className="text-[9px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest leading-none mb-0.5">SCORE</div>
+                                                <div className="text-sm font-black leading-none">{attempt.percentage}%</div>
+                                            </div>
+                                            <a
+                                                href={`/admin/proctoring/${encodeURIComponent(attempt.attemptId)}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="px-3.5 py-2 bg-[#bef264] hover:bg-[#d9f99d] text-black rounded-xl font-black text-[10px] uppercase tracking-wider transition-all flex items-center gap-1.5 shrink-0 border-2 border-black shadow-[2px_2px_0px_#000] hover:translate-y-0.5 hover:shadow-none no-underline"
+                                                title="Open full telemetry & answer inspector in a new tab"
+                                            >
+                                                <ExternalLink className="w-3.5 h-3.5" />
+                                                <span>Inspect Answers</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                );
+                            })
                     ) : (
-                        <div className="py-20 text-center opacity-40">
-                            <BarChart3 className="w-12 h-12 mx-auto mb-4" />
-                            <p className="text-xs font-black uppercase tracking-widest">No activity recorded for this agent</p>
+                        <div className="py-16 text-center bg-[#f5f3ec] dark:bg-zinc-900 rounded-2xl border-2 border-dashed border-black/30 dark:border-zinc-700">
+                            <BarChart3 className="w-10 h-10 mx-auto mb-3 text-black/40 dark:text-white/40" />
+                            <p className="text-xs font-black uppercase tracking-widest text-black/60 dark:text-white/60">No activity recorded for this student</p>
                         </div>
                     )}
                 </div>
@@ -2176,14 +2194,6 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
                     onClose={() => setManagingTrackAccess(null)}
                     onNotification={onNotification}
                     onRefresh={onRefresh}
-                />
-            )}
-
-            {/* Inspect Attempt Questions Modal */}
-            {inspectingAttempt && (
-                <AttemptDetailsModal
-                    attempt={inspectingAttempt}
-                    onClose={() => setInspectingAttempt(null)}
                 />
             )}
         </div>

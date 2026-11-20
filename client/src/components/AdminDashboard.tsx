@@ -1195,15 +1195,17 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                         return (
                                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                                                 {items.map((a, i) => (
-                                                    <div
-                                                        key={i}
-                                                        onClick={() => setSelectedAttemptForInspection(a)}
-                                                        className={`flex flex-col p-3.5 sm:p-4 rounded-2xl sm:rounded-3xl transition-all group cursor-pointer ${
+                                                    <a
+                                                        key={a.attemptId || i}
+                                                        href={`/admin/proctoring/${encodeURIComponent(a.attemptId)}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className={`flex flex-col p-3.5 sm:p-4 rounded-2xl sm:rounded-3xl transition-all group cursor-pointer no-underline ${
                                                             isBento
                                                                 ? 'bg-[#f8fafc] border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[4px_4px_0px_#000] hover:-translate-y-0.5'
                                                                 : 'bg-gray-50/50 dark:bg-black/20 border border-white/5 hover:border-indigo-500/30 hover:scale-[1.02] shadow-sm'
                                                         }`}
-                                                        title="Click to inspect question-by-question breakdown"
+                                                        title="Open full inspection page in new tab"
                                                     >
                                                         <div className="flex justify-between items-start mb-2.5">
                                                             <div className="flex items-center gap-2.5 min-w-0">
@@ -1245,7 +1247,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                                         }`}>
                                                             <span>Inspect student answers →</span>
                                                         </div>
-                                                    </div>
+                                                    </a>
                                                 ))}
                                             </div>
                                         );
