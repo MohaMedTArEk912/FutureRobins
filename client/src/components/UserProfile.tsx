@@ -1640,7 +1640,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                         </div>
 
                         {/* Category Pills */}
-                        <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-6 scrollbar-none">
+                        <div className="flex flex-wrap items-center gap-2 pb-2 mb-6">
                             {[
                                 { id: 'all', label: 'All Categories' },
                                 { id: 'milestones', label: 'Milestones' },

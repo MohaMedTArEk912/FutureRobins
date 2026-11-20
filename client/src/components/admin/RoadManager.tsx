@@ -438,7 +438,7 @@ const RoadManager: React.FC<RoadManagerProps> = ({ currentUser, onNotification }
 
                     {/* Streamlined 3-Tab Bar */}
                     <div className="flex items-center justify-between flex-wrap gap-3 mb-5">
-                        <div className={`flex gap-1.5 sm:gap-2 p-1.5 rounded-2xl overflow-x-auto no-scrollbar w-full sm:w-auto transition-all ${
+                        <div className={`flex flex-wrap gap-1.5 sm:gap-2 p-2 rounded-2xl w-full sm:w-auto transition-all ${
                             isBento
                                 ? 'bg-white text-black border-2 border-black shadow-[3px_3px_0px_#000]'
                                 : 'bg-white/40 dark:bg-black/20 backdrop-blur-md border border-white/20 dark:border-white/5'

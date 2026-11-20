@@ -713,7 +713,7 @@ const QuizManager: React.FC<QuizManagerProps> = ({ quizzes, currentUser, onRefre
 
             {/* Quiz Type Filter */}
             {viewMode === 'list' && (
-                <div className="flex gap-2 sm:gap-3 overflow-x-auto no-scrollbar pb-1">
+                <div className="flex flex-wrap gap-2 sm:gap-3 pb-1">
                     <button
                         onClick={() => setQuizTypeFilter('all')}
                         className={`px-3.5 sm:px-4 py-2 rounded-xl font-bold text-xs sm:text-sm transition-all shrink-0 cursor-pointer ${

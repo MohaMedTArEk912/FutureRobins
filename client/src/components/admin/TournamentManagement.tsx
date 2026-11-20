@@ -1038,7 +1038,7 @@ const TournamentManagement: React.FC<TournamentManagementProps> = ({
                             />
                         </div>
 
-                        <div className={`flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto p-1 rounded-xl ${
+                        <div className={`flex flex-wrap items-center gap-1.5 w-full sm:w-auto p-1.5 rounded-xl ${
                             isBento ? 'bg-slate-200 border-2 border-black' : 'bg-gray-100 dark:bg-black/30'
                         }`}>
                             {(['all', 'live', 'scheduled', 'completed'] as const).map(tab => (
@@ -1754,7 +1754,7 @@ const TournamentManagement: React.FC<TournamentManagementProps> = ({
                                         {/* Question tabs */}
                                         {(formTournament.customQuiz?.questions || []).length > 0 && (
                                             <div className="space-y-4">
-                                                <div className="flex items-center gap-1.5 overflow-x-auto pb-2">
+                                                <div className="flex flex-wrap items-center gap-1.5 pb-1">
                                                     {(formTournament.customQuiz?.questions || []).map((q, idx) => (
                                                         <button
                                                             key={q.id || idx}
@@ -2109,7 +2109,7 @@ const TournamentManagement: React.FC<TournamentManagementProps> = ({
                             ? 'bg-white text-black border-3 border-black shadow-[4px_4px_0px_#000]'
                             : 'bg-white/70 dark:bg-[#1a1b26]/70 backdrop-blur-xl border border-gray-200/80 dark:border-white/10 shadow-sm'
                     }`}>
-                        <div className="flex items-center gap-2 overflow-x-auto">
+                        <div className="flex flex-wrap items-center gap-2">
                             <button
                                 onClick={() => setControlTab('live')}
                                 className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap ${

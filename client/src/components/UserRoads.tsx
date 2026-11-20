@@ -1296,7 +1296,7 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                         </div>
 
                         {/* Road Navigation Tabs */}
-                        <div className="flex items-center gap-1 p-1 bg-slate-100/80 dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/[0.06] rounded-2xl mb-8 overflow-x-auto no-scrollbar">
+                        <div className="flex flex-wrap items-center gap-1.5 p-1.5 bg-slate-100/80 dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/[0.06] rounded-2xl mb-8">
                             {[
                                 { id: 'overview', label: tx('Overview', 'نظرة عامة'), icon: <BookOpen className="w-4 h-4" /> },
                                 { id: 'roadmap', label: tx('Roadmap', 'الخريطة'), icon: <Brain className="w-4 h-4" /> },

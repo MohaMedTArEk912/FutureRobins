@@ -236,7 +236,7 @@ const TrackRequestManagement: React.FC<TrackRequestManagementProps> = ({
                 </div>
 
                 {/* Status Filter Tabs & Refresh */}
-                <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
+                <div className="flex flex-wrap items-center gap-2">
                     {(['all', 'pending', 'approved', 'rejected'] as const).map((status) => {
                         const active = statusFilter === status;
                         const activeBentoBg =

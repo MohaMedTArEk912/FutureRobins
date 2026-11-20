@@ -463,7 +463,7 @@ const SkillTracks: React.FC<SkillTracksProps> = ({ user, onUserUpdate }) => {
         </div>
 
         {/* Status Filters */}
-        <div className={`p-1 rounded-2xl flex gap-1 overflow-x-auto ${
+        <div className={`p-1.5 rounded-2xl flex flex-wrap gap-1.5 ${
           isBento
             ? 'bg-white border-2 border-black shadow-[3px_3px_0px_#000]'
             : 'bg-slate-100 dark:bg-white/5 border border-slate-200/80 dark:border-white/10'

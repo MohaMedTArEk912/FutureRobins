@@ -618,7 +618,7 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                 {/* Multi-Class Switcher Bar (especially for teachers managing multiple classes) */}
                 {(myClasses.length > 1 || isTeacherAccount) && (
                     <div className="flex items-center justify-between gap-3 flex-wrap">
-                        <div className="flex items-center gap-2 overflow-x-auto py-1">
+                        <div className="flex flex-wrap items-center gap-2 py-1">
                             {myClasses.map(cls => {
                                 const isActiveCls = cls.clanId === clan.clanId && view === 'my_clan';
                                 return (

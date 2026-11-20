@@ -582,7 +582,7 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
 
         {/* Navigation Tabs (Arenas / Leaderboards / History) & Refresh Action */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mt-8 pt-6 border-t border-gray-100 dark:border-white/5">
-          <div className="flex items-center gap-2.5 overflow-x-auto px-1 pt-1 pb-2.5">
+          <div className="flex flex-wrap items-center gap-2.5 px-1 pt-1 pb-2">
             <button
               onClick={() => setActiveTab('arenas')}
               className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-black uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 whitespace-nowrap ${

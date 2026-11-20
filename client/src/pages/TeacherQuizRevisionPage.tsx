@@ -745,7 +745,7 @@ const TeacherQuizRevisionPage: React.FC = () => {
                             : 'bg-white dark:bg-[#13141f] border border-gray-200 dark:border-white/10 shadow-sm'
                     }`}>
                         {availableParts.length > 0 && (
-                            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+                            <div className="flex flex-wrap items-center gap-1.5">
                                 <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 mr-1 flex items-center gap-1 shrink-0">
                                     <Layers className="w-3.5 h-3.5" /> Part:
                                 </span>

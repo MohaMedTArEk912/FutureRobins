@@ -613,7 +613,7 @@ const RoadmapManagement: React.FC<RoadmapManagementProps> = ({
                     </div>
 
                     {/* Middle: Type Filter Pills */}
-                    <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+                    <div className="flex flex-wrap items-center gap-1.5 py-0.5">
                         {[
                             { id: 'all', label: 'All Modules' },
                             { id: NodeType.CORE, label: 'Core' },

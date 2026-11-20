@@ -814,7 +814,7 @@ const RoadmapEditorModal: React.FC<{
                         {/* 4. Filter Toolbar & Search */}
                         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
                             {/* Level Filter Tabs */}
-                            <div className="flex items-center gap-1.5 overflow-x-auto custom-scrollbar py-1">
+                            <div className="flex flex-wrap items-center gap-1.5 py-1">
                                 <button
                                     type="button"
                                     onClick={() => setSelectedLevelFilter('all')}
