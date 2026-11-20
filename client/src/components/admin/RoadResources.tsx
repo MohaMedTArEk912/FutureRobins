@@ -7,6 +7,7 @@ import { api } from '../../lib/api';
 import { useAiJobs } from '../../contexts/AiJobContext';
 import { useConfirm } from '../../hooks/useConfirm';
 import ConfirmDialog from '../ConfirmDialog';
+import { useTheme } from '../../context/ThemeContext';
 import type { Subject, GeneratedQuestion } from '../../types';
 
 interface RoadResourcesProps {
@@ -17,6 +18,7 @@ interface RoadResourcesProps {
 }
 
 const RoadResources: React.FC<RoadResourcesProps> = ({ subject, adminId, onNotification, onRefresh }) => {
+    const { isBento } = useTheme();
     const { addJob } = useAiJobs();
     const { confirm, confirmState, handleCancel } = useConfirm();
 
@@ -176,15 +178,27 @@ const RoadResources: React.FC<RoadResourcesProps> = ({ subject, adminId, onNotif
             <div className="lg:col-span-1 space-y-6">
 
                 {/* 1. Resources List */}
-                <div className="bg-white/60 dark:bg-[#1e1e2d]/60 backdrop-blur-xl rounded-3xl border border-white/20 dark:border-white/5 p-6 shadow-sm">
+                <div
+                    className={`p-6 ${
+                        isBento
+                            ? 'bg-white rounded-2xl border-[2.5px] border-black shadow-[5px_5px_0px_#000]'
+                            : 'bg-white/60 dark:bg-[#1e1e2d]/60 backdrop-blur-xl rounded-3xl border border-white/20 dark:border-white/5 shadow-sm'
+                    }`}
+                >
                     <div className="flex justify-between items-center mb-6">
-                        <h3 className="font-black text-gray-900 dark:text-white flex items-center gap-2 text-lg">
-                            <span className="p-2 bg-indigo-500/10 rounded-lg">
-                                <FileText className="w-5 h-5 text-indigo-500" />
+                        <h3 className={`font-black flex items-center gap-2 text-lg ${isBento ? 'text-black' : 'text-gray-900 dark:text-white'}`}>
+                            <span className={`p-2 rounded-lg ${isBento ? 'bg-[#bae6fd] border-2 border-black text-black' : 'bg-indigo-500/10'}`}>
+                                <FileText className={`w-5 h-5 ${isBento ? 'text-black' : 'text-indigo-500'}`} />
                             </span>
                             Resources
                         </h3>
-                        <label className={`cursor-pointer px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-all shadow-lg shadow-indigo-500/20 flex items-center gap-2 ${isUploading ? 'opacity-50 pointer-events-none' : 'hover:-translate-y-0.5'}`}>
+                        <label
+                            className={`cursor-pointer px-4 py-2 text-xs font-black rounded-xl transition-all flex items-center gap-2 ${
+                                isBento
+                                    ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                    : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/20 hover:-translate-y-0.5'
+                            } ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}
+                        >
                             {isUploading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
                             Upload
                             <input type="file" multiple className="hidden" onChange={handleUpload} accept=".pdf,.txt,.pptx" />
@@ -244,10 +258,16 @@ const RoadResources: React.FC<RoadResourcesProps> = ({ subject, adminId, onNotif
                 </div>
 
                 {/* 2. Generator Config */}
-                <div className="bg-white/60 dark:bg-[#1e1e2d]/60 backdrop-blur-xl rounded-3xl border border-white/20 dark:border-white/5 p-6 shadow-sm">
-                    <h3 className="font-black text-gray-900 dark:text-white flex items-center gap-2 mb-6 text-lg">
-                        <span className="p-2 bg-purple-500/10 rounded-lg">
-                            <Bot className="w-5 h-5 text-purple-500" />
+                <div
+                    className={`p-6 ${
+                        isBento
+                            ? 'bg-white rounded-2xl border-[2.5px] border-black shadow-[5px_5px_0px_#000]'
+                            : 'bg-white/60 dark:bg-[#1e1e2d]/60 backdrop-blur-xl rounded-3xl border border-white/20 dark:border-white/5 shadow-sm'
+                    }`}
+                >
+                    <h3 className={`font-black flex items-center gap-2 mb-6 text-lg ${isBento ? 'text-black' : 'text-gray-900 dark:text-white'}`}>
+                        <span className={`p-2 rounded-lg ${isBento ? 'bg-[#ddd6fe] border-2 border-black text-black' : 'bg-purple-500/10'}`}>
+                            <Bot className={`w-5 h-5 ${isBento ? 'text-black' : 'text-purple-500'}`} />
                         </span>
                         AI Generator
                     </h3>
@@ -306,7 +326,13 @@ const RoadResources: React.FC<RoadResourcesProps> = ({ subject, adminId, onNotif
             </div>
 
             {/* Right: Preview & Results */}
-            <div className="lg:col-span-2 bg-white/60 dark:bg-[#1e1e2d]/60 backdrop-blur-xl rounded-3xl border border-white/20 dark:border-white/5 p-8 shadow-sm">
+            <div
+                className={`lg:col-span-2 p-8 ${
+                    isBento
+                        ? 'bg-white rounded-2xl border-[2.5px] border-black shadow-[5px_5px_0px_#000]'
+                        : 'bg-white/60 dark:bg-[#1e1e2d]/60 backdrop-blur-xl rounded-3xl border border-white/20 dark:border-white/5 shadow-sm'
+                }`}
+            >
                 <div className="flex justify-between items-center mb-6">
                     <h3 className="text-2xl font-black text-gray-900 dark:text-white flex items-center gap-2">
                         Preview
