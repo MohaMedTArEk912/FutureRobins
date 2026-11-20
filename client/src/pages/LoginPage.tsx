@@ -190,20 +190,10 @@ const LoginPage: React.FC = () => {
         }, 300000);
     };
 
-    const handleDemoLogin = async (role: 'student' | 'teacher' = 'student') => {
-        const redirect = sessionStorage.getItem('redirectAfterLogin');
-        const params = new URLSearchParams({ role });
-        if (redirect && redirect.startsWith('/') && role === 'student') {
-            params.set('to', redirect);
-        }
-        navigate(`/demo?${params.toString()}`);
-    };
-
     return (
         <>
             <LoginScreen
                 onLogin={handleLogin}
-                onDemoLogin={handleDemoLogin}
                 onSwitchToRegister={() => navigate('/register')}
                 onSwitchToForgotPassword={() => navigate('/forgot-password')}
                 onGoogleSignIn={handleGoogleSignIn}

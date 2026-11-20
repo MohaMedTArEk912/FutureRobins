@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogIn, UserPlus, X, Sparkles, Award, Target, Trophy, Zap } from 'lucide-react';
+import { LogIn, UserPlus, X, Sparkles, Award, Target, Trophy } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -24,13 +24,6 @@ export const LoginPromptModal: React.FC<LoginPromptModalProps> = ({
     const navigate = useNavigate();
 
     if (!isOpen) return null;
-
-    const handleInstantDemo = () => {
-        const target = redirectPath && redirectPath.startsWith('/') ? redirectPath : '/';
-        const query = target !== '/' ? `?to=${encodeURIComponent(target)}` : '';
-        onClose();
-        navigate(`/demo${query}`);
-    };
 
     const resolvedTitle = title ?? tx("Let's Log In", 'يلا نسجل دخول');
     const resolvedDescription = description ?? tx(
@@ -154,19 +147,6 @@ export const LoginPromptModal: React.FC<LoginPromptModalProps> = ({
                     >
                         <UserPlus className={`w-4 h-4 ${isBento ? 'text-black' : 'text-purple-500'}`} />
                         <span>{tx('Create Free Account', 'إنشاء حساب مجاني')}</span>
-                    </button>
-
-                    <button
-                        type="button"
-                        onClick={handleInstantDemo}
-                        className={`btn-unstyled w-full py-3 rounded-xl font-black text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                            isBento
-                                ? 'bg-[#bae6fd] hover:bg-[#7dd3fc] text-black border-2 border-black shadow-[3px_3px_0px_#000] active:translate-x-0.5 active:translate-y-0.5'
-                                : 'bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30'
-                        }`}
-                    >
-                        <Zap className="w-4 h-4 shrink-0" />
-                        <span>{tx('Try Instant Live Demo (No Sign Up)', 'جرّب الديمو المباشر بدون تسجيل')}</span>
                     </button>
 
                     <button
