@@ -42,18 +42,18 @@ const LanguageSelectModalContent: React.FC<Omit<LanguageSelectModalProps, 'isOpe
     }, [searchQuery]);
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-black/30 dark:bg-black/45 backdrop-blur-md animate-in fade-in duration-200">
+        <div className="app-dialog-overlay fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-black/30 dark:bg-black/45 backdrop-blur-md animate-in fade-in duration-200">
             {/* Backdrop Dismiss */}
             <div className="absolute inset-0" onClick={onClose} />
 
             {/* Modal Card */}
-            <div className={`relative w-full max-w-xl max-h-[85vh] rounded-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 ${
+            <div className={`app-dialog-panel app-dialog-panel--structured relative w-full max-w-xl max-h-[85vh] rounded-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 ${
                 isBento
                     ? 'bg-white text-black border-[3px] border-black shadow-[6px_6px_0px_#000]'
                     : 'bg-white dark:bg-[#111322] border border-gray-200 dark:border-white/10 shadow-2xl'
             }`}>
                 {/* Header */}
-                <div className={`p-5 sm:p-6 flex items-center justify-between ${
+                <div className={`app-dialog-header p-5 sm:p-6 flex items-center justify-between ${
                     isBento
                         ? 'border-b-[2.5px] border-black bg-[#faf8f1]'
                         : 'border-b border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/[0.02]'
@@ -91,7 +91,7 @@ const LanguageSelectModalContent: React.FC<Omit<LanguageSelectModalProps, 'isOpe
                 </div>
 
                 {/* Search Bar & Reset to Original */}
-                <div className="p-4 sm:p-5 border-b border-gray-100 dark:border-white/5 space-y-3">
+                <div className="app-dialog-toolbar p-4 sm:p-5 border-b border-gray-100 dark:border-white/5 space-y-3">
                     <div className="relative">
                         <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                         <input
@@ -130,7 +130,7 @@ const LanguageSelectModalContent: React.FC<Omit<LanguageSelectModalProps, 'isOpe
                 </div>
 
                 {/* Content: Language Lists */}
-                <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-5 custom-scrollbar">
+                <div className="app-dialog-body app-dialog-body-spaced flex-1 overflow-y-auto p-4 sm:p-5 space-y-5 custom-scrollbar">
                     {/* Popular Languages (when not searching) */}
                     {!searchQuery && (
                         <div>
@@ -250,7 +250,7 @@ const LanguageSelectModalContent: React.FC<Omit<LanguageSelectModalProps, 'isOpe
                 </div>
 
                 {/* Footer Info */}
-                <div className="p-3.5 px-5 bg-gray-50 dark:bg-white/[0.02] border-t border-gray-100 dark:border-white/5 flex items-center justify-between text-[11px] text-gray-400">
+                <div className="app-dialog-footer p-3.5 px-5 bg-gray-50 dark:bg-white/[0.02] border-t border-gray-100 dark:border-white/5 flex items-center justify-between text-[11px] text-gray-400">
                     <span>⚡ Instant real-time multi-lingual translation</span>
                     <button
                         onClick={onClose}

@@ -26,8 +26,8 @@ const QuizSelectionModal: React.FC<QuizSelectionModalProps> = ({ quizzes, isOpen
     });
 
     return (
-        <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/60 animate-in fade-in duration-200">
-            <div className={`rounded-2xl w-full max-w-2xl max-h-[80vh] flex flex-col shadow-2xl overflow-hidden relative ${
+        <div className="app-dialog-overlay fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/60 animate-in fade-in duration-200">
+            <div className={`app-dialog-panel app-dialog-panel--structured rounded-2xl w-full max-w-2xl max-h-[80vh] flex flex-col shadow-2xl overflow-hidden relative ${
                 isBento
                     ? 'bg-white border-[3px] border-black shadow-[6px_6px_0px_#000]'
                     : 'bg-white dark:bg-[#1a1b26] rounded-2xl border border-white/10'
@@ -45,7 +45,7 @@ const QuizSelectionModal: React.FC<QuizSelectionModalProps> = ({ quizzes, isOpen
                 </button>
 
                 {/* Header */}
-                <div className={`p-6 border-b ${
+                <div className={`app-dialog-header p-6 border-b ${
                     isBento
                         ? 'bg-[#fde047] border-b-[2.5px] border-black'
                         : 'border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5'
@@ -55,7 +55,7 @@ const QuizSelectionModal: React.FC<QuizSelectionModalProps> = ({ quizzes, isOpen
                 </div>
 
                 {/* Search */}
-                <div className={`p-4 border-b ${
+                <div className={`app-dialog-toolbar p-4 border-b ${
                     isBento
                         ? 'border-b-[2.5px] border-black bg-[#f5f3ec]'
                         : 'border-gray-100 dark:border-white/5'
@@ -77,7 +77,7 @@ const QuizSelectionModal: React.FC<QuizSelectionModalProps> = ({ quizzes, isOpen
                 </div>
 
                 {/* Quiz Grid */}
-                <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+                <div className="app-dialog-body app-dialog-body-spaced flex-1 overflow-y-auto p-4 custom-scrollbar">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {filteredQuizzes.map(quiz => (
                             <button

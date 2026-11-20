@@ -12,7 +12,6 @@ interface ThemePreviewOption {
     tag: string;
     arTag: string;
     icon: React.ComponentType<{ className?: string }>;
-    accentColor: string;
 }
 
 const THEMES: ThemePreviewOption[] = [
@@ -24,8 +23,7 @@ const THEMES: ThemePreviewOption[] = [
         arSubtitle: 'شكل نهاري مريح للعين بألوان نيلي رايقة وواضحة',
         tag: 'Clean & Crisp',
         arTag: 'هادي ومريح',
-        icon: Sun,
-        accentColor: '#6366f1'
+        icon: Sun
     },
     {
         id: 'dark',
@@ -35,8 +33,7 @@ const THEMES: ThemePreviewOption[] = [
         arSubtitle: 'خلفية غامقة مريحة للمذاكرة بالليل وإضاءة هادية',
         tag: 'Focus & Contrast',
         arTag: 'تركيز بالليل',
-        icon: Moon,
-        accentColor: '#818cf8'
+        icon: Moon
     },
     {
         id: 'bento',
@@ -46,237 +43,175 @@ const THEMES: ThemePreviewOption[] = [
         arSubtitle: 'تصميم مميز بحدود واضحة وألوان مبهجة وحية',
         tag: 'Pop & Bold',
         arTag: 'جريء ومميز',
-        icon: LayoutGrid,
-        accentColor: '#bef264'
+        icon: LayoutGrid
     }
 ];
 
 interface ThemeSkeletonPreviewCardsProps {
-    onThemeSelect?: (theme: AppTheme) => void;
+    onThemeSelect: (theme: AppTheme) => void;
 }
 
-export const ThemeSkeletonPreviewCards: React.FC<ThemeSkeletonPreviewCardsProps> = ({
-    onThemeSelect
-}) => {
-    const { theme: currentTheme, setTheme } = useTheme();
+const ThemeSkeletonPreviewCards: React.FC<ThemeSkeletonPreviewCardsProps> = ({ onThemeSelect }) => {
+    const { theme: currentTheme } = useTheme();
     const { tx } = useLanguage();
 
-    const handleSelect = (selectedTheme: AppTheme) => {
-        setTheme(selectedTheme);
-        if (onThemeSelect) {
-            onThemeSelect(selectedTheme);
-        }
-    };
-
     return (
-        <div className="w-full">
-            {/* Desktop: 3-Column Grid | Mobile: Horizontal Snap Carousel */}
-            <div className="flex md:grid md:grid-cols-3 gap-5 overflow-x-auto md:overflow-visible pt-4 pb-4 px-2 md:pt-4 md:pb-4 md:px-1 snap-x snap-mandatory scrollbar-none">
-                {THEMES.map((item) => {
-                    const isSelected = currentTheme === item.id;
-                    const Icon = item.icon;
+        <div className="grid w-full shrink-0 gap-2 md:grid-cols-3 md:gap-3">
+            {THEMES.map((item) => {
+                const isSelected = currentTheme === item.id;
+                const Icon = item.icon;
 
-                    return (
-                        <div
-                            key={item.id}
-                            role="button"
-                            tabIndex={0}
-                            onClick={() => handleSelect(item.id)}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter' || e.key === ' ') {
-                                    e.preventDefault();
-                                    handleSelect(item.id);
-                                }
-                            }}
-                            className={`flex-none w-[270px] sm:w-[290px] md:w-auto snap-center text-left rounded-2xl sm:rounded-3xl p-4 sm:p-5 transition-all duration-200 cursor-pointer relative group select-none flex flex-col justify-between ${
-                                isSelected
-                                    ? currentTheme === 'bento'
-                                        ? 'bg-white text-black border-[3px] border-black shadow-[6px_6px_0px_#000]'
-                                        : 'bg-white dark:bg-[#111827] text-slate-900 dark:text-white border-2 border-indigo-600 dark:border-indigo-500 shadow-xl dark:shadow-indigo-500/10'
-                                    : currentTheme === 'bento'
-                                        ? 'bg-white/80 hover:bg-white text-black border-2 border-black/60 shadow-[3px_3px_0px_#000] hover:shadow-[5px_5px_0px_#000] hover:-translate-y-0.5'
-                                        : 'bg-slate-50/80 hover:bg-white dark:bg-white/[0.03] dark:hover:bg-white/[0.07] text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-white/10 hover:border-slate-300 hover:shadow-md hover:-translate-y-0.5'
-                            }`}
-                        >
-                            {/* Selected Badge */}
-                            {isSelected && (
-                                <div className={`absolute -top-3 right-4 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 z-20 ${
-                                    currentTheme === 'bento'
-                                        ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                        : 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
-                                }`}>
-                                    <Check className="w-3.5 h-3.5 stroke-[3]" />
-                                    {tx('Active', 'مفعل')}
-                                </div>
-                            )}
-
-                            <div>
-                                {/* Header Info */}
-                                <div className="flex items-center justify-between mb-3">
-                                    <div className="flex items-center gap-2">
-                                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-transform group-hover:scale-105 ${
-                                            item.id === 'bento'
-                                                ? 'bg-[#fde047] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]'
-                                                : item.id === 'dark'
-                                                    ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30'
-                                                    : 'bg-indigo-100 text-indigo-600 border border-indigo-200'
-                                        }`}>
-                                            <Icon className="w-4 h-4" />
-                                        </div>
-                                        <div>
-                                            <h4 className="text-sm font-black tracking-tight leading-none mb-1">
-                                                {tx(item.title, item.arTitle)}
-                                            </h4>
-                                            <span className="text-[10px] uppercase font-bold opacity-60 tracking-wider">
-                                                {tx(item.tag, item.arTag)}
-                                            </span>
-                                        </div>
+                return (
+                    <div
+                        key={item.id}
+                        role="button"
+                        tabIndex={0}
+                        aria-pressed={isSelected}
+                        onClick={() => onThemeSelect(item.id)}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                onThemeSelect(item.id);
+                            }
+                        }}
+                        className={`relative group flex min-w-0 cursor-pointer select-none flex-col justify-between rounded-2xl text-start transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 p-2.5 md:p-3.5 [@media(max-height:400px)]:py-1.5 ${
+                            isSelected
+                                ? currentTheme === 'bento'
+                                    ? 'bg-white text-black border-[3px] border-black shadow-[6px_6px_0px_#000]'
+                                    : 'bg-white dark:bg-[#111827] text-slate-900 dark:text-white border-2 border-indigo-600 dark:border-indigo-500 shadow-xl dark:shadow-indigo-500/10'
+                                : currentTheme === 'bento'
+                                    ? 'bg-white/80 hover:bg-white text-black border-2 border-black/60 shadow-[3px_3px_0px_#000] hover:shadow-[5px_5px_0px_#000] hover:-translate-y-0.5'
+                                    : 'bg-slate-50/80 hover:bg-white dark:bg-white/[0.03] dark:hover:bg-white/[0.07] text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-white/10 hover:border-slate-300 hover:shadow-md hover:-translate-y-0.5'
+                        }`}
+                    >
+                        <div className="grid grid-cols-[minmax(0,1fr)_3.5rem] items-center gap-x-2.5 md:block">
+                            {/* Header Info */}
+                            <div className="flex min-w-0 items-center justify-between gap-1.5 md:mb-2.5">
+                                <div className="flex min-w-0 items-center gap-2">
+                                    <div className={`w-8 h-8 shrink-0 rounded-xl flex items-center justify-center transition-transform group-hover:scale-105 ${
+                                        item.id === 'bento'
+                                            ? 'bg-[#fde047] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]'
+                                            : item.id === 'dark'
+                                                ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30'
+                                                : 'bg-indigo-100 text-indigo-600 border border-indigo-200'
+                                    }`}>
+                                        <Icon className="w-4 h-4" />
                                     </div>
-
-                                    {/* Color Dots Pill */}
-                                    <div className="flex items-center gap-1">
-                                        {item.id === 'light' && (
-                                            <>
-                                                <span className="w-2.5 h-2.5 rounded-full bg-slate-100 border border-slate-300" />
-                                                <span className="w-2.5 h-2.5 rounded-full bg-indigo-500" />
-                                                <span className="w-2.5 h-2.5 rounded-full bg-slate-900" />
-                                            </>
-                                        )}
-                                        {item.id === 'dark' && (
-                                            <>
-                                                <span className="w-2.5 h-2.5 rounded-full bg-[#080c16] border border-white/20" />
-                                                <span className="w-2.5 h-2.5 rounded-full bg-indigo-500" />
-                                                <span className="w-2.5 h-2.5 rounded-full bg-slate-300" />
-                                            </>
-                                        )}
-                                        {item.id === 'bento' && (
-                                            <>
-                                                <span className="w-2.5 h-2.5 rounded-full bg-[#bef264] border border-black" />
-                                                <span className="w-2.5 h-2.5 rounded-full bg-[#fde047] border border-black" />
-                                                <span className="w-2.5 h-2.5 rounded-full bg-[#bae6fd] border border-black" />
-                                            </>
-                                        )}
+                                    <div>
+                                        <h4 className="text-sm font-black tracking-tight leading-tight">
+                                            {tx(item.title, item.arTitle)}
+                                        </h4>
+                                        <span className="text-[10px] uppercase font-bold opacity-70 tracking-wider block leading-tight [@media(max-height:350px)]:hidden">
+                                            {tx(item.tag, item.arTag)}
+                                        </span>
                                     </div>
                                 </div>
 
-                                {/* Visual Wireframe Skeleton */}
-                                <div className={`w-full rounded-xl sm:rounded-2xl p-2.5 sm:p-3 mb-3.5 transition-all overflow-hidden ${
+                                <span aria-hidden="true" className={`flex size-5 shrink-0 items-center justify-center rounded-full border ${isSelected
+                                    ? currentTheme === 'bento' ? 'border-black bg-[#bef264] text-black' : 'border-indigo-600 bg-indigo-600 text-white'
+                                    : 'border-slate-300 dark:border-white/25'}`}>
+                                    {isSelected && <Check className="size-3.5 stroke-[3]" />}
+                                </span>
+                            </div>
+
+                            {/* Visual Wireframe Skeleton */}
+                            <div aria-hidden="true" className={`w-full overflow-hidden rounded-xl transition-all p-1 md:mb-2.5 md:p-2 [@media(max-height:400px)]:md:mb-0 ${
+                                item.id === 'light'
+                                    ? 'bg-[#f8fafc] border border-slate-200 shadow-inner'
+                                    : item.id === 'dark'
+                                        ? 'bg-[#080c16] border border-white/10 shadow-inner'
+                                        : 'bg-[#f5f3ec] border-2 border-black shadow-[2px_2px_0px_#000]'
+                            }`}>
+                                {/* Mini Navbar */}
+                                <div className={`h-6 rounded-lg px-2 items-center justify-between mb-2 hidden md:flex [@media(max-height:400px)]:md:hidden ${
                                     item.id === 'light'
-                                        ? 'bg-[#f8fafc] border border-slate-200 shadow-inner'
+                                        ? 'bg-white border border-slate-200/80 shadow-xs'
                                         : item.id === 'dark'
-                                            ? 'bg-[#080c16] border border-white/10 shadow-inner'
-                                            : 'bg-[#f5f3ec] border-2 border-black shadow-[2px_2px_0px_#000]'
+                                            ? 'bg-[#0f1526] border border-white/10'
+                                            : 'bg-white border-1.5 border-black shadow-[1.5px_1.5px_0px_#000]'
                                 }`}>
-                                    {/* Mini Navbar */}
-                                    <div className={`h-6 rounded-lg px-2 flex items-center justify-between mb-2 ${
-                                        item.id === 'light'
-                                            ? 'bg-white border border-slate-200/80 shadow-xs'
-                                            : item.id === 'dark'
-                                                ? 'bg-[#0f1526] border border-white/10'
-                                                : 'bg-white border-1.5 border-black shadow-[1.5px_1.5px_0px_#000]'
-                                    }`}>
-                                        <div className="flex items-center gap-1.5">
-                                            <div className={`w-2.5 h-2.5 rounded-md ${
-                                                item.id === 'bento' ? 'bg-[#fde047] border border-black' : 'bg-indigo-600'
-                                            }`} />
-                                            <div className={`w-10 h-1.5 rounded-full ${
-                                                item.id === 'dark' ? 'bg-white/40' : item.id === 'bento' ? 'bg-black' : 'bg-slate-300'
-                                            }`} />
-                                        </div>
-                                        <div className="flex items-center gap-1">
-                                            <div className={`w-4 h-1.5 rounded-full ${item.id === 'dark' ? 'bg-white/20' : 'bg-slate-200'}`} />
-                                            <div className={`w-4 h-1.5 rounded-full ${item.id === 'dark' ? 'bg-white/20' : 'bg-slate-200'}`} />
-                                        </div>
-                                    </div>
-
-                                    {/* Mini Hero Card */}
-                                    <div className={`p-2.5 rounded-xl mb-2 ${
-                                        item.id === 'light'
-                                            ? 'bg-white border border-slate-200/80 shadow-xs'
-                                            : item.id === 'dark'
-                                                ? 'bg-[#0f1526] border border-indigo-500/30 shadow-sm'
-                                                : 'bg-[#bef264] border-1.5 border-black shadow-[2px_2px_0px_#000]'
-                                    }`}>
-                                        <div className="flex items-center justify-between mb-1.5">
-                                            <div className={`w-8 h-2 rounded-full ${
-                                                item.id === 'bento' ? 'bg-black' : 'bg-indigo-500'
-                                            }`} />
-                                            <div className={`w-3 h-3 rounded-full ${
-                                                item.id === 'bento' ? 'bg-[#fde047] border border-black' : 'bg-emerald-500'
-                                            }`} />
-                                        </div>
-                                        <div className={`w-3/4 h-2 rounded-full mb-1 ${
-                                            item.id === 'dark' ? 'bg-white/80' : 'bg-slate-800'
+                                    <div className="flex items-center gap-1.5">
+                                        <div className={`w-2.5 h-2.5 rounded-md ${
+                                            item.id === 'bento' ? 'bg-[#fde047] border border-black' : 'bg-indigo-600'
                                         }`} />
-                                        <div className={`w-1/2 h-1.5 rounded-full mb-2 ${
-                                            item.id === 'dark' ? 'bg-white/40' : 'bg-slate-400'
+                                        <div className={`w-10 h-1.5 rounded-full ${
+                                            item.id === 'dark' ? 'bg-white/40' : item.id === 'bento' ? 'bg-black' : 'bg-slate-300'
                                         }`} />
-
-                                        {/* Miniature Button */}
-                                        <div className={`w-16 h-4 rounded-md flex items-center justify-center text-[8px] font-bold ${
-                                            item.id === 'light'
-                                                ? 'bg-indigo-600 text-white'
-                                                : item.id === 'dark'
-                                                    ? 'bg-indigo-500 text-white'
-                                                    : 'bg-[#fde047] text-black border border-black shadow-[1px_1px_0px_#000]'
-                                        }`}>
-                                            Start Quiz
-                                        </div>
                                     </div>
-
-                                    {/* Mini Stats 2-Card Row */}
-                                    <div className="grid grid-cols-2 gap-1.5">
-                                        <div className={`p-1.5 rounded-lg ${
-                                            item.id === 'light'
-                                                ? 'bg-white border border-slate-200/80'
-                                                : item.id === 'dark'
-                                                    ? 'bg-[#0f1526] border border-white/5'
-                                                    : 'bg-[#bae6fd] border-1.5 border-black shadow-[1px_1px_0px_#000]'
-                                        }`}>
-                                            <div className={`w-6 h-1 rounded-full mb-1 ${item.id === 'dark' ? 'bg-white/30' : 'bg-slate-400'}`} />
-                                            <div className={`w-8 h-2 rounded-full ${item.id === 'bento' ? 'bg-black' : 'bg-indigo-500'}`} />
-                                        </div>
-                                        <div className={`p-1.5 rounded-lg ${
-                                            item.id === 'light'
-                                                ? 'bg-white border border-slate-200/80'
-                                                : item.id === 'dark'
-                                                    ? 'bg-[#0f1526] border border-white/5'
-                                                    : 'bg-[#fde047] border-1.5 border-black shadow-[1px_1px_0px_#000]'
-                                        }`}>
-                                            <div className={`w-6 h-1 rounded-full mb-1 ${item.id === 'dark' ? 'bg-white/30' : 'bg-slate-400'}`} />
-                                            <div className={`w-8 h-2 rounded-full ${item.id === 'bento' ? 'bg-black' : 'bg-emerald-500'}`} />
-                                        </div>
+                                    <div className="flex items-center gap-1">
+                                        <div className={`w-4 h-1.5 rounded-full ${item.id === 'dark' ? 'bg-white/20' : 'bg-slate-200'}`} />
+                                        <div className={`w-4 h-1.5 rounded-full ${item.id === 'dark' ? 'bg-white/20' : 'bg-slate-200'}`} />
                                     </div>
                                 </div>
 
-                                <p className="text-xs opacity-75 font-medium leading-relaxed">
-                                    {tx(item.subtitle, item.arSubtitle)}
-                                </p>
-                            </div>
-
-                            {/* Select / Active Indicator Button */}
-                            <div className="mt-3 pt-3 border-t border-slate-200/60 dark:border-white/10">
-                                <div className={`w-full py-2 px-3 rounded-xl text-xs font-black text-center transition-all ${
-                                    isSelected
-                                        ? currentTheme === 'bento'
-                                            ? 'bg-black text-white'
-                                            : 'bg-indigo-600 text-white'
-                                        : currentTheme === 'bento'
-                                            ? 'bg-slate-100 hover:bg-slate-200 text-black border border-black/30'
-                                            : 'bg-slate-200/70 dark:bg-white/10 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-white/15'
+                                {/* Mini Hero Card */}
+                                <div className={`rounded-md p-1 md:rounded-xl md:p-2 ${
+                                    item.id === 'light'
+                                        ? 'bg-white border border-slate-200/80 shadow-xs'
+                                        : item.id === 'dark'
+                                            ? 'bg-[#0f1526] border border-indigo-500/30 shadow-sm'
+                                            : 'bg-[#bef264] border-1.5 border-black shadow-[2px_2px_0px_#000]'
                                 }`}>
-                                    {isSelected ? tx('Current Theme', 'الثيم الحالي') : tx('Select Theme', 'اختار الثيم ده')}
+                                    <div className="mb-1 hidden items-center justify-between md:flex">
+                                        <div className={`w-8 h-2 rounded-full ${
+                                            item.id === 'bento' ? 'bg-black' : 'bg-indigo-500'
+                                        }`} />
+                                        <div className={`w-3 h-3 rounded-full ${
+                                            item.id === 'bento' ? 'bg-[#fde047] border border-black' : 'bg-emerald-500'
+                                        }`} />
+                                    </div>
+                                    <div className={`w-3/4 rounded-full mb-1 h-1.5 md:h-2 ${
+                                        item.id === 'dark' ? 'bg-white/80' : 'bg-slate-800'
+                                    }`} />
+                                    <div className={`w-1/2 rounded-full h-1 md:mb-2 md:h-1.5 ${
+                                        item.id === 'dark' ? 'bg-white/40' : 'bg-slate-400'
+                                    }`} />
+
+                                    {/* Miniature Button */}
+                                    <div className={`w-16 h-4 rounded-md items-center justify-center text-[8px] font-bold hidden md:flex [@media(max-height:400px)]:md:hidden ${
+                                        item.id === 'light'
+                                            ? 'bg-indigo-600 text-white'
+                                            : item.id === 'dark'
+                                                ? 'bg-indigo-500 text-white'
+                                                : 'bg-[#fde047] text-black border border-black shadow-[1px_1px_0px_#000]'
+                                    }`}>
+                                        Start Quiz
+                                    </div>
+                                </div>
+
+                                {/* Mini Stats 2-Card Row */}
+                                <div className="mt-2 hidden md:grid [@media(max-height:560px)]:md:hidden grid-cols-2 gap-1.5">
+                                    <div className={`p-1.5 rounded-lg ${
+                                        item.id === 'light'
+                                            ? 'bg-white border border-slate-200/80'
+                                            : item.id === 'dark'
+                                                ? 'bg-[#0f1526] border border-white/5'
+                                                : 'bg-[#bae6fd] border-1.5 border-black shadow-[1px_1px_0px_#000]'
+                                    }`}>
+                                        <div className={`w-6 h-1 rounded-full mb-1 ${item.id === 'dark' ? 'bg-white/30' : 'bg-slate-400'}`} />
+                                        <div className={`w-8 h-2 rounded-full ${item.id === 'bento' ? 'bg-black' : 'bg-indigo-500'}`} />
+                                    </div>
+                                    <div className={`p-1.5 rounded-lg ${
+                                        item.id === 'light'
+                                            ? 'bg-white border border-slate-200/80'
+                                            : item.id === 'dark'
+                                                ? 'bg-[#0f1526] border border-white/5'
+                                                : 'bg-[#fde047] border-1.5 border-black shadow-[1px_1px_0px_#000]'
+                                    }`}>
+                                        <div className={`w-6 h-1 rounded-full mb-1 ${item.id === 'dark' ? 'bg-white/30' : 'bg-slate-400'}`} />
+                                        <div className={`w-8 h-2 rounded-full ${item.id === 'bento' ? 'bg-black' : 'bg-emerald-500'}`} />
+                                    </div>
                                 </div>
                             </div>
+
+                            <p className="text-xs opacity-75 font-medium leading-relaxed hidden md:block [@media(max-height:400px)]:md:hidden">
+                                {tx(item.subtitle, item.arSubtitle)}
+                            </p>
                         </div>
-                    );
-                })}
-            </div>
 
-            {/* Mobile swipe hint */}
-            <div className="flex md:hidden items-center justify-center gap-1.5 text-[11px] font-bold text-slate-400 dark:text-slate-500 mt-1">
-                <span>{tx('Swipe horizontally to preview all 3 themes', 'اسحب يمين وشمال عشان تشوف الـ 3 أشكال')}</span>
-            </div>
+                    </div>
+                );
+            })}
         </div>
     );
 };

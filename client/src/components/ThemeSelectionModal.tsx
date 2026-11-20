@@ -1,5 +1,6 @@
 import React from 'react';
-import { ArrowRight, Palette } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { ArrowRight, X } from 'lucide-react';
 import { useTheme, type AppTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 import ThemeSkeletonPreviewCards from './ThemeSkeletonPreviewCards';
@@ -14,90 +15,55 @@ export const ThemeSelectionModal: React.FC<ThemeSelectionModalProps> = ({
     onClose
 }) => {
     const { theme, isBento, setTheme } = useTheme();
-    const { isLanguageModalOpen, isArabic, tx } = useLanguage();
+    const { isArabic, tx } = useLanguage();
 
-    // Wait until first-login / legacy language modal finishes so they appear cleanly in order
-    if (!isOpen || isLanguageModalOpen) return null;
-
-    const themeLabels: Record<AppTheme, string> = {
-        light: tx('LIGHT', 'لايت (فاتح)'),
-        dark: tx('DARK', 'دارك (غامق)'),
-        bento: tx('BENTO', 'بينتو')
-    };
+    if (!isOpen) return null;
 
     const handleThemePick = (chosenTheme: AppTheme) => {
         setTheme(chosenTheme);
-        // Persist to localStorage
-        try {
-            localStorage.setItem('theme', chosenTheme);
-            sessionStorage.setItem('theme', chosenTheme);
-        } catch {
-            // Storage access safeguard
-        }
-        // Immediately and smoothly dismiss modal upon selection per requirement
         onClose();
     };
 
     const handleConfirm = () => {
-        try {
-            localStorage.setItem('theme', theme);
-            sessionStorage.setItem('theme', theme);
-        } catch {
-            // Storage access safeguard
-        }
-        onClose();
+        handleThemePick(theme);
     };
 
-    return (
-        <div className="fixed inset-0 z-[250] flex items-center justify-center p-3 sm:p-6 bg-black/30 dark:bg-black/45 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200">
+    return createPortal(
+        <div className="app-dialog-overlay fixed inset-0 z-[10030] flex justify-center animate-in fade-in duration-200">
             <div
-                className={`relative w-full max-w-4xl p-5 sm:p-8 rounded-2xl transition-all animate-in zoom-in-95 duration-200 my-auto ${
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="theme-selection-title"
+                className={`app-dialog-panel relative my-auto flex w-full max-w-sm flex-col gap-4 rounded-2xl p-4 animate-in zoom-in-95 duration-200 md:max-w-4xl md:gap-5 md:p-6 [@media(max-height:400px)]:gap-2.5 [@media(max-height:400px)]:p-3 ${
                     isBento
                         ? 'bg-white text-black border-[3px] border-black shadow-[6px_6px_0px_#000]'
                         : 'bg-white dark:bg-[#0c101c] text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 shadow-2xl backdrop-blur-2xl'
                 }`}
-                onClick={(e) => e.stopPropagation()}
             >
-                {/* Header Section */}
-                <div className="text-center max-w-xl mx-auto mb-6 sm:mb-8">
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider mb-3 select-none">
-                        <span className={`px-2.5 py-0.5 rounded-full flex items-center gap-1.5 ${
-                            isBento
-                                ? 'bg-[#bef264] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]'
-                                : 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20'
-                        }`}>
-                            <Palette className="w-3.5 h-3.5" />
-                            {tx('Personalize Your Workspace', 'ظبّط شكل منصتك على مزاجك')}
-                        </span>
-                    </div>
-
-                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight mb-2">
-                        {tx('Choose Your Preferred Theme', 'اختار الثيم اللي تحب تشتغل بيه')}
+                <header className="shrink-0 px-8 text-center">
+                    <h2 id="theme-selection-title" className="text-xl font-black tracking-tight md:text-3xl">
+                        {tx('Choose your theme', 'اختار الثيم اللي يناسبك')}
                     </h2>
-                    <p className="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400 leading-relaxed">
-                        {tx(
-                            'Select an interface theme that matches your learning style. You can adjust this anytime in your Profile or top navigation bar.',
-                            'اختار شكل الواجهة اللي يريح عينك في المذاكرة. وتقدر تغيره في أي وقت من صفحتك أو الشريط اللي فوق.'
-                        )}
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        aria-label={tx('Close theme picker', 'اقفل اختيار الثيم')}
+                        className="absolute end-2 top-2 grid size-9 cursor-pointer place-items-center rounded-lg text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-white/10 md:end-3 md:top-3"
+                    >
+                        <X aria-hidden="true" className="size-4" />
+                    </button>
+                    <p className="mt-1 text-xs font-medium text-slate-600 dark:text-slate-400 md:text-sm [@media(max-height:400px)]:hidden">
+                        {tx('You can change your theme anytime in Account Settings.', 'تقدر تغيّر الثيم في أي وقت من إعدادات الحساب.')}
                     </p>
-                </div>
+                </header>
 
-                {/* 3 Interactive Visual Skeleton Preview Cards */}
-                <div className="mb-6 sm:mb-8">
-                    <ThemeSkeletonPreviewCards onThemeSelect={handleThemePick} />
-                </div>
+                <ThemeSkeletonPreviewCards onThemeSelect={handleThemePick} />
 
-                {/* Action Footer */}
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-slate-200/80 dark:border-white/10">
-                    <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 text-center sm:text-start">
-                        {tx('Active Selection:', 'الاختيار الحالي:')}{' '}
-                        <span className="font-black text-slate-700 dark:text-slate-200 uppercase">{themeLabels[theme]}</span>
-                    </p>
-
+                <footer className="flex shrink-0 justify-end border-t border-slate-200/80 pt-3 dark:border-white/10 [@media(max-height:400px)]:pt-2">
                     <button
                         type="button"
                         onClick={handleConfirm}
-                        className={`w-full sm:w-auto px-6 py-3 rounded-2xl font-black text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 ${
+                        className={`flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-black transition-all active:scale-95 md:w-auto ${
                             isBento
                                 ? 'bg-[#bef264] text-black border-2.5 border-black shadow-[3px_3px_0px_#000] hover:shadow-[4px_4px_0px_#000] hover:-translate-y-0.5'
                                 : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-600/30'
@@ -106,9 +72,10 @@ export const ThemeSelectionModal: React.FC<ThemeSelectionModalProps> = ({
                         <span>{tx('Confirm & Continue', 'تأكيد والمتابعة')}</span>
                         <ArrowRight className={`w-4 h-4 ${isArabic ? 'rotate-180' : ''}`} />
                     </button>
-                </div>
+                </footer>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 

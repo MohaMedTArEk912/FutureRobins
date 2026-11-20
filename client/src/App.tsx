@@ -58,7 +58,6 @@ const ClassroomPage = lazy(() => import('./pages/ClassroomPage'));
 import ScrollToTop from './components/ScrollToTop';
 import { useAuth } from './context/AuthContext';
 import { useLanguage } from './context/LanguageContext';
-import PlatformLanguageModal from './components/PlatformLanguageModal';
 
 // Helper to keep page titles updated as route changes
 const PageTitleManager: React.FC = () => {
@@ -78,7 +77,7 @@ const LanguageAccountSync: React.FC = () => {
     return () => window.clearTimeout(timer);
   }, [currentUser, isLoading, updateUser, registerAccountSync]);
 
-  return <PlatformLanguageModal />;
+  return null;
 };
 
 

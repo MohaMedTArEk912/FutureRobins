@@ -1481,10 +1481,10 @@ const RoadmapManagement: React.FC<RoadmapManagementProps> = ({
 
             {/* Module Details Dialog */}
             {isModuleDetailsOpen && selectedModuleForDetails && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setIsModuleDetailsOpen(false)}>
-                    <div className="bg-gradient-to-br from-white to-gray-50 dark:from-slate-900 dark:to-slate-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-slate-700 max-w-2xl w-full max-h-[80vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
+                <div className="app-dialog-overlay fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setIsModuleDetailsOpen(false)}>
+                    <div className="app-dialog-panel app-dialog-panel--structured flex flex-col bg-gradient-to-br from-white to-gray-50 dark:from-slate-900 dark:to-slate-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-slate-700 max-w-2xl w-full max-h-[80vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
                         {/* Header */}
-                        <div className="px-6 py-4 border-b border-gray-200 dark:border-slate-700 flex items-center justify-between">
+                        <div className="app-dialog-header px-6 py-4 border-b border-gray-200 dark:border-slate-700 flex items-center justify-between">
                             <div className="flex items-center gap-3">
                                 <div className={`w-3 h-3 rounded-full ${selectedModuleForDetails.type === 'optional' ? 'bg-emerald-500' :
                                     selectedModuleForDetails.type === 'achievement' ? 'bg-amber-500' :
@@ -1503,7 +1503,7 @@ const RoadmapManagement: React.FC<RoadmapManagementProps> = ({
                         </div>
 
                         {/* Content */}
-                        <div className="px-6 py-4 overflow-y-auto max-h-[calc(80vh-140px)]">
+                        <div className="app-dialog-body app-dialog-body-spaced px-6 py-4 overflow-y-auto max-h-[calc(80vh-140px)]">
                             {/* Description */}
                             <div className="mb-6">
                                 <p className="text-gray-700 dark:text-slate-300 leading-relaxed">{selectedModuleForDetails.description || 'No description available.'}</p>
@@ -1640,7 +1640,7 @@ const RoadmapManagement: React.FC<RoadmapManagementProps> = ({
                         </div>
 
                         {/* Footer */}
-                        <div className="px-6 py-4 border-t border-slate-700 flex justify-end">
+                        <div className="app-dialog-footer px-6 py-4 border-t border-slate-700 flex justify-end">
                             <button
                                 onClick={() => setIsModuleDetailsOpen(false)}
                                 className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg font-medium transition-colors"

@@ -6,8 +6,8 @@ import {
     Settings, Calendar, History, FileText, Eye,
     ShieldCheck, Gift, CheckCircle2, Sparkles, Pencil,
     Search, ChevronLeft, ChevronRight, CheckCircle, Package, X, Lock,
-    LayoutDashboard, Palette, RefreshCw, Check, Compass, Swords, Shield,
-    ShoppingBag, BarChart2, ArrowRight, Globe
+    LayoutDashboard, RefreshCw, Check, Compass, Swords, Shield,
+    ShoppingBag, BarChart2, ArrowRight
 } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Navbar from './Navbar.tsx';
@@ -30,8 +30,6 @@ import { useLanguage } from '../context/LanguageContext.tsx';
 import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
 import Footer from './Footer';
-import ThemeSkeletonPreviewCards from './ThemeSkeletonPreviewCards';
-import WorkspaceThemeSwitcher from './WorkspaceThemeSwitcher';
 
 interface UserProfileProps {
     user: UserData;
@@ -172,12 +170,11 @@ export type ProfileTab =
     | 'history'
     | 'inventory'
     | 'certificates'
-    | 'appearance'
     | 'settings';
 
 const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onBack, onUserUpdate }) => {
-    const { theme, isBento } = useTheme();
-    const { language, openLanguageModal, tx } = useLanguage();
+    const { isBento } = useTheme();
+    const { tx } = useLanguage();
     const { logout } = useAuth();
     const { showNotification } = useNotification();
     const { socket } = useSocket();
@@ -188,7 +185,8 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
     const [searchParams] = useSearchParams();
     const initialTab = useMemo<ProfileTab>(() => {
         const t = searchParams.get('tab');
-        if (t === 'badges' || t === 'history' || t === 'inventory' || t === 'certificates' || t === 'appearance' || t === 'settings') {
+        if (t === 'appearance') return 'settings';
+        if (t === 'badges' || t === 'history' || t === 'inventory' || t === 'certificates' || t === 'settings') {
             return t;
         }
         return 'overview';
@@ -776,7 +774,6 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                     { id: 'history' as ProfileTab, label: tx('Activity', 'السجل'), icon: History, badge: `${attempts.length}` },
                     { id: 'inventory' as ProfileTab, label: tx('Backpack', 'الحقيبة'), icon: Package, badge: `${(currentUser.inventory || []).length}` },
                     { id: 'certificates' as ProfileTab, label: tx('Certificates', 'الشهادات'), icon: ShieldCheck, badge: `${activityCounts.mastered}` },
-                    { id: 'appearance' as ProfileTab, label: tx('Theme', 'الثيم'), icon: Palette },
                     { id: 'settings' as ProfileTab, label: tx('Settings', 'الإعدادات'), icon: Settings }
                 ].map((tab) => {
                     const Icon = tab.icon;
@@ -833,7 +830,6 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                                 { id: 'history' as ProfileTab, label: tx('Activity & History', 'النشاط والسجل'), icon: History, badge: `${attempts.length} ${tx('Quizzes', 'كويز')}` },
                                 { id: 'inventory' as ProfileTab, label: tx('Backpack & Loot', 'الحقيبة والمقتنيات'), icon: Package, badge: `${(currentUser.inventory || []).length} ${tx('Items', 'عنصر')}` },
                                 { id: 'certificates' as ProfileTab, label: tx('Certificates', 'الشهادات'), icon: ShieldCheck, badge: `${activityCounts.mastered} ${tx('Earned', 'مكتسبة')}` },
-                                { id: 'appearance' as ProfileTab, label: tx('Theme Switcher', 'تغيير الثيم'), icon: Palette, badge: isBento ? 'BENTO' : theme.toUpperCase() },
                                 { id: 'settings' as ProfileTab, label: tx('Account Settings', 'إعدادات الحساب'), icon: Settings }
                             ].map((tab) => {
                                 const Icon = tab.icon;
@@ -899,33 +895,6 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                         </div>
                     </div>
 
-                    {/* Quick Workspace Theme Switcher in Profile */}
-                    <div className={`p-4 rounded-2xl space-y-3 ${
-                        isBento
-                            ? 'bg-white text-black border-2 border-black shadow-[4px_4px_0px_#000]'
-                            : 'bg-white dark:bg-[#111625] border border-slate-200/90 dark:border-white/10 shadow-sm'
-                    }`}>
-                        <WorkspaceThemeSwitcher />
-                        <div className="pt-2 border-t border-black/10 dark:border-white/10">
-                            <button
-                                type="button"
-                                onClick={openLanguageModal}
-                                className={`w-full py-2.5 px-3 rounded-xl text-xs font-black flex items-center justify-between gap-2 cursor-pointer transition ${
-                                    isBento
-                                        ? 'bg-[#fef9c3] hover:bg-[#fde047] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                        : 'bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-white/10'
-                                }`}
-                            >
-                                <span className="flex items-center gap-2">
-                                    <Globe className="w-4 h-4 shrink-0" />
-                                    <span>{tx('Platform Language', 'لغة المنصة')}</span>
-                                </span>
-                                <span className="px-2 py-0.5 rounded-lg text-[10px] font-black bg-black/10 dark:bg-white/10">
-                                    {language === 'ar-EG' ? '🇪🇬 مصري' : '🇺🇸 EN'}
-                                </span>
-                            </button>
-                        </div>
-                    </div>
                 </aside>
 
                 {/* Main Content Area */}
@@ -2887,39 +2856,6 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                         </div>
                     )}
 
-                    {/* TAB 3: APPEARANCE & THEME SWITCHER */}
-                    {activeTab === 'appearance' && (
-                        <div className={`p-6 sm:p-8 rounded-2xl animate-in fade-in duration-200 ${
-                            isBento
-                                ? 'bg-white text-black border-2 border-black shadow-[4px_4px_0px_#000]'
-                                : 'bg-white dark:bg-[#111625] border border-slate-200/90 dark:border-white/10 shadow-sm'
-                        }`}>
-                            <div className="mb-8">
-                                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider mb-2 select-none">
-                                    <span className={`px-2.5 py-0.5 rounded-full flex items-center gap-1.5 ${
-                                        isBento
-                                            ? 'bg-[#bef264] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]'
-                                            : 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20'
-                                    }`}>
-                                        <Palette className="w-3.5 h-3.5" />
-                                        Visual Appearance
-                                    </span>
-                                </div>
-                                <h3 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight mb-2">
-                                    Interface Theme Switcher
-                                </h3>
-                                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 font-medium max-w-xl">
-                                    Preview and select your preferred visual style. Changes apply immediately to every screen and persist in your browser localStorage.
-                                </p>
-                            </div>
-
-                            <div className="max-w-sm mb-6">
-                                <WorkspaceThemeSwitcher />
-                            </div>
-
-                            <ThemeSkeletonPreviewCards />
-                        </div>
-                    )}
                 </main>
             </div>
 

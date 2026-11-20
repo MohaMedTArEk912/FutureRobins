@@ -362,7 +362,7 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
     return createPortal(
         <>
             <div
-                className="fixed inset-0 z-[9999] flex items-center justify-center p-2 sm:p-4 !bg-transparent !border-0 !shadow-none animate-in fade-in duration-150"
+                className="app-dialog-overlay fixed inset-0 z-[9999] flex items-center justify-center p-2 sm:p-4 !bg-transparent !border-0 !shadow-none animate-in fade-in duration-150"
                 onClick={onClose}
             >
                 <div
@@ -376,7 +376,7 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                     aria-modal="true"
                     aria-label="Presentation Visual Board & JSON Studio"
                     onClick={e => e.stopPropagation()}
-                    className={`relative z-10 w-full max-w-[1320px] h-[92dvh] rounded-3xl overflow-hidden flex flex-col ${
+                    className={`app-dialog-panel app-dialog-panel--structured relative z-10 w-full max-w-[1320px] h-[92dvh] rounded-3xl overflow-hidden flex flex-col ${
                         isBento
                             ? 'bg-white text-black border-[3px] border-black shadow-[8px_8px_0px_#000]'
                             : 'bg-white dark:bg-[#0f1423] text-gray-900 dark:text-white border border-slate-200 dark:border-white/10 shadow-2xl'
@@ -384,7 +384,7 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                 >
                     {/* Studio Top Bar */}
                     <div
-                        className={`px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-3 shrink-0 ${
+                        className={`app-dialog-header px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-3 shrink-0 ${
                             isBento
                                 ? 'bg-[#fef08a] border-b-[2.5px] border-black'
                                 : 'bg-slate-50 dark:bg-white/[0.03] border-b border-slate-200 dark:border-white/10'

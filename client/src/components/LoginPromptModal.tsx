@@ -48,11 +48,11 @@ export const LoginPromptModal: React.FC<LoginPromptModalProps> = ({
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 dark:bg-black/45 backdrop-blur-md animate-in fade-in duration-200">
+        <div className="app-dialog-overlay fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 dark:bg-black/45 backdrop-blur-md animate-in fade-in duration-200">
             {/* Modal backdrop click */}
             <div className="fixed inset-0 -z-10" onClick={onClose} />
 
-            <div className={`relative w-full max-w-md p-6 sm:p-8 overflow-hidden transition-all ${
+            <div className={`app-dialog-panel app-dialog-panel--padded relative w-full max-w-md p-6 sm:p-8 overflow-hidden transition-all ${
                 isBento
                     ? 'bg-white text-black border-2 border-black rounded-2xl shadow-[6px_6px_0px_#000]'
                     : 'bg-white dark:bg-[#11111a] border border-gray-200 dark:border-white/10 rounded-2xl shadow-2xl'

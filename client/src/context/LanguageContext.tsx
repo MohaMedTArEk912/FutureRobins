@@ -27,13 +27,7 @@ export interface LanguageContextType {
     dir: 'ltr' | 'rtl';
     tx: (enText: string, arEgText: string) => string;
     formatNumber: (value: number) => string;
-    setLanguage: (nextLang: AppLanguage, persistToAccount?: boolean) => Promise<void>;
-    toggleLanguage: () => Promise<void>;
-    isLanguageModalOpen: boolean;
-    needsAccountSelection: boolean;
-    openLanguageModal: () => void;
-    closeLanguageModal: () => void;
-    confirmLanguageChoice: (chosenLang: AppLanguage) => Promise<void>;
+    setLanguage: (nextLang: AppLanguage) => Promise<void>;
     registerAccountSync: (
         user: UserData | null,
         isLoading: boolean,
@@ -86,15 +80,13 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
         applyDocumentLanguage(initial);
         return initial;
     });
-    const [manualModalOpen, setManualModalOpen] = useState(false);
-    const [needsAccountSelection, setNeedsAccountSelection] = useState(false);
     const accountRef = useRef<AccountUpdater>({ user: null, updateUser: undefined });
 
     useEffect(() => {
         applyDocumentLanguage(language);
     }, [language]);
 
-    const persistLanguagePreference = useCallback(async (nextLang: AppLanguage, saveToServer: boolean) => {
+    const persistLanguagePreference = useCallback(async (nextLang: AppLanguage) => {
         try {
             localStorage.setItem(STORAGE_LANG_KEY, nextLang);
         } catch {
@@ -102,11 +94,10 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
         }
 
         const { user, updateUser } = accountRef.current;
-        if (!saveToServer || !user || user.userId === 'guest') return;
+        if (!user || user.userId === 'guest') return;
 
         // Optimistically update local session immediately
         updateUser?.({ preferredLanguage: nextLang });
-        setNeedsAccountSelection(false);
 
         try {
             await api.updateUser(user.userId, { preferredLanguage: nextLang });
@@ -115,30 +106,11 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
         }
     }, []);
 
-    const setLanguage = useCallback(async (nextLang: AppLanguage, persistToAccount = true) => {
+    const setLanguage = useCallback(async (nextLang: AppLanguage) => {
         setLanguageState(nextLang);
         applyDocumentLanguage(nextLang);
-        await persistLanguagePreference(nextLang, persistToAccount);
+        await persistLanguagePreference(nextLang);
     }, [persistLanguagePreference]);
-
-    const toggleLanguage = useCallback(async () => {
-        const nextLang: AppLanguage = language === 'ar-EG' ? 'en' : 'ar-EG';
-        await setLanguage(nextLang, true);
-    }, [language, setLanguage]);
-
-    const confirmLanguageChoice = useCallback(async (chosenLang: AppLanguage) => {
-        setNeedsAccountSelection(false);
-        setManualModalOpen(false);
-        await setLanguage(chosenLang, true);
-    }, [setLanguage]);
-
-    const openLanguageModal = useCallback(() => {
-        setManualModalOpen(true);
-    }, []);
-
-    const closeLanguageModal = useCallback(() => {
-        setManualModalOpen(false);
-    }, []);
 
     const registerAccountSync = useCallback((
         user: UserData | null,
@@ -146,15 +118,9 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
         updateUser?: (updates: Partial<UserData>) => void
     ) => {
         accountRef.current = { user, updateUser };
-        if (isLoading) return;
-
-        if (!user || user.userId === 'guest') {
-            setNeedsAccountSelection(false);
-            return;
-        }
+        if (isLoading || !user || user.userId === 'guest') return;
 
         if (user.preferredLanguage === 'ar-EG' || user.preferredLanguage === 'en') {
-            setNeedsAccountSelection(false);
             if (user.preferredLanguage !== language) {
                 setLanguageState(user.preferredLanguage);
                 applyDocumentLanguage(user.preferredLanguage);
@@ -164,16 +130,11 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
                     // ignore
                 }
             }
-            return;
         }
-
-        // Language selection is controlled from Profile Settings only (never auto-popup on login)
-        setNeedsAccountSelection(false);
     }, [language]);
 
     const isArabic = language === 'ar-EG';
     const dir: 'ltr' | 'rtl' = isArabic ? 'rtl' : 'ltr';
-    const isLanguageModalOpen = manualModalOpen || needsAccountSelection;
 
     const tx = useCallback((enText: string, arEgText: string) => {
         return language === 'ar-EG' ? arEgText : enText;
@@ -190,12 +151,6 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
         tx,
         formatNumber,
         setLanguage,
-        toggleLanguage,
-        isLanguageModalOpen,
-        needsAccountSelection,
-        openLanguageModal,
-        closeLanguageModal,
-        confirmLanguageChoice,
         registerAccountSync
     }), [
         language,
@@ -204,12 +159,6 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
         tx,
         formatNumber,
         setLanguage,
-        toggleLanguage,
-        isLanguageModalOpen,
-        needsAccountSelection,
-        openLanguageModal,
-        closeLanguageModal,
-        confirmLanguageChoice,
         registerAccountSync
     ]);
 

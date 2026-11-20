@@ -1,0 +1,114 @@
+.app-dialog-overlay {
+  --dialog-gutter: clamp(0.75rem, 2vw, 1.25rem);
+  --dialog-content-space: clamp(1rem, 2vw, 1.5rem);
+  --dialog-chrome-space: 0.875rem;
+  --dialog-surface: #fff;
+  --dialog-shade: rgb(15 23 42 / 42%);
+  padding-top: max(var(--dialog-gutter), env(safe-area-inset-top));
+  padding-right: max(var(--dialog-gutter), env(safe-area-inset-right));
+  padding-bottom: max(var(--dialog-gutter), env(safe-area-inset-bottom));
+  padding-left: max(var(--dialog-gutter), env(safe-area-inset-left));
+  overflow: hidden;
+  overscroll-behavior: contain;
+}
+
+.dark .app-dialog-overlay {
+  --dialog-surface: #0c101c;
+  --dialog-shade: rgb(5 8 16 / 68%);
+}
+
+/* A nested dialog keeps the page locked after another dialog closes. */
+body:has(.app-dialog-overlay) {
+  overflow: hidden !important;
+}
+
+.app-dialog-overlay:not(:has(> :is(.modal-backdrop, .app-dialog-backdrop))),
+.app-dialog-overlay > :is(.modal-backdrop, .app-dialog-backdrop) {
+  background-color: var(--dialog-shade) !important;
+  backdrop-filter: blur(8px);
+}
+
+.app-dialog-panel {
+  min-inline-size: 0;
+  min-block-size: 0;
+  max-block-size: 100%;
+  border-radius: 1rem;
+  box-shadow: 0 16px 48px rgb(5 10 23 / 26%);
+  overscroll-behavior: contain;
+}
+
+.app-dialog-panel:not(.app-dialog-panel--accent) {
+  background-color: var(--dialog-surface);
+}
+
+.app-dialog-panel:not(.app-dialog-panel--structured) {
+  overflow: hidden auto;
+}
+
+.app-dialog-panel--structured {
+  overflow: hidden;
+}
+
+.app-dialog-panel--padded,
+.app-dialog-panel-content,
+.app-dialog-body-spaced {
+  padding: var(--dialog-content-space);
+}
+
+.app-dialog-body {
+  flex: 1 1 auto;
+  min-block-size: 0;
+  overscroll-behavior: contain;
+}
+
+@layer components {
+  .app-dialog-body {
+    overflow-y: auto;
+  }
+}
+
+.app-dialog-header,
+.app-dialog-toolbar,
+.app-dialog-footer {
+  flex-shrink: 0;
+  padding-block: var(--dialog-chrome-space);
+  padding-inline: var(--dialog-content-space);
+}
+
+.app-dialog-footer {
+  flex-wrap: wrap;
+}
+
+.app-dialog-panel :is(h1, h2, h3) {
+  overflow-wrap: anywhere;
+}
+
+.app-dialog-panel :where(button, [role="button"], a[href]):focus-visible {
+  outline: 2px solid #6366f1;
+  outline-offset: 2px;
+}
+
+@media (max-height: 35rem) {
+  .app-dialog-overlay {
+    --dialog-gutter: 0.5rem;
+    --dialog-content-space: 0.875rem;
+    --dialog-chrome-space: 0.625rem;
+  }
+}
+
+@media (width < 40rem) {
+  .app-dialog-overlay--edge {
+    --dialog-gutter: 0rem;
+  }
+
+  .app-dialog-overlay--edge > .app-dialog-panel {
+    border-radius: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-dialog-overlay,
+  .app-dialog-panel {
+    animation: none;
+  }
+}

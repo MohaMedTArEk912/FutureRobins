@@ -324,14 +324,14 @@ export const LivePlayerController: React.FC<LivePlayerControllerProps> = ({
     if (!room) {
         return (
             <div
-                className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-in fade-in duration-150"
+                className="app-dialog-overlay fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-in fade-in duration-150"
                 onClick={(e) => {
                     if (e.target === e.currentTarget) handleClose();
                 }}
             >
                 <div className="modal-backdrop absolute inset-0 -z-10" />
                 <div
-                    className={`relative w-full max-w-md p-6 rounded-2xl transition-all animate-in zoom-in-95 duration-200 ${
+                    className={`app-dialog-panel app-dialog-panel--padded relative w-full max-w-md p-6 rounded-2xl transition-all animate-in zoom-in-95 duration-200 ${
                         isBento
                             ? 'bg-white text-black border-[3px] border-black shadow-[6px_6px_0_#000]'
                             : 'bg-white dark:bg-[#111322] text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 shadow-2xl'

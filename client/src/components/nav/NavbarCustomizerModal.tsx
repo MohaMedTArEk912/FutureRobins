@@ -41,29 +41,32 @@ export const NavbarCustomizerModal: React.FC = () => {
     if (!isCustomizerOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/40 dark:bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
+        <div className="app-dialog-overlay fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/40 dark:bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
             <div
-                className={`relative w-full max-w-2xl max-h-[90vh] flex flex-col rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 ${
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="navigation-customizer-title"
+                className={`app-dialog-panel app-dialog-panel--structured relative w-full max-w-2xl max-h-[90vh] flex flex-col rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 ${
                     isBento
                         ? 'bg-white text-black border-3 border-black shadow-[6px_6px_0px_#000]'
                         : 'bg-white dark:bg-[#11131f] text-gray-900 dark:text-white border border-gray-200 dark:border-white/10'
                 }`}
             >
                 {/* Header */}
-                <div className={`p-5 border-b flex items-center justify-between shrink-0 ${
+                <div className={`app-dialog-header flex items-center justify-between gap-3 border-b ${
                     isBento
                         ? 'bg-[#fde047] border-b-2.5 border-black text-black'
-                        : 'bg-gradient-to-r from-violet-600 via-indigo-600 to-purple-600 text-white'
+                        : 'border-slate-200 dark:border-white/10'
                 }`}>
                     <div className="flex items-center gap-2.5">
-                        <div className={`p-2 rounded-xl ${isBento ? 'bg-black text-[#bef264]' : 'bg-white/20 text-white'}`}>
+                        <div className={`rounded-xl p-2 ${isBento ? 'bg-black text-[#bef264]' : 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'}`}>
                             <Sliders className="w-5 h-5" />
                         </div>
                         <div>
-                            <h2 className="text-lg font-black uppercase tracking-tight">
+                            <h2 id="navigation-customizer-title" className="text-lg font-black tracking-tight">
                                 Customize Navigation
                             </h2>
-                            <p className="text-xs opacity-80 font-bold">
+                            <p className="text-xs font-medium opacity-80">
                                 Arrange, reorder, and pin tabs to match your personal workflow
                             </p>
                         </div>
@@ -72,10 +75,10 @@ export const NavbarCustomizerModal: React.FC = () => {
                     <button
                         type="button"
                         onClick={closeCustomizer}
-                        className={`p-2 rounded-xl transition-all cursor-pointer ${
+                        className={`grid size-11 shrink-0 cursor-pointer place-items-center rounded-xl transition-all ${
                             isBento
                                 ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-neutral-100'
-                                : 'text-white/80 hover:text-white hover:bg-white/10'
+                                : 'text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-white/10'
                         }`}
                         aria-label="Close customizer"
                     >
@@ -84,7 +87,7 @@ export const NavbarCustomizerModal: React.FC = () => {
                 </div>
 
                 {/* Subheader Switcher: Arrange Tabs vs Presets */}
-                <div className={`p-3 border-b flex items-center justify-between gap-3 shrink-0 ${
+                <div className={`app-dialog-toolbar p-3 border-b flex items-center justify-between gap-3 shrink-0 ${
                     isBento ? 'bg-neutral-50 border-b-2 border-black' : 'bg-slate-50 dark:bg-white/[0.02] border-b border-gray-200 dark:border-white/10'
                 }`}>
                     <div className="flex items-center gap-2">
@@ -128,7 +131,7 @@ export const NavbarCustomizerModal: React.FC = () => {
                 </div>
 
                 {/* Body Content */}
-                <div className="flex-1 overflow-y-auto p-5 space-y-6 custom-scrollbar">
+                <div className="app-dialog-body app-dialog-body-spaced flex-1 overflow-y-auto p-5 space-y-6 custom-scrollbar">
                     {/* Live Preview of Desktop Navbar */}
                     <div className="space-y-2">
                         <div className="flex items-center justify-between text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -487,7 +490,7 @@ export const NavbarCustomizerModal: React.FC = () => {
                 </div>
 
                 {/* Footer */}
-                <div className={`p-4 border-t flex items-center justify-between gap-3 shrink-0 ${
+                <div className={`app-dialog-footer p-4 border-t flex items-center justify-between gap-3 shrink-0 ${
                     isBento ? 'bg-neutral-50 border-t-2 border-black' : 'bg-slate-50 dark:bg-[#161827] border-gray-200 dark:border-white/10'
                 }`}>
                     <span className="text-xs font-bold text-gray-500 dark:text-gray-400">

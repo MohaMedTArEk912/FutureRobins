@@ -62,19 +62,19 @@ const ShareQuizModal: React.FC<ShareQuizModalProps> = ({ quiz, isOpen, onClose }
 
     return (
         <div
-            className="fixed inset-0 z-[200] flex items-center justify-center p-4"
+            className="app-dialog-overlay fixed inset-0 z-[200] flex items-center justify-center p-4"
             onClick={onClose}
         >
             {/* Backdrop */}
-            <div className="absolute inset-0 bg-black/30 dark:bg-black/45 backdrop-blur-md" />
+            <div className="app-dialog-backdrop absolute inset-0 bg-black/30 dark:bg-black/45 backdrop-blur-md" />
 
             {/* Modal */}
             <div
-                className="relative w-full max-w-md bg-white dark:bg-[#16162a] rounded-2xl shadow-2xl border border-gray-200 dark:border-white/10 overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+                className="app-dialog-panel app-dialog-panel--structured flex flex-col relative w-full max-w-md bg-white dark:bg-[#16162a] rounded-2xl shadow-2xl border border-gray-200 dark:border-white/10 overflow-hidden animate-in fade-in zoom-in-95 duration-200"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-white/10">
+                <div className="app-dialog-header flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-white/10">
                     <div className="flex items-center gap-3">
                         <div className="p-2 bg-violet-100 dark:bg-violet-900/40 rounded-xl">
                             <Share2 className="w-5 h-5 text-violet-600 dark:text-violet-400" />
@@ -93,7 +93,7 @@ const ShareQuizModal: React.FC<ShareQuizModalProps> = ({ quiz, isOpen, onClose }
                 </div>
 
                 {/* Quiz Info */}
-                <div className="px-6 pt-5 pb-2">
+                <div className="app-dialog-body px-6 pt-5 pb-2">
                     <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-xl mb-4">
                         <h3 className="font-bold text-gray-900 dark:text-white text-sm truncate">{quiz.title}</h3>
                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
@@ -138,7 +138,7 @@ const ShareQuizModal: React.FC<ShareQuizModalProps> = ({ quiz, isOpen, onClose }
                 </div>
 
                 {/* Actions */}
-                <div className="flex gap-3 px-6 pb-5 pt-3">
+                <div className="app-dialog-footer flex gap-3 px-6 pb-5 pt-3">
                     <a
                         href={shareUrl}
                         target="_blank"

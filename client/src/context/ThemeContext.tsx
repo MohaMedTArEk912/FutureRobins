@@ -10,11 +10,7 @@ interface ThemeContextType {
     isDark: boolean;
     isBento: boolean;
     setTheme: (theme: AppTheme) => void;
-    cycleTheme: () => void;
-    toggleTheme: () => void;
-    isThemeModalOpen: boolean;
     openThemeModal: () => void;
-    closeThemeModal: () => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -28,16 +24,7 @@ export const useTheme = () => {
 };
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-    // Check if user has an existing saved theme choice in localStorage
-    const [hasExistingThemeChoice] = useState<boolean>(() => {
-        try {
-            return Boolean(localStorage.getItem('theme'));
-        } catch {
-            return true;
-        }
-    });
-
-    const [isThemeModalOpen, setIsThemeModalOpen] = useState<boolean>(!hasExistingThemeChoice);
+    const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
 
     const [theme, setThemeState] = useState<AppTheme>(() => {
         // Check localStorage then sessionStorage
@@ -83,19 +70,6 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
-    const cycleTheme = () => {
-        setThemeState(current => {
-            const next = current === 'light' ? 'dark' : current === 'dark' ? 'bento' : 'light';
-            try {
-                localStorage.setItem('theme', next);
-                sessionStorage.setItem('theme', next);
-            } catch {
-                // Storage access safeguard
-            }
-            return next;
-        });
-    };
-
     const openThemeModal = () => setIsThemeModalOpen(true);
     const closeThemeModal = () => setIsThemeModalOpen(false);
 
@@ -108,11 +82,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
             isDark,
             isBento,
             setTheme,
-            cycleTheme,
-            toggleTheme: cycleTheme,
-            isThemeModalOpen,
-            openThemeModal,
-            closeThemeModal
+            openThemeModal
         }}>
             {children}
             <ThemeSelectionModal

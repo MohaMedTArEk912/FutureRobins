@@ -101,10 +101,10 @@ export const AICoachModal: React.FC<AICoachModalProps> = ({
     };
 
     return (
-        <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200 ${
+        <div className={`app-dialog-overlay fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200 ${
             isBento ? 'bg-black/60' : 'bg-black/80 backdrop-blur-xl'
         }`}>
-            <div className={`relative w-full max-w-lg p-6 sm:p-8 space-y-5 overflow-hidden transition-all ${
+            <div className={`app-dialog-panel app-dialog-panel--padded app-dialog-panel--accent relative w-full max-w-lg p-6 sm:p-8 space-y-5 overflow-hidden transition-all ${
                 isBento
                     ? 'bg-white text-black rounded-2xl border-[3px] border-black shadow-[8px_8px_0px_#000]'
                     : 'bg-[#121324] text-white rounded-3xl border border-indigo-500/30 shadow-2xl shadow-indigo-500/20'

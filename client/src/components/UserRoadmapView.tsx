@@ -389,8 +389,8 @@ const UserRoadmapView: React.FC<UserRoadmapViewProps> = ({
 
             {/* Module Details Modal */}
             {isDetailsOpen && selectedModule && (
-                <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 dark:bg-black/60 backdrop-blur-md animate-in fade-in duration-200 !border-0 !shadow-none`}>
-                    <div role="dialog" aria-modal="true" className={`relative w-full max-w-2xl rounded-3xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh] ${
+                <div className={`app-dialog-overlay fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 dark:bg-black/60 backdrop-blur-md animate-in fade-in duration-200 !border-0 !shadow-none`}>
+                    <div role="dialog" aria-modal="true" className={`app-dialog-panel app-dialog-panel--structured relative w-full max-w-2xl rounded-3xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh] ${
                         isBento
                             ? 'bg-white border-[3px] border-black shadow-[8px_8px_0px_#000] text-black'
                             : 'bg-white dark:bg-[#1e1e2d] border border-gray-200 dark:border-white/10 shadow-2xl'
@@ -402,7 +402,7 @@ const UserRoadmapView: React.FC<UserRoadmapViewProps> = ({
                             return (
                                 <>
                                     {/* Header */}
-                                    <div className={`p-8 relative overflow-hidden flex-shrink-0 ${
+                                    <div className={`app-dialog-header p-8 relative overflow-hidden flex-shrink-0 ${
                                         isBento
                                             ? 'border-b-[2.5px] border-black bg-white text-black'
                                             : 'border-b border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5'
@@ -466,7 +466,7 @@ const UserRoadmapView: React.FC<UserRoadmapViewProps> = ({
                                     </div>
 
                                     {/* Content Scroll Area */}
-                                    <div className="flex-1 overflow-y-auto p-8 space-y-8">
+                                    <div className="app-dialog-body app-dialog-body-spaced flex-1 overflow-y-auto p-8 space-y-8">
 
                                         {/* Learning Steps (Sub-modules) */}
                                         <div className="space-y-4">

@@ -326,13 +326,8 @@ app.get('/api/health-check', (req, res) => {
   });
 });
 
-// Middleware to ensure DB connection across all API routes (skips health check)
-app.use(async (req, res, next) => {
-  if (req.path === '/api/health-check') {
-    return next();
-  }
-  return dbMiddleware(req, res, next);
-});
+// API handlers require the database. The health check and static pages can be served independently.
+app.use('/api', dbMiddleware);
 
 // Mount Routes
 app.use('/api', authRoutes);
@@ -1117,6 +1112,18 @@ app.use((error, req, res, next) => {
 
 // Serve Static Files from the frontend build (client/dist after monorepo split)
 const distPath = path.join(projectRoot, 'client', 'dist');
+const publicPagesPath = path.join(distPath, 'pages');
+
+// Try the generated public page before looking for static directories such as /quizzes.
+app.get(/^\/([a-z][a-z-]*)\/?$/i, (req, res, next) => {
+  const fileName = `${req.params[0].toLowerCase()}.html`;
+  res.sendFile(fileName, { root: publicPagesPath }, (error) => {
+    if (!error) return;
+    if (error.status === 404) return next();
+    next(error);
+  });
+});
+
 app.use(express.static(distPath, {
   setHeaders: (res, filePath) => {
     const ext = path.extname(filePath);
@@ -1141,7 +1148,7 @@ app.use('/api/{*path}', (req, res) => {
 // Single Page Application (SPA) routing - Must be AFTER API routes
 // Note: Express 5 / path-to-regexp v8+ requires named wildcards: {*name}
 app.get('{*path}', (req, res) => {
-  res.sendFile(path.join(distPath, 'index.html'));
+  res.sendFile(path.join(distPath, 'app.html'));
 });
 
 // Initialize DB

@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { getPublicPath, PUBLIC_PAGES } from '../seo';
 
 interface RouteMetadata {
     title: string;
@@ -7,34 +8,6 @@ interface RouteMetadata {
 }
 
 const ROUTE_METADATA: Record<string, RouteMetadata> = {
-    '/': {
-        title: 'Quiz Platform | Computer Science Quizzes & Learning Roads',
-        description: 'Master Computer Science concepts through interactive quizzes, progression roads, and daily challenges.'
-    },
-    '/leaderboard': {
-        title: 'Global Leaderboard | Quiz Platform',
-        description: 'Check global player rankings, high scores, streaks, and top scholars across all computer science subjects.'
-    },
-    '/tracks': {
-        title: 'Skill Tracks & Tech Trees | Quiz Platform',
-        description: 'Explore comprehensive computer science learning paths from Python basics to advanced system architecture.'
-    },
-    '/study': {
-        title: 'Study Flashcards | Quiz Platform',
-        description: 'Review bite-sized concepts, syntax cheatsheets, and flashcards to supercharge your memory retention.'
-    },
-    '/tournaments': {
-        title: 'Live Tournaments & Arenas | Quiz Platform',
-        description: 'Compete in scheduled and live multiplayer quiz tournaments to earn prestigious badges and rewards.'
-    },
-    '/live-arena': {
-        title: 'Live Arena | Quiz Platform',
-        description: 'Host or join real-time Turn-Based Duels and Everyone Answers live quiz battles.'
-    },
-    '/classroom': {
-        title: 'Live Arena | Quiz Platform',
-        description: 'Host or join real-time Turn-Based Duels and Everyone Answers live quiz battles.'
-    },
     '/daily': {
         title: 'Daily Code Challenge | Quiz Platform',
         description: 'Solve the daily programming puzzle, maintain your streak, and earn bonus XP.'
@@ -175,10 +148,11 @@ export const usePageTitle = () => {
     const currentUser = auth?.currentUser;
 
     useEffect(() => {
-        const pathname = location.pathname;
+        const pathname = location.pathname.replace(/\/+$/, '').toLowerCase() || '/';
+        const publicPath = getPublicPath(pathname);
 
-        const baseMeta = isArabic ? (ROUTE_METADATA_AR[pathname] || ROUTE_METADATA[pathname]) : ROUTE_METADATA[pathname];
-        let meta = baseMeta;
+        const englishMetadata = publicPath ? PUBLIC_PAGES[publicPath] : ROUTE_METADATA[pathname];
+        let meta = isArabic ? (ROUTE_METADATA_AR[publicPath ?? pathname] ?? englishMetadata) : englishMetadata;
 
         // Match dynamic routes
         if (!meta) {
@@ -249,35 +223,38 @@ export const usePageTitle = () => {
             }
         }
 
-        // Update document title
         document.title = finalTitle;
-
-        // Update meta description
-        const metaDescription = document.querySelector('meta[name="description"]');
-        if (metaDescription) {
-            metaDescription.setAttribute('content', meta.description);
+        for (const [selector, content] of [
+            ['meta[name="description"]', meta.description],
+            ['meta[property="og:title"]', finalTitle],
+            ['meta[property="og:description"]', meta.description],
+            ['meta[property="og:locale"]', isArabic ? 'ar_EG' : 'en_US'],
+            ['meta[name="twitter:title"]', finalTitle],
+            ['meta[name="twitter:description"]', meta.description]
+        ]) {
+            document.querySelector(selector)?.setAttribute('content', content);
         }
 
-        // Update Open Graph tags
-        const ogTitle = document.querySelector('meta[property="og:title"]');
-        if (ogTitle) {
-            ogTitle.setAttribute('content', finalTitle);
-        }
-
-        const ogDescription = document.querySelector('meta[property="og:description"]');
-        if (ogDescription) {
-            ogDescription.setAttribute('content', meta.description);
-        }
-
-        // Update Twitter Card tags
-        const twitterTitle = document.querySelector('meta[property="twitter:title"]') || document.querySelector('meta[name="twitter:title"]');
-        if (twitterTitle) {
-            twitterTitle.setAttribute('content', finalTitle);
-        }
-
-        const twitterDescription = document.querySelector('meta[property="twitter:description"]') || document.querySelector('meta[name="twitter:description"]');
-        if (twitterDescription) {
-            twitterDescription.setAttribute('content', meta.description);
+        let canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+        let ogUrl = document.querySelector<HTMLMetaElement>('meta[property="og:url"]');
+        const socialImage = document.querySelector<HTMLMetaElement>('meta[property="og:image"]')?.content;
+        if (publicPath && socialImage) {
+            const url = new URL(publicPath, socialImage).href;
+            if (!canonical) {
+                canonical = document.createElement('link');
+                canonical.rel = 'canonical';
+                document.head.append(canonical);
+            }
+            if (!ogUrl) {
+                ogUrl = document.createElement('meta');
+                ogUrl.setAttribute('property', 'og:url');
+                document.head.append(ogUrl);
+            }
+            canonical.href = url;
+            ogUrl.content = url;
+        } else {
+            canonical?.remove();
+            ogUrl?.remove();
         }
     }, [location.pathname, currentUser, isArabic]);
 };

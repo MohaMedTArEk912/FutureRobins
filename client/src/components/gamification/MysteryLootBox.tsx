@@ -61,8 +61,8 @@ export const MysteryLootBox: React.FC<MysteryLootBoxProps> = ({
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 dark:bg-black/45 backdrop-blur-md animate-in fade-in duration-300">
-            <div className={`relative w-full max-w-md p-8 text-center overflow-hidden transition-all ${
+        <div className="app-dialog-overlay fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 dark:bg-black/45 backdrop-blur-md animate-in fade-in duration-300">
+            <div className={`app-dialog-panel app-dialog-panel--padded app-dialog-panel--accent relative w-full max-w-md p-8 text-center overflow-hidden transition-all ${
                 isBento
                     ? 'bg-white text-black rounded-2xl border-[3px] border-black shadow-[6px_6px_0px_#000]'
                     : 'bg-gradient-to-b from-[#18192b] via-[#111222] to-[#0a0a14] rounded-2xl border border-indigo-500/30 shadow-2xl shadow-indigo-500/20 text-white'

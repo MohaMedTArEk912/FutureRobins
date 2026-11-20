@@ -166,7 +166,7 @@ export const TournamentInviteModal: React.FC<TournamentInviteModalProps> = ({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 !bg-transparent !border-0 !shadow-none animate-in fade-in duration-150"
+      className="app-dialog-overlay fixed inset-0 z-[9999] flex items-center justify-center p-4 !bg-transparent !border-0 !shadow-none animate-in fade-in duration-150"
       onClick={onClose}
     >
       <div
@@ -176,7 +176,7 @@ export const TournamentInviteModal: React.FC<TournamentInviteModalProps> = ({
       />
       <div
         onClick={(e) => e.stopPropagation()}
-        className={`relative z-10 w-full max-w-lg rounded-3xl p-6 space-y-5 animate-in zoom-in-95 duration-150 ${
+        className={`app-dialog-panel app-dialog-panel--padded relative z-10 w-full max-w-lg rounded-3xl p-6 space-y-5 animate-in zoom-in-95 duration-150 ${
           isBento
             ? 'bg-white text-black border-[3px] border-black shadow-[8px_8px_0px_#000]'
             : 'bg-white dark:bg-[#111827] text-gray-900 dark:text-white border border-gray-200 dark:border-white/10 shadow-2xl'

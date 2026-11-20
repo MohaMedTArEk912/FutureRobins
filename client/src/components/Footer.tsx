@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useId, useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
     Mail,
@@ -31,6 +31,8 @@ const Footer: React.FC = () => {
     const [subscribedEmail, setSubscribedEmail] = useState<string>('');
     const [isUnsubscribing, setIsUnsubscribing] = useState(false);
     const [activeModal, setActiveModal] = useState<'privacy' | 'terms' | 'faq' | 'support' | null>(null);
+
+    const supportFormId = useId();
 
     // Support Form State
     const [supportEmail, setSupportEmail] = useState('');
@@ -640,7 +642,7 @@ const Footer: React.FC = () => {
                 title={tx('Privacy Policy', 'سياسة الخصوصية')}
                 maxWidth="max-w-xl"
             >
-                <div className="space-y-4 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed max-h-[65vh] overflow-y-auto pe-1">
+                <div className="space-y-4 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
                     <p className="font-bold text-slate-900 dark:text-white">{tx(`Last updated: ${currentYear}`, `آخر تحديث: ${currentYear}`)}</p>
                     <p>
                         {tx(
@@ -679,7 +681,7 @@ const Footer: React.FC = () => {
                 title={tx('Terms of Service', 'شروط الاستخدام')}
                 maxWidth="max-w-xl"
             >
-                <div className="space-y-4 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed max-h-[65vh] overflow-y-auto pe-1">
+                <div className="space-y-4 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
                     <p className="font-bold text-slate-900 dark:text-white">{tx(`Effective Date: ${currentYear}`, `تاريخ السريان: ${currentYear}`)}</p>
                     <p>
                         {tx(
@@ -712,8 +714,45 @@ const Footer: React.FC = () => {
                 description={tx('Get fast assistance from our technical team', 'احصل على مساعدة سريعة من فريقنا التقني')}
                 icon={<LifeBuoy className="w-5 h-5 text-indigo-500" />}
                 maxWidth="max-w-xl"
+                footer={(
+                    <>
+                        <button
+                            type="button"
+                            onClick={() => setActiveModal(null)}
+                            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                                isBento
+                                    ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-slate-100 active:translate-x-0.5 active:translate-y-0.5'
+                                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'
+                            }`}
+                        >
+                            {tx('Cancel', 'إلغاء')}
+                        </button>
+                        <button
+                            type="submit"
+                            form={supportFormId}
+                            disabled={isSubmittingSupport}
+                            className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer active:scale-95 disabled:opacity-50 flex items-center gap-2 ${
+                                isBento
+                                    ? 'bg-[#8b5cf6] !text-white border-2 border-black shadow-[3.5px_3.5px_0px_#000] hover:shadow-[5px_5px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5'
+                                    : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/25'
+                            }`}
+                        >
+                            {isSubmittingSupport ? (
+                                <>
+                                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                    <span>{tx('Dispatching Ticket...', 'جاري إرسال التذكرة...')}</span>
+                                </>
+                            ) : (
+                                <>
+                                    <Send className="w-3.5 h-3.5" />
+                                    <span>{tx('Submit Support Ticket', 'إرسال تذكرة الدعم')}</span>
+                                </>
+                            )}
+                        </button>
+                    </>
+                )}
             >
-                <div className="space-y-5 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed max-h-[70vh] overflow-y-auto pe-1 pb-3">
+                <div className="space-y-5 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
                     <a
                         href="mailto:mohaamedtariq12@gmail.com"
                         className={`p-4 rounded-2xl transition-all flex items-center gap-3.5 ${
@@ -735,7 +774,7 @@ const Footer: React.FC = () => {
                         </div>
                     </a>
 
-                    <form onSubmit={handleSupportSubmit} className="space-y-3.5 pt-2 border-t border-slate-200 dark:border-white/5">
+                    <form id={supportFormId} onSubmit={handleSupportSubmit} className="space-y-3.5 pt-2 border-t border-slate-200 dark:border-white/5">
                         {/* Category Selector Chips */}
                         <div>
                             <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1.5 ${isBento ? 'text-black' : 'text-slate-700 dark:text-slate-300'}`}>
@@ -862,40 +901,6 @@ const Footer: React.FC = () => {
                             </div>
                         )}
 
-                        <div className="flex justify-end items-center gap-3 pt-3 pb-1">
-                            <button
-                                type="button"
-                                onClick={() => setActiveModal(null)}
-                                className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                                    isBento
-                                        ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-slate-100 active:translate-x-0.5 active:translate-y-0.5'
-                                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'
-                                }`}
-                            >
-                                {tx('Cancel', 'إلغاء')}
-                            </button>
-                            <button
-                                type="submit"
-                                disabled={isSubmittingSupport}
-                                className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer active:scale-95 disabled:opacity-50 flex items-center gap-2 ${
-                                    isBento
-                                        ? 'bg-[#8b5cf6] !text-white border-2 border-black shadow-[3.5px_3.5px_0px_#000] hover:shadow-[5px_5px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5'
-                                        : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/25'
-                                }`}
-                            >
-                                {isSubmittingSupport ? (
-                                    <>
-                                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                        <span>{tx('Dispatching Ticket...', 'جاري إرسال التذكرة...')}</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <Send className="w-3.5 h-3.5" />
-                                        <span>{tx('Submit Support Ticket', 'إرسال تذكرة الدعم')}</span>
-                                    </>
-                                )}
-                            </button>
-                        </div>
                     </form>
                 </div>
             </Modal>
@@ -907,7 +912,7 @@ const Footer: React.FC = () => {
                 title={tx('Frequently Asked Questions', 'الأسئلة الشائعة')}
                 maxWidth="max-w-xl"
             >
-                <div className="space-y-4 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed max-h-[65vh] overflow-y-auto pe-1">
+                <div className="space-y-4 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
                     <div>
                         <h4 className="font-bold text-slate-900 dark:text-white mb-1">
                             {tx('How do XP and Leveling work?', 'إزاي نظام النقاط (XP) والمستويات شغال؟')}

@@ -123,9 +123,9 @@ const ImportRoadBundleModal: React.FC<ImportRoadBundleModalProps> = ({
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+        <div className="app-dialog-overlay fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
             <div
-                className={`w-full max-w-xl rounded-3xl overflow-hidden shadow-2xl transition-all ${
+                className={`app-dialog-panel app-dialog-panel--structured flex flex-col w-full max-w-xl rounded-3xl overflow-hidden shadow-2xl transition-all ${
                     isBento
                         ? 'bg-white border-3 border-black shadow-[6px_6px_0px_#000]'
                         : 'bg-white dark:bg-[#1a1a2e] border border-white/20 dark:border-white/10'
@@ -133,7 +133,7 @@ const ImportRoadBundleModal: React.FC<ImportRoadBundleModalProps> = ({
             >
                 {/* Header */}
                 <div
-                    className={`px-6 py-5 flex items-center justify-between border-b ${
+                    className={`app-dialog-header px-6 py-5 flex items-center justify-between border-b ${
                         isBento
                             ? 'bg-[#fef9c3] border-b-2 border-black'
                             : 'bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-transparent border-gray-100 dark:border-white/10'
@@ -170,7 +170,7 @@ const ImportRoadBundleModal: React.FC<ImportRoadBundleModalProps> = ({
                 </div>
 
                 {/* Content */}
-                <div className="p-6 space-y-5">
+                <div className="app-dialog-body app-dialog-body-spaced p-6 space-y-5">
                     {/* Success / Result View */}
                     {stats ? (
                         <div className="space-y-4">
@@ -331,7 +331,7 @@ const ImportRoadBundleModal: React.FC<ImportRoadBundleModalProps> = ({
 
                 {/* Footer Actions */}
                 <div
-                    className={`px-6 py-4 border-t flex items-center justify-end gap-3 ${
+                    className={`app-dialog-footer px-6 py-4 border-t flex items-center justify-end gap-3 ${
                         isBento ? 'border-t-2 border-black bg-slate-50' : 'border-gray-100 dark:border-white/10 bg-slate-50/50 dark:bg-white/[0.02]'
                     }`}
                 >

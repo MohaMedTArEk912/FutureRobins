@@ -116,11 +116,11 @@ const InstallPWA: React.FC<InstallPWAProps> = ({ inline = false }) => {
             {/* iOS Instructions Modal */}
             {showIOSModal && (
                 <div
-                    className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] flex items-center justify-center p-4"
+                    className="app-dialog-overlay fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] flex items-center justify-center p-4"
                     onClick={() => setShowIOSModal(false)}
                 >
                     <div
-                        className={`rounded-3xl p-6 max-w-sm w-full animate-in zoom-in-95 duration-200 ${
+                        className={`app-dialog-panel app-dialog-panel--padded rounded-3xl p-6 max-w-sm w-full animate-in zoom-in-95 duration-200 ${
                             isBento
                                 ? 'bg-white text-black border-[3px] border-black shadow-[6px_6px_0_#000]'
                                 : 'bg-white dark:bg-[#13141f] border border-slate-200 dark:border-white/10 shadow-2xl'

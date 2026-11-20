@@ -1334,8 +1334,8 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
       {/* RESULTS GATING AWAITING REVEAL HOLDING MODAL                   */}
       {/* ============================================================== */}
       {awaitingTournament && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="bg-white dark:bg-[#1a1b26] rounded-3xl border border-gray-200 dark:border-white/10 max-w-lg w-full p-8 shadow-2xl relative space-y-6 text-center">
+        <div className="app-dialog-overlay fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="app-dialog-panel app-dialog-panel--padded bg-white dark:bg-[#1a1b26] rounded-3xl border border-gray-200 dark:border-white/10 max-w-lg w-full p-8 shadow-2xl relative space-y-6 text-center">
             <button
               onClick={() => {
                 setAwaitingTournament(null);

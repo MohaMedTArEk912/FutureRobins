@@ -239,6 +239,7 @@ This project is configured for split deployment:
 * **⚠️ IMPORTANT - Environment Variables**:
   - Go to **Settings → Environment Variables** and add these for **Production, Preview, and Development**:
   - `VITE_API_URL`: `/api` (for Vercel serverless) OR `https://your-backend.example.com/api` (for external backend)
+  - `SITE_URL`: Optional HTTPS origin for canonical URLs, share previews, and the sitemap. Defaults to `https://quiz-platform-dun.vercel.app`. For Docker, set it as a build argument.
   - `VITE_GOOGLE_CLIENT_ID`: Your Google OAuth Client ID
   - `VITE_CONVEX_URL`: Your Convex URL (if using)
   - **Note**: Vercel does NOT load the local `.env` file automatically - all vars must be set in the dashboard!

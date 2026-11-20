@@ -362,8 +362,8 @@ const RoadResources: React.FC<RoadResourcesProps> = ({ subject, adminId, onNotif
 
             {/* Publish Modal */}
             {isPublishModalOpen && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
-                    <div className="bg-white dark:bg-[#1e1e2d] rounded-3xl w-full max-w-md shadow-2xl p-8 border border-white/20 dark:border-white/5 relative overflow-hidden scale-100 animate-in zoom-in-95 duration-200">
+                <div className="app-dialog-overlay fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
+                    <div className="app-dialog-panel app-dialog-panel--padded bg-white dark:bg-[#1e1e2d] rounded-3xl w-full max-w-md shadow-2xl p-8 border border-white/20 dark:border-white/5 relative overflow-hidden scale-100 animate-in zoom-in-95 duration-200">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/10 rounded-bl-full -mr-16 -mt-16 pointer-events-none" />
 
                         <div className="flex justify-between items-center mb-6 relative z-10">

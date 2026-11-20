@@ -1678,8 +1678,8 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
 
             {/* Fullscreen Exit Warning Modal */}
             {showFullscreenWarning && !(user?.role === 'admin' || user?.isAdmin) && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-                    <div className="bg-white dark:bg-[#11121d] text-gray-900 dark:text-white border-2 border-red-500 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-4 text-center">
+                <div className="app-dialog-overlay fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+                    <div className="app-dialog-panel app-dialog-panel--padded bg-white dark:bg-[#11121d] text-gray-900 dark:text-white border-2 border-red-500 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-4 text-center">
                         <div className="w-14 h-14 rounded-2xl bg-red-500/15 text-red-500 flex items-center justify-center mx-auto">
                             <Shield className="w-8 h-8" />
                         </div>
@@ -2809,17 +2809,17 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
 
             {/* --- SHOP OVERLAY (Feature 9) --- */}
             {showShop && (
-                <div className={`fixed inset-0 z-[100] flex items-center justify-end p-0 sm:p-6 transition-all animate-in fade-in ${
+                <div className={`app-dialog-overlay app-dialog-overlay--edge fixed inset-0 z-[100] flex items-center justify-end transition-all animate-in fade-in ${
                     isBento ? 'bg-black/60' : 'bg-black/40 backdrop-blur-sm'
                 }`}>
-                    <div className={`w-full max-w-md h-full sm:h-auto sm:max-h-[90vh] flex flex-col animate-in slide-in-from-right sm:slide-in-from-bottom-8 overflow-hidden ${
+                    <div className={`app-dialog-panel app-dialog-panel--structured w-full max-w-md h-full sm:h-auto flex flex-col animate-in slide-in-from-right sm:slide-in-from-bottom-8 ${
                         isBento
                             ? 'bg-white border-[3px] border-black sm:rounded-2xl shadow-[8px_8px_0px_#000]'
                             : 'bg-white dark:bg-[#111827] sm:rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-800'
                     }`}>
                         
                         {/* Shop Header */}
-                        <div className={`p-6 flex justify-between items-center ${
+                        <div className={`app-dialog-header p-6 flex justify-between items-center ${
                             isBento
                                 ? 'bg-[#fde047] border-b-[2.5px] border-black'
                                 : 'p-6 border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-[#0d0d1c]'
@@ -2892,7 +2892,7 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                         )}
 
                         {/* Shop Items List (Filtered by Current Question Type) */}
-                        <div className={`flex-1 overflow-y-auto p-6 pt-3 flex flex-col gap-3.5 ${isBento ? 'bg-white' : 'bg-white dark:bg-transparent'}`}>
+                        <div className={`app-dialog-body app-dialog-body-spaced flex flex-col gap-3.5 ${isBento ? 'bg-white' : 'bg-white dark:bg-transparent'}`}>
                             <div className="flex items-center justify-between gap-2">
                                 <span className={`text-[11px] font-black uppercase tracking-wider ${isBento ? 'text-black/70' : 'text-slate-500 dark:text-slate-400'}`}>
                                     {tx('Items for this question type:', 'أدوات مناسبة لنوع السؤال ده:')}
@@ -3001,11 +3001,11 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
             {/* AI Coach Hints Top-Up Modal */}
             {showAICoachBuyModal && (
                 <div 
-                    className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200"
+                    className="app-dialog-overlay fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200"
                     onClick={() => setShowAICoachBuyModal(false)}
                 >
                     <div 
-                        className={`max-w-md w-full rounded-3xl overflow-hidden transition-all flex flex-col max-h-[92vh] animate-in zoom-in-95 duration-200 ${
+                        className={`app-dialog-panel app-dialog-panel--structured max-w-md w-full rounded-3xl overflow-hidden transition-all flex flex-col max-h-[92vh] animate-in zoom-in-95 duration-200 ${
                             isBento
                                 ? 'bg-[#faf5ff] border-[3.5px] border-black shadow-[8px_8px_0px_#000] text-black'
                                 : theme === 'dark'
@@ -3015,7 +3015,7 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                         onClick={(e) => e.stopPropagation()}
                     >
                         {/* Modal Header */}
-                        <div className={`p-6 pb-4 flex items-center justify-between border-b ${
+                        <div className={`app-dialog-header p-6 pb-4 flex items-center justify-between border-b ${
                             isBento 
                                 ? 'border-b-[2.5px] border-black bg-white' 
                                 : theme === 'dark' 
@@ -3058,7 +3058,7 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                         </div>
 
                         {/* Balance & Status Banner */}
-                        <div className={`p-5 pb-4 flex flex-col items-center justify-center gap-2 border-b ${
+                        <div className={`app-dialog-toolbar p-5 pb-4 flex flex-col items-center justify-center gap-2 border-b ${
                             isBento
                                 ? 'bg-white border-b-2 border-black'
                                 : theme === 'dark'
@@ -3103,7 +3103,7 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                         </div>
 
                         {/* Hint Packs */}
-                        <div className="p-5 pt-3 overflow-y-auto no-scrollbar flex flex-col gap-3">
+                        <div className="app-dialog-body app-dialog-body-spaced p-5 pt-3 overflow-y-auto no-scrollbar flex flex-col gap-3">
                             <div className={`text-[11px] font-black uppercase tracking-wider ${
                                 isBento ? 'text-black' : theme === 'dark' ? 'text-indigo-300' : 'text-slate-500'
                             }`}>
@@ -3226,7 +3226,7 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                         </div>
 
                         {/* Footer Help */}
-                        <div className={`p-4 text-center text-xs font-bold border-t ${
+                        <div className={`app-dialog-footer p-4 text-center text-xs font-bold border-t ${
                             isBento
                                 ? 'bg-white border-t-2 border-black text-slate-600'
                                 : theme === 'dark'
@@ -3241,10 +3241,10 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
 
             {/* Resume Prompt Modal */}
             {showResumePrompt && (
-                <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 ${
+                <div className={`app-dialog-overlay fixed inset-0 z-50 flex items-center justify-center p-4 ${
                     isBento ? 'bg-black/60' : 'bg-black/70 backdrop-blur-md'
                 }`}>
-                    <div className={`p-8 max-w-md w-full animate-in fade-in zoom-in duration-200 ${
+                    <div className={`app-dialog-panel app-dialog-panel--padded p-8 max-w-md w-full animate-in fade-in zoom-in duration-200 ${
                         isBento
                             ? 'bg-white border-[3px] border-black rounded-2xl shadow-[8px_8px_0px_#000] text-black'
                             : 'bg-white dark:bg-[#0f0f1e] text-gray-900 dark:text-white border border-gray-200 dark:border-white/[0.10] rounded-3xl shadow-2xl'

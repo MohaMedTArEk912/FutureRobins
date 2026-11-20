@@ -13,7 +13,6 @@ import {
     ArrowLeft,
     ShieldCheck
 } from 'lucide-react';
-import ThemeToggle from './ThemeToggle.tsx';
 import TransparentLogo from './TransparentLogo.tsx';
 import { AmbientBackground } from './AmbientBackground';
 import { AnimatedCharacter } from './AnimatedCharacter.tsx';
@@ -233,11 +232,6 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onVerified, onSwitchToL
                     </div>
                     <span className="text-xs font-bold hidden sm:inline">{tx('Home', 'الرئيسية')}</span>
                 </button>
-            </div>
-
-            {/* Theme Toggle - Floating */}
-            <div className="absolute top-5 end-5 z-50 mt-safe me-safe flex items-center gap-2">
-                <ThemeToggle />
             </div>
 
             {/* Left Column - Mascot & Branding (Hidden on Mobile) */}

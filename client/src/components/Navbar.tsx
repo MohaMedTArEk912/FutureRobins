@@ -18,7 +18,6 @@ import { useAuth } from '../context/AuthContext';
 import { useChat } from '../context/ChatContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useNavArrangement } from '../context/NavArrangementContext';
-import { NavbarCustomizerModal } from './nav/NavbarCustomizerModal';
 import DemoRoleSwitchButton from './DemoRoleSwitchButton';
 
 interface NavbarProps {
@@ -717,7 +716,6 @@ const Navbar: React.FC<NavbarProps> = ({
             </div>
 
             {/* Navbar & Menu Customizer Modal */}
-            <NavbarCustomizerModal />
         </header>
     );
 };

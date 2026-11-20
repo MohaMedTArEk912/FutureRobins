@@ -1049,11 +1049,11 @@ export const LiveHostMode: React.FC<LiveHostModeProps> = ({
             {/* Invite User Modal */}
             {showInviteModal && (
                 <div
-                    className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+                    className="app-dialog-overlay fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
                     onClick={() => setShowInviteModal(false)}
                 >
                     <div
-                        className={`w-full max-w-md p-5 rounded-2xl space-y-3 ${
+                        className={`app-dialog-panel app-dialog-panel--padded w-full max-w-md p-5 rounded-2xl space-y-3 ${
                             isBento
                                 ? 'bg-white text-black border-[3px] border-black shadow-[6px_6px_0_#000]'
                                 : 'bg-white dark:bg-[#111322] text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 shadow-2xl'

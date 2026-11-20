@@ -3,63 +3,20 @@
   <head>
     <meta charset="UTF-8" />
     
-    <!-- App Version (for auto-update detection) -->
-    <meta name="app-version" content="2026-05-24T15-35-38-778Z-1e00942b884711e5" />
-    
-    <!-- Favicon & PWA Icons -->
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="alternate icon" type="image/png" href="/icon.png" />
-    <link rel="icon" type="image/x-icon" href="/icon.png" />
-    <link rel="apple-touch-icon" href="/pwa-192x192.png" />
-    <link rel="apple-touch-icon" sizes="192x192" href="/pwa-192x192.png" />
-    <link rel="apple-touch-icon" sizes="512x512" href="/pwa-512x512.png" />
-    
-    <!-- Mobile Optimization & PWA Capability -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover" />
-    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#101326" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="application-name" content="Quiz Platform" />
+    <meta name="apple-mobile-web-app-title" content="Quiz Platform" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="Quiz Platform" />
-    <meta name="application-name" content="Quiz Platform" />
-    <meta name="msapplication-TileColor" content="#0a0a0b" />
-    
-    <!-- SEO & Theming -->
-    <meta name="description" content="Master Computer Science, Programming, Algorithms & System Design through gamified quizzes, interactive tracks, daily challenges, and real-time multiplayer duels." />
-    <meta name="keywords" content="quiz platform, computer science, programming quiz, coding challenges, python quizzes, algorithms, data structures, full stack, daily challenge, leaderboard" />
-    <meta name="author" content="Quiz Platform" />
-    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
-    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0a0a0b" />
-    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48 64x64" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" sizes="any" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
 
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://quiz-platform-dun.vercel.app/" />
-    <meta property="og:title" content="Quiz Platform - Master Computer Science & Coding" />
-    <meta property="og:description" content="Master Computer Science concepts through gamified quizzes, interactive skill tracks, daily challenges, and real-time multiplayer duels." />
-    <meta property="og:image" content="https://quiz-platform-dun.vercel.app/og-image.png" />
+    <!-- page metadata -->
 
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://quiz-platform-dun.vercel.app/" />
-    <meta property="twitter:title" content="Quiz Platform - Master Computer Science & Coding" />
-    <meta property="twitter:description" content="Master Computer Science concepts through gamified quizzes, interactive skill tracks, daily challenges, and real-time multiplayer duels." />
-    <meta property="twitter:image" content="https://quiz-platform-dun.vercel.app/og-image.png" />
-
-    <!-- Structured Data -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "Quiz Platform",
-      "description": "Interactive platform for computer science quizzes and learning.",
-      "url": "https://quiz-platform-dun.vercel.app/",
-      "applicationCategory": "EducationalApplication",
-      "operatingSystem": "All"
-    }
-    </script>
-    
-    <title>Quiz Platform - Test Your Knowledge</title>
-    
     <!-- DNS Prefetch & Preconnect for Performance -->
     <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
     <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
@@ -129,6 +86,7 @@
     </div>
     
     <div id="root"></div>
+    <noscript>Enable JavaScript to use Quiz Platform.</noscript>
     
     <!-- Main Application Script -->
     <script type="module" src="/src/main.tsx"></script>

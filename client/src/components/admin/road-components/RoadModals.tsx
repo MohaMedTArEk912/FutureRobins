@@ -67,8 +67,8 @@ const RoadModals: React.FC<RoadModalsProps> = ({
         <>
             {/* Create Modal */}
             {isCreateModalOpen && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
-                    <div className="bg-white dark:bg-[#1e1e2d] rounded-3xl w-full max-w-lg shadow-2xl p-8 border border-white/20 dark:border-white/5 scale-100 animate-in zoom-in-95 duration-200 relative overflow-hidden">
+                <div className="app-dialog-overlay fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
+                    <div className="app-dialog-panel app-dialog-panel--padded bg-white dark:bg-[#1e1e2d] rounded-3xl w-full max-w-lg shadow-2xl p-8 border border-white/20 dark:border-white/5 scale-100 animate-in zoom-in-95 duration-200 relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-bl-full -mr-16 -mt-16 pointer-events-none" />
 
                         <div className="flex justify-between items-center mb-8 relative z-10">
@@ -125,8 +125,8 @@ const RoadModals: React.FC<RoadModalsProps> = ({
 
             {/* Edit Modal */}
             {isEditModalOpen && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
-                    <div className="bg-white dark:bg-[#1e1e2d] rounded-3xl w-full max-w-lg shadow-2xl p-8 border border-white/20 dark:border-white/5 scale-100 animate-in zoom-in-95 duration-200 relative overflow-hidden">
+                <div className="app-dialog-overlay fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
+                    <div className="app-dialog-panel app-dialog-panel--padded bg-white dark:bg-[#1e1e2d] rounded-3xl w-full max-w-lg shadow-2xl p-8 border border-white/20 dark:border-white/5 scale-100 animate-in zoom-in-95 duration-200 relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-bl-full -mr-16 -mt-16 pointer-events-none" />
 
                         <div className="flex justify-between items-center mb-8 relative z-10">

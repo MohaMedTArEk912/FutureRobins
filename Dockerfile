@@ -10,6 +10,7 @@ RUN npm ci --silent
 # Copy source and build frontend
 COPY . .
 # Build client inside builder
+ARG SITE_URL
 RUN npm --prefix client install --silent && npm --prefix client run build
 
 # Runner

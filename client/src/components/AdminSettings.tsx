@@ -54,10 +54,10 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({ adminEmail, onClose }) =>
     };
 
     return (
-        <div className={`fixed inset-0 flex items-center justify-center z-[150] p-4 ${
+        <div className={`app-dialog-overlay fixed inset-0 flex items-center justify-center z-[150] p-4 ${
             isBento ? 'bg-black/60' : 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-sm'
         }`}>
-            <div className={`w-full max-w-md p-6 sm:p-8 relative max-h-[90vh] overflow-y-auto custom-scrollbar ${
+            <div className={`app-dialog-panel app-dialog-panel--padded w-full max-w-md p-6 sm:p-8 relative max-h-[90vh] overflow-y-auto custom-scrollbar ${
                 isBento
                     ? 'bg-white text-black border-[3px] border-black rounded-2xl shadow-[8px_8px_0px_#000]'
                     : 'bg-white dark:bg-[#13141f] border border-gray-200 dark:border-white/10 rounded-[2rem] shadow-2xl'

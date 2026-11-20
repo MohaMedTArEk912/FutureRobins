@@ -16,8 +16,7 @@ import {
     BookOpen,
     Sparkles,
     Save,
-    X,
-    Globe
+    X
 } from 'lucide-react';
 import type { UserData, MotionPresentation } from '../../types';
 import { api } from '../../lib/api';
@@ -28,7 +27,6 @@ import { useData } from '../../context/DataContext';
 import Avatar from '../Avatar';
 import AvatarEditor from '../AvatarEditor';
 import UserSettings from '../UserSettings';
-import WorkspaceThemeSwitcher from '../WorkspaceThemeSwitcher';
 import { ClassEmblem } from '../social/ClassEmblem';
 import { getTeacherThemeStyles } from './teacherTheme';
 
@@ -58,7 +56,7 @@ export const TeacherProfileView: React.FC<TeacherProfileViewProps> = ({
 }) => {
     const navigate = useNavigate();
     const { theme } = useTheme();
-    const { language, openLanguageModal, tx } = useLanguage();
+    const { tx } = useLanguage();
     const styles = useMemo(() => getTeacherThemeStyles(theme), [theme]);
     const { myClasses, loadingClasses, navigateToSection } = useTeacherWorkspace();
     const { skillTracks } = useData();
@@ -317,13 +315,13 @@ export const TeacherProfileView: React.FC<TeacherProfileViewProps> = ({
                     />
                 )}
 
-                {/* Educator Tab Bar + Direct Profile Workspace Theme Toggle */}
+                {/* Educator Tab Bar */}
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                     <div className={`inline-flex flex-wrap items-center gap-1.5 p-1.5 rounded-2xl max-w-full ${styles.surfaceCard}`}>
                         {([
                             { id: 'portfolio' as const, label: tx('Teaching Portfolio', 'ملف التدريس'), icon: GraduationCap },
                             { id: 'decks' as const, label: `${tx('Slide Decks', 'العروض التقديمية')} (${stats.decksCount})`, icon: FileCode },
-                            { id: 'settings' as const, label: tx('Account & Security', 'الحساب والأمان'), icon: Settings }
+                            { id: 'settings' as const, label: tx('Account Settings', 'إعدادات الحساب'), icon: Settings }
                         ]).map(tab => {
                             const Icon = tab.icon;
                             const active = activeTab === tab.id;
@@ -343,20 +341,6 @@ export const TeacherProfileView: React.FC<TeacherProfileViewProps> = ({
                         })}
                     </div>
 
-                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto shrink-0">
-                        <button
-                            type="button"
-                            onClick={openLanguageModal}
-                            className={`px-4 py-3 rounded-2xl text-xs font-black flex items-center justify-center gap-2 cursor-pointer transition shrink-0 ${styles.surfaceCard} hover:opacity-90`}
-                        >
-                            <Globe className="w-4 h-4 shrink-0" />
-                            <span>{language === 'ar-EG' ? '🇪🇬 العربية المصرية' : '🇺🇸 English'}</span>
-                            <span className="opacity-60">• {tx('Language', 'اللغة')}</span>
-                        </button>
-                        <div className={`p-3 rounded-2xl w-full sm:w-[290px] shrink-0 ${styles.surfaceCard}`}>
-                            <WorkspaceThemeSwitcher />
-                        </div>
-                    </div>
                 </div>
 
                 {/* TAB 1: TEACHING PORTFOLIO */}

@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./dialogs.css";
 
 @theme {
   --color-background-light: #f8fafc;

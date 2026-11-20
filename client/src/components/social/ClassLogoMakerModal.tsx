@@ -203,14 +203,14 @@ function ClassEmblemStudio({
             aria-labelledby={`${studioId}-heading`}
             role={inline ? undefined : 'dialog'}
             aria-modal={inline ? undefined : true}
-            className={`@container/studio relative min-w-0 w-full rounded-2xl ${inline ? '' : 'my-auto max-w-4xl'} ${
+            className={`@container/studio relative min-w-0 w-full rounded-2xl ${inline ? '' : 'app-dialog-panel app-dialog-panel--structured flex max-w-4xl flex-col'} ${
                 isBento
                     ? 'border-[3px] border-black bg-white text-black shadow-[4px_4px_0px_#000]'
                     : 'border border-slate-200 bg-white text-slate-900 shadow-lg dark:border-white/10 dark:bg-[#121623] dark:text-white'
             }`}
             onClick={e => { if (!inline) e.stopPropagation(); }}
         >
-            <header className={`flex min-w-0 items-center gap-3 rounded-t-[inherit] border-b p-3 @sm/studio:p-4 ${border} ${isBento ? 'bg-[#fde047]' : panel}`}>
+            <header className={`flex min-w-0 items-center gap-3 rounded-t-[inherit] border-b p-3 @sm/studio:p-4 ${inline ? '' : 'app-dialog-header'} ${border} ${isBento ? 'bg-[#fde047]' : panel}`}>
                 <div className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${secondary}`}>
                     <Palette aria-hidden="true" className="h-5 w-5" />
                 </div>
@@ -228,7 +228,7 @@ function ClassEmblemStudio({
                 </button>
             </header>
 
-            <div className="grid min-w-0 gap-4 p-3 @sm/studio:p-4 @min-[42rem]/studio:grid-cols-[minmax(11rem,1fr)_minmax(0,3fr)] @min-[42rem]/studio:gap-5">
+            <div className={`grid min-w-0 gap-4 p-3 @sm/studio:p-4 @min-[42rem]/studio:grid-cols-[minmax(11rem,1fr)_minmax(0,3fr)] @min-[42rem]/studio:gap-5 ${inline ? '' : 'app-dialog-body'}`}>
                 <div
                     className={`flex min-w-0 flex-wrap items-center gap-x-5 gap-y-3 rounded-xl border p-3 @min-[42rem]/studio:flex-col @min-[42rem]/studio:flex-nowrap @min-[42rem]/studio:justify-center @min-[42rem]/studio:p-4 @min-[42rem]/studio:text-center ${border} ${panel}`}
                 >
@@ -452,7 +452,7 @@ function ClassEmblemStudio({
                 </fieldset>
             </div>
 
-            <footer className={`flex flex-wrap items-center justify-end gap-3 rounded-b-[inherit] border-t p-3 @sm/studio:p-4 ${border} ${panel}`}>
+            <footer className={`flex flex-wrap items-center justify-end gap-3 rounded-b-[inherit] border-t p-3 @sm/studio:p-4 ${inline ? '' : 'app-dialog-footer'} ${border} ${panel}`}>
                 {(error || saveWithClass) && (
                     <p
                         role={error ? 'alert' : undefined}
@@ -476,7 +476,7 @@ function ClassEmblemStudio({
 
     if (inline) return card;
     return createPortal(
-        <div className="fixed inset-0 z-[10000] flex items-start justify-center overflow-y-auto bg-black/60 p-3 sm:p-6" onClick={onClose}>
+        <div className="app-dialog-overlay fixed inset-0 z-[10000] flex items-center justify-center" onClick={onClose}>
             {card}
         </div>,
         document.body

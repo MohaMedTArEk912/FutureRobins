@@ -23,9 +23,6 @@ import {
     Inbox,
     AlertTriangle,
     Layers,
-    Sun,
-    Moon,
-    LayoutGrid,
     Sliders,
     ChevronDown,
     type LucideIcon
@@ -36,7 +33,7 @@ import type { UserData, Quiz, AttemptData } from '../types/index.ts';
 import { api } from '../lib/api.ts';
 import NotificationCenter from './NotificationCenter.tsx';
 import Avatar from './Avatar.tsx';
-import { useTheme, type AppTheme } from '../context/ThemeContext.tsx';
+import { useTheme } from '../context/ThemeContext.tsx';
 import { useData } from '../context/DataContext.tsx';
 
 // Import Admin Sub-Components
@@ -90,7 +87,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
     onLogout
 }) => {
     const navigate = useNavigate();
-    const { theme, setTheme, isBento } = useTheme();
+    const { isBento } = useTheme();
     const { skillTracks } = useData();
 
     // --- State ---
@@ -454,63 +451,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                         </button>
                                     </div>
 
-                                    {/* Section 2: Appearance & Theme Dropdown / Switcher */}
-                                    <div className={`p-2.5 rounded-xl mb-2 ${
-                                        isBento
-                                            ? 'bg-neutral-50 border-2 border-black'
-                                            : 'bg-gray-50/80 dark:bg-white/[0.03] border border-gray-200/80 dark:border-white/5'
-                                    }`}>
-                                        <div className="flex items-center justify-between mb-2">
-                                            <span className={`text-[11px] font-black uppercase tracking-wider ${
-                                                isBento ? 'text-black font-mono' : 'text-gray-500 dark:text-gray-400'
-                                            }`}>
-                                                Appearance & Theme
-                                            </span>
-                                            <span className={`text-[10px] font-bold capitalize px-1.5 py-0.5 rounded ${
-                                                isBento
-                                                    ? 'bg-[#bae6fd] text-black font-mono border border-black'
-                                                    : 'bg-purple-500/10 text-purple-600 dark:text-purple-400'
-                                            }`}>
-                                                {theme === 'bento' ? 'Neo-Brutalist' : theme === 'dark' ? 'Dark Mode' : 'Light Mode'}
-                                            </span>
-                                        </div>
-
-                                        {/* 3-Way Segmented Theme Buttons */}
-                                        <div className="grid grid-cols-3 gap-1.5">
-                                            {[
-                                                { id: 'light', label: 'Light', icon: Sun, color: 'text-amber-500' },
-                                                { id: 'dark', label: 'Dark', icon: Moon, color: 'text-indigo-400' },
-                                                { id: 'bento', label: 'Bento', icon: LayoutGrid, color: 'text-emerald-500' }
-                                            ].map(opt => {
-                                                const Icon = opt.icon;
-                                                const isSelected = theme === opt.id;
-                                                return (
-                                                    <button
-                                                        key={opt.id}
-                                                        type="button"
-                                                        onClick={() => setTheme(opt.id as AppTheme)}
-                                                        className={`flex flex-col items-center justify-center py-2 px-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                                                            isBento
-                                                                ? isSelected
-                                                                    ? 'bg-black text-white border-2 border-black shadow-[2px_2px_0px_#bef264]'
-                                                                    : 'bg-white text-black border border-black hover:bg-neutral-100'
-                                                                : isSelected
-                                                                    ? 'bg-purple-600 text-white shadow-sm shadow-purple-600/30'
-                                                                    : 'bg-white dark:bg-white/5 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 border border-gray-200 dark:border-white/10'
-                                                        }`}
-                                                    >
-                                                        <div className="flex items-center gap-1 mb-0.5">
-                                                            <Icon className={`w-3.5 h-3.5 ${isSelected ? (isBento ? 'text-[#bef264]' : 'text-white') : opt.color}`} />
-                                                            {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
-                                                        </div>
-                                                        <span className={`text-[11px] ${isBento ? 'font-mono' : ''}`}>{opt.label}</span>
-                                                    </button>
-                                                );
-                                            })}
-                                        </div>
-                                    </div>
-
-                                    {/* Section 3: Platform Settings (Opens AdminSettings Modal) */}
+                                    {/* Platform settings */}
                                     <div className="space-y-1">
                                         <button
                                             type="button"
@@ -1439,11 +1380,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
             {/* Modern Admin Logout Confirmation Modal */}
             {isLogoutConfirmOpen && (
                 <div
-                    className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] flex items-center justify-center p-4 animate-in fade-in duration-200"
+                    className="app-dialog-overlay fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] flex items-center justify-center p-4 animate-in fade-in duration-200"
                     onClick={() => setIsLogoutConfirmOpen(false)}
                 >
                     <div
-                        className={`rounded-3xl p-6 max-w-sm w-full animate-in zoom-in-95 duration-200 ${
+                        className={`app-dialog-panel app-dialog-panel--padded rounded-3xl p-6 max-w-sm w-full animate-in zoom-in-95 duration-200 ${
                             isBento
                                 ? 'bg-white border-2 border-black shadow-[6px_6px_0px_#000]'
                                 : 'bg-white dark:bg-[#13141f] border border-gray-200 dark:border-white/10 shadow-2xl'

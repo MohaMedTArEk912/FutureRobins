@@ -179,7 +179,7 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
 
     const modalContent = (
         <div
-            className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 !bg-transparent !border-0 !shadow-none animate-in fade-in duration-200"
+            className="app-dialog-overlay fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 !bg-transparent !border-0 !shadow-none animate-in fade-in duration-200"
             onClick={onClose}
         >
             <div
@@ -192,7 +192,7 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                 aria-modal="true"
                 aria-label="Customize Avatar"
                 onClick={e => e.stopPropagation()}
-                className={`relative z-10 w-full max-w-4xl h-[86dvh] md:h-[600px] max-h-[90dvh] overflow-hidden flex flex-col md:flex-row transition-all ${
+                className={`app-dialog-panel app-dialog-panel--structured relative z-10 w-full max-w-4xl h-[86dvh] md:h-[600px] max-h-[90dvh] overflow-hidden flex flex-col md:flex-row transition-all ${
                     isBento
                         ? 'bg-white border-[3px] border-black shadow-[8px_8px_0px_#000] rounded-3xl'
                         : 'bg-white dark:bg-[#131624] rounded-3xl shadow-2xl border border-slate-200 dark:border-white/10'

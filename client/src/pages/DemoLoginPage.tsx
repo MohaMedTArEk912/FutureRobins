@@ -13,14 +13,13 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage, type AppLanguage } from '../context/LanguageContext';
-import LanguageToggle from '../components/LanguageToggle';
 
 const DEMO_VISITOR_NAME_KEY = 'demoVisitorName';
 
 const DemoLoginPage: React.FC = () => {
     const { demoLogin } = useAuth();
-    const { isBento, theme, setTheme, closeThemeModal } = useTheme();
-    const { language, setLanguage, tx } = useLanguage();
+    const { isBento } = useTheme();
+    const { language, tx } = useLanguage();
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
 
@@ -56,20 +55,6 @@ const DemoLoginPage: React.FC = () => {
             setLaunching(true);
 
             try {
-                // Ensure first-time theme onboarding modal doesn't cover the demo experience
-                try {
-                    if (!localStorage.getItem('theme')) {
-                        setTheme(theme);
-                    }
-                } catch {
-                    // ignore storage errors
-                }
-                closeThemeModal();
-
-                if (langParam === 'ar-EG' || langParam === 'en') {
-                    await setLanguage(langParam, false);
-                }
-
                 const cleanName = (options.customName || '').trim().slice(0, 40);
                 try {
                     if (cleanName) {
@@ -102,20 +87,8 @@ const DemoLoginPage: React.FC = () => {
                 );
             }
         },
-        [closeThemeModal, demoLogin, langParam, navigate, requestedLang, safeDestination, setLanguage, setTheme, theme, tx]
+        [demoLogin, navigate, requestedLang, safeDestination, tx]
     );
-
-    useEffect(() => {
-        // Ensure first-time theme modal doesn't block the Demo Name prompt
-        try {
-            if (!localStorage.getItem('theme')) {
-                setTheme(theme);
-            }
-        } catch {
-            // ignore storage errors
-        }
-        closeThemeModal();
-    }, [closeThemeModal, setTheme, theme]);
 
     // Auto-launch only when ?name=... is explicitly provided in the share link
     useEffect(() => {
@@ -171,7 +144,6 @@ const DemoLoginPage: React.FC = () => {
                         <ArrowLeft className="w-3.5 h-3.5" />
                         <span>{tx('Login', 'الدخول')}</span>
                     </button>
-                    <LanguageToggle compact />
                 </div>
 
                 <div className="text-center space-y-3">

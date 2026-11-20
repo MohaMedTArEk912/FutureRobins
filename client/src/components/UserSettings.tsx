@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Eye, EyeOff, Mail, User as UserIcon, Lock, Check, AlertCircle, Sliders, Globe, Download, RefreshCw, Smartphone } from 'lucide-react';
+import { X, Eye, EyeOff, Mail, User as UserIcon, Lock, Check, AlertCircle, Sliders, Globe, Download, RefreshCw, Smartphone, Palette } from 'lucide-react';
 import type { UserData } from '../types/index.ts';
 import { api } from '../lib/api.ts';
 import { pwaUpdater, type PwaUpdateState } from '../lib/pwaUpdater.ts';
@@ -16,7 +16,7 @@ interface UserSettingsProps {
 }
 
 const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, embedded = false }) => {
-    const { isBento } = useTheme();
+    const { isBento, theme, openThemeModal } = useTheme();
     const { language, setLanguage, tx } = useLanguage();
     const { openCustomizer, config } = useNavArrangement();
     const [name, setName] = useState(user.name);
@@ -69,7 +69,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
         setIsSavingLang(true);
         setNotification(null);
         try {
-            await setLanguage(nextLang, true);
+            await setLanguage(nextLang);
             onUpdate({ ...user, preferredLanguage: nextLang });
             setNotification({
                 type: 'success',
@@ -251,6 +251,33 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
         </div>
     );
 
+    const themeLabels = {
+        light: tx('Modern Light', 'الوضع الفاتح'),
+        dark: tx('Cyber Dark', 'الوضع الليلي'),
+        bento: tx('Neo-Brutalist', 'بينتو')
+    };
+
+    const appearanceSection = (
+        <section className={`space-y-3 border-t pt-5 ${isBento ? 'border-black/20' : 'border-gray-200 dark:border-white/5'}`}>
+            <h3 className={`flex items-center gap-2 text-sm font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-gray-500 dark:text-gray-400'}`}>
+                <Palette className={`size-4 ${isBento ? 'text-black' : 'text-indigo-600 dark:text-indigo-400'}`} />
+                {tx('Appearance', 'شكل المنصة')}
+            </h3>
+            <button
+                type="button"
+                onClick={openThemeModal}
+                className={`btn-unstyled flex min-h-11 w-full cursor-pointer flex-wrap items-center justify-between gap-2 rounded-xl border px-3 py-2.5 text-start text-xs font-bold transition-colors ${
+                    isBento
+                        ? 'border-2 border-black bg-white text-black shadow-[2px_2px_0px_#000] hover:bg-[#fef9c3]'
+                        : 'border-slate-200 bg-white text-slate-800 hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10'
+                }`}
+            >
+                <span>{tx('Choose theme', 'اختار الثيم')}</span>
+                <span className={isBento ? 'text-black/70' : 'text-slate-500 dark:text-slate-400'}>{themeLabels[theme]}</span>
+            </button>
+        </section>
+    );
+
     const languageSection = (
         <div className={`pt-5 space-y-3 border-t ${isBento ? 'border-black/20' : 'border-gray-200 dark:border-white/5'}`}>
             <div className="flex items-center justify-between gap-2">
@@ -274,6 +301,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
             <div className="grid grid-cols-2 gap-2.5">
                 <button
                     type="button"
+                    aria-pressed={language === 'ar-EG'}
                     disabled={isSavingLang}
                     onClick={() => void handleLanguageSelect('ar-EG')}
                     className={`btn-unstyled p-3 rounded-xl text-start transition-all cursor-pointer flex items-center justify-between gap-2 disabled:opacity-60 ${
@@ -302,6 +330,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
 
                 <button
                     type="button"
+                    aria-pressed={language === 'en'}
                     disabled={isSavingLang}
                     onClick={() => void handleLanguageSelect('en')}
                     className={`btn-unstyled p-3 rounded-xl text-start transition-all cursor-pointer flex items-center justify-between gap-2 disabled:opacity-60 ${
@@ -631,7 +660,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
                             {tx('Account Settings', 'إعدادات الحساب')}
                         </h2>
                         <p className={`text-xs sm:text-sm mt-0.5 ${isBento ? 'text-gray-700 font-bold' : 'text-gray-500 dark:text-gray-400 font-medium'}`}>
-                            {tx('Manage your personal details, language, and account security', 'عدل بياناتك ولغة المنصة وإعدادات الأمان')}
+                            {tx('Manage your personal details, appearance, language, and account security', 'عدل بياناتك وشكل المنصة ولغتها وإعدادات الأمان')}
                         </p>
                     </div>
                     <span className={`px-3 py-1 rounded-full text-[11px] font-black uppercase self-start sm:self-center ${
@@ -653,6 +682,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
                                 : 'bg-gray-50/70 dark:bg-white/[0.02] border border-gray-200 dark:border-white/10'
                         }`}>
                             {profileInfoSection}
+                            {appearanceSection}
                             {languageSection}
                             {appAndUpdatesSection}
                             {navCustomizationSection}
@@ -678,7 +708,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
 
     return createPortal(
         <div
-            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 !bg-transparent !border-0 !shadow-none animate-in fade-in duration-200"
+            className="app-dialog-overlay fixed inset-0 z-[9999] flex items-center justify-center p-4 !bg-transparent !border-0 !shadow-none animate-in fade-in duration-200"
             onClick={onClose}
         >
             <div
@@ -688,7 +718,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
             />
             <div
                 onClick={(e) => e.stopPropagation()}
-                className={`relative z-10 max-w-md w-full max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-200 ${
+                className={`app-dialog-panel relative z-10 max-w-md w-full max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-200 ${
                     isBento
                         ? 'bg-white text-black border-2 border-black rounded-2xl shadow-[6px_6px_0px_#000]'
                         : 'bg-white dark:bg-[#13141f] border border-gray-200 dark:border-white/10 rounded-2xl shadow-2xl'
@@ -708,18 +738,19 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
                         <X className="w-5 h-5" />
                     </button>
                 )}
-                <div className="p-8">
+                <div className="app-dialog-panel-content p-8">
                     <div className="mb-8">
                         <h2 className={`text-2xl font-black mb-1 ${isBento ? 'text-black' : 'text-gray-900 dark:text-white'}`}>
                             {tx('Account Settings', 'إعدادات الحساب')}
                         </h2>
                         <p className={`text-sm ${isBento ? 'text-gray-700 font-bold' : 'text-gray-500 dark:text-gray-400 font-medium'}`}>
-                            {tx('Manage your personal details, language, and account security', 'عدل بياناتك ولغة المنصة وإعدادات الأمان')}
+                            {tx('Manage your personal details, appearance, language, and account security', 'عدل بياناتك وشكل المنصة ولغتها وإعدادات الأمان')}
                         </p>
                     </div>
                     {alertBanner}
                     <div className="space-y-6">
                         {profileInfoSection}
+                        {appearanceSection}
                         {languageSection}
                         {appAndUpdatesSection}
                         {navCustomizationSection}
