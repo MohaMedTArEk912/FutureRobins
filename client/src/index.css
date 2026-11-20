@@ -1019,17 +1019,21 @@ button:active {
   border-radius: 0 !important;
 }
 
-/* Modal Headers & Footers in Bento Mode */
-[data-layout="bento"] .fixed.inset-0:not(.chat-overlay-shell) .border-b,
-[data-theme="bento"] .fixed.inset-0:not(.chat-overlay-shell) .border-b {
+/* Modal Headers & Footers in Bento Mode (scoped to dialog header/footer panels so inner cards keep their colors) */
+[data-layout="bento"] .fixed.inset-0:not(.chat-overlay-shell) .app-dialog-header,
+[data-theme="bento"] .fixed.inset-0:not(.chat-overlay-shell) .app-dialog-header,
+[data-layout="bento"] .fixed.inset-0:not(.chat-overlay-shell) > div:not(.fixed):not(.absolute) > .border-b,
+[data-theme="bento"] .fixed.inset-0:not(.chat-overlay-shell) > div:not(.fixed):not(.absolute) > .border-b {
   border-bottom: 2.5px solid #000000 !important;
   background-color: #ffffff !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
 
-[data-layout="bento"] .fixed.inset-0:not(.chat-overlay-shell) .border-t,
-[data-theme="bento"] .fixed.inset-0:not(.chat-overlay-shell) .border-t {
+[data-layout="bento"] .fixed.inset-0:not(.chat-overlay-shell) .app-dialog-footer,
+[data-theme="bento"] .fixed.inset-0:not(.chat-overlay-shell) .app-dialog-footer,
+[data-layout="bento"] .fixed.inset-0:not(.chat-overlay-shell) > div:not(.fixed):not(.absolute) > .border-t,
+[data-theme="bento"] .fixed.inset-0:not(.chat-overlay-shell) > div:not(.fixed):not(.absolute) > .border-t {
   border-top: 2.5px solid #000000 !important;
   background-color: #ffffff !important;
   backdrop-filter: none !important;
@@ -1067,17 +1071,27 @@ button:active {
   color: #000000 !important;
 }
 
-/* Explicit white text for all primary, colored, and submit buttons inside modals and dropdowns */
+/* High-contrast black text for lime-overridden Bento primary/submit buttons inside modals and dropdowns */
 [data-layout="bento"] .animate-in.fade-in.zoom-in-95 button.bg-indigo-600,
 [data-theme="bento"] .animate-in.fade-in.zoom-in-95 button.bg-indigo-600,
-[data-layout="bento"] .animate-in.fade-in.zoom-in-95 button[type="submit"],
-[data-theme="bento"] .animate-in.fade-in.zoom-in-95 button[type="submit"],
-[data-layout="bento"] .animate-in.fade-in.zoom-in-95 button.text-white,
-[data-theme="bento"] .animate-in.fade-in.zoom-in-95 button.text-white,
-[data-layout="bento"] .animate-in.fade-in.zoom-in-95 button[class*="bg-purple-"],
-[data-theme="bento"] .animate-in.fade-in.zoom-in-95 button[class*="bg-purple-"],
-[data-layout="bento"] .animate-in.fade-in.zoom-in-95 button[class*="bg-indigo-"],
-[data-theme="bento"] .animate-in.fade-in.zoom-in-95 button[class*="bg-indigo-"] {
+[data-layout="bento"] .animate-in.fade-in.zoom-in-95 button.bg-purple-600,
+[data-theme="bento"] .animate-in.fade-in.zoom-in-95 button.bg-purple-600,
+[data-layout="bento"] .animate-in.fade-in.zoom-in-95 button[type="submit"]:not(.btn-unstyled),
+[data-theme="bento"] .animate-in.fade-in.zoom-in-95 button[type="submit"]:not(.btn-unstyled) {
+  color: #000000 !important;
+}
+
+/* Explicit white text only on dark or crimson solid buttons inside modals */
+[data-layout="bento"] .animate-in.fade-in.zoom-in-95 button.bg-black,
+[data-theme="bento"] .animate-in.fade-in.zoom-in-95 button.bg-black,
+[data-layout="bento"] .animate-in.fade-in.zoom-in-95 button.bg-slate-900,
+[data-theme="bento"] .animate-in.fade-in.zoom-in-95 button.bg-slate-900,
+[data-layout="bento"] .animate-in.fade-in.zoom-in-95 button.bg-gray-900,
+[data-theme="bento"] .animate-in.fade-in.zoom-in-95 button.bg-gray-900,
+[data-layout="bento"] .animate-in.fade-in.zoom-in-95 button.bg-red-600:not(.btn-unstyled),
+[data-theme="bento"] .animate-in.fade-in.zoom-in-95 button.bg-red-600:not(.btn-unstyled),
+[data-layout="bento"] .animate-in.fade-in.zoom-in-95 button.bg-rose-600:not(.btn-unstyled),
+[data-theme="bento"] .animate-in.fade-in.zoom-in-95 button.bg-rose-600:not(.btn-unstyled) {
   color: #ffffff !important;
 }
 

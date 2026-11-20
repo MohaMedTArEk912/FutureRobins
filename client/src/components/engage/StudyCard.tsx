@@ -193,7 +193,7 @@ const StudyCardComponent: React.FC = () => {
                       className={`appearance-none pl-10 pr-10 py-3 rounded-xl font-black text-sm focus:outline-none cursor-pointer min-w-[160px] ${
                         isBento
                           ? 'bg-white text-black border-2 border-black shadow-[3px_3px_0px_#000]'
-                          : 'bg-[#13141f] border border-white/10 text-white focus:ring-2 focus:ring-indigo-500/50'
+                          : 'bg-white dark:bg-[#13141f] border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500/50'
                       }`}
                     >
                       {categories.map(cat => (
@@ -214,7 +214,7 @@ const StudyCardComponent: React.FC = () => {
                       className={`appearance-none pl-10 pr-10 py-3 rounded-xl font-black text-sm focus:outline-none cursor-pointer min-w-[160px] ${
                         isBento
                           ? 'bg-white text-black border-2 border-black shadow-[3px_3px_0px_#000]'
-                          : 'bg-[#13141f] border border-white/10 text-white focus:ring-2 focus:ring-indigo-500/50'
+                          : 'bg-white dark:bg-[#13141f] border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500/50'
                       }`}
                     >
                       {languages.map(lang => (

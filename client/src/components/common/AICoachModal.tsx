@@ -107,11 +107,11 @@ export const AICoachModal: React.FC<AICoachModalProps> = ({
             <div className={`app-dialog-panel app-dialog-panel--padded app-dialog-panel--accent relative w-full max-w-lg p-6 sm:p-8 space-y-5 overflow-hidden transition-all ${
                 isBento
                     ? 'bg-white text-black rounded-2xl border-[3px] border-black shadow-[8px_8px_0px_#000]'
-                    : 'bg-[#121324] text-white rounded-3xl border border-indigo-500/30 shadow-2xl shadow-indigo-500/20'
+                    : 'bg-white dark:bg-[#121324] text-slate-900 dark:text-white rounded-3xl border border-slate-200 dark:border-indigo-500/30 shadow-2xl shadow-indigo-500/15 dark:shadow-indigo-500/20'
             }`}>
                 {/* Background Glow */}
                 {!isBento && (
-                    <div className="absolute top-0 right-0 w-48 h-48 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none" />
+                    <div className="absolute top-0 right-0 w-48 h-48 bg-indigo-600/10 dark:bg-indigo-600/20 rounded-full blur-3xl pointer-events-none" />
                 )}
 
                 {/* Header */}
@@ -126,13 +126,13 @@ export const AICoachModal: React.FC<AICoachModalProps> = ({
                         </div>
                         <div>
                             <div className={`flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider ${
-                                isBento ? 'text-black/70' : 'text-indigo-400'
+                                isBento ? 'text-black/70' : 'text-indigo-600 dark:text-indigo-400'
                             }`}>
                                 <Sparkles className="w-3 h-3" />
                                 Socratic AI Tutor
                             </div>
                             <h3 className={`text-lg font-black uppercase tracking-tight ${
-                                isBento ? 'text-black' : 'text-white'
+                                isBento ? 'text-black' : 'text-slate-900 dark:text-white'
                             }`}>
                                 AI Study Coach Hint
                             </h3>
@@ -145,7 +145,7 @@ export const AICoachModal: React.FC<AICoachModalProps> = ({
                         className={`p-2 rounded-xl transition cursor-pointer ${
                             isBento
                                 ? 'border-2 border-black bg-white hover:bg-[#fed7aa] text-black shadow-[2px_2px_0px_#000] active:translate-x-0.5 active:translate-y-0.5'
-                                : 'bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white'
+                                : 'bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white'
                         }`}
                     >
                         <X className="w-5 h-5" />
@@ -156,9 +156,9 @@ export const AICoachModal: React.FC<AICoachModalProps> = ({
                 <div className={`p-4 rounded-2xl text-xs max-h-24 overflow-y-auto ${
                     isBento
                         ? 'bg-[#f5f3ec] border-2 border-black text-black'
-                        : 'bg-white/5 border border-white/10 text-gray-300'
+                        : 'bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-gray-300'
                 }`}>
-                    <span className={`font-black uppercase text-[9px] block mb-1 ${isBento ? 'text-black' : 'text-gray-400'}`}>Current Question:</span>
+                    <span className={`font-black uppercase text-[9px] block mb-1 ${isBento ? 'text-black' : 'text-slate-500 dark:text-gray-400'}`}>Current Question:</span>
                     <MathRenderer text={question} />
                 </div>
 
@@ -166,13 +166,13 @@ export const AICoachModal: React.FC<AICoachModalProps> = ({
                 <div className={`p-6 rounded-2xl space-y-3 ${
                     isBento
                         ? 'bg-[#fef08a] border-2 border-black shadow-[4px_4px_0px_#000]'
-                        : 'bg-gradient-to-br from-indigo-950/40 via-[#181a30] to-purple-950/40 border border-indigo-500/30 shadow-inner'
+                        : 'bg-indigo-50/70 dark:bg-gradient-to-br dark:from-indigo-950/40 dark:via-[#181a30] dark:to-purple-950/40 border border-indigo-200 dark:border-indigo-500/30 shadow-inner'
                 }`}>
                     <div className={`flex items-center justify-between text-xs font-black uppercase tracking-wider ${
-                        isBento ? 'text-black' : 'text-amber-300'
+                        isBento ? 'text-black' : 'text-indigo-700 dark:text-amber-300'
                     }`}>
                         <span className="flex items-center gap-1.5">
-                            <Lightbulb className={`w-4 h-4 animate-pulse ${isBento ? 'text-black' : 'text-amber-300'}`} />
+                            <Lightbulb className={`w-4 h-4 animate-pulse ${isBento ? 'text-black' : 'text-amber-500 dark:text-amber-300'}`} />
                             {getClueTitle(clueLevel)}
                         </span>
                         <div className="flex items-center gap-1">
@@ -182,8 +182,8 @@ export const AICoachModal: React.FC<AICoachModalProps> = ({
                                     title={`Clue level ${step}`}
                                     className={`w-2 h-2 rounded-full transition-all ${
                                         clueLevel >= step
-                                            ? isBento ? 'bg-black scale-110' : 'bg-amber-400 scale-110'
-                                            : isBento ? 'bg-black/20' : 'bg-white/20'
+                                            ? isBento ? 'bg-black scale-110' : 'bg-indigo-600 dark:bg-amber-400 scale-110'
+                                            : isBento ? 'bg-black/20' : 'bg-slate-300 dark:bg-white/20'
                                     }`}
                                 />
                             ))}
@@ -192,14 +192,14 @@ export const AICoachModal: React.FC<AICoachModalProps> = ({
 
                     {isLoading ? (
                         <div className={`py-6 flex flex-col items-center justify-center gap-2 text-xs font-bold ${
-                            isBento ? 'text-black' : 'text-gray-400'
+                            isBento ? 'text-black' : 'text-slate-500 dark:text-gray-400'
                         }`}>
-                            <RefreshCw className={`w-5 h-5 animate-spin ${isBento ? 'text-black' : 'text-indigo-400'}`} />
+                            <RefreshCw className={`w-5 h-5 animate-spin ${isBento ? 'text-black' : 'text-indigo-600 dark:text-indigo-400'}`} />
                             <span>Formulating Clue #{clueLevel} from a new angle...</span>
                         </div>
                     ) : (
                         <div className={`text-sm sm:text-base leading-relaxed ${
-                            isBento ? 'font-bold text-black' : 'font-medium text-gray-100'
+                            isBento ? 'font-bold text-black' : 'font-medium text-slate-800 dark:text-gray-100'
                         }`}>
                             <MathRenderer text={hint || ''} />
                         </div>
@@ -215,13 +215,13 @@ export const AICoachModal: React.FC<AICoachModalProps> = ({
                         className={`px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 transition cursor-pointer ${
                             isBento
                                 ? 'bg-white hover:bg-[#bae6fd] border-2 border-black text-black font-black shadow-[2px_2px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 disabled:opacity-50'
-                                : 'bg-white/5 hover:bg-white/10 border border-white/10 font-bold text-gray-300 hover:text-white disabled:opacity-50'
+                                : 'bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 font-bold text-slate-700 dark:text-gray-300 hover:text-slate-900 dark:hover:text-white disabled:opacity-50'
                         }`}
                     >
                         <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
                         <span>Another Clue</span>
                         <span className={`text-[10px] px-1.5 py-0.5 rounded font-black ${
-                            isBento ? 'bg-black/10 text-black' : 'bg-white/10 text-gray-300'
+                            isBento ? 'bg-black/10 text-black' : 'bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-gray-300'
                         }`}>
                             #{clueLevel + 1}
                         </span>

@@ -1,18 +1,21 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { X, Download, Upload, FileJson, AlertCircle, Check, Code } from 'lucide-react';
 import Modal from '../common/Modal';
+import { useTheme } from '../../context/ThemeContext';
+import { useLanguage } from '../../context/LanguageContext';
 import type { SkillTrack, SkillModule } from '../../types';
 
 interface RoadmapJsonImporterProps {
     isOpen: boolean;
     onClose: () => void;
-    onImport: (data: { track?: Partial<SkillTrack>, modules: SkillModule[] }) => Promise<void> | void;
+    onImport: (data: { track?: Partial<SkillTrack>; modules: SkillModule[] }) => Promise<void> | void;
 }
 
 const SAMPLE_ROUTER_ASSET = '/samples/roadmap-sample.json';
 
 export const RoadmapJsonImporter: React.FC<RoadmapJsonImporterProps> = ({ isOpen, onClose, onImport }) => {
+    const { isBento } = useTheme();
+    const { tx } = useLanguage();
     const [mode, setMode] = useState<'upload' | 'editor'>('upload');
     const [jsonInput, setJsonInput] = useState('');
     const [error, setError] = useState<string | null>(null);
@@ -34,7 +37,6 @@ export const RoadmapJsonImporter: React.FC<RoadmapJsonImporterProps> = ({ isOpen
 
     useEffect(() => {
         if (isOpen && mode === 'editor') {
-
             requestAnimationFrame(() => {
                 textareaRef.current?.focus();
             });
@@ -45,8 +47,8 @@ export const RoadmapJsonImporter: React.FC<RoadmapJsonImporterProps> = ({ isOpen
 
     const handleDownloadSample = () => {
         const downloadAnchorNode = document.createElement('a');
-        downloadAnchorNode.setAttribute("href", SAMPLE_ROUTER_ASSET);
-        downloadAnchorNode.setAttribute("download", "roadmap_sample.json");
+        downloadAnchorNode.setAttribute('href', SAMPLE_ROUTER_ASSET);
+        downloadAnchorNode.setAttribute('download', 'roadmap_sample.json');
         document.body.appendChild(downloadAnchorNode);
         downloadAnchorNode.click();
         downloadAnchorNode.remove();
@@ -60,7 +62,7 @@ export const RoadmapJsonImporter: React.FC<RoadmapJsonImporterProps> = ({ isOpen
             setJsonInput(JSON.stringify(data, null, 2));
             setMode('editor');
         } catch {
-            setError('Could not load sample roadmap template.');
+            setError(tx('Could not load sample roadmap template.', 'مقدرناش نحمّل نموذج الخريطة.'));
         }
     };
 
@@ -72,31 +74,33 @@ export const RoadmapJsonImporter: React.FC<RoadmapJsonImporterProps> = ({ isOpen
         reader.onload = (event) => {
             try {
                 const content = event.target?.result as string;
-                // Validate generic JSON parsing first
                 JSON.parse(content);
                 setJsonInput(content);
-                setMode('editor'); // Switch to editor to show content
-                setSuccessMsg(`Loaded ${file.name} successfully!`);
+                setMode('editor');
+                setSuccessMsg(tx(`Loaded ${file.name} successfully!`, `تم تحميل ${file.name} بنجاح!`));
                 setTimeout(() => setSuccessMsg(null), 3000);
             } catch {
-                setError('Failed to parse JSON file. Please check the syntax.');
+                setError(tx('Failed to parse JSON file. Please check the syntax.', 'فشل قراءة ملف الـ JSON، راجع الصياغة.'));
             }
         };
         reader.readAsText(file);
-        // Reset input so same file can be selected again if needed
         e.target.value = '';
     };
 
     const processImport = async () => {
         try {
             if (!jsonInput.trim()) {
-                setError('Please provide JSON content either by uploading a file or writing code.');
+                setError(
+                    tx(
+                        'Please provide JSON content either by uploading a file or writing code.',
+                        'ارفع ملف JSON أو اكتب الكود في المحرر الأول.'
+                    )
+                );
                 return;
             }
 
             const parsed = JSON.parse(jsonInput);
 
-            // Validation
             if (!parsed.modules || !Array.isArray(parsed.modules)) {
                 throw new Error('JSON structure invalid: Root must contain a "modules" array.');
             }
@@ -111,17 +115,18 @@ export const RoadmapJsonImporter: React.FC<RoadmapJsonImporterProps> = ({ isOpen
             setError(null);
             setImporting(true);
 
-            await Promise.resolve(onImport({
-                track: {
-                    title: parsed.title,
-                    description: parsed.description,
-                    icon: parsed.icon
-                },
-                modules: parsed.modules
-            }));
+            await Promise.resolve(
+                onImport({
+                    track: {
+                        title: parsed.title,
+                        description: parsed.description,
+                        icon: parsed.icon
+                    },
+                    modules: parsed.modules
+                })
+            );
 
             onClose();
-
         } catch (err) {
             const message = err instanceof Error ? err.message : 'Invalid JSON format';
             setError(message);
@@ -134,112 +139,208 @@ export const RoadmapJsonImporter: React.FC<RoadmapJsonImporterProps> = ({ isOpen
         <Modal
             isOpen={isOpen}
             onClose={onClose}
-            title="Import Roadmap Configuration"
-            description="Create or update your learning path structure instantly"
-            icon={<FileJson className="w-6 h-6 text-indigo-400" />}
+            title={tx('Import Roadmap Configuration', 'استيراد إعدادات المسار')}
+            description={tx(
+                'Create or update your learning path structure instantly',
+                'اعمل أو حدّث هيكل مسار التعلم فوراً'
+            )}
+            icon={<FileJson className={`w-6 h-6 ${isBento ? 'text-black' : 'text-indigo-500 dark:text-indigo-400'}`} />}
             maxWidth="max-w-6xl"
-            bodyClassName="flex flex-row overflow-hidden p-0 bg-[#05070a]"
+            bodyClassName={`flex flex-col md:flex-row overflow-hidden p-0 ${
+                isBento
+                    ? 'bg-[#f5f3ec] text-black'
+                    : 'bg-slate-50 dark:bg-[#05070a] text-slate-900 dark:text-slate-100'
+            }`}
             footer={
-                <div className="flex justify-between items-center w-full">
-                    <div className="flex gap-2">
+                <div className="flex flex-wrap justify-between items-center gap-3 w-full">
+                    <div className="flex flex-wrap gap-2">
                         <button
+                            type="button"
                             onClick={handleDownloadSample}
-                            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-sm font-bold text-indigo-300 border border-white/5 transition-all hover:scale-105 active:scale-95"
+                            className={`btn-unstyled flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-black transition-all cursor-pointer ${
+                                isBento
+                                    ? 'bg-white hover:bg-[#fef9c3] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                    : 'bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-indigo-700 dark:text-indigo-300 border border-slate-200 dark:border-white/10'
+                            }`}
                         >
-                            <Download className="w-4 h-4" />
-                            Sample JSON
+                            <Download className="w-4 h-4 shrink-0" />
+                            <span>{tx('Sample JSON', 'نموذج JSON')}</span>
                         </button>
                         <button
-                            onClick={handleLoadSampleToEditor}
-                            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold text-indigo-400 hover:text-indigo-300 hover:bg-white/5 transition-all"
+                            type="button"
+                            onClick={() => void handleLoadSampleToEditor()}
+                            className={`btn-unstyled flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-black transition-all cursor-pointer ${
+                                isBento
+                                    ? 'bg-[#bae6fd] hover:bg-[#7dd3fc] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                    : 'text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-white/5 border border-transparent hover:border-indigo-200 dark:hover:border-white/10'
+                            }`}
                         >
-                            <Code className="w-4 h-4" />
-                            Load to Editor
+                            <Code className="w-4 h-4 shrink-0" />
+                            <span>{tx('Load to Editor', 'فتح في المحرر')}</span>
                         </button>
                     </div>
 
-                    <div className="flex gap-3">
+                    <div className="flex items-center gap-3 ms-auto">
                         <button
+                            type="button"
                             onClick={onClose}
-                            className="px-6 py-3 rounded-xl text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white transition-colors"
+                            className={`btn-unstyled px-5 py-2.5 rounded-xl text-sm font-black transition-all cursor-pointer ${
+                                isBento
+                                    ? 'bg-white hover:bg-[#fecdd3] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                    : 'text-slate-600 dark:text-gray-400 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white'
+                            }`}
                         >
-                            Cancel
+                            {tx('Cancel', 'إلغاء')}
                         </button>
                         <button
-                            onClick={processImport}
-                            className="px-8 py-3 rounded-xl text-sm font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/20 transition-all transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                            type="button"
+                            onClick={() => void processImport()}
                             disabled={importing || (!jsonInput && mode === 'editor')}
+                            className={`btn-unstyled px-7 py-2.5 rounded-xl text-sm font-black transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
+                                isBento
+                                    ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[3px_3px_0px_#000] active:translate-y-0.5'
+                                    : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/20 hover:-translate-y-0.5 active:translate-y-0'
+                            }`}
                         >
-                            {importing ? 'Importing...' : 'Import Changes'}
+                            {importing ? tx('Importing...', 'بنستورد...') : tx('Import Changes', 'استيراد التعديلات')}
                         </button>
                     </div>
                 </div>
             }
         >
             {/* Sidebar / Tabs */}
-            <div className="w-64 bg-[#131320] border-r border-white/5 flex flex-col p-4 gap-2 h-full">
-                <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 px-2">Import Source</div>
-
-                <button
-                    onClick={() => setMode('upload')}
-                    className={`flex items-center gap-3 p-4 rounded-xl text-left transition-all duration-200 border ${mode === 'upload'
-                        ? 'bg-indigo-600/10 border-indigo-500/50 text-indigo-300 custom-shadow'
-                        : 'bg-transparent border-transparent text-gray-400 hover:bg-white/5 hover:text-gray-200'
-                        }`}
+            <div
+                className={`w-full md:w-64 shrink-0 flex flex-col p-4 gap-2 ${
+                    isBento
+                        ? 'bg-white border-b-[2.5px] md:border-b-0 md:border-e-[2.5px] border-black text-black'
+                        : 'bg-white dark:bg-[#131320] border-b md:border-b-0 md:border-e border-slate-200 dark:border-white/5'
+                }`}
+            >
+                <div
+                    className={`text-xs font-black uppercase tracking-wider mb-1 px-2 ${
+                        isBento ? 'text-black' : 'text-slate-500 dark:text-gray-400'
+                    }`}
                 >
-                    <Upload className="w-5 h-5" />
-                    <div>
-                        <div className="font-bold">Upload File</div>
-                        <div className="text-xs opacity-60 font-normal">From your computer</div>
-                    </div>
-                </button>
+                    {tx('Import Source', 'مصدر الاستيراد')}
+                </div>
 
-                <button
-                    onClick={() => setMode('editor')}
-                    className={`flex items-center gap-3 p-4 rounded-xl text-left transition-all duration-200 border ${mode === 'editor'
-                        ? 'bg-indigo-600/10 border-indigo-500/50 text-indigo-300 custom-shadow'
-                        : 'bg-transparent border-transparent text-gray-400 hover:bg-white/5 hover:text-gray-200'
+                <div className="grid grid-cols-2 md:grid-cols-1 gap-2">
+                    <button
+                        type="button"
+                        onClick={() => setMode('upload')}
+                        className={`btn-unstyled flex items-center gap-3 p-3.5 rounded-xl text-start transition-all duration-200 cursor-pointer ${
+                            mode === 'upload'
+                                ? isBento
+                                    ? 'bg-[#bef264] border-2 border-black shadow-[3px_3px_0px_#000] text-black'
+                                    : 'bg-indigo-50 dark:bg-indigo-600/15 border border-indigo-300 dark:border-indigo-500/50 text-indigo-700 dark:text-indigo-300'
+                                : isBento
+                                  ? 'bg-white hover:bg-[#fef9c3] border-2 border-black/20 text-black'
+                                  : 'bg-slate-50 dark:bg-transparent border border-slate-200/70 dark:border-transparent text-slate-600 dark:text-gray-400 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-gray-200'
                         }`}
-                >
-                    <Code className="w-5 h-5" />
-                    <div>
-                        <div className="font-bold">Text Editor</div>
-                        <div className="text-xs opacity-60 font-normal">Write or paste code</div>
-                    </div>
-                </button>
+                    >
+                        <Upload className="w-5 h-5 shrink-0" />
+                        <div className="min-w-0">
+                            <div className="font-bold text-sm">{tx('Upload File', 'رفع ملف')}</div>
+                            <div className="text-xs opacity-75 font-medium truncate">
+                                {tx('From your computer', 'من جهازك')}
+                            </div>
+                        </div>
+                    </button>
 
-                <div className="mt-auto p-4 rounded-xl bg-blue-500/5 border border-blue-500/10">
-                    <h4 className="flex items-center gap-2 text-blue-400 font-bold text-xs mb-2">
-                        <AlertCircle className="w-3 h-3" /> Note
+                    <button
+                        type="button"
+                        onClick={() => setMode('editor')}
+                        className={`btn-unstyled flex items-center gap-3 p-3.5 rounded-xl text-start transition-all duration-200 cursor-pointer ${
+                            mode === 'editor'
+                                ? isBento
+                                    ? 'bg-[#bef264] border-2 border-black shadow-[3px_3px_0px_#000] text-black'
+                                    : 'bg-indigo-50 dark:bg-indigo-600/15 border border-indigo-300 dark:border-indigo-500/50 text-indigo-700 dark:text-indigo-300'
+                                : isBento
+                                  ? 'bg-white hover:bg-[#fef9c3] border-2 border-black/20 text-black'
+                                  : 'bg-slate-50 dark:bg-transparent border border-slate-200/70 dark:border-transparent text-slate-600 dark:text-gray-400 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-gray-200'
+                        }`}
+                    >
+                        <Code className="w-5 h-5 shrink-0" />
+                        <div className="min-w-0">
+                            <div className="font-bold text-sm">{tx('Text Editor', 'محرر الأكواد')}</div>
+                            <div className="text-xs opacity-75 font-medium truncate">
+                                {tx('Write or paste code', 'اكتب أو الصق الكود')}
+                            </div>
+                        </div>
+                    </button>
+                </div>
+
+                <div
+                    className={`mt-auto hidden md:block p-4 rounded-xl ${
+                        isBento
+                            ? 'bg-[#bae6fd] border-2 border-black shadow-[2px_2px_0px_#000] text-black'
+                            : 'bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20'
+                    }`}
+                >
+                    <h4
+                        className={`flex items-center gap-2 font-black text-xs mb-1.5 ${
+                            isBento ? 'text-black' : 'text-blue-700 dark:text-blue-400'
+                        }`}
+                    >
+                        <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {tx('Note', 'ملاحظة')}
                     </h4>
-                    <p className="text-[10px] text-blue-200/60 leading-relaxed">
-                        Ensure your JSON follows the schema. Download the sample for a reference structure.
+                    <p
+                        className={`text-[11px] leading-relaxed font-medium ${
+                            isBento ? 'text-black/80' : 'text-blue-800/80 dark:text-blue-200/70'
+                        }`}
+                    >
+                        {tx(
+                            'Ensure your JSON follows the schema. Download the sample for a reference structure.',
+                            'اتأكد إن ملف الـ JSON ماشي على نفس الهيكل، ونزل النموذج عشان تراجع الشكل المطلوب.'
+                        )}
                     </p>
                 </div>
             </div>
 
             {/* Content Area */}
-            <div className="flex-1 relative bg-[#05070a] h-full overflow-hidden">
-
+            <div
+                className={`flex-1 relative min-h-[320px] md:h-full overflow-hidden ${
+                    isBento ? 'bg-[#f5f3ec]' : 'bg-slate-50 dark:bg-[#05070a]'
+                }`}
+            >
                 {/* Error/Success Messages */}
                 {(error || successMsg) && (
-                    <div className={`absolute top-4 left-4 right-4 z-20 px-4 py-3 rounded-xl flex items-center gap-3 backdrop-blur-md shadow-lg animate-in slide-in-from-top-2 border ${error ? 'bg-red-950/90 border-red-500/30 text-red-200' : 'bg-emerald-950/90 border-emerald-500/30 text-emerald-200'
-                        }`}>
+                    <div
+                        className={`absolute top-4 start-4 end-4 z-20 px-4 py-3 rounded-xl flex items-center gap-3 shadow-lg animate-in slide-in-from-top-2 ${
+                            error
+                                ? isBento
+                                    ? 'bg-[#fecdd3] border-2 border-black text-black shadow-[3px_3px_0px_#000]'
+                                    : 'bg-red-50 dark:bg-red-950/90 border border-red-200 dark:border-red-500/30 text-red-800 dark:text-red-200'
+                                : isBento
+                                  ? 'bg-[#bef264] border-2 border-black text-black shadow-[3px_3px_0px_#000]'
+                                  : 'bg-emerald-50 dark:bg-emerald-950/90 border border-emerald-200 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-200'
+                        }`}
+                    >
                         {error ? <AlertCircle className="w-5 h-5 shrink-0" /> : <Check className="w-5 h-5 shrink-0" />}
-                        <div className="flex-1 text-sm font-medium">
-                            {error || successMsg}
-                        </div>
-                        <button onClick={() => { setError(null); setSuccessMsg(null); }} className="p-1 hover:bg-white/10 rounded-lg">
+                        <div className="flex-1 text-sm font-bold">{error || successMsg}</div>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setError(null);
+                                setSuccessMsg(null);
+                            }}
+                            className="btn-unstyled p-1 hover:bg-black/10 dark:hover:bg-white/10 rounded-lg cursor-pointer"
+                            aria-label={tx('Dismiss message', 'إغلاق الرسالة')}
+                        >
                             <X className="w-4 h-4" />
                         </button>
                     </div>
                 )}
 
                 {mode === 'upload' && (
-                    <div className="h-full flex flex-col items-center justify-center p-12 text-center animate-in fade-in duration-300">
+                    <div className="h-full flex flex-col items-center justify-center p-6 sm:p-12 text-center animate-in fade-in duration-300">
                         <div
                             onClick={() => fileInputRef.current?.click()}
-                            className="group w-full max-w-lg aspect-video border-2 border-dashed border-gray-700 hover:border-indigo-500 hover:bg-indigo-500/5 rounded-3xl flex flex-col items-center justify-center cursor-pointer transition-all duration-300"
+                            className={`group w-full max-w-lg aspect-video rounded-3xl flex flex-col items-center justify-center cursor-pointer transition-all duration-300 p-6 ${
+                                isBento
+                                    ? 'bg-white border-[3px] border-dashed border-black hover:bg-[#fef9c3] shadow-[5px_5px_0px_#000]'
+                                    : 'bg-white dark:bg-white/[0.02] border-2 border-dashed border-slate-300 dark:border-gray-700 hover:border-indigo-500 hover:bg-indigo-50/50 dark:hover:bg-indigo-500/5 shadow-sm'
+                            }`}
                         >
                             <input
                                 ref={fileInputRef}
@@ -248,18 +349,44 @@ export const RoadmapJsonImporter: React.FC<RoadmapJsonImporterProps> = ({ isOpen
                                 className="hidden"
                                 onChange={handleFileUpload}
                             />
-                            <div className="w-20 h-20 bg-gray-800 group-hover:bg-indigo-500/20 rounded-full flex items-center justify-center mb-6 transition-colors duration-300">
-                                <Upload className="w-10 h-10 text-gray-500 group-hover:text-indigo-400" />
+                            <div
+                                className={`w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mb-5 transition-colors duration-300 ${
+                                    isBento
+                                        ? 'bg-[#fde047] border-2 border-black text-black shadow-[3px_3px_0px_#000]'
+                                        : 'bg-slate-100 dark:bg-gray-800 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-500/20 text-slate-500 dark:text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400'
+                                }`}
+                            >
+                                <Upload className="w-8 h-8 sm:w-10 sm:h-10" />
                             </div>
-                            <h3 className="text-xl font-bold text-gray-300 group-hover:text-white transition-colors">Click to upload JSON</h3>
-                            <p className="text-gray-500 mt-2">or drag and drop file here</p>
+                            <h3
+                                className={`text-lg sm:text-xl font-black transition-colors ${
+                                    isBento
+                                        ? 'text-black'
+                                        : 'text-slate-800 dark:text-gray-200 group-hover:text-indigo-700 dark:group-hover:text-white'
+                                }`}
+                            >
+                                {tx('Click to upload JSON', 'اضغط لرفع ملف JSON')}
+                            </h3>
+                            <p
+                                className={`mt-2 text-xs sm:text-sm font-semibold ${
+                                    isBento ? 'text-slate-700' : 'text-slate-500 dark:text-gray-400'
+                                }`}
+                            >
+                                {tx('or drag and drop file here', 'أو اسحب الملف وحطه هنا')}
+                            </p>
                         </div>
-                        <p className="mt-8 text-gray-600 text-sm">Supported formats: .json</p>
+                        <p
+                            className={`mt-6 text-xs sm:text-sm font-bold ${
+                                isBento ? 'text-slate-700' : 'text-slate-500 dark:text-gray-500'
+                            }`}
+                        >
+                            {tx('Supported formats: .json', 'الصيغ المدعومة: .json')}
+                        </p>
                     </div>
                 )}
 
                 {mode === 'editor' && (
-                    <div className="h-full flex flex-col animate-in fade-in duration-300">
+                    <div className="h-full flex flex-col animate-in fade-in duration-300 p-3 sm:p-4 gap-2">
                         <textarea
                             ref={textareaRef}
                             value={jsonInput}
@@ -267,14 +394,26 @@ export const RoadmapJsonImporter: React.FC<RoadmapJsonImporterProps> = ({ isOpen
                                 setJsonInput(e.target.value);
                                 if (error) setError(null);
                             }}
-                            placeholder='{&#10;  "title": "My Roadmap",&#10;  "modules": [...]&#10;}'
-                            className="flex-1 w-full min-h-0 bg-[#0b0e17] p-6 font-mono text-sm leading-6 text-slate-100 outline-none resize-none selection:bg-indigo-500/30 placeholder:text-slate-500/50 focus:ring-2 focus:ring-inset focus:ring-indigo-500/30"
+                            placeholder={'{\n  "title": "My Roadmap",\n  "modules": [...]\n}'}
+                            className={`flex-1 w-full min-h-[260px] p-4 sm:p-5 font-mono text-sm leading-6 rounded-2xl outline-none resize-none ${
+                                isBento
+                                    ? 'bg-white text-black border-2 border-black shadow-[3px_3px_0px_#000]'
+                                    : 'bg-white dark:bg-[#0b0e17] text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-white/10 placeholder:text-slate-400 dark:placeholder:text-slate-500/60 focus:ring-2 focus:ring-indigo-500/30'
+                            }`}
                             spellCheck={false}
-                            rows={18}
+                            rows={16}
                         />
-                        <div className="px-6 py-2 bg-[#0B0E1A] border-t border-white/5 text-xs text-gray-600 font-mono flex justify-between">
-                            <span>JSON Editor</span>
-                            <span>{jsonInput.length} chars</span>
+                        <div
+                            className={`px-4 py-2 rounded-xl text-xs font-mono font-bold flex justify-between ${
+                                isBento
+                                    ? 'bg-white border-2 border-black text-black'
+                                    : 'bg-white dark:bg-[#0B0E1A] border border-slate-200 dark:border-white/5 text-slate-500 dark:text-gray-400'
+                            }`}
+                        >
+                            <span>{tx('JSON Editor', 'محرر JSON')}</span>
+                            <span>
+                                {jsonInput.length} {tx('chars', 'حرف')}
+                            </span>
                         </div>
                     </div>
                 )}
