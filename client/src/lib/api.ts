@@ -239,6 +239,19 @@ export const api = {
         return response.json();
     },
 
+    async demoLogin(options?: { role?: 'student' | 'teacher'; preferredLanguage?: 'en' | 'ar-EG' }) {
+        const response = await fetchWithFallback('/auth/demo', {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify(options || {}),
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            throw new Error(data.message || 'Failed to start live demo session');
+        }
+        return data as { user: UserData; token: string; demo?: boolean };
+    },
+
     async updateUser(userId: string, updates: Partial<UserData>) {
         const response = await fetchWithFallback(`/users/${encodeURIComponent(userId)}`, {
             method: 'PUT',

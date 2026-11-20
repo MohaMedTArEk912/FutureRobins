@@ -19,6 +19,7 @@ import usePageTitle from './hooks/usePageTitle';
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/RegisterPage'));
 const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage'));
+const DemoLoginPage = lazy(() => import('./pages/DemoLoginPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 // Dashboard and core pages
@@ -121,6 +122,8 @@ const App: React.FC = () => {
                             <Route path="/register" element={<RegisterPage />} />
                             <Route path="/verify-email" element={<RegisterPage />} />
                             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                            <Route path="/demo" element={<DemoLoginPage />} />
+                            <Route path="/live-demo" element={<DemoLoginPage />} />
 
                             {/* Async Challenge (Can be accessed with link) */}
                             <Route path="/challenge/:token" element={

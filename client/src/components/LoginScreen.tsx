@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, Zap, GraduationCap, Link2, Check } from 'lucide-react';
 import ThemeToggle from './ThemeToggle.tsx';
+import LanguageToggle from './LanguageToggle.tsx';
 import TransparentLogo from './TransparentLogo.tsx';
 import { AmbientBackground } from './AmbientBackground';
 import { AnimatedCharacter } from './AnimatedCharacter.tsx';
@@ -10,20 +11,48 @@ import { useLanguage } from '../context/LanguageContext.tsx';
 
 interface LoginScreenProps {
     onLogin: (email: string, password: string) => Promise<void>;
+    onDemoLogin?: (role?: 'student' | 'teacher') => Promise<void>;
     onSwitchToRegister: () => void;
     onSwitchToForgotPassword: () => void;
     onGoogleSignIn: () => void;
 }
 
-const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSwitchToRegister, onSwitchToForgotPassword, onGoogleSignIn }) => {
+const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onDemoLogin, onSwitchToRegister, onSwitchToForgotPassword, onGoogleSignIn }) => {
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [demoRoleLoading, setDemoRoleLoading] = useState<'student' | 'teacher' | null>(null);
+    const [copiedDemoLink, setCopiedDemoLink] = useState(false);
     const { isBento } = useTheme();
     const { tx } = useLanguage();
+
+    const handleLaunchDemo = async (role: 'student' | 'teacher') => {
+        if (!onDemoLogin) return;
+        setError(null);
+        setDemoRoleLoading(role);
+        try {
+            await onDemoLogin(role);
+        } catch (err) {
+            const message = err instanceof Error ? err.message : tx('Failed to launch demo', 'تعذر تشغيل حساب الديمو');
+            setError(message);
+            setDemoRoleLoading(null);
+        }
+    };
+
+    const handleCopyDemoUrl = async () => {
+        const url = `${window.location.origin}/demo`;
+        try {
+            await navigator.clipboard.writeText(url);
+            setCopiedDemoLink(true);
+            window.setTimeout(() => setCopiedDemoLink(false), 2000);
+        } catch {
+            // fallback prompt
+            window.prompt(tx('Copy Live Demo Link:', 'انسخ لينك الديمو المباشر:'), url);
+        }
+    };
 
     // Focus states for the mascot "living" feel
     const [isEmailFocused, setIsEmailFocused] = useState(false);
@@ -90,8 +119,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSwitchToRegister, 
                 </button>
             </div>
 
-            {/* Theme Toggle - Floating */}
+            {/* Language + Theme Toggles - Floating */}
             <div className="absolute top-6 end-6 z-50 mt-safe me-safe flex items-center gap-2">
+                <LanguageToggle compact />
                 <ThemeToggle />
             </div>
 
@@ -378,6 +408,66 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSwitchToRegister, 
                             <span>GitHub</span>
                         </button>
                     </div>
+
+                    {onDemoLogin && (
+                        <div className={`p-3.5 rounded-2xl space-y-2.5 ${
+                            isBento
+                                ? 'bg-[#fef9c3] border-[2.5px] border-black shadow-[3px_3px_0px_#000]'
+                                : 'bg-indigo-50/70 dark:bg-white/[0.04] border border-indigo-200/80 dark:border-white/10'
+                        }`}>
+                            <div className="flex items-center justify-between gap-2">
+                                <span className={`text-[11px] font-black uppercase tracking-wider flex items-center gap-1.5 ${
+                                    isBento ? 'text-black' : 'text-indigo-700 dark:text-indigo-300'
+                                }`}>
+                                    <Zap className="w-3.5 h-3.5 shrink-0" />
+                                    <span>{tx('Live Interactive Demo', 'جرّب المنصة لايف دلوقتي')}</span>
+                                </span>
+                                <button
+                                    type="button"
+                                    onClick={() => void handleCopyDemoUrl()}
+                                    className={`btn-unstyled inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-black transition-all cursor-pointer ${
+                                        isBento
+                                            ? 'bg-white text-black border border-black hover:bg-[#bae6fd]'
+                                            : 'bg-white dark:bg-white/10 text-slate-700 dark:text-slate-200 hover:bg-indigo-100'
+                                    }`}
+                                    title={tx('Copy shareable /demo link', 'انسخ لينك الديمو للمشاركة')}
+                                >
+                                    {copiedDemoLink ? <Check className="w-3 h-3 text-emerald-600 shrink-0" /> : <Link2 className="w-3 h-3 shrink-0" />}
+                                    <span>{copiedDemoLink ? tx('Copied!', 'اتنسخ!') : tx('Copy Demo Link', 'نسخ لينك الديمو')}</span>
+                                </button>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-2">
+                                <button
+                                    type="button"
+                                    disabled={isLoading || demoRoleLoading !== null}
+                                    onClick={() => void handleLaunchDemo('student')}
+                                    className={`btn-unstyled py-2 px-3 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-50 ${
+                                        isBento
+                                            ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                            : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm'
+                                    }`}
+                                >
+                                    <Zap className={`w-3.5 h-3.5 shrink-0 ${demoRoleLoading === 'student' ? 'animate-spin' : ''}`} />
+                                    <span>{demoRoleLoading === 'student' ? tx('Opening...', 'بنفتح...') : tx('Student Demo', 'ديمو طالب')}</span>
+                                </button>
+
+                                <button
+                                    type="button"
+                                    disabled={isLoading || demoRoleLoading !== null}
+                                    onClick={() => void handleLaunchDemo('teacher')}
+                                    className={`btn-unstyled py-2 px-3 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-50 ${
+                                        isBento
+                                            ? 'bg-[#bae6fd] hover:bg-[#7dd3fc] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                            : 'bg-white dark:bg-white/10 hover:bg-slate-100 dark:hover:bg-white/15 text-slate-800 dark:text-white border border-slate-200 dark:border-white/15'
+                                    }`}
+                                >
+                                    <GraduationCap className={`w-3.5 h-3.5 shrink-0 ${demoRoleLoading === 'teacher' ? 'animate-spin' : ''}`} />
+                                    <span>{demoRoleLoading === 'teacher' ? tx('Opening...', 'بنفتح...') : tx('Teacher Demo', 'ديمو مدرس')}</span>
+                                </button>
+                            </div>
+                        </div>
+                    )}
 
                     <p className={`text-center font-medium text-xs ${
                         isBento ? 'text-gray-600' : 'text-slate-500 dark:text-slate-400'

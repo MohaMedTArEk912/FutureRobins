@@ -11,6 +11,7 @@ interface AuthContextType {
     login: (email: string, password: string) => Promise<{ user: UserData; token: string; isAdmin: boolean }>;
     register: (name: string, email: string, password: string) => Promise<{ user: UserData; token: string; isAdmin: boolean }>;
     googleLogin: (profile: { email: string; name: string; googleId: string }) => Promise<{ user: UserData; token: string; isAdmin: boolean }>;
+    demoLogin: (options?: { role?: 'student' | 'teacher'; preferredLanguage?: 'en' | 'ar-EG' }) => Promise<{ user: UserData; token: string; isAdmin: boolean }>;
     logout: () => void;
     updateUser: (updates: Partial<UserData>) => void;
     refreshUser: () => Promise<void>;
@@ -146,6 +147,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return completeAuthSession(user, jwt);
     };
 
+    const demoLogin = useCallback(async (options?: { role?: 'student' | 'teacher'; preferredLanguage?: 'en' | 'ar-EG' }) => {
+        const { user, token: jwt } = await api.demoLogin(options);
+        return completeAuthSession(user, jwt);
+    }, [completeAuthSession]);
+
     const logout = () => {
         sessionStorage.setItem('suppressRedirectAfterLogin', 'true');
         sessionStorage.removeItem('redirectAfterLogin');
@@ -172,7 +178,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const isTeacher = Boolean(currentUser && (currentUser.role === 'teacher' || currentUser.role === 'admin' || isAdmin));
 
     return (
-        <AuthContext.Provider value={{ currentUser, isAdmin, isTeacher, isLoading, completeAuthSession, login, register, googleLogin, logout, updateUser, refreshUser }}>
+        <AuthContext.Provider value={{ currentUser, isAdmin, isTeacher, isLoading, completeAuthSession, login, register, googleLogin, demoLogin, logout, updateUser, refreshUser }}>
             {children}
         </AuthContext.Provider>
     );

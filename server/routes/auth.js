@@ -10,6 +10,7 @@ router.post('/register/request-verification', validate(registerSchema), authCont
 router.post('/register/verify', authController.verifyRegistration);
 router.post('/register', validate(registerSchema), authController.register);
 router.post('/login', validate(loginSchema), authController.login);
+router.post('/auth/demo', authController.demoLogin);
 router.post('/auth/google', authController.googleAuth);
 router.post('/verify-session', authController.verifySession);
 router.get('/verify-session', authController.verifySession);

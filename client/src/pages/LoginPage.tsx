@@ -1,12 +1,16 @@
 import React, { useEffect } from 'react';
 import LoginScreen from '../components/LoginScreen';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
+import { useTheme } from '../context/ThemeContext';
 import { useNavigate } from 'react-router-dom';
 import { useConfirm } from '../hooks/useConfirm';
 import ConfirmDialog from '../components/ConfirmDialog';
 
 const LoginPage: React.FC = () => {
-    const { currentUser, isAdmin: authIsAdmin, login, googleLogin } = useAuth();
+    const { currentUser, isAdmin: authIsAdmin, login, googleLogin, demoLogin } = useAuth();
+    const { language } = useLanguage();
+    const { theme, setTheme, closeThemeModal } = useTheme();
     const navigate = useNavigate();
     const { confirm, confirmState, handleCancel } = useConfirm();
 
@@ -190,10 +194,32 @@ const LoginPage: React.FC = () => {
         }, 300000);
     };
 
+    const handleDemoLogin = async (role: 'student' | 'teacher' = 'student') => {
+        try {
+            if (!localStorage.getItem('theme')) {
+                setTheme(theme);
+            }
+        } catch {
+            // ignore storage errors
+        }
+        closeThemeModal();
+        await demoLogin({ role, preferredLanguage: language });
+        sessionStorage.removeItem('suppressRedirectAfterLogin');
+        const redirect = sessionStorage.getItem('redirectAfterLogin');
+        if (redirect && redirect.startsWith('/') && role === 'student') {
+            sessionStorage.removeItem('redirectAfterLogin');
+            navigate(redirect, { replace: true });
+        } else {
+            sessionStorage.removeItem('redirectAfterLogin');
+            navigate('/', { replace: true });
+        }
+    };
+
     return (
         <>
             <LoginScreen
                 onLogin={handleLogin}
+                onDemoLogin={handleDemoLogin}
                 onSwitchToRegister={() => navigate('/register')}
                 onSwitchToForgotPassword={() => navigate('/forgot-password')}
                 onGoogleSignIn={handleGoogleSignIn}

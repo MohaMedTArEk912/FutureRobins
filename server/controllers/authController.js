@@ -1,6 +1,11 @@
 import crypto from 'crypto';
 import { User } from '../models/User.js';
 import { PendingRegistration } from '../models/PendingRegistration.js';
+import { Subject } from '../models/Subject.js';
+import { SkillTrack } from '../models/SkillTrack.js';
+import { Class as Clan } from '../models/Class.js';
+import { Quiz } from '../models/Quiz.js';
+import { Attempt } from '../models/Attempt.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { getEnrichedUser } from '../services/userService.js';
@@ -571,6 +576,10 @@ export const changePassword = async (req, res) => {
     try {
         const { email, currentPassword, newPassword } = req.body || {};
         const normalizedEmail = (email || '').toLowerCase().trim();
+
+        if (normalizedEmail.endsWith('@quizplatform.demo')) {
+            return res.status(403).json({ message: 'Demo account password cannot be changed' });
+        }
         
         if (!newPassword || newPassword.length < 6) {
             return res.status(400).json({ message: 'New password must be at least 6 characters long' });
@@ -684,5 +693,261 @@ export const adminCreateUser = async (req, res) => {
     } catch (error) {
         console.error('Admin Create User Error:', error);
         res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+export const demoLogin = async (req, res) => {
+    try {
+        if (process.env.ALLOW_LIVE_DEMO === 'false') {
+            return res.status(403).json({ message: 'Live demo access is currently disabled.' });
+        }
+
+        const requestedRole = req.body?.role === 'teacher' ? 'teacher' : 'student';
+        const requestedLang =
+            req.body?.preferredLanguage === 'ar-EG' || req.body?.preferredLanguage === 'en'
+                ? req.body.preferredLanguage
+                : null;
+
+        const [subjects, tracks, visibleQuizzes] = await Promise.all([
+            Subject.find({}).select('_id title').lean(),
+            SkillTrack.find({ isVisible: { $ne: false } }).select('trackId title').lean(),
+            Quiz.find({ isVisible: { $ne: false } }).select('id title questions').limit(4).lean()
+        ]);
+
+        const allUnlockedTrackIds = Array.from(
+            new Set([
+                ...subjects.map((s) => s._id?.toString()).filter(Boolean),
+                ...tracks.map((t) => t.trackId).filter(Boolean)
+            ])
+        );
+        const primaryTrackId = subjects[0]?._id?.toString() || tracks[0]?.trackId || undefined;
+        const firstTrackId = tracks[0]?.trackId || null;
+        const firstSubjectId = subjects[0]?._id?.toString() || null;
+
+        const ensureSingleDemoUser = async ({
+            userId,
+            email,
+            name,
+            role,
+            friendId,
+            avatarBg
+        }) => {
+            let doc = await User.findOne({ userId });
+            if (!doc) {
+                const salt = await bcrypt.genSalt(10);
+                const randomSecret = crypto.randomBytes(24).toString('hex');
+                const passwordHash = await bcrypt.hash(randomSecret, salt);
+
+                doc = new User({
+                    userId,
+                    name,
+                    email,
+                    password: passwordHash,
+                    role,
+                    emailVerified: true,
+                    xp: role === 'teacher' ? 2400 : 1250,
+                    level: role === 'teacher' ? 5 : 4,
+                    coins: 450,
+                    streak: 5,
+                    totalScore: role === 'teacher' ? 320 : 240,
+                    totalAttempts: role === 'teacher' ? 4 : 6,
+                    totalTime: 780,
+                    lastLoginDate: new Date(),
+                    lastStreakClaimDate: new Date(),
+                    primaryTrackId,
+                    unlockedTracks: allUnlockedTrackIds,
+                    friends: [friendId],
+                    powerUps: [
+                        { type: '5050', quantity: 3 },
+                        { type: 'time_freeze', quantity: 2 }
+                    ],
+                    preferredLanguage: requestedLang || 'en',
+                    avatar: {
+                        skinColor: '#F3D2A2',
+                        hairStyle: 'short',
+                        hairColor: '#1F2937',
+                        accessory: 'glasses',
+                        backgroundColor: avatarBg,
+                        mood: 'happy'
+                    },
+                    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 30)
+                });
+                await doc.save();
+            } else {
+                doc.emailVerified = true;
+                doc.unlockedTracks = Array.from(new Set([...(doc.unlockedTracks || []), ...allUnlockedTrackIds]));
+                if (!doc.primaryTrackId && primaryTrackId) {
+                    doc.primaryTrackId = primaryTrackId;
+                }
+                if (!doc.friends || !doc.friends.includes(friendId)) {
+                    doc.friends = Array.from(new Set([...(doc.friends || []), friendId]));
+                }
+                if ((doc.coins || 0) < 100) doc.coins = 450;
+                if ((doc.xp || 0) < 100) {
+                    doc.xp = role === 'teacher' ? 2400 : 1250;
+                    doc.level = role === 'teacher' ? 5 : 4;
+                }
+                if (!doc.powerUps || doc.powerUps.length === 0) {
+                    doc.powerUps = [
+                        { type: '5050', quantity: 3 },
+                        { type: 'time_freeze', quantity: 2 }
+                    ];
+                }
+                if (requestedLang) {
+                    doc.preferredLanguage = requestedLang;
+                } else if (!doc.preferredLanguage) {
+                    doc.preferredLanguage = 'en';
+                }
+                doc.lastLoginDate = new Date();
+                await doc.save();
+            }
+            return doc;
+        };
+
+        const [demoTeacher, demoStudent] = await Promise.all([
+            ensureSingleDemoUser({
+                userId: 'demo_teacher',
+                email: 'demo.teacher@quizplatform.demo',
+                name: 'Prof. Demo (Educator)',
+                role: 'teacher',
+                friendId: 'demo_student',
+                avatarBg: '#FDE047'
+            }),
+            ensureSingleDemoUser({
+                userId: 'demo_student',
+                email: 'demo.student@quizplatform.demo',
+                name: 'Alex Demo (Explorer)',
+                role: 'student',
+                friendId: 'demo_teacher',
+                avatarBg: '#BEF264'
+            })
+        ]);
+
+        // Ensure shared showcase Class so Class Hub, Class Chat & Curriculum tabs are populated
+        try {
+            let demoClass = await Clan.findOne({ tag: 'DEMO' });
+            if (!demoClass) {
+                demoClass = new Clan({
+                    name: 'Live Demo Cohort',
+                    tag: 'DEMO',
+                    description: 'Interactive showcase classroom — explore live discussions, announcements, curriculum modules, and homework.',
+                    leaderId: demoTeacher.userId,
+                    isPublic: true,
+                    totalXP: 3650,
+                    level: 4,
+                    trackId: firstTrackId,
+                    subjectId: firstSubjectId,
+                    members: [
+                        { userId: demoTeacher.userId, role: 'leader', contribution: 2400 },
+                        { userId: demoStudent.userId, role: 'member', contribution: 1250 }
+                    ],
+                    announcements: [
+                        {
+                            id: 'demo_ann_1',
+                            authorId: demoTeacher.userId,
+                            authorName: demoTeacher.name,
+                            content: 'Welcome to the Live Platform Demo! Check out Class Chat, Curriculum Sessions, and Live Classroom Arena.',
+                            isPinned: true,
+                            createdAt: new Date()
+                        }
+                    ],
+                    chatMessages: [
+                        {
+                            id: 'demo_msg_1',
+                            senderId: demoTeacher.userId,
+                            senderName: demoTeacher.name,
+                            senderAvatar: demoTeacher.avatar,
+                            senderRole: 'leader',
+                            content: 'Welcome everyone! Click any classmate name to open Private Chat or View Profile, or jump into Live Classroom Arena.',
+                            createdAt: new Date(Date.now() - 1000 * 60 * 15)
+                        },
+                        {
+                            id: 'demo_msg_2',
+                            senderId: demoStudent.userId,
+                            senderName: demoStudent.name,
+                            senderAvatar: demoStudent.avatar,
+                            senderRole: 'member',
+                            content: 'Ready to explore all the quizzes, tracks, daily challenges, and flashcards!',
+                            createdAt: new Date(Date.now() - 1000 * 60 * 5)
+                        }
+                    ]
+                });
+                await demoClass.save();
+            } else {
+                let changed = false;
+                for (const [uid, roleName] of [
+                    [demoTeacher.userId, 'leader'],
+                    [demoStudent.userId, 'member']
+                ]) {
+                    if (!demoClass.members.some((m) => m.userId === uid)) {
+                        demoClass.members.push({ userId: uid, role: roleName, contribution: 500 });
+                        changed = true;
+                    }
+                }
+                if (!demoClass.trackId && firstTrackId) {
+                    demoClass.trackId = firstTrackId;
+                    changed = true;
+                }
+                if (changed) await demoClass.save();
+            }
+
+            if (demoClass?.clanId) {
+                const clanUpdates = [];
+                if (demoTeacher.clanId !== demoClass.clanId) {
+                    demoTeacher.clanId = demoClass.clanId;
+                    clanUpdates.push(demoTeacher.save());
+                }
+                if (demoStudent.clanId !== demoClass.clanId) {
+                    demoStudent.clanId = demoClass.clanId;
+                    clanUpdates.push(demoStudent.save());
+                }
+                if (clanUpdates.length > 0) await Promise.all(clanUpdates);
+            }
+        } catch (classErr) {
+            console.warn('Demo class setup warning:', classErr?.message || classErr);
+        }
+
+        // Seed showcase quiz attempts for Analytics & Activity Heatmap if demo student has none
+        try {
+            const existingAttemptCount = await Attempt.countDocuments({ userId: demoStudent.userId });
+            if (existingAttemptCount === 0 && visibleQuizzes.length > 0) {
+                const sampleAttempts = visibleQuizzes.slice(0, 3).map((quiz, idx) => {
+                    const totalQuestions = Math.max(quiz.questions?.length || 10, 5);
+                    const score = Math.max(totalQuestions - idx - 1, Math.ceil(totalQuestions * 0.8));
+                    const percentage = Math.round((score / totalQuestions) * 100);
+                    return {
+                        attemptId: `demo_attempt_${Date.now()}_${idx}`,
+                        userId: demoStudent.userId,
+                        userName: demoStudent.name,
+                        userEmail: demoStudent.email,
+                        quizId: quiz.id,
+                        quizTitle: quiz.title,
+                        score,
+                        totalQuestions,
+                        percentage,
+                        timeTaken: 95 + idx * 35,
+                        answers: {},
+                        reviewStatus: 'completed',
+                        passed: true,
+                        completedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * idx)
+                    };
+                });
+                await Attempt.insertMany(sampleAttempts, { ordered: false }).catch(() => {});
+            }
+        } catch (attemptErr) {
+            console.warn('Demo attempt seed warning:', attemptErr?.message || attemptErr);
+        }
+
+        const activeUser = requestedRole === 'teacher' ? demoTeacher : demoStudent;
+        await evaluateAndAwardBadges(activeUser.userId).catch(() => {});
+
+        const token = generateToken(activeUser.userId, activeUser.role);
+        const enrichedUser = await getEnrichedUser(activeUser.userId);
+        const { password: _pw, ...safeUser } = enrichedUser || activeUser.toObject();
+
+        res.json({ user: safeUser, token, demo: true });
+    } catch (error) {
+        console.error('Demo Login Error:', error);
+        res.status(500).json({ message: 'Failed to initialize live demo session', error: error.message });
     }
 };
