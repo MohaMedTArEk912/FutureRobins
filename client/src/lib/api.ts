@@ -239,7 +239,7 @@ export const api = {
         return response.json();
     },
 
-    async demoLogin(options?: { role?: 'student' | 'teacher'; preferredLanguage?: 'en' | 'ar-EG' }) {
+    async demoLogin(options?: { role?: 'student' | 'teacher'; preferredLanguage?: 'en' | 'ar-EG'; name?: string }) {
         const response = await fetchWithFallback('/auth/demo', {
             method: 'POST',
             headers: getHeaders(),

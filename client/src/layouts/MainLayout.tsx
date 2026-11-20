@@ -246,7 +246,18 @@ const MainLayout: React.FC = () => {
         setDemoSwitching(true);
         try {
             const nextRole = isDemoTeacher ? 'student' : 'teacher';
-            await demoLogin({ role: nextRole, preferredLanguage: language });
+            const savedName = sessionStorage.getItem('demoVisitorName')?.trim();
+            const currentName =
+                currentUser?.name &&
+                currentUser.name !== 'Alex Demo (Explorer)' &&
+                currentUser.name !== 'Prof. Demo (Educator)'
+                    ? currentUser.name
+                    : undefined;
+            await demoLogin({
+                role: nextRole,
+                preferredLanguage: language,
+                name: savedName || currentName
+            });
             navigate('/', { replace: true });
             showNotification(
                 'info',

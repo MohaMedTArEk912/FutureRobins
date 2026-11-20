@@ -707,6 +707,12 @@ export const demoLogin = async (req, res) => {
             req.body?.preferredLanguage === 'ar-EG' || req.body?.preferredLanguage === 'en'
                 ? req.body.preferredLanguage
                 : null;
+        const rawCustomName = typeof req.body?.name === 'string' ? req.body.name : '';
+        const sanitizedCustomName = rawCustomName
+            .replace(/[\r\n\t<>]/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim()
+            .slice(0, 40);
 
         const [subjects, tracks, visibleQuizzes] = await Promise.all([
             Subject.find({}).select('_id title').lean(),
@@ -775,6 +781,9 @@ export const demoLogin = async (req, res) => {
                 await doc.save();
             } else {
                 doc.emailVerified = true;
+                if (name) {
+                    doc.name = name;
+                }
                 doc.unlockedTracks = Array.from(new Set([...(doc.unlockedTracks || []), ...allUnlockedTrackIds]));
                 if (!doc.primaryTrackId && primaryTrackId) {
                     doc.primaryTrackId = primaryTrackId;
@@ -804,11 +813,20 @@ export const demoLogin = async (req, res) => {
             return doc;
         };
 
+        const teacherName =
+            requestedRole === 'teacher' && sanitizedCustomName
+                ? sanitizedCustomName
+                : 'Prof. Demo (Educator)';
+        const studentName =
+            requestedRole === 'student' && sanitizedCustomName
+                ? sanitizedCustomName
+                : 'Alex Demo (Explorer)';
+
         const [demoTeacher, demoStudent] = await Promise.all([
             ensureSingleDemoUser({
                 userId: 'demo_teacher',
                 email: 'demo.teacher@quizplatform.demo',
-                name: 'Prof. Demo (Educator)',
+                name: teacherName,
                 role: 'teacher',
                 friendId: 'demo_student',
                 avatarBg: '#FDE047'
@@ -816,7 +834,7 @@ export const demoLogin = async (req, res) => {
             ensureSingleDemoUser({
                 userId: 'demo_student',
                 email: 'demo.student@quizplatform.demo',
-                name: 'Alex Demo (Explorer)',
+                name: studentName,
                 role: 'student',
                 friendId: 'demo_teacher',
                 avatarBg: '#BEF264'

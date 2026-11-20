@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LogIn, UserPlus, X, Sparkles, Award, Target, Trophy, Zap } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
-import { useAuth } from '../context/AuthContext';
 
 interface LoginPromptModalProps {
     isOpen: boolean;
@@ -21,26 +20,16 @@ export const LoginPromptModal: React.FC<LoginPromptModalProps> = ({
     redirectPath
 }) => {
     const { isBento } = useTheme();
-    const { language, tx } = useLanguage();
-    const { demoLogin } = useAuth();
+    const { tx } = useLanguage();
     const navigate = useNavigate();
-    const [demoLoading, setDemoLoading] = useState(false);
 
     if (!isOpen) return null;
 
-    const handleInstantDemo = async () => {
-        setDemoLoading(true);
-        try {
-            await demoLogin({ role: 'student', preferredLanguage: language });
-            sessionStorage.removeItem('suppressRedirectAfterLogin');
-            const target = redirectPath && redirectPath.startsWith('/') ? redirectPath : '/';
-            onClose();
-            navigate(target, { replace: true });
-        } catch (err) {
-            console.error('Instant demo failed:', err);
-        } finally {
-            setDemoLoading(false);
-        }
+    const handleInstantDemo = () => {
+        const target = redirectPath && redirectPath.startsWith('/') ? redirectPath : '/';
+        const query = target !== '/' ? `?to=${encodeURIComponent(target)}` : '';
+        onClose();
+        navigate(`/demo${query}`);
     };
 
     const resolvedTitle = title ?? tx("Let's Log In", 'يلا نسجل دخول');
@@ -169,20 +158,15 @@ export const LoginPromptModal: React.FC<LoginPromptModalProps> = ({
 
                     <button
                         type="button"
-                        onClick={() => void handleInstantDemo()}
-                        disabled={demoLoading}
-                        className={`btn-unstyled w-full py-3 rounded-xl font-black text-sm flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-60 ${
+                        onClick={handleInstantDemo}
+                        className={`btn-unstyled w-full py-3 rounded-xl font-black text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
                             isBento
                                 ? 'bg-[#bae6fd] hover:bg-[#7dd3fc] text-black border-2 border-black shadow-[3px_3px_0px_#000] active:translate-x-0.5 active:translate-y-0.5'
                                 : 'bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30'
                         }`}
                     >
-                        <Zap className={`w-4 h-4 shrink-0 ${demoLoading ? 'animate-spin' : ''}`} />
-                        <span>
-                            {demoLoading
-                                ? tx('Launching Live Demo...', 'بنفتح الديمو المباشر...')
-                                : tx('Try Instant Live Demo (No Sign Up)', 'جرّب الديمو المباشر بدون تسجيل')}
-                        </span>
+                        <Zap className="w-4 h-4 shrink-0" />
+                        <span>{tx('Try Instant Live Demo (No Sign Up)', 'جرّب الديمو المباشر بدون تسجيل')}</span>
                     </button>
 
                     <button

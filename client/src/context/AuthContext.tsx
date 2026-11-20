@@ -11,7 +11,7 @@ interface AuthContextType {
     login: (email: string, password: string) => Promise<{ user: UserData; token: string; isAdmin: boolean }>;
     register: (name: string, email: string, password: string) => Promise<{ user: UserData; token: string; isAdmin: boolean }>;
     googleLogin: (profile: { email: string; name: string; googleId: string }) => Promise<{ user: UserData; token: string; isAdmin: boolean }>;
-    demoLogin: (options?: { role?: 'student' | 'teacher'; preferredLanguage?: 'en' | 'ar-EG' }) => Promise<{ user: UserData; token: string; isAdmin: boolean }>;
+    demoLogin: (options?: { role?: 'student' | 'teacher'; preferredLanguage?: 'en' | 'ar-EG'; name?: string }) => Promise<{ user: UserData; token: string; isAdmin: boolean }>;
     logout: () => void;
     updateUser: (updates: Partial<UserData>) => void;
     refreshUser: () => Promise<void>;
@@ -147,7 +147,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return completeAuthSession(user, jwt);
     };
 
-    const demoLogin = useCallback(async (options?: { role?: 'student' | 'teacher'; preferredLanguage?: 'en' | 'ar-EG' }) => {
+    const demoLogin = useCallback(async (options?: { role?: 'student' | 'teacher'; preferredLanguage?: 'en' | 'ar-EG'; name?: string }) => {
         const { user, token: jwt } = await api.demoLogin(options);
         return completeAuthSession(user, jwt);
     }, [completeAuthSession]);
@@ -155,6 +155,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const logout = () => {
         sessionStorage.setItem('suppressRedirectAfterLogin', 'true');
         sessionStorage.removeItem('redirectAfterLogin');
+        sessionStorage.removeItem('demoVisitorName');
         sessionStorage.removeItem('googleAuthData');
         localStorage.removeItem('weekly_challenge_subscriber');
         sessionStorage.removeItem('weekly_challenge_anon_subscriber');
