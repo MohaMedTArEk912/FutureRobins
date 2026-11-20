@@ -3,6 +3,13 @@ import { api } from '../lib/api';
 import type { Quiz, UserData, AttemptData, BadgeDefinition, ChallengeData, Subject, SkillTrack, StudyCard } from '../lib/api';
 import { useAuth } from './AuthContext';
 
+interface PlatformStatsMeta {
+    totalAttempts?: number;
+    totalUsers?: number;
+    avgScore?: number;
+    avgPercentage?: number;
+}
+
 interface DataContextType {
     availableQuizzes: Quiz[];
     allUsers: UserData[];
@@ -12,6 +19,7 @@ interface DataContextType {
     subjects: Subject[];
     skillTracks: SkillTrack[];
     studyCards: StudyCard[];
+    platformStats: PlatformStatsMeta | null;
     loadingData: boolean;
     loadingQuizzes: boolean;
     refreshData: () => Promise<void>;
@@ -42,6 +50,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const [subjects, setSubjects] = useState<Subject[]>([]);
     const [skillTracks, setSkillTracks] = useState<SkillTrack[]>([]);
     const [studyCards, setStudyCards] = useState<StudyCard[]>([]);
+    const [platformStats, setPlatformStats] = useState<PlatformStatsMeta | null>(null);
     const [loadingData, setLoadingData] = useState(false);
     const [loadingQuizzes, setLoadingQuizzes] = useState(true);
 
@@ -92,7 +101,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         try {
             if (isAdmin) {
                 // Admin fetches everything
-                const { users, attempts, badges, subjects: adminSubjects } = await api.getData(uid);
+                const { users, attempts, badges, subjects: adminSubjects, meta } = await api.getData(uid);
 
                 // Admins also need quizzes, skill tracks and study cards
                 try {
@@ -112,6 +121,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 setAllAttempts(attempts || []);
                 setAllBadges(badges || []);
                 setSubjects(adminSubjects || []);
+                setPlatformStats(meta || null);
                 setChallenges([]);
             } else {
                 // Regular user fetches optimized set
@@ -154,6 +164,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             setAllAttempts([]);
             setChallenges([]);
             setSubjects([]);
+            setPlatformStats(null);
         }
     }, [currentUser?.userId, isAdmin, refreshData]);
 
@@ -177,6 +188,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             subjects,
             skillTracks,
             studyCards,
+            platformStats,
             loadingData,
             loadingQuizzes,
             refreshData,

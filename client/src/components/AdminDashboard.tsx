@@ -88,7 +88,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
 }) => {
     const navigate = useNavigate();
     const { isBento } = useTheme();
-    const { skillTracks } = useData();
+    const { skillTracks, platformStats } = useData();
 
     // --- State ---
     const [isSettingsDropdownOpen, setIsSettingsDropdownOpen] = useState(false);
@@ -109,14 +109,14 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
         const safeUsers = Array.isArray(users) ? users : [];
         const safeQuizzes = Array.isArray(quizzes) ? quizzes : [];
         const totalScore = safeAttempts.reduce((acc, curr) => acc + (curr?.score || 0), 0);
-        const avgScore = safeAttempts.length > 0 ? Math.round(totalScore / safeAttempts.length) : 0;
+        const fallbackAvgScore = safeAttempts.length > 0 ? Math.round(totalScore / safeAttempts.length) : 0;
         return {
-            totalUsers: safeUsers.length,
+            totalUsers: platformStats?.totalUsers ?? safeUsers.length,
             totalQuizzes: safeQuizzes.length,
-            totalAttempts: safeAttempts.length,
-            avgScore
+            totalAttempts: platformStats?.totalAttempts ?? safeAttempts.length,
+            avgScore: platformStats?.avgScore ?? fallbackAvgScore
         };
-    }, [attempts, users, quizzes]);
+    }, [attempts, users, quizzes, platformStats]);
 
     const loadPendingData = useCallback(async () => {
         try {

@@ -156,11 +156,14 @@ export const getAnalyticsSummary = async (req, res) => {
     const isAdmin = req.user?.role === 'admin';
 
     let attempts = [];
+    let attemptMatchFilter = null;
     if (userId && userId !== 'guest') {
-      attempts = await Attempt.find({ userId }).sort({ completedAt: -1 }).limit(300).lean();
+      attemptMatchFilter = { userId };
+      attempts = await Attempt.find(attemptMatchFilter).sort({ completedAt: -1 }).limit(1000).lean();
     }
     if (attempts.length === 0 && isAdmin) {
-      attempts = await Attempt.find({}).sort({ completedAt: -1 }).limit(500).lean();
+      attemptMatchFilter = {};
+      attempts = await Attempt.find({}).sort({ completedAt: -1 }).limit(2000).lean();
     }
 
     const quizzes = await Quiz.find({}).select('id _id category title questions difficulty').lean();
@@ -170,7 +173,8 @@ export const getAnalyticsSummary = async (req, res) => {
       if (q._id) quizMap.set(String(q._id), q);
     });
 
-    const totalAttempts = attempts.length;
+    const exactAttemptCount = attemptMatchFilter ? await Attempt.countDocuments(attemptMatchFilter) : 0;
+    const totalAttempts = Math.max(exactAttemptCount, attempts.length);
     const avgScore = totalAttempts > 0
       ? Math.round(attempts.reduce((sum, a) => sum + (a.percentage || 0), 0) / totalAttempts)
       : 0;
@@ -876,7 +880,7 @@ export const getData = async (req, res) => {
     const isAdmin = req.user?.role === 'admin';
     const userId = req.user?.userId;
 
-    const [users, attempts, badges, challenges, shopItems] = await Promise.all([
+    const [users, attempts, badges, challenges, shopItems, attemptStatsAgg, totalUsersCount] = await Promise.all([
       isAdmin
         ? User.find({}, '-password').sort({ createdAt: -1 }).limit(2000).lean()
         : User.find({}, 'userId name totalScore totalAttempts xp level streak rank lastLoginDate createdAt badges')
@@ -884,8 +888,8 @@ export const getData = async (req, res) => {
             .limit(100)
             .lean(),
       isAdmin
-        ? Attempt.find({}).select('-attemptQuestions').sort({ completedAt: -1 }).limit(500).lean()
-        : Attempt.find({ userId }).select('-attemptQuestions').sort({ completedAt: -1 }).limit(300).lean(),
+        ? Attempt.find({}).select('-attemptQuestions').sort({ completedAt: -1 }).limit(2000).lean()
+        : Attempt.find({ userId }).select('-attemptQuestions').sort({ completedAt: -1 }).limit(1000).lean(),
       Badge.find({}).lean(),
       Challenge.find({
         $or: [{ fromId: userId }, { toId: userId }]
@@ -893,10 +897,30 @@ export const getData = async (req, res) => {
         .sort({ createdAt: -1 })
         .limit(50)
         .lean(),
-      ShopItem.find({}).lean()
+      ShopItem.find({}).lean(),
+      Attempt.aggregate([
+        ...(isAdmin ? [] : [{ $match: { userId } }]),
+        {
+          $group: {
+            _id: null,
+            totalAttempts: { $sum: 1 },
+            avgScore: { $avg: { $ifNull: ['$score', 0] } },
+            avgPercentage: { $avg: { $ifNull: ['$percentage', 0] } }
+          }
+        }
+      ]),
+      isAdmin ? User.countDocuments({}) : Promise.resolve(null)
     ]);
 
-    res.json({ users, attempts, badges, challenges, shopItems });
+    const aggRow = Array.isArray(attemptStatsAgg) && attemptStatsAgg[0] ? attemptStatsAgg[0] : null;
+    const meta = {
+      totalAttempts: aggRow?.totalAttempts ?? attempts.length,
+      avgScore: aggRow ? Math.round(aggRow.avgScore || 0) : 0,
+      avgPercentage: aggRow ? Math.round(aggRow.avgPercentage || 0) : 0,
+      totalUsers: typeof totalUsersCount === 'number' ? totalUsersCount : users.length
+    };
+
+    res.json({ users, attempts, badges, challenges, shopItems, meta });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
