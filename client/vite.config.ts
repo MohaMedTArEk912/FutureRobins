@@ -99,10 +99,31 @@ export default defineConfig({
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
-        navigateFallback: '/index.html',
-        navigateFallbackDenylist: [/^\/api/, /^\/socket\.io/],
+        globPatterns: ['**/*.{js,css,ico,png,svg,webmanifest,wasm}'],
+        globIgnores: ['**/index.html', '**/stats.html'],
+        navigateFallback: null,
+        navigateFallbackDenylist: [/^\/api/, /^\/socket\.io/, /^\/t\//],
         // Cache strategies for optimal performance
         runtimeCaching: [
+          {
+            urlPattern: ({ request, url }) =>
+              request.mode === 'navigate' &&
+              !url.pathname.startsWith('/api') &&
+              !url.pathname.startsWith('/socket.io') &&
+              !url.pathname.startsWith('/t/'),
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'html-navigation-cache',
+              networkTimeoutSeconds: 4,
+              expiration: {
+                maxEntries: 20,
+                maxAgeSeconds: 60 * 60 * 24 // 1 day
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
             handler: 'CacheFirst',
@@ -172,7 +193,7 @@ export default defineConfig({
   build: {
     // Target modern browsers for clean ES modules
     target: 'es2020',
-    emptyOutDir: false,
+    emptyOutDir: true,
 
     // Disable HTML modulepreload injection to eliminate Chromium Service Worker cross-world mismatch warnings
     modulePreload: false,

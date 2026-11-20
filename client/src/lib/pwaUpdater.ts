@@ -63,6 +63,33 @@ class PwaUpdater {
         });
 
         if ('serviceWorker' in navigator) {
+            const hadController = Boolean(navigator.serviceWorker.controller);
+            let refreshing = false;
+
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                if (!hadController || refreshing) return;
+
+                const path = window.location.pathname;
+                const isActiveSession =
+                    path.startsWith('/quiz/') ||
+                    path.startsWith('/game/vs') ||
+                    path.startsWith('/challenge/');
+
+                if (isActiveSession) {
+                    this.setState({ needRefresh: true });
+                    return;
+                }
+
+                const key = 'sw_auto_reload_timestamp';
+                const lastReload = sessionStorage.getItem(key);
+                const now = Date.now();
+                if (!lastReload || now - parseInt(lastReload, 10) > 15000) {
+                    refreshing = true;
+                    sessionStorage.setItem(key, now.toString());
+                    window.location.reload();
+                }
+            });
+
             this.updateSWFunction = registerSW({
                 immediate: true,
                 onNeedRefresh: () => {
