@@ -1306,7 +1306,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                         {selectedTab === 'live-proctoring' && (
                             <LiveProctoringManagement
-                                onInspectAttempt={(att) => setSelectedAttemptForInspection(att)}
+
                                 onNotification={handleNotification}
                             />
                         )}

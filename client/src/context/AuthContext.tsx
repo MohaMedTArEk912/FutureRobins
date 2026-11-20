@@ -45,7 +45,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     // Load session on mount
     useEffect(() => {
         const verifyAndLoadSession = async () => {
-            const savedSession = sessionStorage.getItem('userSession');
+            const savedSession = sessionStorage.getItem('userSession') || localStorage.getItem('userSession');
             if (savedSession) {
                 try {
                     const session = JSON.parse(savedSession);
@@ -54,6 +54,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                     const { valid, user } = await api.verifySession(sessionToken);
 
                     if (valid) {
+                        const normalizedSession = JSON.stringify({
+                            user,
+                            token: sessionToken,
+                            isAdmin: user.role === 'admin'
+                        });
+                        sessionStorage.setItem('userSession', normalizedSession);
+                        localStorage.setItem('userSession', normalizedSession);
                         setCurrentUser(user);
                         setIsAdmin(user.role === 'admin');
                         setToken(sessionToken ?? null);
@@ -63,6 +70,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 } catch (error) {
                     console.error('Session verification failed:', error);
                     sessionStorage.removeItem('userSession');
+                    localStorage.removeItem('userSession');
                     setCurrentUser(null);
                     setIsAdmin(false);
                     setToken(null);
@@ -75,7 +83,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }, []);
 
     const refreshUser = useCallback(async () => {
-        const savedSession = sessionStorage.getItem('userSession');
+        const savedSession = sessionStorage.getItem('userSession') || localStorage.getItem('userSession');
         let currentUserId = currentUser?.userId;
         let currentToken = token;
         if (!currentUserId && savedSession) {
@@ -98,7 +106,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             });
             const isAdminUser = user.role === 'admin';
             setIsAdmin(isAdminUser);
-            sessionStorage.setItem('userSession', JSON.stringify({ user, token: currentToken, isAdmin: isAdminUser }));
+            const updatedSession = JSON.stringify({ user, token: currentToken, isAdmin: isAdminUser });
+            sessionStorage.setItem('userSession', updatedSession);
+            localStorage.setItem('userSession', updatedSession);
         } catch (error) {
             console.error('Failed to refresh user:', error);
         }
@@ -109,7 +119,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setCurrentUser(user);
         setIsAdmin(isAdminUser);
         setToken(jwt);
-        sessionStorage.setItem('userSession', JSON.stringify({ user, token: jwt, isAdmin: isAdminUser }));
+        const sessionPayload = JSON.stringify({ user, token: jwt, isAdmin: isAdminUser });
+        sessionStorage.setItem('userSession', sessionPayload);
+        localStorage.setItem('userSession', sessionPayload);
         return { user, token: jwt, isAdmin: isAdminUser };
     }, []);
 
@@ -163,6 +175,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setIsAdmin(false);
         setToken(null);
         sessionStorage.removeItem('userSession');
+        localStorage.removeItem('userSession');
     };
 
     const updateUser = useCallback((updates: Partial<UserData>) => {
@@ -171,7 +184,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             const newState = { ...prev, ...updates };
             const nextIsAdmin = newState.role === 'admin';
             setIsAdmin(nextIsAdmin);
-            sessionStorage.setItem('userSession', JSON.stringify({ user: newState, token, isAdmin: nextIsAdmin }));
+            const updatedSession = JSON.stringify({ user: newState, token, isAdmin: nextIsAdmin });
+            sessionStorage.setItem('userSession', updatedSession);
+            localStorage.setItem('userSession', updatedSession);
             return newState;
         });
     }, [token]);

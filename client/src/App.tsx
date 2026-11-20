@@ -29,6 +29,7 @@ const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 // Admin pages
 const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage'));
 const TeacherQuizRevisionPage = lazy(() => import('./pages/TeacherQuizRevisionPage'));
+const ProctoringTelemetryPage = lazy(() => import('./pages/ProctoringTelemetryPage'));
 
 const TournamentInviteRedirect: React.FC = () => {
     const { tournamentId } = useParams<{ tournamentId: string }>();
@@ -137,6 +138,8 @@ const App: React.FC = () => {
                                 <AdminDashboardPage />
                               </AdminRoute>
                             } />
+
+                            <Route path="/admin/proctoring/:attemptId" element={<AdminRoute><ProctoringTelemetryPage /></AdminRoute>} />
 
                             <Route path="/admin/quiz/:quizId/revision" element={
                               <AdminRoute>
