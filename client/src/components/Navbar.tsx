@@ -19,6 +19,7 @@ import { useChat } from '../context/ChatContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useNavArrangement } from '../context/NavArrangementContext';
 import { NavbarCustomizerModal } from './nav/NavbarCustomizerModal';
+import DemoRoleSwitchButton from './DemoRoleSwitchButton';
 
 interface NavbarProps {
     user?: UserData | null;
@@ -340,8 +341,9 @@ const Navbar: React.FC<NavbarProps> = ({
                         </nav>
                     </div>
 
-                    {/* Right Column: User Profile, Logout, Chat Hub, Notification Bell */}
+                    {/* Right Column: Demo Switch (demo only), User Profile, Logout, Chat Hub, Notification Bell */}
                     <div className="flex items-center justify-end gap-2 shrink-0">
+                        <DemoRoleSwitchButton variant="navbar" />
                         {showActions && (
                             <>
                                 {!isGuest ? (
@@ -491,6 +493,7 @@ const Navbar: React.FC<NavbarProps> = ({
 
                     {/* Mobile & Tablet Right Controls */}
                     <div className="flex items-center gap-2 shrink-0">
+                        <DemoRoleSwitchButton variant="navbar-mobile" />
                         {!isGuest && (
                             <button
                                 type="button"
@@ -614,6 +617,11 @@ const Navbar: React.FC<NavbarProps> = ({
                                             <p className={`text-xs truncate ${isBento ? 'font-black text-black' : 'font-semibold text-slate-900 dark:text-white'}`}>{user?.name || tx('User', 'مستخدم')}</p>
                                         </div>
                                     </div>
+
+                                    <DemoRoleSwitchButton
+                                        variant="drawer"
+                                        onAfterSwitch={() => setIsMenuOpen(false)}
+                                    />
 
                                     <div className="grid grid-cols-3 gap-2">
                                         <button

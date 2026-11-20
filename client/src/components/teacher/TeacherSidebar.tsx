@@ -27,6 +27,7 @@ import { useChat } from '../../context/ChatContext';
 import { useLanguage } from '../../context/LanguageContext';
 import NotificationCenter from '../NotificationCenter';
 import Avatar from '../Avatar';
+import DemoRoleSwitchButton from '../DemoRoleSwitchButton';
 import type { TeacherSectionId, TeacherThemeStyles } from './teacherTheme';
 
 interface NavItemConfig {
@@ -369,8 +370,12 @@ export const TeacherSidebar: React.FC<TeacherSidebarProps> = ({
                     ))}
                 </nav>
 
-                {/* Sidebar Footer: Profile & Logout */}
-                <div className={`${compact ? 'p-2' : 'px-3 py-2'} border-t shrink-0 ${styles.divider}`}>
+                {/* Sidebar Footer: Demo Switch (demo only), Profile & Logout */}
+                <div className={`${compact ? 'p-2' : 'px-3 py-2'} border-t shrink-0 space-y-2 ${styles.divider}`}>
+                    <DemoRoleSwitchButton
+                        variant={compact ? 'sidebar-collapsed' : 'sidebar'}
+                        onAfterSwitch={() => onSetMobileOpen(false)}
+                    />
                     {/* Profile + Logout Row */}
                     <div className={compact ? 'flex flex-col gap-1.5' : 'grid grid-cols-2 gap-2'}>
                         <button
@@ -441,6 +446,7 @@ export const TeacherSidebar: React.FC<TeacherSidebarProps> = ({
                 </div>
 
                 <div className="flex items-center gap-1.5 shrink-0">
+                    <DemoRoleSwitchButton variant="navbar-mobile" />
                     <button
                         type="button"
                         onClick={() => (isChatOpen ? closeChat() : openChat())}

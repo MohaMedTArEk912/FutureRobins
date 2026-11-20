@@ -4,7 +4,11 @@ import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 import { pwaUpdater } from '../lib/pwaUpdater';
 
-const InstallPWA: React.FC = () => {
+interface InstallPWAProps {
+    inline?: boolean;
+}
+
+const InstallPWA: React.FC<InstallPWAProps> = ({ inline = false }) => {
     const { isBento } = useTheme();
     const { tx } = useLanguage();
 
@@ -46,7 +50,11 @@ const InstallPWA: React.FC = () => {
             {/* Floating Install Prompt Banner */}
             <aside
                 aria-label={tx('Install Quiz Platform App', 'تثبيت تطبيق Quiz Platform')}
-                className="fixed bottom-4 left-3 right-3 sm:left-auto sm:end-6 sm:bottom-6 z-[80] animate-in slide-in-from-bottom-5 duration-300 pb-safe"
+                className={
+                    inline
+                        ? 'pointer-events-auto w-full sm:w-auto animate-in slide-in-from-bottom-5 duration-300'
+                        : 'fixed bottom-20 xl:bottom-6 left-3 right-3 sm:left-auto sm:end-6 z-[80] animate-in slide-in-from-bottom-5 duration-300 pb-safe'
+                }
             >
                 <div className={`p-3.5 sm:p-4 rounded-2xl max-w-full sm:max-w-sm flex items-center gap-3 ${
                     isBento

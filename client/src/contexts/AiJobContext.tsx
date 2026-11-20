@@ -60,8 +60,8 @@ export const AiJobProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
             {/* TOASTER / FLOATING STATUS BAR */}
             {currentJob && (
-                <div className="fixed bottom-6 right-6 z-[9999] animate-in slide-in-from-bottom duration-300">
-                    <div className="bg-white dark:bg-[#1a1b26] border border-gray-200 dark:border-white/10 rounded-xl shadow-2xl p-4 flex items-center gap-4 min-w-[320px] max-w-md">
+                <div className="fixed bottom-20 xl:bottom-6 start-3 end-3 sm:end-auto sm:start-6 z-[9999] animate-in slide-in-from-bottom duration-300 pb-safe">
+                    <div className="bg-white dark:bg-[#1a1b26] border border-gray-200 dark:border-white/10 rounded-xl shadow-2xl p-4 flex items-center gap-4 min-w-0 sm:min-w-[320px] max-w-md">
                         {currentJob.status === 'processing' ? (
                             <div className="w-5 h-5 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
                         ) : (

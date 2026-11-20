@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { Sparkles, Copy, Check, GraduationCap, User as UserIcon, LogOut, X } from 'lucide-react';
 import { useSocket } from '../context/SocketContext';
 import { useNotification } from '../context/NotificationContext';
 import { useOptionalAuth } from '../context/AuthContext';
@@ -79,24 +78,16 @@ const TeacherShellFrame: React.FC<{ isQuizOrGame: boolean }> = ({ isQuizOrGame }
 const MainLayout: React.FC = () => {
     const { socket } = useSocket();
     const { showNotification } = useNotification();
-    const { language, tx } = useLanguage();
-    const { isBento } = useTheme();
+    const { tx } = useLanguage();
     const auth = useOptionalAuth();
     const currentUser = auth?.currentUser ?? null;
     const updateUser = auth?.updateUser;
     const refreshUser = auth?.refreshUser;
-    const demoLogin = auth?.demoLogin;
-    const logout = auth?.logout;
     const navigate = useNavigate();
     const location = useLocation();
     const [gameInvite, setGameInvite] = useState<{ fromId: string; fromName: string; quizId: string; roomId: string } | null>(null);
-    const [demoBannerDismissed, setDemoBannerDismissed] = useState(false);
-    const [demoSwitching, setDemoSwitching] = useState(false);
-    const [demoLinkCopied, setDemoLinkCopied] = useState(false);
 
     const isQuizOrGame = location.pathname.startsWith('/quiz') || location.pathname.startsWith('/game');
-    const isDemoAccount = currentUser?.userId === 'demo_student' || currentUser?.userId === 'demo_teacher';
-    const isDemoTeacher = currentUser?.userId === 'demo_teacher';
 
     // Socket Listeners (Global)
     useEffect(() => {
@@ -241,138 +232,17 @@ const MainLayout: React.FC = () => {
         setGameInvite(null);
     };
 
-    const handleSwitchDemoRole = async () => {
-        if (!demoLogin || demoSwitching) return;
-        setDemoSwitching(true);
-        try {
-            const nextRole = isDemoTeacher ? 'student' : 'teacher';
-            const savedName = sessionStorage.getItem('demoVisitorName')?.trim();
-            const currentName =
-                currentUser?.name &&
-                currentUser.name !== 'Alex Demo (Explorer)' &&
-                currentUser.name !== 'Prof. Demo (Educator)'
-                    ? currentUser.name
-                    : undefined;
-            await demoLogin({
-                role: nextRole,
-                preferredLanguage: language,
-                name: savedName || currentName
-            });
-            navigate('/', { replace: true });
-            showNotification(
-                'info',
-                nextRole === 'teacher'
-                    ? tx('Switched to Teacher Studio Demo view.', 'تم التحويل إلى عرض استوديو المدرس التجريبي.')
-                    : tx('Switched to Student Demo view.', 'تم التحويل إلى عرض الطالب التجريبي.')
-            );
-        } catch (err) {
-            console.error('Switch demo role error:', err);
-        } finally {
-            setDemoSwitching(false);
-        }
-    };
-
-    const handleCopyDemoShareLink = async () => {
-        const link = `${window.location.origin}/demo`;
-        try {
-            await navigator.clipboard.writeText(link);
-            setDemoLinkCopied(true);
-            window.setTimeout(() => setDemoLinkCopied(false), 2000);
-        } catch {
-            showNotification('info', `${tx('Live Demo Link:', 'لينك الديمو المباشر:')} ${link}`);
-        }
-    };
-
     return (
         <TeacherWorkspaceProvider>
             <TeacherShellFrame isQuizOrGame={isQuizOrGame} />
-            <InstallPWA /> {/* Global PWA install prompt */}
-            <PwaUpdatePrompt /> {/* Global PWA auto-update prompt */}
+            {/* Unified Bottom Floating Notification Stack (prevents PWA banners from stacking/overlapping) */}
+            <div className="fixed bottom-20 xl:bottom-6 start-3 end-3 sm:start-auto sm:end-6 z-[80] flex flex-col gap-2.5 sm:items-end pointer-events-none pb-safe">
+                <PwaUpdatePrompt inline />
+                <InstallPWA inline />
+            </div>
             <NavbarCustomizerModal /> {/* Global Nav Customizer */}
             {!isQuizOrGame && (
                 <GlobalChatDrawer />
-            )}
-
-            {/* Floating Live Demo Mode Bar (only for demo_student / demo_teacher) */}
-            {isDemoAccount && !isQuizOrGame && !demoBannerDismissed && (
-                <div className={`fixed bottom-16 xl:bottom-4 start-3 end-3 sm:end-auto z-[65] max-w-max rounded-2xl px-3 py-2 flex flex-wrap items-center gap-2 transition-all animate-in fade-in slide-in-from-bottom-3 ${
-                    isBento
-                        ? 'bg-[#fde047] text-black border-2 border-black shadow-[4px_4px_0px_#000]'
-                        : 'bg-slate-900/95 dark:bg-[#13141f]/95 text-white border border-indigo-400/30 shadow-2xl backdrop-blur-md'
-                }`}>
-                    <span className="inline-flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wider px-1">
-                        <Sparkles className="w-3.5 h-3.5 shrink-0" />
-                        <span>
-                            {isDemoTeacher
-                                ? tx('Demo: Teacher', 'ديمو: مدرس')
-                                : tx('Demo: Student', 'ديمو: طالب')}
-                        </span>
-                    </span>
-
-                    <button
-                        type="button"
-                        disabled={demoSwitching}
-                        onClick={() => void handleSwitchDemoRole()}
-                        className={`btn-unstyled inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-black cursor-pointer transition-all disabled:opacity-60 ${
-                            isBento
-                                ? 'bg-[#bef264] text-black border border-black hover:bg-[#a3e635]'
-                                : 'bg-indigo-600 hover:bg-indigo-500 text-white'
-                        }`}
-                        title={tx('Switch between Student & Teacher workflows', 'التبديل بين حساب الطالب وحساب المدرس')}
-                    >
-                        {isDemoTeacher ? <UserIcon className="w-3 h-3 shrink-0" /> : <GraduationCap className="w-3 h-3 shrink-0" />}
-                        <span>
-                            {demoSwitching
-                                ? tx('Switching...', 'بنبدل...')
-                                : isDemoTeacher
-                                    ? tx('Switch to Student', 'حساب الطالب')
-                                    : tx('Try Teacher Studio', 'استوديو المدرس')}
-                        </span>
-                    </button>
-
-                    <button
-                        type="button"
-                        onClick={() => void handleCopyDemoShareLink()}
-                        className={`btn-unstyled inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] font-black cursor-pointer transition-all ${
-                            isBento
-                                ? 'bg-white text-black border border-black hover:bg-[#bae6fd]'
-                                : 'bg-white/10 hover:bg-white/20 text-white'
-                        }`}
-                        title={tx('Copy /demo link', 'نسخ لينك الديمو')}
-                    >
-                        {demoLinkCopied ? <Check className="w-3 h-3 text-emerald-500 shrink-0" /> : <Copy className="w-3 h-3 shrink-0" />}
-                        <span>{demoLinkCopied ? tx('Copied!', 'اتنسخ!') : tx('Copy Link', 'نسخ اللينك')}</span>
-                    </button>
-
-                    {logout && (
-                        <button
-                            type="button"
-                            onClick={() => {
-                                logout();
-                                navigate('/login');
-                            }}
-                            className={`btn-unstyled inline-flex items-center gap-1 px-2 py-1 rounded-xl text-[11px] font-black cursor-pointer transition-all ${
-                                isBento
-                                    ? 'bg-[#fecdd3] text-black border border-black hover:bg-rose-300'
-                                    : 'bg-rose-500/20 hover:bg-rose-500/30 text-rose-200'
-                            }`}
-                            title={tx('Exit demo session', 'الخروج من الديمو')}
-                        >
-                            <LogOut className="w-3 h-3 shrink-0" />
-                            <span className="hidden sm:inline">{tx('Exit', 'خروج')}</span>
-                        </button>
-                    )}
-
-                    <button
-                        type="button"
-                        onClick={() => setDemoBannerDismissed(true)}
-                        className="btn-unstyled p-1 rounded-lg opacity-70 hover:opacity-100 cursor-pointer"
-                        aria-label={tx('Hide demo bar', 'إخفاء شريط الديمو')}
-                        title={tx('Hide', 'إخفاء')}
-                    >
-                        <X className="w-3.5 h-3.5" />
-                    </button>
-                </div>
             )}
 
             {/* Global Invite Modal */}

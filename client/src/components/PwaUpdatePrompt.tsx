@@ -3,7 +3,11 @@ import { RefreshCw, Sparkles, X, ArrowUpCircle } from 'lucide-react';
 import { pwaUpdater, type PwaUpdateState } from '../lib/pwaUpdater';
 import { useLocation } from 'react-router-dom';
 
-const PwaUpdatePrompt: React.FC = () => {
+interface PwaUpdatePromptProps {
+    inline?: boolean;
+}
+
+const PwaUpdatePrompt: React.FC<PwaUpdatePromptProps> = ({ inline = false }) => {
     const [pwaState, setPwaState] = useState<PwaUpdateState>(() => pwaUpdater.getState());
     const [isUpdating, setIsUpdating] = useState(false);
     const location = useLocation();
@@ -40,7 +44,11 @@ const PwaUpdatePrompt: React.FC = () => {
     return (
         <aside
             aria-label="Application update available"
-            className="fixed bottom-4 left-3 right-3 sm:left-auto sm:right-6 sm:bottom-6 z-[100] animate-in slide-in-from-bottom-5 duration-300 pb-safe"
+            className={
+                inline
+                    ? 'pointer-events-auto w-full sm:w-auto animate-in slide-in-from-bottom-5 duration-300'
+                    : 'fixed bottom-20 xl:bottom-6 left-3 right-3 sm:left-auto sm:right-6 z-[100] animate-in slide-in-from-bottom-5 duration-300 pb-safe'
+            }
         >
             <div className="bg-white/95 dark:bg-[#12131f]/95 backdrop-blur-2xl border border-indigo-500/30 dark:border-indigo-500/40 p-4 rounded-3xl shadow-2xl shadow-indigo-500/20 max-w-full sm:max-w-md flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 ring-1 ring-black/5 dark:ring-white/10">
                 {/* Left Icon Badge */}
