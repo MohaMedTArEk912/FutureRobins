@@ -257,9 +257,13 @@ export const NoirSnakeGameOverlay: React.FC = () => {
 
         const syncSize = () => {
             if (!stageRef.current || !engineRef.current) return;
-            const rect = stageRef.current.getBoundingClientRect();
-            const dpadInset = showTouchPad && isTouchDevice ? 156 : 0;
-            engineRef.current.resize(rect.width, rect.height, dpadInset);
+            // Use clientWidth/clientHeight (untransformed layout box) so enter/exit CSS scale
+            // transforms never inflate the canvas dimensions beyond the viewport.
+            const width = stageRef.current.clientWidth;
+            const height = stageRef.current.clientHeight;
+            if (width <= 0 || height <= 0) return;
+            const dpadInset = showTouchPad ? 148 : 0;
+            engineRef.current.resize(width, height, dpadInset);
         };
 
         syncSize();
@@ -288,9 +292,11 @@ export const NoirSnakeGameOverlay: React.FC = () => {
     // Recompute canvas bottom safe inset whenever touch D-pad visibility toggles
     useEffect(() => {
         if (!stageRef.current || !engineRef.current) return;
-        const rect = stageRef.current.getBoundingClientRect();
-        const dpadInset = showTouchPad && (isTouchDevice || rect.width < 768) ? 156 : 0;
-        engineRef.current.resize(rect.width, rect.height, dpadInset);
+        const width = stageRef.current.clientWidth;
+        const height = stageRef.current.clientHeight;
+        if (width <= 0 || height <= 0) return;
+        const dpadInset = showTouchPad ? 148 : 0;
+        engineRef.current.resize(width, height, dpadInset);
     }, [showTouchPad, isTouchDevice]);
 
     const startMode = useCallback((mode: SnakeGameMode) => {
@@ -459,14 +465,17 @@ export const NoirSnakeGameOverlay: React.FC = () => {
             role="dialog"
             aria-modal="true"
             aria-label={tx('Noir Secret Snake Arcade', 'لعبة الثعبان السرية')}
-            className={`secret-arcade-shell fixed inset-0 z-[120] flex flex-col bg-[#0a0908] text-[#f5f3ec] select-none will-change-[opacity,transform] transition-[opacity,transform] duration-[780ms] ease-[cubic-bezier(0.22,0.86,0.24,1)] ${
+            className={`secret-arcade-shell fixed inset-0 h-dvh z-[120] flex flex-col bg-[#0a0908] text-[#f5f3ec] select-none will-change-[opacity,transform] transition-[opacity,transform] duration-[780ms] ease-[cubic-bezier(0.22,0.86,0.24,1)] ${
                 isRevealed
                     ? 'opacity-100 scale-100'
                     : isExiting
                         ? 'opacity-0 scale-[1.035] pointer-events-none'
                         : 'opacity-0 scale-[1.045] pointer-events-none'
             }`}
-            style={{ paddingTop: 'env(safe-area-inset-top)' }}
+            style={{
+                paddingTop: 'env(safe-area-inset-top)',
+                paddingBottom: 'env(safe-area-inset-bottom)'
+            }}
         >
             {/* Noir Tactical Scanline Sweep during Portal Enter */}
             {phase === 'entering' && (
@@ -476,119 +485,236 @@ export const NoirSnakeGameOverlay: React.FC = () => {
                 />
             )}
 
-            {/* Slim Top Tactical HUD Bar */}
+            {/* Slim Top Tactical HUD Bar (Clean 2-row stack on mobile so nothing overlaps, single bar on sm+) */}
             <header
-                className={`shrink-0 h-12 sm:h-14 px-2.5 sm:px-5 bg-[#0e0d0b] border-b border-[#2e2924] flex items-center justify-between gap-2 z-20 will-change-[opacity,transform] transition-[opacity,transform] duration-[680ms] ease-[cubic-bezier(0.22,0.86,0.24,1)] ${
+                className={`shrink-0 bg-[#0e0d0b] border-b border-[#2e2924] z-20 will-change-[opacity,transform] transition-[opacity,transform] duration-[680ms] ease-[cubic-bezier(0.22,0.86,0.24,1)] ${
                     isRevealed
                         ? 'opacity-100 translate-y-0 delay-[100ms]'
                         : 'opacity-0 -translate-y-full delay-0'
                 }`}
             >
-                {/* Left: Protocol Brand & Active Mode */}
-                <div className="flex items-center gap-2 min-w-0">
-                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#141210] border border-[#bef264]/50 flex items-center justify-center shrink-0">
-                        <span className="w-2.5 h-2.5 bg-[#bef264] block" />
-                    </div>
-                    <div className="min-w-0 leading-tight">
-                        <div className="flex items-center gap-1.5">
-                            <span className="font-mono text-[11px] sm:text-xs font-black tracking-widest uppercase text-[#f5f3ec] truncate">
-                                NOIR//SNAKE
-                            </span>
-                            {hud.status !== 'menu' && (
-                                <span
-                                    className={`px-1.5 py-0.5 rounded text-[9px] font-mono font-black uppercase tracking-wider border ${
-                                        hud.mode === 'hunt'
-                                            ? 'bg-[#2a1418] text-[#fb7185] border-[#fb7185]/45'
-                                            : 'bg-[#192211] text-[#bef264] border-[#bef264]/45'
-                                    }`}
-                                >
-                                    {hud.mode === 'hunt' ? tx('HUNTED', 'مطاردة') : tx('HARVEST', 'جمع')}
+                <div className="h-12 sm:h-14 px-3 sm:px-5 flex items-center justify-between gap-2">
+                    {/* Left: Protocol Brand & Active Mode */}
+                    <div className="flex items-center gap-2 min-w-0">
+                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#141210] border border-[#bef264]/50 flex items-center justify-center shrink-0">
+                            <span className="w-2.5 h-2.5 bg-[#bef264] block" />
+                        </div>
+                        <div className="min-w-0 leading-tight">
+                            <div className="flex items-center gap-1.5">
+                                <span className="font-mono text-[11px] sm:text-xs font-black tracking-widest uppercase text-[#f5f3ec] whitespace-nowrap">
+                                    NOIR//SNAKE
                                 </span>
-                            )}
-                        </div>
-                        <div className="hidden sm:block text-[10px] font-mono text-[#a8a29e]">
-                            {tx(`RANK LV.${rankInfo.rankLevel} • ${rankInfo.title}`, `المستوى ${rankInfo.rankLevel} • ${rankInfo.arTitle}`)}
+                                {hud.status !== 'menu' && (
+                                    <span
+                                        className={`px-1.5 py-0.5 rounded text-[9px] font-mono font-black uppercase tracking-wider border whitespace-nowrap shrink-0 ${
+                                            hud.mode === 'hunt'
+                                                ? 'bg-[#2a1418] text-[#fb7185] border-[#fb7185]/45'
+                                                : 'bg-[#192211] text-[#bef264] border-[#bef264]/45'
+                                        }`}
+                                    >
+                                        {hud.mode === 'hunt' ? tx('HUNTED', 'مطاردة') : tx('HARVEST', 'جمع')}
+                                    </span>
+                                )}
+                            </div>
+                            <div className="hidden sm:block text-[10px] font-mono text-[#a8a29e]">
+                                {tx(`RANK LV.${rankInfo.rankLevel} • ${rankInfo.title}`, `المستوى ${rankInfo.rankLevel} • ${rankInfo.arTitle}`)}
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                {/* Center: Live Telemetry & XP Progress Bar when in run */}
-                {hud.status !== 'menu' ? (
-                    <div dir="ltr" className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1 justify-center max-w-2xl">
-                        {/* Score */}
-                        <div className="flex flex-col items-center leading-none">
-                            <span className="text-[9px] font-mono uppercase text-[#a8a29e] tracking-wider">SCORE</span>
-                            <span className="font-mono text-xs sm:text-sm font-black text-[#f5f3ec] tabular-nums">
-                                {hud.score.toLocaleString()}
-                            </span>
-                        </div>
+                    {/* Desktop/Tablet Center: Live Telemetry & XP Progress Bar when in run */}
+                    {hud.status !== 'menu' ? (
+                        <div dir="ltr" className="hidden sm:flex items-center gap-4 min-w-0 flex-1 justify-center max-w-2xl">
+                            {/* Score */}
+                            <div className="flex flex-col items-center leading-none">
+                                <span className="text-[9px] font-mono uppercase text-[#a8a29e] tracking-wider">SCORE</span>
+                                <span className="font-mono text-sm font-black text-[#f5f3ec] tabular-nums">
+                                    {hud.score.toLocaleString()}
+                                </span>
+                            </div>
 
-                        {/* Timer (Hunt) or Length+Combo (Harvest) */}
-                        {hud.mode === 'hunt' ? (
-                            <>
-                                <div className="flex flex-col items-center leading-none">
-                                    <span className="text-[9px] font-mono uppercase text-[#a8a29e] tracking-wider">TIME</span>
-                                    <span className="font-mono text-xs sm:text-sm font-black text-[#bae6fd] tabular-nums">
-                                        {formatClock(hud.elapsedSeconds)}
-                                    </span>
-                                </div>
-                                <div className="hidden xs:flex sm:flex flex-col items-center leading-none">
-                                    <span className="text-[9px] font-mono uppercase text-[#fb7185] tracking-wider">
-                                        THREAT {hud.threatLevel}
-                                    </span>
-                                    <span className="font-mono text-xs sm:text-sm font-black text-[#fb7185] tabular-nums">
-                                        {hud.huntersAlive}x
-                                    </span>
-                                </div>
-                                {/* Boost meter */}
-                                <div className="hidden md:flex flex-col gap-1 w-20">
-                                    <div className="flex items-center justify-between text-[9px] font-mono text-[#bae6fd]">
-                                        <span className="flex items-center gap-0.5 font-bold">
-                                            <Zap className="w-2.5 h-2.5" /> BOOST
+                            {/* Timer (Hunt) or Length+Combo (Harvest) */}
+                            {hud.mode === 'hunt' ? (
+                                <>
+                                    <div className="flex flex-col items-center leading-none">
+                                        <span className="text-[9px] font-mono uppercase text-[#a8a29e] tracking-wider">TIME</span>
+                                        <span className="font-mono text-sm font-black text-[#bae6fd] tabular-nums">
+                                            {formatClock(hud.elapsedSeconds)}
                                         </span>
-                                        <span>{hud.boostEnergy}%</span>
                                     </div>
-                                    <div className="h-1.5 w-full bg-[#1c1917] border border-[#2e2924] overflow-hidden">
-                                        <div
-                                            className="h-full bg-[#bae6fd] transition-all duration-100"
-                                            style={{ width: `${hud.boostEnergy}%` }}
-                                        />
-                                    </div>
-                                </div>
-                            </>
-                        ) : (
-                            <>
-                                <div className="flex flex-col items-center leading-none">
-                                    <span className="text-[9px] font-mono uppercase text-[#a8a29e] tracking-wider">LEN</span>
-                                    <span className="font-mono text-xs sm:text-sm font-black text-[#bef264] tabular-nums">
-                                        {hud.length}
-                                    </span>
-                                </div>
-                                {hud.comboMultiplier > 1 && (
-                                    <div className="flex flex-col items-center leading-none px-1.5 py-0.5 rounded bg-[#231e0f] border border-[#fde047]/45">
-                                        <span className="font-mono text-[10px] sm:text-xs font-black text-[#fde047] tabular-nums">
-                                            ×{hud.comboMultiplier}
+                                    <div className="flex flex-col items-center leading-none">
+                                        <span className="text-[9px] font-mono uppercase text-[#fb7185] tracking-wider">
+                                            THREAT {hud.threatLevel}
                                         </span>
-                                        <div className="w-8 h-0.5 bg-[#1c1917] mt-0.5">
+                                        <span className="font-mono text-sm font-black text-[#fb7185] tabular-nums">
+                                            {hud.huntersAlive}x
+                                        </span>
+                                    </div>
+                                    {/* Boost meter */}
+                                    <div className="hidden md:flex flex-col gap-1 w-20">
+                                        <div className="flex items-center justify-between text-[9px] font-mono text-[#bae6fd]">
+                                            <span className="flex items-center gap-0.5 font-bold">
+                                                <Zap className="w-2.5 h-2.5" /> BOOST
+                                            </span>
+                                            <span>{hud.boostEnergy}%</span>
+                                        </div>
+                                        <div className="h-1.5 w-full bg-[#1c1917] border border-[#2e2924] overflow-hidden">
                                             <div
-                                                className="h-full bg-[#fde047]"
-                                                style={{ width: `${Math.round(hud.comboTimeRatio * 100)}%` }}
+                                                className="h-full bg-[#bae6fd] transition-all duration-100"
+                                                style={{ width: `${hud.boostEnergy}%` }}
                                             />
                                         </div>
                                     </div>
-                                )}
-                            </>
+                                </>
+                            ) : (
+                                <>
+                                    <div className="flex flex-col items-center leading-none">
+                                        <span className="text-[9px] font-mono uppercase text-[#a8a29e] tracking-wider">LEN</span>
+                                        <span className="font-mono text-sm font-black text-[#bef264] tabular-nums">
+                                            {hud.length}
+                                        </span>
+                                    </div>
+                                    {hud.comboMultiplier > 1 && (
+                                        <div className="flex flex-col items-center leading-none px-1.5 py-0.5 rounded bg-[#231e0f] border border-[#fde047]/45">
+                                            <span className="font-mono text-xs font-black text-[#fde047] tabular-nums">
+                                                ×{hud.comboMultiplier}
+                                            </span>
+                                            <div className="w-8 h-0.5 bg-[#1c1917] mt-0.5">
+                                                <div
+                                                    className="h-full bg-[#fde047]"
+                                                    style={{ width: `${Math.round(hud.comboTimeRatio * 100)}%` }}
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
+                                </>
+                            )}
+
+                            {/* Live Run Level & XP Bar */}
+                            <div className="flex flex-col gap-1 w-36 shrink-0">
+                                <div className="flex items-center justify-between text-[10px] font-mono">
+                                    <span className="font-black text-[#fde047]">LV.{String(hud.runLevel).padStart(2, '0')}</span>
+                                    <span className="text-[#a8a29e] tabular-nums">
+                                        {hud.runLevelXp}/{hud.runLevelNextXp} XP
+                                    </span>
+                                </div>
+                                <div className="h-2 w-full bg-[#1c1917] border border-[#2e2924] overflow-hidden">
+                                    <div
+                                        className="h-full bg-[#bef264] transition-all duration-150"
+                                        style={{ width: `${runXpPct}%` }}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="hidden md:flex items-center gap-2 font-mono text-[11px] text-[#a8a29e]">
+                            <span className="inline-block w-1.5 h-1.5 bg-[#bef264]" />
+                            <span>{tx('SELECT PROTOCOL TO INITIALIZE', 'اختار وضع اللعب للبدء')}</span>
+                        </div>
+                    )}
+
+                    {/* Right: Utility Controls */}
+                    <div className="flex items-center gap-1.5 shrink-0">
+                        {hud.status !== 'menu' && (
+                            <button
+                                type="button"
+                                onClick={() => setShowTouchPad((v) => !v)}
+                                title={tx('Toggle On-Screen D-Pad', 'إظهار/إخفاء أزرار التحكم')}
+                                className={`h-8 w-8 rounded-lg border flex items-center justify-center transition-colors cursor-pointer ${
+                                    showTouchPad
+                                        ? 'bg-[#192211] border-[#bef264]/50 text-[#bef264]'
+                                        : 'bg-[#141210] border-[#2e2924] text-[#a8a29e] hover:text-[#f5f3ec]'
+                                }`}
+                                aria-label={tx('Toggle D-Pad', 'تبديل أزرار التحكم')}
+                            >
+                                <Gamepad2 className="w-3.5 h-3.5" />
+                            </button>
                         )}
 
-                        {/* Live Run Level & XP Bar */}
-                        <div className="flex flex-col gap-1 w-24 sm:w-36 shrink-0">
-                            <div className="flex items-center justify-between text-[9px] sm:text-[10px] font-mono">
-                                <span className="font-black text-[#fde047]">LV.{String(hud.runLevel).padStart(2, '0')}</span>
-                                <span className="text-[#a8a29e] tabular-nums">
-                                    {hud.runLevelXp}/{hud.runLevelNextXp} XP
+                        <button
+                            type="button"
+                            onClick={toggleMute}
+                            title={profile.muted ? tx('Unmute SFX', 'تشغيل الصوت') : tx('Mute SFX', 'كتم الصوت')}
+                            className="h-8 w-8 rounded-lg bg-[#141210] border border-[#2e2924] text-[#a8a29e] hover:text-[#f5f3ec] flex items-center justify-center transition-colors cursor-pointer"
+                            aria-label={profile.muted ? tx('Unmute', 'تشغيل الصوت') : tx('Mute', 'كتم الصوت')}
+                        >
+                            {profile.muted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+                        </button>
+
+                        {(hud.status === 'playing' || hud.status === 'paused') && (
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    hud.status === 'playing'
+                                        ? engineRef.current?.pause('manual')
+                                        : engineRef.current?.resume()
+                                }
+                                title={hud.status === 'playing' ? tx('Pause (P / Esc)', 'إيقاف مؤقت') : tx('Resume', 'استكمال')}
+                                className="h-8 w-8 rounded-lg bg-[#141210] border border-[#2e2924] text-[#f5f3ec] hover:border-[#bef264]/60 flex items-center justify-center transition-colors cursor-pointer"
+                                aria-label={hud.status === 'playing' ? tx('Pause', 'إيقاف مؤقت') : tx('Resume', 'استكمال')}
+                            >
+                                {hud.status === 'playing' ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+                            </button>
+                        )}
+
+                        <button
+                            type="button"
+                            onClick={exitSecretGame}
+                            className="h-8 px-2.5 sm:px-3 rounded-lg bg-[#1c1917] hover:bg-[#2a1418] border border-[#2e2924] hover:border-[#fb7185]/60 text-[#f5f3ec] hover:text-[#fda4af] font-mono text-[11px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-colors cursor-pointer"
+                        >
+                            <X className="w-3.5 h-3.5" />
+                            <span className="hidden sm:inline">{tx('EXIT', 'خروج')}</span>
+                        </button>
+                    </div>
+                </div>
+
+                {/* Mobile Row 2: Dedicated Live Telemetry Strip (Zero Overlap!) */}
+                {hud.status !== 'menu' && (
+                    <div
+                        dir="ltr"
+                        className="sm:hidden px-3 py-1.5 bg-[#0a0908] border-t border-[#2e2924] flex items-center justify-between gap-2"
+                    >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                            <div className="flex items-baseline gap-1 whitespace-nowrap">
+                                <span className="text-[9px] font-mono uppercase text-[#a8a29e]">SCR</span>
+                                <span className="font-mono text-xs font-black text-[#f5f3ec] tabular-nums">
+                                    {hud.score.toLocaleString()}
                                 </span>
                             </div>
-                            <div className="h-2 w-full bg-[#1c1917] border border-[#2e2924] overflow-hidden">
+
+                            {hud.mode === 'hunt' ? (
+                                <>
+                                    <div className="flex items-baseline gap-1 whitespace-nowrap">
+                                        <span className="font-mono text-xs font-black text-[#bae6fd] tabular-nums">
+                                            {formatClock(hud.elapsedSeconds)}
+                                        </span>
+                                    </div>
+                                    <span className="px-1.5 py-0.5 rounded bg-[#2a1418] border border-[#fb7185]/45 font-mono text-[9px] font-black text-[#fb7185] whitespace-nowrap shrink-0">
+                                        T{hud.threatLevel} • {hud.huntersAlive}x
+                                    </span>
+                                </>
+                            ) : (
+                                <>
+                                    <div className="flex items-baseline gap-1 whitespace-nowrap">
+                                        <span className="text-[9px] font-mono uppercase text-[#a8a29e]">LEN</span>
+                                        <span className="font-mono text-xs font-black text-[#bef264] tabular-nums">
+                                            {hud.length}
+                                        </span>
+                                    </div>
+                                    {hud.comboMultiplier > 1 && (
+                                        <span className="px-1.5 py-0.5 rounded bg-[#231e0f] border border-[#fde047]/45 font-mono text-[9px] font-black text-[#fde047] shrink-0">
+                                            ×{hud.comboMultiplier}
+                                        </span>
+                                    )}
+                                </>
+                            )}
+                        </div>
+
+                        <div className="flex items-center gap-1.5 shrink-0">
+                            <span className="font-mono text-[10px] font-black text-[#fde047] whitespace-nowrap">
+                                LV.{String(hud.runLevel).padStart(2, '0')}
+                            </span>
+                            <div className="h-2 w-16 bg-[#1c1917] border border-[#2e2924] overflow-hidden">
                                 <div
                                     className="h-full bg-[#bef264] transition-all duration-150"
                                     style={{ width: `${runXpPct}%` }}
@@ -596,66 +722,7 @@ export const NoirSnakeGameOverlay: React.FC = () => {
                             </div>
                         </div>
                     </div>
-                ) : (
-                    <div className="hidden md:flex items-center gap-2 font-mono text-[11px] text-[#a8a29e]">
-                        <span className="inline-block w-1.5 h-1.5 bg-[#bef264]" />
-                        <span>{tx('SELECT PROTOCOL TO INITIALIZE', 'اختار وضع اللعب للبدء')}</span>
-                    </div>
                 )}
-
-                {/* Right: Utility Controls */}
-                <div className="flex items-center gap-1.5 shrink-0">
-                    {hud.status !== 'menu' && (
-                        <button
-                            type="button"
-                            onClick={() => setShowTouchPad((v) => !v)}
-                            title={tx('Toggle On-Screen D-Pad', 'إظهار/إخفاء أزرار التحكم')}
-                            className={`h-8 w-8 rounded-lg border flex items-center justify-center transition-colors cursor-pointer ${
-                                showTouchPad
-                                    ? 'bg-[#192211] border-[#bef264]/50 text-[#bef264]'
-                                    : 'bg-[#141210] border-[#2e2924] text-[#a8a29e] hover:text-[#f5f3ec]'
-                            }`}
-                            aria-label={tx('Toggle D-Pad', 'تبديل أزرار التحكم')}
-                        >
-                            <Gamepad2 className="w-3.5 h-3.5" />
-                        </button>
-                    )}
-
-                    <button
-                        type="button"
-                        onClick={toggleMute}
-                        title={profile.muted ? tx('Unmute SFX', 'تشغيل الصوت') : tx('Mute SFX', 'كتم الصوت')}
-                        className="h-8 w-8 rounded-lg bg-[#141210] border border-[#2e2924] text-[#a8a29e] hover:text-[#f5f3ec] flex items-center justify-center transition-colors cursor-pointer"
-                        aria-label={profile.muted ? tx('Unmute', 'تشغيل الصوت') : tx('Mute', 'كتم الصوت')}
-                    >
-                        {profile.muted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
-                    </button>
-
-                    {(hud.status === 'playing' || hud.status === 'paused') && (
-                        <button
-                            type="button"
-                            onClick={() =>
-                                hud.status === 'playing'
-                                    ? engineRef.current?.pause('manual')
-                                    : engineRef.current?.resume()
-                            }
-                            title={hud.status === 'playing' ? tx('Pause (P / Esc)', 'إيقاف مؤقت') : tx('Resume', 'استكمال')}
-                            className="h-8 w-8 rounded-lg bg-[#141210] border border-[#2e2924] text-[#f5f3ec] hover:border-[#bef264]/60 flex items-center justify-center transition-colors cursor-pointer"
-                            aria-label={hud.status === 'playing' ? tx('Pause', 'إيقاف مؤقت') : tx('Resume', 'استكمال')}
-                        >
-                            {hud.status === 'playing' ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
-                        </button>
-                    )}
-
-                    <button
-                        type="button"
-                        onClick={exitSecretGame}
-                        className="h-8 px-2.5 sm:px-3 rounded-lg bg-[#1c1917] hover:bg-[#2a1418] border border-[#2e2924] hover:border-[#fb7185]/60 text-[#f5f3ec] hover:text-[#fda4af] font-mono text-[11px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-colors cursor-pointer"
-                    >
-                        <X className="w-3.5 h-3.5" />
-                        <span className="hidden sm:inline">{tx('EXIT', 'خروج')}</span>
-                    </button>
-                </div>
             </header>
 
             {/* Full-Viewport Canvas Stage */}
@@ -695,7 +762,7 @@ export const NoirSnakeGameOverlay: React.FC = () => {
                 {hud.status === 'menu' && (
                     <div
                         dir="auto"
-                        className="absolute inset-0 z-20 flex items-center justify-center p-3 sm:p-5 overflow-y-auto"
+                        className="absolute inset-0 z-20 flex items-start sm:items-center justify-center p-3 sm:p-5 overflow-y-auto"
                     >
                         <div
                             className={`w-full max-w-3xl bg-[#141210]/95 border-[1.5px] border-[#2e2924] rounded-2xl p-4 sm:p-5 shadow-[0_10px_0_#050504] my-auto will-change-[opacity,transform] transition-[opacity,transform] duration-[720ms] ease-[cubic-bezier(0.22,0.86,0.24,1)] ${
@@ -1056,15 +1123,18 @@ export const NoirSnakeGameOverlay: React.FC = () => {
                 {hud.status === 'playing' && showTouchPad && (
                     <div
                         dir="ltr"
+                        onTouchStart={(e) => e.stopPropagation()}
+                        onTouchMove={(e) => e.stopPropagation()}
                         className="absolute inset-x-0 bottom-0 z-20 px-4 pb-3 pt-2 flex items-end justify-between pointer-events-none"
-                        style={{ paddingBottom: 'max(12px, env(safe-area-inset-bottom))' }}
+                        style={{ paddingBottom: 'max(10px, env(safe-area-inset-bottom))' }}
                     >
                         {/* Left/Center Ergonomic D-Pad */}
-                        <div className="pointer-events-auto grid grid-cols-3 grid-rows-3 gap-1.5 w-[132px] h-[132px]">
+                        <div className="pointer-events-auto grid grid-cols-3 grid-rows-3 gap-1.5 w-[124px] h-[124px] sm:w-[132px] sm:h-[132px]">
                             <div />
                             <button
                                 type="button"
                                 onPointerDown={(e) => {
+                                    e.stopPropagation();
                                     e.preventDefault();
                                     engineRef.current?.queueDirection('UP');
                                 }}
@@ -1078,6 +1148,7 @@ export const NoirSnakeGameOverlay: React.FC = () => {
                             <button
                                 type="button"
                                 onPointerDown={(e) => {
+                                    e.stopPropagation();
                                     e.preventDefault();
                                     engineRef.current?.queueDirection('LEFT');
                                 }}
@@ -1090,6 +1161,7 @@ export const NoirSnakeGameOverlay: React.FC = () => {
                             <button
                                 type="button"
                                 onPointerDown={(e) => {
+                                    e.stopPropagation();
                                     e.preventDefault();
                                     engineRef.current?.queueDirection('RIGHT');
                                 }}
@@ -1103,6 +1175,7 @@ export const NoirSnakeGameOverlay: React.FC = () => {
                             <button
                                 type="button"
                                 onPointerDown={(e) => {
+                                    e.stopPropagation();
                                     e.preventDefault();
                                     engineRef.current?.queueDirection('DOWN');
                                 }}
@@ -1119,10 +1192,14 @@ export const NoirSnakeGameOverlay: React.FC = () => {
                             <button
                                 type="button"
                                 onPointerDown={(e) => {
+                                    e.stopPropagation();
                                     e.preventDefault();
                                     engineRef.current?.setBoost(true);
                                 }}
-                                onPointerUp={() => engineRef.current?.setBoost(false)}
+                                onPointerUp={(e) => {
+                                    e.stopPropagation();
+                                    engineRef.current?.setBoost(false);
+                                }}
                                 onPointerCancel={() => engineRef.current?.setBoost(false)}
                                 onPointerLeave={() => engineRef.current?.setBoost(false)}
                                 className={`pointer-events-auto w-20 h-20 rounded-2xl border-2 flex flex-col items-center justify-center gap-0.5 font-mono text-[10px] font-black uppercase tracking-wider touch-manipulation transition-colors ${

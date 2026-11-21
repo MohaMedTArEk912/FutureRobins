@@ -211,11 +211,15 @@ export const BentoArcadeOverlay: React.FC = () => {
 
         const syncSize = () => {
             if (!stageRef.current || !engineRef.current) return;
-            const rect = stageRef.current.getBoundingClientRect();
-            const coarse = window.matchMedia('(pointer: coarse)').matches || rect.width < 768;
+            // Use clientWidth/clientHeight (untransformed layout box) so enter/exit CSS scale
+            // transforms never inflate the canvas dimensions beyond the viewport.
+            const width = stageRef.current.clientWidth;
+            const height = stageRef.current.clientHeight;
+            if (width <= 0 || height <= 0) return;
+            const coarse = window.matchMedia('(pointer: coarse)').matches || width < 768;
             setIsTouchViewport(coarse);
-            const dashInset = coarse ? 92 : 0;
-            engineRef.current.resize(rect.width, rect.height, dashInset);
+            const controlInset = coarse ? 84 : 0;
+            engineRef.current.resize(width, height, controlInset);
         };
 
         syncSize();
@@ -345,16 +349,25 @@ export const BentoArcadeOverlay: React.FC = () => {
     const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
         if (hud.status !== 'playing' || hud.mode !== 'smash') return;
         const rect = stageRef.current?.getBoundingClientRect();
-        if (!rect) return;
-        engineRef.current?.setPaddlePointerX(e.clientX - rect.left);
+        if (!rect || rect.width <= 0) return;
+        const stageW = stageRef.current?.clientWidth || rect.width;
+        const localX = ((e.clientX - rect.left) / rect.width) * stageW;
+        engineRef.current?.setPaddlePointerX(localX);
     };
 
     const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
         if (hud.status !== 'playing') return;
         if (hud.mode === 'smash') {
+            try {
+                e.currentTarget.setPointerCapture(e.pointerId);
+            } catch {
+                // ignore pointer capture issues on older touch browsers
+            }
             const rect = stageRef.current?.getBoundingClientRect();
-            if (rect) {
-                engineRef.current?.setPaddlePointerX(e.clientX - rect.left);
+            if (rect && rect.width > 0) {
+                const stageW = stageRef.current?.clientWidth || rect.width;
+                const localX = ((e.clientX - rect.left) / rect.width) * stageW;
+                engineRef.current?.setPaddlePointerX(localX);
             }
             if (hud.waitingForLaunch) {
                 engineRef.current?.launchSmashBall();
@@ -365,14 +378,22 @@ export const BentoArcadeOverlay: React.FC = () => {
         }
     };
 
-    const handleTouchMoveDash = (e: React.TouchEvent<HTMLDivElement>) => {
-        if (hud.status !== 'playing' || hud.mode !== 'dash' || touchStartYRef.current === null || e.touches.length === 0) {
+    const handleTouchMoveStage = (e: React.TouchEvent<HTMLDivElement>) => {
+        if (hud.status !== 'playing' || e.touches.length === 0) return;
+        if (hud.mode === 'smash') {
+            const rect = stageRef.current?.getBoundingClientRect();
+            if (!rect || rect.width <= 0) return;
+            const stageW = stageRef.current?.clientWidth || rect.width;
+            const localX = ((e.touches[0].clientX - rect.left) / rect.width) * stageW;
+            engineRef.current?.setPaddlePointerX(localX);
             return;
         }
-        const dy = e.touches[0].clientY - touchStartYRef.current;
-        if (dy > 38) {
-            engineRef.current?.triggerDashSlam();
-            touchStartYRef.current = null;
+        if (hud.mode === 'dash' && touchStartYRef.current !== null) {
+            const dy = e.touches[0].clientY - touchStartYRef.current;
+            if (dy > 38) {
+                engineRef.current?.triggerDashSlam();
+                touchStartYRef.current = null;
+            }
         }
     };
 
@@ -408,14 +429,17 @@ export const BentoArcadeOverlay: React.FC = () => {
             role="dialog"
             aria-modal="true"
             aria-label={tx('Neo-Brutalist Bento Secret Arcade', 'أركيد بينتو السري')}
-            className={`secret-arcade-shell fixed inset-0 z-[120] flex flex-col bg-[#f5f3ec] text-black select-none will-change-[opacity,transform] transition-[opacity,transform] duration-[780ms] ease-[cubic-bezier(0.22,0.86,0.24,1)] ${
+            className={`secret-arcade-shell fixed inset-0 h-dvh z-[120] flex flex-col bg-[#f5f3ec] text-black select-none will-change-[opacity,transform] transition-[opacity,transform] duration-[780ms] ease-[cubic-bezier(0.22,0.86,0.24,1)] ${
                 isRevealed
                     ? 'opacity-100 scale-100'
                     : isExiting
                         ? 'opacity-0 scale-[1.035] pointer-events-none'
                         : 'opacity-0 scale-[1.045] pointer-events-none'
             }`}
-            style={{ paddingTop: 'env(safe-area-inset-top)' }}
+            style={{
+                paddingTop: 'env(safe-area-inset-top)',
+                paddingBottom: 'env(safe-area-inset-bottom)'
+            }}
         >
             {/* Neo-Brutalist 4-Band Solid Paper Wipe Ribbon during Portal Enter */}
             {phase === 'entering' && (
@@ -430,114 +454,227 @@ export const BentoArcadeOverlay: React.FC = () => {
                 </div>
             )}
 
-            {/* Top Neo-Brutalist HUD Bar */}
+            {/* Top Neo-Brutalist HUD Bar (Clean 2-row stack on mobile so nothing collides, single bar on sm+) */}
             <header
-                className={`shrink-0 h-13 sm:h-15 px-2.5 sm:px-5 bg-white border-b-[3px] border-black flex items-center justify-between gap-2 z-20 will-change-[opacity,transform] transition-[opacity,transform] duration-[680ms] ease-[cubic-bezier(0.22,0.86,0.24,1)] ${
+                className={`shrink-0 bg-white border-b-[3px] border-black z-20 will-change-[opacity,transform] transition-[opacity,transform] duration-[680ms] ease-[cubic-bezier(0.22,0.86,0.24,1)] ${
                     isRevealed
                         ? 'opacity-100 translate-y-0 delay-[100ms]'
                         : 'opacity-0 -translate-y-full delay-0'
                 }`}
             >
-                {/* Left: Bento Arcade Brand + Mode Pill */}
-                <div className="flex items-center gap-2 min-w-0">
-                    <div className="min-w-0 leading-tight">
-                        <div className="flex items-center gap-1.5">
-                            <span className="font-black text-xs sm:text-sm tracking-tight uppercase truncate">
-                                BENTO ARCADE
-                            </span>
-                            {hud.status !== 'menu' && (
-                                <span
-                                    className={`px-1.5 py-0.5 rounded border-2 border-black text-[9px] font-black uppercase ${
-                                        hud.mode === 'smash' ? 'bg-[#bae6fd]' : 'bg-[#bef264]'
-                                    }`}
-                                >
-                                    {hud.mode === 'smash' ? tx('SMASH', 'تكسير') : tx('DASH', 'جري')}
+                <div className="h-12 sm:h-15 px-3 sm:px-5 flex items-center justify-between gap-2">
+                    {/* Left: Bento Arcade Brand + Mode Pill */}
+                    <div className="flex items-center gap-1.5 min-w-0">
+                        <div className="min-w-0 leading-tight">
+                            <div className="flex items-center gap-1.5">
+                                <span className="font-black text-xs sm:text-sm tracking-tight uppercase whitespace-nowrap">
+                                    BENTO ARCADE
+                                </span>
+                                {hud.status !== 'menu' && (
+                                    <span
+                                        className={`px-1.5 py-0.5 rounded border-2 border-black text-[9px] font-black uppercase whitespace-nowrap shrink-0 ${
+                                            hud.mode === 'smash' ? 'bg-[#bae6fd]' : 'bg-[#bef264]'
+                                        }`}
+                                    >
+                                        {hud.mode === 'smash' ? tx('SMASH', 'تكسير') : tx('DASH', 'جري')}
+                                    </span>
+                                )}
+                            </div>
+                            <div className="hidden sm:block text-[10px] font-bold text-black/70">
+                                {tx(`LV.${rankInfo.rankLevel} • ${rankInfo.title}`, `المستوى ${rankInfo.rankLevel} • ${rankInfo.arTitle}`)}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Desktop/Tablet Center: Live Telemetry & Lime XP Bar */}
+                    {hud.status !== 'menu' ? (
+                        <div dir="ltr" className="hidden sm:flex items-center gap-4 min-w-0 flex-1 justify-center max-w-2xl">
+                            {/* Score */}
+                            <div className="flex flex-col items-center leading-none">
+                                <span className="text-[9px] font-black uppercase text-black/60">SCORE</span>
+                                <span className="font-mono text-sm font-black tabular-nums">
+                                    {hud.score.toLocaleString()}
+                                </span>
+                            </div>
+
+                            {hud.mode === 'smash' ? (
+                                <>
+                                    <div className="flex flex-col items-center leading-none">
+                                        <span className="text-[9px] font-black uppercase text-black/60">WAVE</span>
+                                        <span className="font-mono text-sm font-black tabular-nums">
+                                            #{hud.wave}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center gap-0.5" aria-label={`Lives: ${hud.lives}`}>
+                                        {[1, 2, 3].map((i) => (
+                                            <Heart
+                                                key={i}
+                                                className={`w-4 h-4 ${
+                                                    i <= hud.lives
+                                                        ? 'fill-[#fb7185] text-black stroke-[2.5]'
+                                                        : 'fill-transparent text-black/25 stroke-[2]'
+                                                }`}
+                                            />
+                                        ))}
+                                    </div>
+                                    {(hud.activeBuffs.wideSec > 0 || hud.activeBuffs.heavySec > 0) && (
+                                        <div className="hidden md:flex items-center gap-1">
+                                            {hud.activeBuffs.wideSec > 0 && (
+                                                <span className="px-1.5 py-0.5 rounded bg-[#bae6fd] border-2 border-black text-[9px] font-black">
+                                                    WIDE {hud.activeBuffs.wideSec}s
+                                                </span>
+                                            )}
+                                            {hud.activeBuffs.heavySec > 0 && (
+                                                <span className="px-1.5 py-0.5 rounded bg-[#fed7aa] border-2 border-black text-[9px] font-black">
+                                                    SMASH {hud.activeBuffs.heavySec}s
+                                                </span>
+                                            )}
+                                        </div>
+                                    )}
+                                </>
+                            ) : (
+                                <>
+                                    <div className="flex flex-col items-center leading-none">
+                                        <span className="text-[9px] font-black uppercase text-black/60">DIST</span>
+                                        <span className="font-mono text-sm font-black tabular-nums">
+                                            {hud.distanceMeters}m
+                                        </span>
+                                    </div>
+                                    {hud.hasShield && (
+                                        <span className="px-1.5 py-0.5 rounded bg-[#bae6fd] border-2 border-black text-[9px] font-black inline-flex items-center gap-0.5">
+                                            <Shield className="w-3 h-3" /> ON
+                                        </span>
+                                    )}
+                                </>
+                            )}
+
+                            {hud.comboMultiplier > 1 && (
+                                <span className="inline-flex px-1.5 py-0.5 rounded bg-[#fde047] border-2 border-black shadow-[1.5px_1.5px_0px_#000] font-mono text-[10px] font-black">
+                                    ×{hud.comboMultiplier}
                                 </span>
                             )}
+
+                            {/* Live Run Level & Lime XP Progress Bar */}
+                            <div className="flex flex-col gap-0.5 w-36 shrink-0">
+                                <div className="flex items-center justify-between text-[10px] font-mono font-black">
+                                    <span>LV.{String(hud.runLevel).padStart(2, '0')}</span>
+                                    <span className="text-black/65 tabular-nums">
+                                        {hud.runLevelXp}/{hud.runLevelNextXp}
+                                    </span>
+                                </div>
+                                <div className="h-2.5 w-full bg-white border-2 border-black rounded-sm overflow-hidden">
+                                    <div
+                                        className="h-full bg-[#bef264] transition-all duration-150"
+                                        style={{ width: `${runXpPct}%` }}
+                                    />
+                                </div>
+                            </div>
                         </div>
-                        <div className="hidden sm:block text-[10px] font-bold text-black/70">
-                            {tx(`LV.${rankInfo.rankLevel} • ${rankInfo.title}`, `المستوى ${rankInfo.rankLevel} • ${rankInfo.arTitle}`)}
+                    ) : (
+                        <div className="hidden md:flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#fde047] border-2 border-black shadow-[2px_2px_0px_#000] text-[11px] font-black uppercase">
+                            <span>{tx('CHOOSE YOUR BENTO GAME', 'اختار لعبتك في وضع بينتو')}</span>
                         </div>
+                    )}
+
+                    {/* Right: Mute, Pause, Exit */}
+                    <div className="flex items-center gap-1.5 shrink-0">
+                        <button
+                            type="button"
+                            onClick={toggleMute}
+                            className="h-8 w-8 rounded-lg bg-white hover:bg-[#fef9c3] border-2 border-black shadow-[2px_2px_0px_#000] active:translate-y-0.5 flex items-center justify-center cursor-pointer"
+                            aria-label={profile.muted ? tx('Unmute', 'تشغيل الصوت') : tx('Mute', 'كتم الصوت')}
+                        >
+                            {profile.muted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+                        </button>
+
+                        {(hud.status === 'playing' || hud.status === 'paused') && (
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    hud.status === 'playing'
+                                        ? engineRef.current?.pause('manual')
+                                        : engineRef.current?.resume()
+                                }
+                                className="h-8 w-8 rounded-lg bg-[#fde047] hover:bg-[#facc15] border-2 border-black shadow-[2px_2px_0px_#000] active:translate-y-0.5 flex items-center justify-center cursor-pointer"
+                                aria-label={hud.status === 'playing' ? tx('Pause', 'إيقاف مؤقت') : tx('Resume', 'استكمال')}
+                            >
+                                {hud.status === 'playing' ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+                            </button>
+                        )}
+
+                        <button
+                            type="button"
+                            onClick={exitSecretGame}
+                            className="h-8 px-2.5 sm:px-3 rounded-lg bg-[#fda4af] hover:bg-[#fb7185] border-2 border-black shadow-[2px_2px_0px_#000] active:translate-y-0.5 font-black text-[11px] uppercase flex items-center gap-1 cursor-pointer"
+                        >
+                            <X className="w-3.5 h-3.5 stroke-[3]" />
+                            <span className="hidden sm:inline">{tx('EXIT', 'خروج')}</span>
+                        </button>
                     </div>
                 </div>
 
-                {/* Center: Live Telemetry & Lime XP Bar */}
-                {hud.status !== 'menu' ? (
-                    <div dir="ltr" className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1 justify-center max-w-2xl">
-                        {/* Score */}
-                        <div className="flex flex-col items-center leading-none">
-                            <span className="text-[9px] font-black uppercase text-black/60">SCORE</span>
-                            <span className="font-mono text-xs sm:text-sm font-black tabular-nums">
-                                {hud.score.toLocaleString()}
-                            </span>
-                        </div>
-
-                        {hud.mode === 'smash' ? (
-                            <>
-                                <div className="flex flex-col items-center leading-none">
-                                    <span className="text-[9px] font-black uppercase text-black/60">WAVE</span>
-                                    <span className="font-mono text-xs sm:text-sm font-black tabular-nums">
-                                        #{hud.wave}
-                                    </span>
-                                </div>
-                                <div className="flex items-center gap-0.5" aria-label={`Lives: ${hud.lives}`}>
-                                    {[1, 2, 3].map((i) => (
-                                        <Heart
-                                            key={i}
-                                            className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${
-                                                i <= hud.lives
-                                                    ? 'fill-[#fb7185] text-black stroke-[2.5]'
-                                                    : 'fill-transparent text-black/25 stroke-[2]'
-                                            }`}
-                                        />
-                                    ))}
-                                </div>
-                                {(hud.activeBuffs.wideSec > 0 || hud.activeBuffs.heavySec > 0) && (
-                                    <div className="hidden md:flex items-center gap-1">
-                                        {hud.activeBuffs.wideSec > 0 && (
-                                            <span className="px-1.5 py-0.5 rounded bg-[#bae6fd] border-2 border-black text-[9px] font-black">
-                                                WIDE {hud.activeBuffs.wideSec}s
-                                            </span>
-                                        )}
-                                        {hud.activeBuffs.heavySec > 0 && (
-                                            <span className="px-1.5 py-0.5 rounded bg-[#fed7aa] border-2 border-black text-[9px] font-black">
-                                                SMASH {hud.activeBuffs.heavySec}s
-                                            </span>
-                                        )}
-                                    </div>
-                                )}
-                            </>
-                        ) : (
-                            <>
-                                <div className="flex flex-col items-center leading-none">
-                                    <span className="text-[9px] font-black uppercase text-black/60">DIST</span>
-                                    <span className="font-mono text-xs sm:text-sm font-black tabular-nums">
-                                        {hud.distanceMeters}m
-                                    </span>
-                                </div>
-                                {hud.hasShield && (
-                                    <span className="px-1.5 py-0.5 rounded bg-[#bae6fd] border-2 border-black text-[9px] font-black inline-flex items-center gap-0.5">
-                                        <Shield className="w-3 h-3" /> ON
-                                    </span>
-                                )}
-                            </>
-                        )}
-
-                        {hud.comboMultiplier > 1 && (
-                            <span className="hidden sm:inline-flex px-1.5 py-0.5 rounded bg-[#fde047] border-2 border-black shadow-[1.5px_1.5px_0px_#000] font-mono text-[10px] font-black">
-                                ×{hud.comboMultiplier}
-                            </span>
-                        )}
-
-                        {/* Live Run Level & Lime XP Progress Bar */}
-                        <div className="flex flex-col gap-0.5 w-24 sm:w-36 shrink-0">
-                            <div className="flex items-center justify-between text-[9px] sm:text-[10px] font-mono font-black">
-                                <span>LV.{String(hud.runLevel).padStart(2, '0')}</span>
-                                <span className="text-black/65 tabular-nums">
-                                    {hud.runLevelXp}/{hud.runLevelNextXp}
+                {/* Mobile Row 2: Dedicated Live Telemetry Strip (Zero Overlap!) */}
+                {hud.status !== 'menu' && (
+                    <div
+                        dir="ltr"
+                        className="sm:hidden px-3 py-1.5 bg-[#faf8f2] border-t-2 border-black flex items-center justify-between gap-2"
+                    >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                            <div className="flex items-baseline gap-1 whitespace-nowrap">
+                                <span className="text-[9px] font-black uppercase text-black/60">SCR</span>
+                                <span className="font-mono text-xs font-black tabular-nums">
+                                    {hud.score.toLocaleString()}
                                 </span>
                             </div>
-                            <div className="h-2.5 w-full bg-white border-2 border-black rounded-sm overflow-hidden">
+
+                            {hud.mode === 'smash' ? (
+                                <>
+                                    <div className="flex items-baseline gap-0.5 whitespace-nowrap">
+                                        <span className="text-[9px] font-black uppercase text-black/60">W</span>
+                                        <span className="font-mono text-xs font-black tabular-nums">#{hud.wave}</span>
+                                    </div>
+                                    <div className="flex items-center gap-0.5 shrink-0" aria-label={`Lives: ${hud.lives}`}>
+                                        {[1, 2, 3].map((i) => (
+                                            <Heart
+                                                key={i}
+                                                className={`w-3.5 h-3.5 ${
+                                                    i <= hud.lives
+                                                        ? 'fill-[#fb7185] text-black stroke-[2.5]'
+                                                        : 'fill-transparent text-black/25 stroke-[2]'
+                                                }`}
+                                            />
+                                        ))}
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <div className="flex items-baseline gap-0.5 whitespace-nowrap">
+                                        <span className="text-[9px] font-black uppercase text-black/60">DIST</span>
+                                        <span className="font-mono text-xs font-black tabular-nums">
+                                            {hud.distanceMeters}m
+                                        </span>
+                                    </div>
+                                    {hud.hasShield && (
+                                        <span className="px-1 py-0.5 rounded bg-[#bae6fd] border border-black text-[8px] font-black inline-flex items-center gap-0.5 shrink-0">
+                                            <Shield className="w-2.5 h-2.5" />
+                                        </span>
+                                    )}
+                                </>
+                            )}
+
+                            {hud.comboMultiplier > 1 && (
+                                <span className="px-1 py-0.5 rounded bg-[#fde047] border border-black font-mono text-[9px] font-black shrink-0">
+                                    ×{hud.comboMultiplier}
+                                </span>
+                            )}
+                        </div>
+
+                        {/* Compact Mobile LV + XP Bar */}
+                        <div className="flex items-center gap-1.5 shrink-0">
+                            <span className="font-mono text-[10px] font-black whitespace-nowrap">
+                                LV.{String(hud.runLevel).padStart(2, '0')}
+                            </span>
+                            <div className="h-2.5 w-16 bg-white border-2 border-black rounded-sm overflow-hidden">
                                 <div
                                     className="h-full bg-[#bef264] transition-all duration-150"
                                     style={{ width: `${runXpPct}%` }}
@@ -545,47 +682,7 @@ export const BentoArcadeOverlay: React.FC = () => {
                             </div>
                         </div>
                     </div>
-                ) : (
-                    <div className="hidden md:flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#fde047] border-2 border-black shadow-[2px_2px_0px_#000] text-[11px] font-black uppercase">
-                        <span>{tx('CHOOSE YOUR BENTO GAME', 'اختار لعبتك في وضع بينتو')}</span>
-                    </div>
                 )}
-
-                {/* Right: Mute, Pause, Exit */}
-                <div className="flex items-center gap-1.5 shrink-0">
-                    <button
-                        type="button"
-                        onClick={toggleMute}
-                        className="h-8 w-8 rounded-lg bg-white hover:bg-[#fef9c3] border-2 border-black shadow-[2px_2px_0px_#000] active:translate-y-0.5 flex items-center justify-center cursor-pointer"
-                        aria-label={profile.muted ? tx('Unmute', 'تشغيل الصوت') : tx('Mute', 'كتم الصوت')}
-                    >
-                        {profile.muted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
-                    </button>
-
-                    {(hud.status === 'playing' || hud.status === 'paused') && (
-                        <button
-                            type="button"
-                            onClick={() =>
-                                hud.status === 'playing'
-                                    ? engineRef.current?.pause('manual')
-                                    : engineRef.current?.resume()
-                            }
-                            className="h-8 w-8 rounded-lg bg-[#fde047] hover:bg-[#facc15] border-2 border-black shadow-[2px_2px_0px_#000] active:translate-y-0.5 flex items-center justify-center cursor-pointer"
-                            aria-label={hud.status === 'playing' ? tx('Pause', 'إيقاف مؤقت') : tx('Resume', 'استكمال')}
-                        >
-                            {hud.status === 'playing' ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
-                        </button>
-                    )}
-
-                    <button
-                        type="button"
-                        onClick={exitSecretGame}
-                        className="h-8 px-2.5 sm:px-3 rounded-lg bg-[#fda4af] hover:bg-[#fb7185] border-2 border-black shadow-[2px_2px_0px_#000] active:translate-y-0.5 font-black text-[11px] uppercase flex items-center gap-1 cursor-pointer"
-                    >
-                        <X className="w-3.5 h-3.5 stroke-[3]" />
-                        <span className="hidden sm:inline">{tx('EXIT', 'خروج')}</span>
-                    </button>
-                </div>
             </header>
 
             {/* Playable Dot-Grid Canvas Stage */}
@@ -594,7 +691,7 @@ export const BentoArcadeOverlay: React.FC = () => {
                 dir="ltr"
                 onPointerMove={handlePointerMove}
                 onPointerDown={handlePointerDown}
-                onTouchMove={handleTouchMoveDash}
+                onTouchMove={handleTouchMoveStage}
                 className="relative flex-1 min-h-0 w-full overflow-hidden touch-none"
             >
                 <canvas ref={canvasRef} className="block w-full h-full" />
@@ -613,16 +710,18 @@ export const BentoArcadeOverlay: React.FC = () => {
 
                 {/* Smash Launch Prompt */}
                 {hud.status === 'playing' && hud.mode === 'smash' && hud.waitingForLaunch && (
-                    <div className="pointer-events-none absolute bottom-14 left-1/2 -translate-x-1/2 z-10">
-                        <div className="px-3.5 py-1.5 rounded-full bg-white border-2 border-black shadow-[3px_3px_0px_#000] text-[11px] font-black uppercase tracking-wide">
-                            {tx('Tap / Click or Press SPACE to Launch', 'اضغط على الشاشة أو SPACE للإطلاق')}
+                    <div className="pointer-events-none absolute bottom-16 sm:bottom-14 inset-x-3 flex justify-center z-10">
+                        <div className="px-3.5 py-1.5 rounded-full bg-white border-2 border-black shadow-[3px_3px_0px_#000] text-[10px] sm:text-[11px] font-black uppercase tracking-wide text-center">
+                            {isTouchViewport
+                                ? tx('Tap to Launch • Slide Finger to Move Paddle', 'اضغط للإطلاق • اسحب بإصبعك لتحريك المضرب')
+                                : tx('Tap / Click or Press SPACE to Launch', 'اضغط على الشاشة أو SPACE للإطلاق')}
                         </div>
                     </div>
                 )}
 
                 {/* MODE SELECTION OVERLAY */}
                 {hud.status === 'menu' && (
-                    <div dir="auto" className="absolute inset-0 z-20 flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
+                    <div dir="auto" className="absolute inset-0 z-20 flex items-start sm:items-center justify-center p-3 sm:p-5 overflow-y-auto">
                         <div
                             className={`w-full max-w-3xl bg-white border-[3px] border-black rounded-2xl p-4 sm:p-5 shadow-[8px_8px_0px_#000] my-auto will-change-[opacity,transform] transition-[opacity,transform] duration-[720ms] ease-[cubic-bezier(0.22,0.86,0.24,1)] ${
                                 isRevealed
@@ -943,8 +1042,8 @@ export const BentoArcadeOverlay: React.FC = () => {
                 {hud.status === 'playing' && hud.mode === 'dash' && isTouchViewport && (
                     <div
                         dir="ltr"
-                        className="absolute inset-x-0 bottom-0 z-20 px-4 pt-2 flex items-center justify-between gap-3 pointer-events-none"
-                        style={{ paddingBottom: 'max(14px, env(safe-area-inset-bottom))' }}
+                        className="absolute inset-x-0 bottom-0 z-20 px-3.5 pt-2 flex items-center justify-between gap-3 pointer-events-none"
+                        style={{ paddingBottom: 'max(10px, env(safe-area-inset-bottom))' }}
                     >
                         <button
                             type="button"
@@ -953,7 +1052,7 @@ export const BentoArcadeOverlay: React.FC = () => {
                                 e.preventDefault();
                                 engineRef.current?.triggerDashSlam();
                             }}
-                            className="pointer-events-auto h-16 px-5 rounded-2xl bg-[#fed7aa] active:bg-[#fdba74] border-[3px] border-black shadow-[4px_4px_0px_#000] active:translate-y-0.5 font-black text-xs uppercase flex items-center gap-1.5 touch-manipulation"
+                            className="pointer-events-auto h-14 px-5 rounded-2xl bg-[#fed7aa] active:bg-[#fdba74] border-[3px] border-black shadow-[4px_4px_0px_#000] active:translate-y-0.5 font-black text-xs uppercase flex items-center gap-1.5 touch-manipulation"
                         >
                             <ArrowDown className="w-5 h-5 stroke-[3]" />
                             <span>SLAM</span>
@@ -966,7 +1065,7 @@ export const BentoArcadeOverlay: React.FC = () => {
                                 e.preventDefault();
                                 engineRef.current?.triggerDashJump();
                             }}
-                            className="pointer-events-auto flex-1 max-w-[200px] h-16 rounded-2xl bg-[#bef264] active:bg-[#a3e635] border-[3px] border-black shadow-[4px_4px_0px_#000] active:translate-y-0.5 font-black text-sm uppercase flex items-center justify-center gap-2 touch-manipulation"
+                            className="pointer-events-auto flex-1 max-w-[200px] h-14 rounded-2xl bg-[#bef264] active:bg-[#a3e635] border-[3px] border-black shadow-[4px_4px_0px_#000] active:translate-y-0.5 font-black text-sm uppercase flex items-center justify-center gap-2 touch-manipulation"
                         >
                             <ArrowUp className="w-5 h-5 stroke-[3]" />
                             <span>JUMP ×2</span>

@@ -282,33 +282,42 @@ export class BentoArcadeEngine {
         this.canvas.style.width = `${w}px`;
         this.canvas.style.height = `${h}px`;
 
-        this.canvasTopOffset = this.canvas.getBoundingClientRect().top || 0;
+        this.canvasTopOffset = this.canvas.parentElement?.offsetTop || 0;
         this.ensureDotPattern();
         this.computeSmashArenaLayout();
 
-        const bigShift = Math.abs(prevW - w) > 40 || Math.abs(prevH - h) > 40;
-        if (this.status === 'playing' && bigShift) {
+        const bigShift = Math.abs(prevW - w) > 64 || Math.abs(prevH - h) > 96;
+        if (this.status === 'playing' && this.elapsedMs > 600 && bigShift) {
             this.pause('resize');
         }
     }
 
     private computeSmashArenaLayout() {
-        const padX = this.width < 560 ? 10 : 28;
-        const padTop = this.width < 560 ? 10 : 20;
-        const padBottom = (this.width < 560 ? 12 : 22) + (this.mode === 'dash' ? this.bottomControlInset : 0);
+        const isNarrow = this.width < 560;
+        const padX = isNarrow ? 10 : 28;
+        const padTop = isNarrow ? 10 : 20;
+        // Leave clean breathing room at bottom so the 6px black border/shadow and thumb drag space
+        // are NEVER clipped by iOS Safari's bottom toolbar or home indicator.
+        const padBottom = isNarrow
+            ? (this.mode === 'dash' ? 12 + this.bottomControlInset : 22)
+            : (22 + (this.mode === 'dash' ? this.bottomControlInset : 0));
 
-        const maxArenaW = Math.min(880, this.width - padX * 2);
-        const maxArenaH = Math.max(300, this.height - padTop - padBottom);
+        // Reserve 6px extra width/height for the Neo-Brutalist offset shadow so all 4 edges stay inside screen
+        const maxArenaW = Math.min(880, this.width - padX * 2 - 6);
+        const maxArenaH = Math.max(260, this.height - padTop - padBottom - 6);
 
-        this.arenaW = Math.max(260, Math.floor(maxArenaW));
+        this.arenaW = Math.max(250, Math.floor(maxArenaW));
         this.arenaH = Math.floor(maxArenaH);
-        this.arenaX = Math.floor((this.width - this.arenaW) / 2);
+        this.arenaX = Math.max(8, Math.floor((this.width - this.arenaW - 4) / 2));
         this.arenaY = Math.floor(padTop);
 
-        this.paddleBaseW = Math.max(76, Math.min(136, Math.round(this.arenaW * 0.18)));
-        this.paddleW = this.wideBuffMs > 0 ? Math.min(this.arenaW * 0.36, this.paddleBaseW * 1.45) : this.paddleBaseW;
-        this.paddleH = this.width < 560 ? 16 : 19;
-        this.paddleY = this.arenaY + this.arenaH - (this.width < 560 ? 32 : 38);
+        this.paddleBaseW = isNarrow
+            ? Math.max(84, Math.min(126, Math.round(this.arenaW * 0.25)))
+            : Math.max(88, Math.min(138, Math.round(this.arenaW * 0.18)));
+        this.paddleW = this.wideBuffMs > 0 ? Math.min(this.arenaW * 0.42, this.paddleBaseW * 1.45) : this.paddleBaseW;
+        this.paddleH = isNarrow ? 16 : 19;
+        // Keep the paddle slightly elevated on mobile so thumbs can slide beneath it comfortably
+        this.paddleY = this.arenaY + this.arenaH - (isNarrow ? 44 : 38);
         this.paddleX = Math.max(
             this.arenaX + 10,
             Math.min(this.arenaX + this.arenaW - this.paddleW - 10, this.paddleX)
@@ -919,16 +928,17 @@ export class BentoArcadeEngine {
     // =========================================================================
 
     private initDashRun() {
+        const isPhone = this.width < 520;
         this.dashScrollX = 0;
-        this.dashSpeed = this.width < 560 ? 275 : 320;
+        this.dashSpeed = isPhone ? 240 : this.width < 768 ? 275 : 320;
         this.dashDistancePx = 0;
         this.dashLastMilestoneMeters = 0;
         this.dashCoinsCollected = 0;
         this.dashHasShield = false;
-        this.mascotSize = this.width < 560 ? 34 : 42;
-        this.mascotX = Math.max(58, Math.min(165, Math.floor(this.width * 0.2)));
+        this.mascotSize = isPhone ? 32 : this.width < 768 ? 36 : 42;
+        this.mascotX = Math.max(52, Math.min(165, Math.floor(this.width * 0.2)));
 
-        const playHeight = this.height - this.bottomControlInset;
+        const playHeight = Math.max(260, this.height - this.bottomControlInset);
         const startGroundY = Math.floor(playHeight * 0.68);
         this.mascotY = startGroundY - this.mascotSize;
         this.mascotVy = 0;
@@ -943,7 +953,7 @@ export class BentoArcadeEngine {
                 id: this.nextId++,
                 x: 20,
                 y: startGroundY,
-                w: Math.max(360, Math.floor(this.width * 0.62)),
+                w: Math.max(isPhone ? 280 : 360, Math.floor(this.width * 0.68)),
                 h: 26,
                 color: WHITE,
                 hasSpring: false,
@@ -1389,13 +1399,13 @@ export class BentoArcadeEngine {
 
     private renderMenuBackdrop(now: number) {
         const ctx = this.ctx;
-        // Subtle joyful drifting Bento geometric stickers around edges
+        // Subtle joyful drifting Bento geometric stickers kept comfortably inside all four corners
         const bob1 = Math.sin(now * 0.002) * 8;
         const bob2 = Math.cos(now * 0.0024) * 10;
         drawBrutalBox(ctx, 34, 42 + bob1, 56, 36, 10, YELLOW, 4, 2.5);
-        drawBrutalBox(ctx, this.width - 96, 52 + bob2, 62, 34, 10, SKY, 4, 2.5);
-        drawBrutalBox(ctx, 42, this.height - 84 + bob2, 46, 46, 12, LIME, 4, 2.5);
-        drawBrutalBox(ctx, this.width - 92, this.height - 90 + bob1, 50, 42, 10, PEACH, 4, 2.5);
+        drawBrutalBox(ctx, Math.max(34, this.width - 102), 52 + bob2, 62, 34, 10, SKY, 4, 2.5);
+        drawBrutalBox(ctx, 42, Math.max(42, this.height - 88) + bob2, 46, 46, 12, LIME, 4, 2.5);
+        drawBrutalBox(ctx, Math.max(42, this.width - 96), Math.max(42, this.height - 92) + bob1, 50, 42, 10, PEACH, 4, 2.5);
     }
 
     private renderSmashScene() {

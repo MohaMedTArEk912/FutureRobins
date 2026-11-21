@@ -43,7 +43,13 @@ class PwaUpdater {
             window.matchMedia('(display-mode: standalone)').matches ||
             (window.navigator as unknown as { standalone?: boolean }).standalone === true;
         const ua = window.navigator.userAgent.toLowerCase();
-        const isIOSDevice = /iphone|ipad|ipod/.test(ua) && !(window as unknown as { MSStream?: unknown }).MSStream;
+        const isIPadOS =
+            window.navigator.platform === 'MacIntel' &&
+            typeof window.navigator.maxTouchPoints === 'number' &&
+            window.navigator.maxTouchPoints > 1;
+        const isIOSDevice =
+            (/iphone|ipad|ipod/.test(ua) || isIPadOS) &&
+            !(window as unknown as { MSStream?: unknown }).MSStream;
 
         this.setState({
             isInstalled: isStandalone,
@@ -196,13 +202,23 @@ class PwaUpdater {
     public async promptInstall(): Promise<'accepted' | 'dismissed' | 'ios' | 'unavailable'> {
         if (this.state.isInstalled) return 'unavailable';
         if (this.deferredInstallPrompt) {
-            await this.deferredInstallPrompt.prompt();
-            const { outcome } = await this.deferredInstallPrompt.userChoice;
-            if (outcome === 'accepted') {
-                this.deferredInstallPrompt = null;
-                this.setState({ canInstall: false, isInstalled: true });
+            const promptEvent = this.deferredInstallPrompt;
+            // Per BeforeInstallPromptEvent spec, a deferred prompt can only be consumed once.
+            this.deferredInstallPrompt = null;
+            try {
+                await promptEvent.prompt();
+                const { outcome } = await promptEvent.userChoice;
+                if (outcome === 'accepted') {
+                    this.setState({ canInstall: false, isInstalled: true });
+                } else {
+                    this.setState({ canInstall: false });
+                }
+                return outcome;
+            } catch (err) {
+                console.warn('[PWA] Install prompt failed:', err);
+                this.setState({ canInstall: false });
+                return 'dismissed';
             }
-            return outcome;
         }
         if (this.state.isIOS) {
             return 'ios';

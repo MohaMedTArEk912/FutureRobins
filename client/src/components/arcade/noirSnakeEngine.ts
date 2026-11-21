@@ -171,8 +171,8 @@ export class NoirSnakeEngine {
         const minDim = Math.min(w, h);
         this.cellSize = minDim < 440 ? 24 : minDim < 680 ? 32 : 44;
 
-        const sizeChangedSignificantly = Math.abs(prevW - w) > 28 || Math.abs(prevH - h) > 28;
-        if (this.status === 'playing' && this.mode === 'harvest' && sizeChangedSignificantly) {
+        const sizeChangedSignificantly = Math.abs(prevW - w) > 64 || Math.abs(prevH - h) > 96;
+        if (this.status === 'playing' && this.mode === 'harvest' && this.elapsedMs > 600 && sizeChangedSignificantly) {
             this.pause('resize');
         }
 
