@@ -7,7 +7,10 @@ import {
     X,
     ChevronDown,
     Sparkles,
-    MessageSquare
+    MessageSquare,
+    Gamepad2,
+    GraduationCap,
+    Check
 } from 'lucide-react';
 import NotificationCenter from './NotificationCenter.tsx';
 import type { UserData } from '../types/index.ts';
@@ -18,8 +21,10 @@ import { useAuth } from '../context/AuthContext';
 import { useChat } from '../context/ChatContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useNavArrangement } from '../context/NavArrangementContext';
+import { useSecretGame } from '../context/SecretGameContext';
 import DemoRoleSwitchButton from './DemoRoleSwitchButton';
 import { prefetchRoute } from '../lib/routePrefetch';
+import { navigateBackSafely } from '../lib/navigation';
 
 interface NavbarProps {
     user?: UserData | null;
@@ -47,9 +52,13 @@ const Navbar: React.FC<NavbarProps> = ({
     const { logout: authLogout } = useAuth();
     const { isOpen: isChatOpen, openChat, closeChat, unreadCount: chatUnreadCount } = useChat();
     const { primaryItems, secondaryItems } = useNavArrangement();
+    const { launchNoirSnake, launchBentoArcade } = useSecretGame();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isMoreOpen, setIsMoreOpen] = useState(false);
+    const [isBrandOpen, setIsBrandOpen] = useState(false);
     const moreDropdownRef = useRef<HTMLDivElement>(null);
+    const desktopBrandRef = useRef<HTMLDivElement>(null);
+    const mobileBrandRef = useRef<HTMLDivElement>(null);
     const navTrackRef = useRef<HTMLElement>(null);
     const glidePillRef = useRef<HTMLSpanElement>(null);
     const navBtnRefs = useRef<Record<string, HTMLButtonElement | null>>({});
@@ -61,22 +70,29 @@ const Navbar: React.FC<NavbarProps> = ({
     const isRoot = location.pathname === '/' || location.pathname === '/dashboard';
     const shouldShowBack = showBack !== undefined ? showBack : !isRoot;
 
-    // Close "More" dropdown when clicking outside or pressing Escape
+    // Close dropdowns when clicking outside or pressing Escape
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
-            if (moreDropdownRef.current && !moreDropdownRef.current.contains(event.target as Node)) {
+            const target = event.target as Node;
+            if (moreDropdownRef.current && !moreDropdownRef.current.contains(target)) {
                 setIsMoreOpen(false);
+            }
+            const clickedDesktopBrand = desktopBrandRef.current?.contains(target);
+            const clickedMobileBrand = mobileBrandRef.current?.contains(target);
+            if (!clickedDesktopBrand && !clickedMobileBrand) {
+                setIsBrandOpen(false);
             }
         };
 
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key === 'Escape') {
                 setIsMoreOpen(false);
+                setIsBrandOpen(false);
                 setIsMenuOpen(false);
             }
         };
 
-        if (isMoreOpen || isMenuOpen) {
+        if (isMoreOpen || isMenuOpen || isBrandOpen) {
             document.addEventListener('mousedown', handleClickOutside);
             document.addEventListener('keydown', handleKeyDown);
         }
@@ -85,14 +101,162 @@ const Navbar: React.FC<NavbarProps> = ({
             document.removeEventListener('mousedown', handleClickOutside);
             document.removeEventListener('keydown', handleKeyDown);
         };
-    }, [isMoreOpen, isMenuOpen]);
+    }, [isMoreOpen, isMenuOpen, isBrandOpen]);
 
-    // Automatically close mobile menu and dropdown on route change
+    // Automatically close mobile menu and dropdowns on route change
     useEffect(() => {
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setIsMenuOpen(false);
         setIsMoreOpen(false);
+        setIsBrandOpen(false);
     }, [location.pathname]);
+
+    // Warm-load the active theme's secret arcade chunk when the Brand Switcher opens
+    // so switching into Arcade plays with 0ms lazy-load delay.
+    useEffect(() => {
+        if (!isBrandOpen) return;
+        if (isBento) {
+            void import('./arcade/BentoArcadeOverlay');
+        } else {
+            void import('./arcade/NoirSnakeGameOverlay');
+        }
+    }, [isBrandOpen, isBento]);
+
+    const handleLaunchArcade = useCallback(() => {
+        setIsBrandOpen(false);
+        setIsMenuOpen(false);
+        if (isBento) {
+            launchBentoArcade();
+        } else {
+            launchNoirSnake();
+        }
+    }, [isBento, launchBentoArcade, launchNoirSnake]);
+
+    const renderBrandSwitcher = (containerRef: React.RefObject<HTMLDivElement | null>, showStatusDot: boolean) => (
+        <div className="relative min-w-0" ref={containerRef}>
+            <button
+                type="button"
+                onClick={() => {
+                    setIsMoreOpen(false);
+                    setIsBrandOpen(prev => !prev);
+                }}
+                aria-haspopup="menu"
+                aria-expanded={isBrandOpen}
+                aria-label={tx('Switch between Quiz Platform and Arcade', 'التبديل بين منصة الكويزات والأركيد')}
+                className={`btn-unstyled flex items-center gap-1.5 px-2.5 py-1.5 -ms-2 rounded-xl min-w-0 cursor-pointer transition-all text-start select-none ${
+                    isBento
+                        ? isBrandOpen
+                            ? 'bg-[#fde047] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                            : 'border-2 border-transparent text-black hover:bg-[#fef9c3]'
+                        : isBrandOpen
+                            ? 'bg-[#1c1917] text-[#f5f3ec] border border-[#2e2924]'
+                            : 'border border-transparent text-[#f5f3ec] hover:bg-[#1c1917]/80'
+                }`}
+            >
+                <span className="text-sm sm:text-base font-black tracking-tight whitespace-nowrap truncate">
+                    {tx('Quiz Platform', 'منصة الكويزات')}
+                </span>
+                {showStatusDot && (isRoot || !title || title === 'Quiz Platform') && (
+                    <span className={`w-1.5 h-1.5 rounded-full animate-pulse hidden sm:inline-block shrink-0 ${isBento ? 'bg-black' : 'bg-[#fde047]'}`} />
+                )}
+                <ChevronDown
+                    className={`w-3.5 h-3.5 shrink-0 transition-transform duration-200 ${
+                        isBrandOpen ? 'rotate-180' : ''
+                    } ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}
+                />
+            </button>
+
+            {isBrandOpen && (
+                <div
+                    role="menu"
+                    className={`absolute top-full mt-2 start-0 w-64 sm:w-[272px] p-2 rounded-2xl z-[60] space-y-1.5 animate-in fade-in zoom-in-95 duration-150 ${
+                        isBento
+                            ? 'bg-white border-[3px] border-black shadow-[6px_6px_0px_#000] text-black'
+                            : 'bg-[#141210] border-[1.5px] border-[#2e2924] shadow-[0_12px_0_#050504] text-[#f5f3ec]'
+                    }`}
+                >
+                    <div className={`px-2.5 pt-1 pb-0.5 text-[10px] font-black uppercase tracking-widest ${
+                        isBento ? 'text-black/60' : 'text-[#78716c]'
+                    }`}>
+                        {tx('Switch Space', 'اختار الوضع')}
+                    </div>
+
+                    {/* Option 1: Quiz Platform */}
+                    <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => {
+                            setIsBrandOpen(false);
+                            navigate('/');
+                        }}
+                        className={`btn-unstyled w-full flex items-center gap-3 p-2.5 rounded-xl text-start transition-all cursor-pointer ${
+                            isBento
+                                ? 'bg-[#fef9c3] hover:bg-[#fde047] border-2 border-black shadow-[2px_2px_0px_#000] text-black'
+                                : 'bg-[#1c1917] hover:bg-[#24201c] border border-[#2e2924] text-[#f5f3ec]'
+                        }`}
+                    >
+                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                            isBento
+                                ? 'bg-white text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]'
+                                : 'bg-[#192211] text-[#bef264] border border-[#bef264]/40'
+                        }`}>
+                            <GraduationCap className="w-4 h-4" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                            <div className="text-xs font-black leading-tight truncate">
+                                {tx('Quiz Platform', 'منصة الكويزات')}
+                            </div>
+                            <div className={`text-[10px] font-bold mt-0.5 truncate ${
+                                isBento ? 'text-black/70' : 'text-[#a8a29e]'
+                            }`}>
+                                {tx('Roads, quizzes & live arena', 'المسارات والكويزات والساحة')}
+                            </div>
+                        </div>
+                        <Check className={`w-4 h-4 shrink-0 ${isBento ? 'text-black' : 'text-[#bef264]'}`} />
+                    </button>
+
+                    {/* Option 2: Theme-Matched Secret Arcade */}
+                    <button
+                        type="button"
+                        role="menuitem"
+                        onClick={handleLaunchArcade}
+                        className={`btn-unstyled w-full flex items-center gap-3 p-2.5 rounded-xl text-start transition-all cursor-pointer ${
+                            isBento
+                                ? 'bg-[#faf8f2] hover:bg-[#bef264] border-2 border-black shadow-[2px_2px_0px_#000] text-black'
+                                : 'bg-[#0e0d0b] hover:bg-[#1c1917] border border-[#2e2924] hover:border-[#fde047]/50 text-[#f5f3ec]'
+                        }`}
+                    >
+                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                            isBento
+                                ? 'bg-[#bef264] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]'
+                                : 'bg-[#231e0f] text-[#fde047] border border-[#fde047]/40'
+                        }`}>
+                            <Gamepad2 className="w-4 h-4" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                            <div className="text-xs font-black leading-tight truncate">
+                                {tx('Arcade', 'الأركيد')}
+                            </div>
+                            <div className={`text-[10px] font-bold mt-0.5 truncate ${
+                                isBento ? 'text-black/70' : 'text-[#a8a29e]'
+                            }`}>
+                                {isBento
+                                    ? tx('Bento Smash & Paper Dash', 'Bento Smash و Paper Dash')
+                                    : tx('0xSNAKE • Hunted & Harvest', '0xSNAKE • المطاردة والحصاد')}
+                            </div>
+                        </div>
+                        <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider shrink-0 ${
+                            isBento
+                                ? 'bg-[#fde047] text-black border-[1.5px] border-black'
+                                : 'bg-[#bef264] text-[#0a0908]'
+                        }`}>
+                            {tx('Play', 'العب')}
+                        </span>
+                    </button>
+                </div>
+            )}
+        </div>
+    );
 
     const handleProfileClick = () => {
         if (onViewProfile) onViewProfile();
@@ -114,11 +278,7 @@ const Navbar: React.FC<NavbarProps> = ({
             onBack();
             return;
         }
-        if (window.history.length > 1) {
-            navigate(-1);
-        } else {
-            navigate('/');
-        }
+        navigateBackSafely(navigate, '/');
     };
 
     const allNavItems = useMemo(() => {
@@ -220,37 +380,7 @@ const Navbar: React.FC<NavbarProps> = ({
                             </button>
                         )}
 
-                        <div
-                            role="button"
-                            tabIndex={0}
-                            onClick={() => navigate('/')}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter' || e.key === ' ') {
-                                    e.preventDefault();
-                                    navigate('/');
-                                }
-                            }}
-                            className="btn-unstyled flex items-center gap-2.5 min-w-0 cursor-pointer hover:opacity-90 transition-opacity text-start select-none"
-                            aria-label={tx('Quiz Platform Home', 'الرئيسية - منصة الكويزات')}
-                        >
-                            <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm shrink-0 transition-transform active:scale-95 ${
-                                isBento
-                                    ? 'bg-[#fde047] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                    : 'bg-indigo-600 dark:bg-[#bef264] text-white dark:text-[#0a0908] shadow-md shadow-indigo-500/25 dark:shadow-[0_6px_18px_-4px_rgba(190,242,100,0.35)]'
-                            }`}>
-                                Q
-                            </div>
-                            <div className="flex items-center gap-1.5 min-w-0">
-                                <h1 className="text-sm sm:text-base font-extrabold tracking-tight text-slate-900 dark:text-[#f5f3ec] flex items-center gap-1.5 min-w-0">
-                                    <span className="truncate font-black">
-                                        {tx('Quiz Platform', 'منصة الكويزات')}
-                                    </span>
-                                    {(isRoot || !title || title === "Quiz Platform") && (
-                                        <span className={`w-1.5 h-1.5 rounded-full animate-pulse hidden sm:inline-block shrink-0 ${isBento ? 'bg-black' : 'bg-indigo-500 dark:bg-[#fde047]'}`} />
-                                    )}
-                                </h1>
-                            </div>
-                        </div>
+                        {renderBrandSwitcher(desktopBrandRef, true)}
                     </div>
 
                     {/* Center Column: Segmented Pill Navigation */}
@@ -534,34 +664,7 @@ const Navbar: React.FC<NavbarProps> = ({
                             </button>
                         )}
 
-                        <div
-                            role="button"
-                            tabIndex={0}
-                            onClick={() => navigate('/')}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter' || e.key === ' ') {
-                                    e.preventDefault();
-                                    navigate('/');
-                                }
-                            }}
-                            className="btn-unstyled flex items-center gap-2.5 min-w-0 cursor-pointer hover:opacity-90 transition-opacity text-start select-none"
-                            aria-label={tx('Quiz Platform Home', 'الرئيسية - منصة الكويزات')}
-                        >
-                            <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm shrink-0 transition-transform active:scale-95 ${
-                                isBento
-                                    ? 'bg-[#fde047] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                    : 'bg-indigo-600 dark:bg-[#bef264] text-white dark:text-[#0a0908] shadow-md shadow-indigo-500/25 dark:shadow-[0_6px_18px_-4px_rgba(190,242,100,0.35)]'
-                            }`}>
-                                Q
-                            </div>
-                            <div className="flex items-center gap-1.5 min-w-0">
-                                <h1 className="text-sm sm:text-base font-extrabold tracking-tight text-slate-900 dark:text-[#f5f3ec] flex items-center gap-1.5 min-w-0">
-                                    <span className="whitespace-nowrap font-black">
-                                        {tx('Quiz Platform', 'منصة الكويزات')}
-                                    </span>
-                                </h1>
-                            </div>
-                        </div>
+                        {renderBrandSwitcher(mobileBrandRef, false)}
                     </div>
 
                     {/* Mobile & Tablet Right Controls */}

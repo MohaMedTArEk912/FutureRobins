@@ -8,7 +8,9 @@ const NOIR_STAGE_GRAIN =
 
 export const AmbientBackground: React.FC = React.memo(() => {
     const { isBento } = useTheme();
-    const { activeGame } = useSecretGame();
+    const { activeGame, phase } = useSecretGame();
+    const pauseBentoShapes = activeGame === 'bento-arcade' && phase === 'active';
+    const pauseNoirSnake = activeGame === 'noir-snake' && phase === 'active';
 
     return (
         <div
@@ -21,8 +23,8 @@ export const AmbientBackground: React.FC = React.memo(() => {
             aria-hidden="true"
         >
             {isBento ? (
-                /* Bento Mode: Solid floating geometric shapes (zero gradients), hidden during secret Bento Arcade */
-                activeGame === 'bento-arcade' ? null : (
+                /* Bento Mode: Solid floating geometric shapes (zero gradients), smoothly hidden once Bento Arcade is active */
+                pauseBentoShapes ? null : (
                 <>
                     {/* Top-left cluster */}
                     <div className="absolute top-[6%] left-[4%] w-10 h-10 bg-[#fde047] border-[2.5px] border-black rounded-xl shadow-[3px_3px_0px_#000] rotate-12 animate-[float_6s_ease-in-out_infinite]" />
@@ -64,7 +66,7 @@ export const AmbientBackground: React.FC = React.memo(() => {
                             backgroundSize: '160px 160px'
                         }}
                     />
-                    {activeGame !== 'noir-snake' && <NoirGeometricSnakeCanvas />}
+                    {!pauseNoirSnake && <NoirGeometricSnakeCanvas />}
                 </div>
             )}
         </div>

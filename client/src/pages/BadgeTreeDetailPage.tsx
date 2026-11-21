@@ -6,6 +6,7 @@ import type { BadgeTree, BadgeNode, BadgeTreeNode } from '../types';
 import PageLayout from '../layouts/PageLayout';
 import BadgeNodeCard from '../components/badges/BadgeNodeCard';
 import { ArrowLeft, Award, Check, Sparkles } from 'lucide-react';
+import { navigateBackSafely } from '../lib/navigation';
 
 const BadgeTreeDetailPage: React.FC = () => {
     const { treeId } = useParams<{ treeId: string }>();
@@ -86,11 +87,7 @@ const BadgeTreeDetailPage: React.FC = () => {
     const maxTier = Math.max(...Object.keys(badgesByTier).map(Number));
 
     const handleBack = () => {
-        if (window.history.length > 1) {
-            navigate(-1);
-        } else {
-            navigate('/tracks');
-        }
+        navigateBackSafely(navigate, '/tracks');
     };
 
     return (

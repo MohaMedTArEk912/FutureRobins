@@ -1,5 +1,6 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { navigateBackSafely } from '../../lib/navigation';
 import {
     LayoutDashboard,
     GraduationCap,
@@ -202,11 +203,7 @@ export const TeacherSidebar: React.FC<TeacherSidebarProps> = ({
     };
 
     const handleGoBack = () => {
-        if (window.history.length > 1) {
-            navigate(-1);
-        } else {
-            navigate('/');
-        }
+        navigateBackSafely(navigate, '/');
     };
 
     const handleLogout = () => {

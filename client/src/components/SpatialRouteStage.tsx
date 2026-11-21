@@ -89,12 +89,130 @@ function getSpatialContentBlocks(layerEl: HTMLElement): HTMLElement[] {
     );
 }
 
-const SPRING_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
+/**
+ * 48-step pre-sampled C2-continuous physics curves running with `easing: 'linear'`
+ * on the GPU compositor thread (zero mid-curve velocity stalls, full 60/120/144Hz fluidity).
+ */
+const SAMPLE_STEPS = 48;
+const BASE_HORIZONTAL_MS = 880;
+const VERTICAL_MS = 780;
+
+function clamp01(v: number): number {
+    return v <= 0 ? 0 : v >= 1 ? 1 : v;
+}
+
+/** Perlin C2 smootherstep: zero velocity AND zero acceleration at both endpoints. */
+function smootherstep(x: number): number {
+    const t = clamp01(x);
+    return t * t * t * (t * (t * 6 - 15) + 10);
+}
+
+/**
+ * Asymmetric C2 spatial glide curve:
+ * - 0%–16%: smooth tactile lift & acceleration ramp (never jumps on frame 1)
+ * - 16%–56%: bold, unmistakable spatial sweep across the canvas
+ * - 56%–100%: long, whisper-soft deceleration settle with zero snap
+ */
+function spatialEase(u: number): number {
+    const warped = 1 - Math.pow(1 - clamp01(u), 1.28);
+    return smootherstep(warped);
+}
+
+function buildHorizontalExitKeyframes(dir: 1 | -1): Keyframe[] {
+    const frames: Keyframe[] = [];
+    for (let i = 0; i <= SAMPLE_STEPS; i++) {
+        const u = i / SAMPLE_STEPS;
+        const move = spatialEase(u);
+        const txPct = -dir * 68 * move;
+        const depth = smootherstep(clamp01(u / 0.58));
+        const scale = 1 - 0.065 * depth;
+        const fade = smootherstep(clamp01((u - 0.12) / 0.70));
+        const opacity = 1 - fade;
+        frames.push({
+            offset: u,
+            transform: `translate3d(${txPct.toFixed(3)}%, 0, 0) scale(${scale.toFixed(4)})`,
+            opacity: Number(opacity.toFixed(4))
+        });
+    }
+    return frames;
+}
+
+function buildHorizontalEnterKeyframes(dir: 1 | -1): Keyframe[] {
+    const frames: Keyframe[] = [];
+    for (let i = 0; i <= SAMPLE_STEPS; i++) {
+        const u = i / SAMPLE_STEPS;
+        const move = spatialEase(u);
+        const txPct = dir * 68 * (1 - move);
+        const rise = smootherstep(clamp01((u - 0.10) / 0.84));
+        const scale = 0.935 + 0.065 * rise;
+        const opacity = smootherstep(clamp01((u - 0.06) / 0.44));
+        frames.push({
+            offset: u,
+            transform: `translate3d(${txPct.toFixed(3)}%, 0, 0) scale(${scale.toFixed(4)})`,
+            opacity: Number(opacity.toFixed(4))
+        });
+    }
+    return frames;
+}
+
+function buildVerticalExitKeyframes(dir: 1 | -1): Keyframe[] {
+    const frames: Keyframe[] = [];
+    for (let i = 0; i <= SAMPLE_STEPS; i++) {
+        const u = i / SAMPLE_STEPS;
+        const move = spatialEase(u);
+        const tyPx = -dir * 68 * move;
+        const depth = smootherstep(clamp01(u / 0.58));
+        const scale = 1 - 0.04 * depth;
+        const fade = smootherstep(clamp01((u - 0.10) / 0.72));
+        const opacity = 1 - fade;
+        frames.push({
+            offset: u,
+            transform: `translate3d(0, ${tyPx.toFixed(2)}px, 0) scale(${scale.toFixed(4)})`,
+            opacity: Number(opacity.toFixed(4))
+        });
+    }
+    return frames;
+}
+
+function buildVerticalEnterKeyframes(dir: 1 | -1): Keyframe[] {
+    const frames: Keyframe[] = [];
+    for (let i = 0; i <= SAMPLE_STEPS; i++) {
+        const u = i / SAMPLE_STEPS;
+        const move = spatialEase(u);
+        const tyPx = dir * 68 * (1 - move);
+        const rise = smootherstep(clamp01((u - 0.10) / 0.84));
+        const scale = 0.96 + 0.04 * rise;
+        const opacity = smootherstep(clamp01((u - 0.06) / 0.44));
+        frames.push({
+            offset: u,
+            transform: `translate3d(0, ${tyPx.toFixed(2)}px, 0) scale(${scale.toFixed(4)})`,
+            opacity: Number(opacity.toFixed(4))
+        });
+    }
+    return frames;
+}
+
+function buildBlockInertiaKeyframes(fromPx: number, toPx: number, axis: 'x' | 'y'): Keyframe[] {
+    const frames: Keyframe[] = [];
+    for (let i = 0; i <= SAMPLE_STEPS; i++) {
+        const u = i / SAMPLE_STEPS;
+        const move = spatialEase(u);
+        const delta = fromPx + (toPx - fromPx) * move;
+        frames.push({
+            offset: u,
+            transform:
+                axis === 'x'
+                    ? `translate3d(${delta.toFixed(2)}px, 0, 0)`
+                    : `translate3d(0, ${delta.toFixed(2)}px, 0)`
+        });
+    }
+    return frames;
+}
 
 /**
  * SpatialRouteStage preserves the outgoing page's live DOM instance inside a keyed
- * 2-slot pool (zero unmount/remount flash on exit) and drives synchronized Web Animations
- * API spring physics on both the page planes and their inner section cards.
+ * 2-slot pool (zero unmount/remount flash on exit) and drives synchronized 48-step
+ * C2-continuous GPU Web Animations API physics across both page planes and their cards.
  */
 export const SpatialRouteStage: React.FC<SpatialRouteStageProps> = ({
     axis = 'x',
@@ -137,7 +255,7 @@ export const SpatialRouteStage: React.FC<SpatialRouteStageProps> = ({
             activeKey: routeKey,
             exitingKey: null,
             dir: 1,
-            durationMs: 560,
+            durationMs: BASE_HORIZONTAL_MS,
             transitionId: 0,
             isAnimating: false
         }
@@ -164,7 +282,7 @@ export const SpatialRouteStage: React.FC<SpatialRouteStageProps> = ({
 
         const visualDir: 1 | -1 =
             axis === 'x' && isArabic ? (logicalDir === 1 ? -1 : 1) : logicalDir;
-        const durationMs = Math.min(620, 520 + Math.min(3, Math.max(0, hopDistance - 1)) * 28);
+        const durationMs = Math.min(1060, BASE_HORIZONTAL_MS + Math.min(3, Math.max(0, hopDistance - 1)) * 60);
         const capturedScrollY = typeof window !== 'undefined' ? window.scrollY : 0;
 
         setState((prev) => {
@@ -214,19 +332,30 @@ export const SpatialRouteStage: React.FC<SpatialRouteStageProps> = ({
         return () => window.clearTimeout(timer);
     }, [outlet, routeKey, state.meta.isAnimating, state.layers]);
 
-    // Drive GPU Web Animations API spring physics before paint on Frame 0
-    useLayoutEffect(() => {
-        if (!state.meta.isAnimating || state.meta.transitionId === 0) return;
+    const {
+        isAnimating: metaIsAnimating,
+        transitionId: metaTransitionId,
+        activeKey: metaActiveKey,
+        exitingKey: metaExitingKey,
+        dir: metaDir,
+        durationMs: metaDurationMs
+    } = state.meta;
 
-        const { activeKey, exitingKey, dir, durationMs: dur, transitionId: tid } = state.meta;
+    // Drive GPU Web Animations API physics with Frame-0 mount isolation so zero frames are dropped
+    useLayoutEffect(() => {
+        if (!metaIsAnimating || metaTransitionId === 0) return;
+
+        const activeKey = metaActiveKey;
+        const exitingKey = metaExitingKey;
+        const dir = metaDir;
+        const dur = metaDurationMs;
+        const tid = metaTransitionId;
         const exitEl = exitingKey ? layerRefs.current[exitingKey] : null;
         const enterEl = layerRefs.current[activeKey];
 
         const reducedMotion =
             typeof window !== 'undefined' &&
             window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-        const runningAnimations: Animation[] = [];
 
         if (reducedMotion || typeof Element.prototype.animate !== 'function') {
             const timer = window.setTimeout(() => {
@@ -242,129 +371,126 @@ export const SpatialRouteStage: React.FC<SpatialRouteStageProps> = ({
             return () => window.clearTimeout(timer);
         }
 
-        if (axis === 'x') {
-            // 1. Outgoing Page Plane: tactile grab -> continuous directional pull in -dir
-            if (exitEl) {
-                const exitAnim = exitEl.animate(
-                    [
-                        { transform: 'translate3d(0%, 0, 0) scale(1)', opacity: 1, offset: 0 },
-                        {
-                            transform: `translate3d(${dir * -14}px, 0, 0) scale(0.986)`,
-                            opacity: 0.96,
-                            offset: 0.12
-                        },
-                        {
-                            transform: `translate3d(${dir * -54}%, 0, 0) scale(0.95)`,
-                            opacity: 0,
-                            offset: 1
-                        }
-                    ],
-                    {
-                        duration: dur,
-                        easing: SPRING_EASE,
-                        fill: 'forwards'
-                    }
-                );
-                runningAnimations.push(exitAnim);
+        const runningAnimations: Animation[] = [];
+        let maxEndMs = axis === 'x' ? dur : VERTICAL_MS;
 
-                // Outgoing page cards/sections get pulled with progressive inertia
+        const stageAnimation = (anim: Animation, endMs: number) => {
+            // Hold synchronously at keyframe 0 while browser finishes mount layout & GPU upload
+            anim.pause();
+            anim.currentTime = 0;
+            runningAnimations.push(anim);
+            if (endMs > maxEndMs) maxEndMs = endMs;
+        };
+
+        if (axis === 'x') {
+            // 1. Outgoing Page Plane: smooth depth pull + continuous sweep in -dir
+            if (exitEl) {
+                stageAnimation(
+                    exitEl.animate(buildHorizontalExitKeyframes(dir), {
+                        duration: dur,
+                        easing: 'linear',
+                        fill: 'both'
+                    }),
+                    dur
+                );
+
+                // Outgoing page sections trail with progressive physical inertia
                 const exitBlocks = getSpatialContentBlocks(exitEl);
-                const maxExit = Math.min(6, exitBlocks.length);
+                const maxExit = Math.min(8, exitBlocks.length);
                 for (let i = 0; i < maxExit; i++) {
-                    const block = exitBlocks[i];
-                    const pullPx = dir * -(18 + i * 14);
-                    const bAnim = block.animate(
-                        [
-                            { transform: 'translate3d(0, 0, 0)' },
-                            { transform: `translate3d(${pullPx}px, 0, 0)` }
-                        ],
-                        {
+                    const pullPx = dir * -(24 + i * 16);
+                    stageAnimation(
+                        exitBlocks[i].animate(buildBlockInertiaKeyframes(0, pullPx, 'x'), {
                             duration: dur,
-                            easing: SPRING_EASE,
-                            fill: 'forwards'
-                        }
+                            easing: 'linear',
+                            fill: 'both'
+                        }),
+                        dur
                     );
-                    runningAnimations.push(bAnim);
                 }
             }
 
-            // 2. Incoming Page Plane: arrives from +dir with synchronized spring curve
+            // 2. Incoming Page Plane: glides smoothly from +dir with long C2 deceleration
             if (enterEl) {
-                const enterAnim = enterEl.animate(
-                    [
-                        {
-                            transform: `translate3d(${dir * 54}%, 0, 0) scale(0.965)`,
-                            opacity: 0,
-                            offset: 0
-                        },
-                        {
-                            transform: `translate3d(${dir * 14}%, 0, 0) scale(0.992)`,
-                            opacity: 1,
-                            offset: 0.42
-                        },
-                        {
-                            transform: 'translate3d(0%, 0, 0) scale(1)',
-                            opacity: 1,
-                            offset: 1
-                        }
-                    ],
-                    {
+                stageAnimation(
+                    enterEl.animate(buildHorizontalEnterKeyframes(dir), {
                         duration: dur,
-                        easing: SPRING_EASE,
-                        fill: 'none'
-                    }
+                        easing: 'linear',
+                        fill: 'backwards'
+                    }),
+                    dur
                 );
-                runningAnimations.push(enterAnim);
 
-                // Incoming page cards/sections arrive with staggered physical mass inertia
+                // Incoming page cards settle with cascading physical mass inertia
                 const enterBlocks = getSpatialContentBlocks(enterEl);
-                const maxEnter = Math.min(6, enterBlocks.length);
+                const maxEnter = Math.min(8, enterBlocks.length);
                 for (let i = 0; i < maxEnter; i++) {
-                    const block = enterBlocks[i];
-                    const trailPx = dir * (22 + i * 16);
-                    const blockDur = Math.min(760, dur + 35 + i * 36);
-                    const bAnim = block.animate(
-                        [
-                            { transform: `translate3d(${trailPx}px, 0, 0)` },
-                            { transform: 'translate3d(0, 0, 0)' }
-                        ],
-                        {
+                    const trailPx = dir * (28 + i * 20);
+                    const blockDelay = i * 18;
+                    const blockDur = dur + 30 + i * 18;
+                    stageAnimation(
+                        enterBlocks[i].animate(buildBlockInertiaKeyframes(trailPx, 0, 'x'), {
                             duration: blockDur,
-                            easing: SPRING_EASE,
-                            fill: 'none'
-                        }
+                            delay: blockDelay,
+                            easing: 'linear',
+                            fill: 'backwards'
+                        }),
+                        blockDelay + blockDur
                     );
-                    runningAnimations.push(bAnim);
                 }
             }
         } else {
-            // Vertical Teacher Sidebar spatial transition
+            // Vertical Teacher Sidebar spatial transition (780ms C2-smooth glide + card inertia)
             if (exitEl) {
-                runningAnimations.push(
-                    exitEl.animate(
-                        [
-                            { transform: 'translate3d(0, 0, 0) scale(1)', opacity: 1 },
-                            { transform: `translate3d(0, ${dir * -36}px, 0) scale(0.985)`, opacity: 0 }
-                        ],
-                        { duration: 440, easing: SPRING_EASE, fill: 'forwards' }
-                    )
+                stageAnimation(
+                    exitEl.animate(buildVerticalExitKeyframes(dir), {
+                        duration: VERTICAL_MS,
+                        easing: 'linear',
+                        fill: 'both'
+                    }),
+                    VERTICAL_MS
                 );
             }
             if (enterEl) {
-                runningAnimations.push(
-                    enterEl.animate(
-                        [
-                            { transform: `translate3d(0, ${dir * 36}px, 0) scale(0.985)`, opacity: 0 },
-                            { transform: 'translate3d(0, 0, 0) scale(1)', opacity: 1 }
-                        ],
-                        { duration: 460, easing: SPRING_EASE, fill: 'none' }
-                    )
+                stageAnimation(
+                    enterEl.animate(buildVerticalEnterKeyframes(dir), {
+                        duration: VERTICAL_MS,
+                        easing: 'linear',
+                        fill: 'backwards'
+                    }),
+                    VERTICAL_MS
                 );
+
+                const enterBlocks = getSpatialContentBlocks(enterEl);
+                const maxEnter = Math.min(6, enterBlocks.length);
+                for (let i = 0; i < maxEnter; i++) {
+                    const trailPx = dir * (18 + i * 12);
+                    const blockDelay = i * 16;
+                    const blockDur = VERTICAL_MS + 24 + i * 16;
+                    stageAnimation(
+                        enterBlocks[i].animate(buildBlockInertiaKeyframes(trailPx, 0, 'y'), {
+                            duration: blockDur,
+                            delay: blockDelay,
+                            easing: 'linear',
+                            fill: 'backwards'
+                        }),
+                        blockDelay + blockDur
+                    );
+                }
             }
         }
 
-        const totalWait = axis === 'x' ? dur + 160 : 480;
-        const timer = window.setTimeout(() => {
+        let cancelled = false;
+        let finished = false;
+        let fallbackTimer: number | null = null;
+
+        const finishTransition = () => {
+            if (cancelled || finished) return;
+            finished = true;
+            if (fallbackTimer !== null) {
+                window.clearTimeout(fallbackTimer);
+                fallbackTimer = null;
+            }
             setState((prev) => {
                 if (prev.meta.transitionId !== tid) return prev;
                 return {
@@ -376,10 +502,29 @@ export const SpatialRouteStage: React.FC<SpatialRouteStageProps> = ({
                     }
                 };
             });
-        }, totalWait);
+        };
+
+        // Start playback on the next animation frame AFTER React mount layout & GPU upload complete
+        // so Frame 1 starts at 0ms with every single motion frame rendered smoothly.
+        const rafId = window.requestAnimationFrame(() => {
+            if (cancelled) return;
+            for (const anim of runningAnimations) {
+                anim.play();
+            }
+            Promise.allSettled(runningAnimations.map((a) => a.finished)).then(() => {
+                finishTransition();
+            });
+        });
+
+        // Safety fallback in case a backgrounded tab throttles rAF/WAAPI completion
+        fallbackTimer = window.setTimeout(finishTransition, maxEndMs + 220);
 
         return () => {
-            window.clearTimeout(timer);
+            cancelled = true;
+            window.cancelAnimationFrame(rafId);
+            if (fallbackTimer !== null) {
+                window.clearTimeout(fallbackTimer);
+            }
             for (const anim of runningAnimations) {
                 try {
                     anim.cancel();
@@ -389,12 +534,12 @@ export const SpatialRouteStage: React.FC<SpatialRouteStageProps> = ({
             }
         };
     }, [
-        state.meta.isAnimating,
-        state.meta.transitionId,
-        state.meta.activeKey,
-        state.meta.exitingKey,
-        state.meta.dir,
-        state.meta.durationMs,
+        metaIsAnimating,
+        metaTransitionId,
+        metaActiveKey,
+        metaExitingKey,
+        metaDir,
+        metaDurationMs,
         axis
     ]);
 

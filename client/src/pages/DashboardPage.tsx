@@ -45,7 +45,9 @@ const DashboardPage: React.FC = () => {
             return;
         }
 
-        navigate(quizPath);
+        navigate(quizPath, {
+            state: { from: `${location.pathname}${location.search}` }
+        });
     };
 
     const handleViewProfile = () => {

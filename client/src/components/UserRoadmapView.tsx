@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import {
     Check, X, Layout, Video, GraduationCap, Target, Play
 } from 'lucide-react';
@@ -32,6 +33,17 @@ const UserRoadmapView: React.FC<UserRoadmapViewProps> = ({
     const [isDetailsOpen, setIsDetailsOpen] = useState(false);
     const [completingSubModule, setCompletingSubModule] = useState<string | null>(null);
     const [optimisticCompleted, setOptimisticCompleted] = useState<Set<string>>(new Set());
+
+    useEffect(() => {
+        if (!isDetailsOpen) return;
+        const onKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                setIsDetailsOpen(false);
+            }
+        };
+        window.addEventListener('keydown', onKeyDown);
+        return () => window.removeEventListener('keydown', onKeyDown);
+    }, [isDetailsOpen]);
 
     // Sort modules by level/index to ensure correct order
     const sortedModules = [...modules].sort((a, b) => (a.level || 0) - (b.level || 0));
@@ -195,11 +207,11 @@ const UserRoadmapView: React.FC<UserRoadmapViewProps> = ({
     };
 
     return (
-        <div className="w-full animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-5xl mx-auto px-4">
-            <div className="flex flex-col gap-12 md:gap-24 relative pb-20">
+        <div className="w-full max-w-5xl mx-auto px-2 sm:px-4">
+            <div className="flex flex-col gap-10 md:gap-20 relative pb-20">
                 {/* Vertical Spine Line for Mobile */}
                 <div className={`absolute left-6 top-8 bottom-20 md:hidden rounded-full ${
-                    isBento ? 'w-1.5 bg-black' : 'w-1 bg-indigo-500/20'
+                    isBento ? 'w-1.5 bg-black' : 'w-1 bg-[#2e2924]'
                 }`} />
 
                 {chunkedModules.map((rowModules, rowIndex) => {
@@ -213,20 +225,20 @@ const UserRoadmapView: React.FC<UserRoadmapViewProps> = ({
                     return (
                         <div
                             key={rowIndex}
-                            className={`relative flex ${isReversed ? 'flex-col-reverse' : 'flex-col'} md:grid md:grid-cols-2 gap-8 md:gap-32`}
+                            className={`relative flex ${isReversed ? 'flex-col-reverse' : 'flex-col'} md:grid md:grid-cols-2 gap-8 md:gap-28`}
                         >
                             {/* Desktop Connectors */}
                             {/* Horizontal Line Pattern */}
                             {displayModules.length === 2 && (
                                 <div className={`hidden md:block absolute top-1/2 left-0 right-0 -z-10 mx-auto w-[calc(100%-4rem)] rounded-full ${
-                                    isBento ? 'h-1.5 bg-black' : 'h-1 bg-indigo-500/20'
+                                    isBento ? 'h-1.5 bg-black' : 'h-[2px] bg-[#2e2924]'
                                 }`} />
                             )}
 
                             {/* Vertical turn connectors */}
                             {rowIndex < chunkedModules.length - 1 && (
-                                <div className={`hidden md:block absolute top-1/2 h-[calc(100%+6rem)] w-[calc(50%+2px)] rounded-[3rem] -z-10 
-                                    ${isBento ? 'border-[3.5px] border-black' : 'border-4 border-indigo-500/20'}
+                                <div className={`hidden md:block absolute top-1/2 h-[calc(100%+5rem)] w-[calc(50%+2px)] rounded-[2.5rem] -z-10 
+                                    ${isBento ? 'border-[3.5px] border-black' : 'border-2 border-[#2e2924]'}
                                     ${isReversed
                                         ? 'left-0 border-r-0 rounded-r-none border-b-0 rounded-bl-none' // Coming from Left, turning Down-Right
                                         : 'right-0 border-l-0 rounded-l-none border-b-0 rounded-br-none' // Coming from Right, turning Down-Left
@@ -238,147 +250,165 @@ const UserRoadmapView: React.FC<UserRoadmapViewProps> = ({
                                 const { isLocked, isCompleted, progressPercent } = computeStatus(module);
                                 const moduleNumber = module.level || (sortedModules.indexOf(module) + 1);
 
-                                // Specific Styles
+                                // Authentic Neo-Brutalist Bento & Noir Studio Dark Card Styling (100% Opaque Solid Surfaces)
                                 const containerClasses = isBento
                                     ? isLocked
-                                        ? 'bg-[#f5f3ec] border-[2.5px] border-black text-black opacity-85'
+                                        ? 'bg-[#faf8f2] border-[2.5px] border-black text-black'
                                         : isCompleted
-                                            ? 'bg-[#bef264] border-[2.5px] border-black text-black'
-                                            : 'bg-white border-[2.5px] border-black text-black'
+                                            ? 'bg-[#bef264] border-[3px] border-black text-black'
+                                            : 'bg-white border-[3px] border-black text-black'
                                     : isLocked
-                                        ? 'bg-gray-100 dark:bg-[#1c1917] border-gray-300 dark:border-white/5 opacity-80 grayscale-[0.5]'
+                                        ? 'bg-[#11100e] border-[1.5px] border-[#23201c] text-[#78716c]'
                                         : isCompleted
-                                            ? 'bg-white dark:bg-[#1c1917] border-emerald-500/50 dark:border-emerald-500/30 shadow-lg'
-                                            : 'bg-white dark:bg-[#1c1917] border-indigo-500/50 dark:border-indigo-500/30 shadow-lg';
+                                            ? 'bg-[#141210] border-[1.5px] border-[#2e2924] border-t-[3px] border-t-[#bef264] text-[#f5f3ec]'
+                                            : 'bg-[#141210] border-[1.5px] border-[#2e2924] border-t-[3px] border-t-[#fde047] text-[#f5f3ec] hover:border-[#fde047]/70';
 
                                 const shadowClasses = isBento
                                     ? isLocked
-                                        ? 'shadow-[3px_3px_0px_#000]'
-                                        : 'shadow-[5px_5px_0px_#000] hover:shadow-[7px_7px_0px_#000]'
-                                    : !isLocked
-                                        ? isCompleted
-                                            ? 'shadow-[0_0_30px_-5px_rgba(16,185,129,0.1)] hover:shadow-[0_0_40px_-5px_rgba(16,185,129,0.2)]'
-                                            : 'shadow-[0_0_30px_-5px_rgba(99,102,241,0.1)] hover:shadow-[0_0_40px_-5px_rgba(99,102,241,0.2)]'
-                                        : '';
+                                        ? 'shadow-[4px_4px_0px_#000]'
+                                        : 'shadow-[6px_6px_0px_#000] hover:shadow-[8px_8px_0px_#000]'
+                                    : isLocked
+                                        ? 'shadow-[0_3px_0_#050504]'
+                                        : 'shadow-[0_6px_0_#050504]';
 
                                 return (
                                     <div
                                         key={module.moduleId}
+                                        data-snake-wall="card"
                                         onClick={() => handleModuleClick(module)}
                                         className={`
-                                            relative rounded-[2rem] p-8 border-2 transition-all duration-300 group z-10
+                                            relative rounded-3xl p-7 transition-all duration-200 group z-10 flex flex-col justify-between
                                             ${containerClasses}
                                             ${shadowClasses}
-                                            ${!isLocked && (isBento ? 'cursor-pointer hover:translate-x-[-2px] hover:translate-y-[-2px]' : 'cursor-pointer hover:-translate-y-2')}
-                                            ${!isLocked && !isCompleted && !isBento && 'ring-1 ring-indigo-500/30 dark:ring-indigo-500/50'}
+                                            ${!isLocked && (isBento ? 'cursor-pointer hover:-translate-x-0.5 hover:-translate-y-0.5' : 'cursor-pointer hover:-translate-y-1')}
                                         `}
                                     >
                                         {/* Mobile Connector Dot */}
                                         <div className={`md:hidden absolute left-[-2rem] top-8 w-4 h-4 rounded-full ${
                                             isBento
-                                                ? `border-2 border-black shadow-[1.5px_1.5px_0px_#000] ${isCompleted ? 'bg-[#bef264]' : isLocked ? 'bg-gray-300' : 'bg-white'}`
-                                                : `border-4 border-white dark:border-[#0a0a0b] ${isCompleted ? 'bg-emerald-500' : isLocked ? 'bg-gray-400 dark:bg-gray-700' : 'bg-indigo-500'}`
+                                                ? `border-2 border-black shadow-[1.5px_1.5px_0px_#000] ${isCompleted ? 'bg-[#bef264]' : isLocked ? 'bg-[#e2e8f0]' : 'bg-[#fde047]'}`
+                                                : `border-2 border-[#0a0908] ${isCompleted ? 'bg-[#bef264]' : isLocked ? 'bg-[#2e2924]' : 'bg-[#fde047]'}`
                                         }`} />
 
-                                        {/* Status & Progress Circle */}
-                                        <div className="flex items-center justify-between mb-6">
-                                            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                                                isBento
-                                                    ? isLocked
-                                                        ? 'bg-gray-200 text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]'
-                                                        : isCompleted
-                                                            ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                                            : 'bg-[#fde047] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                                    : isLocked
-                                                        ? 'bg-gray-200 dark:bg-white/5 text-gray-500 dark:text-gray-500 border border-gray-300 dark:border-transparent'
-                                                        : isCompleted
-                                                            ? 'bg-emerald-500/10 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 dark:border-emerald-500/20'
-                                                            : 'bg-indigo-500/10 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 dark:border-indigo-500/20 animate-pulse'
-                                            }`}>
-                                                {isLocked ? 'Locked' : isCompleted ? 'Completed' : 'Available'}
-                                            </span>
-
-                                            {/* Circular Progress */}
-                                            <div className="relative flex items-center justify-center w-16 h-16">
-                                                {/* Background Circle */}
-                                                <svg className="w-full h-full transform -rotate-90">
-                                                    <circle
-                                                        cx="32"
-                                                        cy="32"
-                                                        r="28"
-                                                        stroke="currentColor"
-                                                        strokeWidth={isBento ? "5" : "4"}
-                                                        fill="transparent"
-                                                        className={isBento ? (isLocked ? "text-gray-300" : "text-black/15") : (isLocked ? "text-gray-300 dark:text-gray-800" : "text-gray-200 dark:text-white/5")}
-                                                    />
-                                                    {/* Progress Circle */}
-                                                    {!isLocked && (
-                                                        <circle
-                                                            cx="32"
-                                                            cy="32"
-                                                            r="28"
-                                                            stroke="currentColor"
-                                                            strokeWidth={isBento ? "5" : "4"}
-                                                            fill="transparent"
-                                                            strokeDasharray={2 * Math.PI * 28}
-                                                            strokeDashoffset={2 * Math.PI * 28 - (progressPercent / 100) * (2 * Math.PI * 28)}
-                                                            strokeLinecap="round"
-                                                            className={`transition-all duration-1000 ease-out ${
-                                                                isBento
-                                                                    ? (isCompleted ? "text-black" : "text-black")
-                                                                    : (isCompleted ? "text-emerald-500" : "text-indigo-500")
-                                                            }`}
-                                                        />
-                                                    )}
-                                                </svg>
-                                                {/* Module Number Centered */}
-                                                <span className={`absolute text-xl font-black ${
+                                        <div>
+                                            {/* Status & Progress Circle */}
+                                            <div className="flex items-center justify-between mb-5">
+                                                <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
                                                     isBento
-                                                        ? 'text-black'
-                                                        : (isCompleted ? 'text-emerald-600 dark:text-emerald-500' : isLocked ? 'text-gray-500 dark:text-gray-600' : 'text-indigo-600 dark:text-indigo-500')
+                                                        ? isLocked
+                                                            ? 'bg-[#e2e8f0] text-black/70 border-2 border-black shadow-[1.5px_1.5px_0px_#000]'
+                                                            : isCompleted
+                                                                ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                                                : 'bg-[#fde047] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                                        : isLocked
+                                                            ? 'bg-[#1c1917] text-[#78716c] border border-[#2e2924]'
+                                                            : isCompleted
+                                                                ? 'bg-[#192211] text-[#bef264] border border-[#bef264]/45'
+                                                                : 'bg-[#231e0f] text-[#fde047] border border-[#fde047]/45'
                                                 }`}>
-                                                    {String(moduleNumber).padStart(2, '0')}
+                                                    {isLocked ? 'Locked' : isCompleted ? 'Completed' : 'Available'}
                                                 </span>
+
+                                                {/* Circular Progress Badge */}
+                                                <div className={`relative flex items-center justify-center w-16 h-16 rounded-2xl ${
+                                                    isBento
+                                                        ? isLocked
+                                                            ? 'bg-[#e2e8f0] border-2 border-black'
+                                                            : isCompleted
+                                                                ? 'bg-[#fde047] border-2 border-black shadow-[2px_2px_0px_#000]'
+                                                                : 'bg-[#bae6fd] border-2 border-black shadow-[2px_2px_0px_#000]'
+                                                        : 'bg-[#0e0d0b] border border-[#2e2924]'
+                                                }`}>
+                                                    <svg className="w-14 h-14 transform -rotate-90">
+                                                        <circle
+                                                            cx="28"
+                                                            cy="28"
+                                                            r="23"
+                                                            stroke="currentColor"
+                                                            strokeWidth={isBento ? '4.5' : '3.5'}
+                                                            fill="transparent"
+                                                            className={
+                                                                isBento
+                                                                    ? isLocked ? 'text-black/15' : 'text-black/20'
+                                                                    : 'text-[#2e2924]'
+                                                            }
+                                                        />
+                                                        {!isLocked && (
+                                                            <circle
+                                                                cx="28"
+                                                                cy="28"
+                                                                r="23"
+                                                                stroke="currentColor"
+                                                                strokeWidth={isBento ? '4.5' : '3.5'}
+                                                                fill="transparent"
+                                                                strokeDasharray={2 * Math.PI * 23}
+                                                                strokeDashoffset={2 * Math.PI * 23 - (progressPercent / 100) * (2 * Math.PI * 23)}
+                                                                strokeLinecap="round"
+                                                                className={`transition-all duration-1000 ease-out ${
+                                                                    isBento
+                                                                        ? 'text-black'
+                                                                        : isCompleted ? 'text-[#bef264]' : 'text-[#fde047]'
+                                                                }`}
+                                                            />
+                                                        )}
+                                                    </svg>
+                                                    <span className={`absolute text-base font-black font-mono ${
+                                                        isBento
+                                                            ? isLocked ? 'text-black/50' : 'text-black'
+                                                            : isCompleted ? 'text-[#bef264]' : isLocked ? 'text-[#78716c]' : 'text-[#fde047]'
+                                                    }`}>
+                                                        {String(moduleNumber).padStart(2, '0')}
+                                                    </span>
+                                                </div>
                                             </div>
+
+                                            <h3 className={`text-xl md:text-2xl font-black mb-2.5 tracking-tight ${
+                                                isBento
+                                                    ? isLocked ? 'text-black/65' : 'text-black'
+                                                    : isLocked ? 'text-[#78716c]' : 'text-[#f5f3ec]'
+                                            }`}>
+                                                {module.title}
+                                            </h3>
+
+                                            <p className={`text-sm font-semibold leading-relaxed line-clamp-2 md:line-clamp-3 ${
+                                                isBento
+                                                    ? isLocked ? 'text-black/55' : 'text-black/75'
+                                                    : isLocked ? 'text-[#78716c]/80' : 'text-[#a8a29e]'
+                                            }`}>
+                                                {module.description || (isLocked ? 'Complete previous modules to unlock.' : 'Master this topic to progress.')}
+                                            </p>
                                         </div>
 
-                                        <h3 className={`text-xl md:text-2xl font-black mb-3 ${
-                                            isBento
-                                                ? 'text-black'
-                                                : (isLocked ? 'text-gray-500 dark:text-gray-500' : 'text-gray-900 dark:text-white')
-                                        }`}>
-                                            {module.title}
-                                        </h3>
+                                        <div className="mt-5">
+                                            {/* Mini Progress Bar in Card */}
+                                            {!isLocked && !isCompleted && (
+                                                <div className={`mb-4 w-full rounded-full overflow-hidden ${
+                                                    isBento ? 'h-2.5 bg-[#faf8f2] border-2 border-black' : 'h-2 bg-[#0e0d0b] border border-[#2e2924]'
+                                                }`}>
+                                                    <div
+                                                        className={`h-full rounded-full transition-all duration-500 ${
+                                                            isBento ? 'bg-[#bef264]' : 'bg-[#fde047]'
+                                                        }`}
+                                                        style={{ width: `${Math.max(4, progressPercent)}%` }}
+                                                    />
+                                                </div>
+                                            )}
 
-                                        <p className={`text-sm font-medium leading-relaxed line-clamp-2 md:line-clamp-3 ${
-                                            isBento
-                                                ? 'text-slate-700'
-                                                : (isLocked ? 'text-gray-500 dark:text-gray-600' : 'text-gray-600 dark:text-gray-400')
-                                        }`}>
-                                            {module.description || (isLocked ? "Complete previous modules to unlock." : "Master this topic to progress.")}
-                                        </p>
-
-                                        {/* Mini Progress Bar in Card (if active) */}
-                                        {!isLocked && !isCompleted && progressPercent > 0 && (
-                                            <div className={`mt-4 w-full rounded-full overflow-hidden ${
-                                                isBento ? 'h-2 bg-white border-2 border-black' : 'h-1.5 bg-gray-200 dark:bg-[#1c1917]'
-                                            }`}>
-                                                <div
-                                                    className={`h-full rounded-full ${
-                                                        isBento ? 'bg-black' : 'bg-indigo-500'
-                                                    }`}
-                                                    style={{ width: `${progressPercent}%` }}
-                                                />
-                                            </div>
-                                        )}
-
-                                        {!isLocked && (
-                                            <div className={`mt-6 flex items-center gap-2 text-xs font-black uppercase tracking-widest group-hover:gap-3 transition-all ${
-                                                isBento ? 'text-black' : 'text-indigo-600 dark:text-indigo-500'
-                                            }`}>
-                                                View Details <Layout className="w-4 h-4" />
-                                            </div>
-                                        )}
+                                            {!isLocked && (
+                                                <div className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+                                                    isBento
+                                                        ? isCompleted
+                                                            ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] group-hover:bg-[#fde047]'
+                                                            : 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000] group-hover:bg-[#a3e635]'
+                                                        : isCompleted
+                                                            ? 'bg-[#192211] text-[#bef264] border border-[#bef264]/45 group-hover:bg-[#233218]'
+                                                            : 'bg-[#bef264] text-[#0a0908] shadow-[0_3px_0_#050504] group-hover:bg-[#d2fa8a]'
+                                                }`}>
+                                                    <span>View Details</span>
+                                                    <Layout className="w-3.5 h-3.5" />
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 );
                             })}
@@ -387,13 +417,22 @@ const UserRoadmapView: React.FC<UserRoadmapViewProps> = ({
                 })}
             </div>
 
-            {/* Module Details Modal */}
-            {isDetailsOpen && selectedModule && (
-                <div className={`app-dialog-overlay fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 dark:bg-black/60 backdrop-blur-md animate-in fade-in duration-200 !border-0 !shadow-none`}>
-                    <div role="dialog" aria-modal="true" className={`app-dialog-panel app-dialog-panel--structured relative w-full max-w-2xl rounded-3xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh] ${
+            {/* Module Details Modal (portaled to document.body so ancestor transforms never offset fixed centering) */}
+            {isDetailsOpen && selectedModule && typeof document !== 'undefined' && createPortal(
+                <div
+                    onClick={(e) => {
+                        if (e.target === e.currentTarget) setIsDetailsOpen(false);
+                    }}
+                    className={`app-dialog-overlay fixed inset-0 z-[10020] flex items-center justify-center p-4 bg-black/40 dark:bg-black/60 backdrop-blur-md animate-in fade-in duration-200 !border-0 !shadow-none`}
+                >
+                    <div
+                        role="dialog"
+                        aria-modal="true"
+                        onClick={(e) => e.stopPropagation()}
+                        className={`app-dialog-panel app-dialog-panel--structured relative w-full max-w-2xl rounded-3xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh] ${
                         isBento
                             ? 'bg-white border-[3px] border-black shadow-[8px_8px_0px_#000] text-black'
-                            : 'bg-white dark:bg-[#1c1917] border border-gray-200 dark:border-white/10 shadow-2xl'
+                            : 'bg-[#141210] border-[1.5px] border-[#2e2924] shadow-[0_8px_0_#050504] text-[#f5f3ec]'
                     }`}>
                         {(() => {
                             const { progressPercent, completedItems, totalItems, moduleQuizzes } = getModuleDetails(selectedModule);
@@ -402,20 +441,18 @@ const UserRoadmapView: React.FC<UserRoadmapViewProps> = ({
                             return (
                                 <>
                                     {/* Header */}
-                                    <div className={`app-dialog-header p-8 relative overflow-hidden flex-shrink-0 ${
+                                    <div className={`app-dialog-header p-6 sm:p-8 relative overflow-hidden flex-shrink-0 ${
                                         isBento
-                                            ? 'border-b-[2.5px] border-black bg-white text-black'
-                                            : 'border-b border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5'
+                                            ? 'border-b-[2.5px] border-black bg-[#faf8f2] text-black'
+                                            : 'border-b border-[#2e2924] bg-[#0e0d0b] text-[#f5f3ec]'
                                     }`}>
-                                        {!isBento && <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-bl-full -mr-8 -mt-8 pointer-events-none" />}
-
-                                        <div className="flex items-start justify-between relative z-10 mb-4">
+                                        <div className="flex items-start justify-between relative z-10 mb-4 gap-3">
                                             <div>
-                                                <div className="flex items-center gap-3 mb-3">
+                                                <div className="flex items-center gap-2.5 mb-3 flex-wrap">
                                                     <div className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${
                                                         isBento
                                                             ? 'bg-[#fde047] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                                            : 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20'
+                                                            : 'bg-[#231e0f] text-[#fde047] border border-[#fde047]/45'
                                                     }`}>
                                                         Module {(selectedModule.level ?? 0) + 1}
                                                     </div>
@@ -423,21 +460,22 @@ const UserRoadmapView: React.FC<UserRoadmapViewProps> = ({
                                                         <div className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${
                                                             isBento
                                                                 ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                                                : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
+                                                                : 'bg-[#192211] text-[#bef264] border border-[#bef264]/45'
                                                         }`}>
                                                             Completed
                                                         </div>
                                                     )}
                                                 </div>
-                                                <h2 className={`text-2xl font-black mb-2 ${isBento ? 'text-black' : 'text-gray-900 dark:text-white'}`}>{selectedModule.title}</h2>
-                                                <p className={`font-medium ${isBento ? 'text-slate-700' : 'text-gray-600 dark:text-gray-400'}`}>{selectedModule.description}</p>
+                                                <h2 className={`text-xl sm:text-2xl font-black mb-1.5 ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>{selectedModule.title}</h2>
+                                                <p className={`text-sm font-semibold ${isBento ? 'text-black/75' : 'text-[#a8a29e]'}`}>{selectedModule.description}</p>
                                             </div>
                                             <button
                                                 onClick={() => setIsDetailsOpen(false)}
-                                                className={`p-2 rounded-xl transition-all cursor-pointer ${
+                                                aria-label="Close module details"
+                                                className={`p-2 rounded-xl transition-all cursor-pointer shrink-0 ${
                                                     isBento
                                                         ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#fde047] text-black'
-                                                        : 'bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                                                        : 'bg-[#1c1917] border border-[#2e2924] hover:border-[#bef264] text-[#a8a29e] hover:text-[#f5f3ec]'
                                                 }`}
                                             >
                                                 <X className="w-5 h-5" />
@@ -446,18 +484,18 @@ const UserRoadmapView: React.FC<UserRoadmapViewProps> = ({
 
                                         {/* Progress Loader */}
                                         <div className="space-y-2">
-                                            <div className={`flex items-center justify-between text-xs font-bold uppercase tracking-widest ${
-                                                isBento ? 'text-black' : 'text-gray-600 dark:text-gray-400'
+                                            <div className={`flex items-center justify-between text-xs font-black uppercase tracking-widest ${
+                                                isBento ? 'text-black' : 'text-[#a8a29e]'
                                             }`}>
                                                 <span>Progress</span>
-                                                <span>{completedItems}/{totalItems} Steps</span>
+                                                <span className={isBento ? 'text-black' : 'text-[#bef264]'}>{completedItems}/{totalItems} Steps</span>
                                             </div>
                                             <div className={`w-full rounded-full overflow-hidden ${
-                                                isBento ? 'h-3 bg-white border-2 border-black' : 'h-3 bg-gray-200 dark:bg-black/40 border border-gray-300 dark:border-white/5'
+                                                isBento ? 'h-3 bg-white border-2 border-black' : 'h-2.5 bg-[#1c1917] border border-[#2e2924]'
                                             }`}>
                                                 <div
                                                     className={`h-full transition-all duration-700 ease-out ${
-                                                        isBento ? 'bg-[#bef264] border-r-2 border-black' : 'bg-indigo-500'
+                                                        isBento ? 'bg-[#bef264] border-r-2 border-black' : 'bg-[#bef264]'
                                                     }`}
                                                     style={{ width: `${progressPercent}%` }}
                                                 />
@@ -466,12 +504,12 @@ const UserRoadmapView: React.FC<UserRoadmapViewProps> = ({
                                     </div>
 
                                     {/* Content Scroll Area */}
-                                    <div className="app-dialog-body app-dialog-body-spaced flex-1 overflow-y-auto p-8 space-y-8">
+                                    <div className="app-dialog-body app-dialog-body-spaced flex-1 overflow-y-auto p-6 sm:p-8 space-y-8">
 
                                         {/* Learning Steps (Sub-modules) */}
                                         <div className="space-y-4">
-                                            <h3 className={`text-sm font-black uppercase tracking-widest flex items-center gap-2 ${
-                                                isBento ? 'text-black' : 'text-gray-500 dark:text-gray-400'
+                                            <h3 className={`text-xs font-black uppercase tracking-widest flex items-center gap-2 ${
+                                                isBento ? 'text-black' : 'text-[#a8a29e]'
                                             }`}>
                                                 <Layout className="w-4 h-4" /> Learning Steps
                                             </h3>
@@ -488,46 +526,52 @@ const UserRoadmapView: React.FC<UserRoadmapViewProps> = ({
                                                             group flex items-start gap-4 p-4 rounded-2xl transition-all
                                                             ${isBento
                                                                 ? isSubCompleted
-                                                                    ? 'bg-[#bef264]/40 border-2 border-black shadow-[2px_2px_0px_#000]'
+                                                                    ? 'bg-[#bef264]/45 border-2 border-black shadow-[2px_2px_0px_#000]'
                                                                     : 'bg-white border-2 border-black shadow-[3px_3px_0px_#000] hover:bg-[#fef9c3]'
                                                                 : isSubCompleted
-                                                                    ? 'bg-emerald-500/5 border-emerald-500/10'
-                                                                    : 'bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/5 hover:bg-gray-100 dark:hover:bg-white/10 hover:border-gray-300 dark:hover:border-white/10'}
+                                                                    ? 'bg-[#192211]/60 border border-[#bef264]/35'
+                                                                    : 'bg-[#0e0d0b] border border-[#2e2924] hover:border-[#bef264]/50'}
                                                         `}
                                                     >
                                                         <button
                                                             onClick={() => handleToggleSubModule(sub.id)}
                                                             disabled={isSubCompleted || isProcessing}
                                                             className={`
-                                                                mt-1 w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all flex-shrink-0
+                                                                mt-0.5 w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all flex-shrink-0 cursor-pointer
                                                                 ${isBento
                                                                     ? isSubCompleted
                                                                         ? 'bg-[#bef264] border-black text-black'
                                                                         : 'border-black bg-white hover:bg-[#bef264]'
                                                                     : isSubCompleted
-                                                                        ? 'bg-emerald-500 border-emerald-500'
-                                                                        : 'border-gray-400 dark:border-gray-500 hover:border-indigo-500 hover:bg-indigo-500/20'}
+                                                                        ? 'bg-[#bef264] border-[#bef264] text-[#0a0908]'
+                                                                        : 'border-[#57534e] bg-[#141210] hover:border-[#bef264]'}
                                                             `}
                                                         >
-                                                            {isSubCompleted && <Check className={`w-3.5 h-3.5 ${isBento ? 'text-black' : 'text-white'}`} />}
+                                                            {isSubCompleted && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                                                         </button>
 
                                                         <div className="flex-1">
-                                                            <div className="flex items-center justify-between mb-1">
-                                                                <h4 className={`font-bold ${isSubCompleted ? 'text-gray-400 line-through' : isBento ? 'text-black font-black' : 'text-gray-900 dark:text-white'}`}>
+                                                            <div className="flex items-center justify-between mb-1 gap-2">
+                                                                <h4 className={`font-bold ${
+                                                                    isSubCompleted
+                                                                        ? isBento ? 'text-black/50 line-through' : 'text-[#78716c] line-through'
+                                                                        : isBento ? 'text-black font-black' : 'text-[#f5f3ec]'
+                                                                }`}>
                                                                     {sub.title}
                                                                 </h4>
-                                                                <div className="flex items-center gap-2">
+                                                                <div className="flex items-center gap-2 shrink-0">
                                                                     {sub.xp && (
-                                                                        <span className={`text-[10px] font-black px-1.5 py-0.5 rounded ${
-                                                                            isBento ? 'bg-[#fde047] text-black border border-black' : 'text-yellow-500 bg-yellow-500/10'
+                                                                        <span className={`text-[10px] font-black px-2 py-0.5 rounded ${
+                                                                            isBento
+                                                                                ? 'bg-[#fde047] text-black border border-black'
+                                                                                : 'bg-[#231e0f] text-[#fde047] border border-[#fde047]/40'
                                                                         }`}>
                                                                             {sub.xp} XP
                                                                         </span>
                                                                     )}
                                                                 </div>
                                                             </div>
-                                                            <div className={`flex items-center gap-4 text-xs font-medium ${isBento ? 'text-slate-600' : 'text-gray-500 dark:text-gray-500'}`}>
+                                                            <div className={`flex items-center gap-4 text-xs font-semibold ${isBento ? 'text-black/65' : 'text-[#a8a29e]'}`}>
                                                                 {sub.videoUrl && (
                                                                     <a href={sub.videoUrl} target="_blank" rel="noreferrer" className="flex items-center gap-1 hover:underline transition-colors" onClick={(e) => e.stopPropagation()}>
                                                                         <Video className="w-3 h-3" /> Watch Video
@@ -540,39 +584,39 @@ const UserRoadmapView: React.FC<UserRoadmapViewProps> = ({
                                             })}
 
                                             {(!selectedModule.subModules || selectedModule.subModules.length === 0) && (
-                                                <p className="text-gray-500 dark:text-gray-500 text-sm italic py-2">No learning steps needed for this module.</p>
+                                                <p className={`text-sm italic py-2 ${isBento ? 'text-black/60' : 'text-[#78716c]'}`}>No learning steps needed for this module.</p>
                                             )}
                                         </div>
 
                                         {/* Quizzes Section */}
                                         {moduleQuizzes.length > 0 && (
-                                            <div className={`space-y-4 pt-4 border-t ${
-                                                isBento ? 'border-t-2 border-black' : 'border-gray-200 dark:border-white/5'
+                                            <div className={`space-y-4 pt-5 border-t ${
+                                                isBento ? 'border-t-2 border-black' : 'border-[#2e2924]'
                                             }`}>
                                                 <div className="flex items-center justify-between">
-                                                    <h3 className={`text-sm font-black uppercase tracking-widest flex items-center gap-2 ${
-                                                        isBento ? 'text-black' : 'text-gray-500 dark:text-gray-400'
+                                                    <h3 className={`text-xs font-black uppercase tracking-widest flex items-center gap-2 ${
+                                                        isBento ? 'text-black' : 'text-[#a8a29e]'
                                                     }`}>
                                                         <GraduationCap className="w-4 h-4" /> Module Quizzes
                                                     </h3>
                                                 </div>
 
                                                 {/* 70% Requirement Alert */}
-                                                <div className={`flex items-start gap-3 p-3 rounded-xl ${
+                                                <div className={`flex items-start gap-3 p-3.5 rounded-2xl ${
                                                     isBento
                                                         ? 'bg-[#fed7aa] border-2 border-black shadow-[2px_2px_0px_#000] text-black'
-                                                        : 'bg-amber-500/10 border border-amber-500/20'
+                                                        : 'bg-[#231e0f] border border-[#fde047]/35 text-[#fde047]'
                                                 }`}>
                                                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                                                        isBento ? 'bg-white border-2 border-black text-black' : 'bg-amber-500/20 text-amber-500'
+                                                        isBento ? 'bg-white border-2 border-black text-black' : 'bg-[#0e0d0b] border border-[#fde047]/40 text-[#fde047]'
                                                     }`}>
                                                         <Target className="w-4 h-4" />
                                                     </div>
                                                     <div>
-                                                        <p className={`text-sm font-bold ${isBento ? 'text-black font-black' : 'text-amber-600 dark:text-amber-400'}`}>
+                                                        <p className={`text-sm font-black ${isBento ? 'text-black' : 'text-[#fde047]'}`}>
                                                             70% Required to Pass
                                                         </p>
-                                                        <p className={`text-xs mt-0.5 ${isBento ? 'text-slate-800' : 'text-amber-600/80 dark:text-amber-400/70'}`}>
+                                                        <p className={`text-xs mt-0.5 font-semibold ${isBento ? 'text-black/80' : 'text-[#b5aea4]'}`}>
                                                             You must score at least 70% on all quizzes to complete this module and unlock the next one.
                                                         </p>
                                                     </div>
@@ -589,80 +633,84 @@ const UserRoadmapView: React.FC<UserRoadmapViewProps> = ({
                                                         <div
                                                             key={qId}
                                                             className={`
-                                                                flex items-center gap-4 p-4 rounded-2xl transition-all
+                                                                flex flex-col sm:flex-row sm:items-center gap-4 p-4 rounded-2xl transition-all
                                                                 ${isBento
                                                                     ? isPassed
-                                                                        ? 'bg-[#bef264]/40 border-2 border-black shadow-[3px_3px_0px_#000] text-black'
+                                                                        ? 'bg-[#bef264]/45 border-2 border-black shadow-[3px_3px_0px_#000] text-black'
                                                                         : 'bg-white border-2 border-black shadow-[3px_3px_0px_#000] text-black'
                                                                     : isPassed
-                                                                        ? 'bg-emerald-500/5 border-emerald-500/10'
-                                                                        : isPoolInProgress
-                                                                            ? 'bg-blue-500/5 border-blue-500/20'
-                                                                            : 'bg-indigo-500/5 border-indigo-500/20'}
+                                                                        ? 'bg-[#192211]/60 border border-[#bef264]/35'
+                                                                        : 'bg-[#0e0d0b] border border-[#2e2924]'}
                                                             `}
                                                         >
-                                                            <div className={`
-                                                                w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0
-                                                                ${isBento
-                                                                    ? 'bg-white border-2 border-black text-black shadow-[1.5px_1.5px_0px_#000]'
-                                                                    : isPassed
-                                                                        ? 'bg-emerald-500/10 text-emerald-500'
-                                                                        : isPoolInProgress
-                                                                            ? 'bg-blue-500/10 text-blue-500'
-                                                                            : 'bg-indigo-500/10 text-indigo-500'}
-                                                            `}>
-                                                                {isPassed ? <Target className="w-5 h-5" /> : <GraduationCap className="w-5 h-5" />}
-                                                            </div>
+                                                            <div className="flex items-center gap-3.5 flex-1 min-w-0">
+                                                                <div className={`
+                                                                    w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0
+                                                                    ${isBento
+                                                                        ? 'bg-[#bae6fd] border-2 border-black text-black shadow-[1.5px_1.5px_0px_#000]'
+                                                                        : isPassed
+                                                                            ? 'bg-[#192211] text-[#bef264] border border-[#bef264]/40'
+                                                                            : 'bg-[#111c22] text-[#bae6fd] border border-[#bae6fd]/40'}
+                                                                `}>
+                                                                    {isPassed ? <Target className="w-5 h-5" /> : <GraduationCap className="w-5 h-5" />}
+                                                                </div>
 
-                                                            <div className="flex-1 min-w-0">
-                                                                <h4 className={`font-bold mb-0.5 truncate ${isBento ? 'text-black font-black' : 'text-gray-900 dark:text-white'}`}>{quiz.title}</h4>
-                                                                <div className={`flex flex-wrap items-center gap-3 text-xs font-medium ${isBento ? 'text-slate-600' : 'text-gray-500 dark:text-gray-500'}`}>
-                                                                    {poolStatus.isPool ? (
-                                                                        <>
-                                                                            <span className={`font-semibold ${poolStatus.isFullyCompleted ? 'text-emerald-600 dark:text-emerald-400' : 'text-blue-600 dark:text-blue-400'}`}>
-                                                                                {poolStatus.isFullyCompleted ? `Bank Mastered (${poolStatus.totalQuestions} Qs)` : `${poolStatus.seenCount}/${poolStatus.totalQuestions} Qs (${poolStatus.percentage}%)`}
-                                                                            </span>
-                                                                            {poolStatus.isFullyCompleted ? (
-                                                                                <span className="text-emerald-500 font-bold">
-                                                                                    ✓ 100% Solved
+                                                                <div className="flex-1 min-w-0">
+                                                                    <h4 className={`font-black mb-0.5 truncate ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>{quiz.title}</h4>
+                                                                    <div className={`flex flex-wrap items-center gap-3 text-xs font-semibold ${isBento ? 'text-black/70' : 'text-[#a8a29e]'}`}>
+                                                                        {poolStatus.isPool ? (
+                                                                            <>
+                                                                                <span className={`font-black ${
+                                                                                    isBento
+                                                                                        ? 'text-black'
+                                                                                        : poolStatus.isFullyCompleted ? 'text-[#bef264]' : 'text-[#bae6fd]'
+                                                                                }`}>
+                                                                                    {poolStatus.isFullyCompleted ? `Bank Mastered (${poolStatus.totalQuestions} Qs)` : `${poolStatus.seenCount}/${poolStatus.totalQuestions} Qs (${poolStatus.percentage}%)`}
                                                                                 </span>
-                                                                            ) : poolStatus.remainingCount > 0 ? (
-                                                                                <span className="text-orange-500 font-bold">
-                                                                                    {poolStatus.remainingCount} Remaining
+                                                                                {poolStatus.isFullyCompleted ? (
+                                                                                    <span className={isBento ? 'text-black font-black' : 'text-[#bef264] font-bold'}>
+                                                                                        ✓ 100% Solved
+                                                                                    </span>
+                                                                                ) : poolStatus.remainingCount > 0 ? (
+                                                                                    <span className={isBento ? 'text-black/80 font-black' : 'text-[#fde047] font-bold'}>
+                                                                                        {poolStatus.remainingCount} Remaining
+                                                                                    </span>
+                                                                                ) : null}
+                                                                            </>
+                                                                        ) : (
+                                                                            <span>{quiz.questions?.length} Questions</span>
+                                                                        )}
+                                                                        {bestAttempt && (
+                                                                            <>
+                                                                                <span className={
+                                                                                    isBento
+                                                                                        ? 'text-black font-black'
+                                                                                        : isPassed ? 'text-[#bef264]' : 'text-[#fde047]'
+                                                                                }>
+                                                                                    Best: {bestAttempt.percentage}%
                                                                                 </span>
-                                                                            ) : null}
-                                                                        </>
-                                                                    ) : (
-                                                                        <span>{quiz.questions?.length} Questions</span>
-                                                                    )}
-                                                                    {bestAttempt && (
-                                                                        <>
-                                                                            <span className={isPassed ? 'text-emerald-500' : 'text-orange-500'}>
-                                                                                Best: {bestAttempt.percentage}%
-                                                                            </span>
-                                                                            {!isPassed && bestAttempt.percentage > 0 && (
-                                                                                <span className="text-red-500 font-bold">
-                                                                                    Need {MODULE_PASSING_THRESHOLD - bestAttempt.percentage}% more to pass
-                                                                                </span>
-                                                                            )}
-                                                                        </>
-                                                                    )}
+                                                                                {!isPassed && bestAttempt.percentage > 0 && (
+                                                                                    <span className={isBento ? 'text-red-700 font-black' : 'text-[#fb7185] font-bold'}>
+                                                                                        Need {MODULE_PASSING_THRESHOLD - bestAttempt.percentage}% more to pass
+                                                                                    </span>
+                                                                                )}
+                                                                            </>
+                                                                        )}
+                                                                    </div>
                                                                 </div>
                                                             </div>
 
                                                             <button
                                                                 onClick={() => onStartQuiz && onStartQuiz(quiz)}
                                                                 className={`
-                                                                    px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all flex items-center gap-2 shrink-0 cursor-pointer
+                                                                    px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 shrink-0 cursor-pointer
                                                                     ${isBento
                                                                         ? isPassed
                                                                             ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#a3e635]'
-                                                                            : 'bg-[#0d9488] text-white border-2 border-black shadow-[3px_3px_0px_#000] hover:bg-[#0f766e] active:translate-x-[1px] active:translate-y-[1px]'
+                                                                            : 'bg-[#fde047] text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:bg-[#facc15] active:translate-y-0.5'
                                                                         : isPassed
-                                                                            ? 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20'
-                                                                            : isPoolInProgress
-                                                                                ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-md shadow-indigo-500/20'
-                                                                                : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-500/20'}
+                                                                            ? 'bg-[#192211] text-[#bef264] border border-[#bef264]/45 hover:bg-[#243218]'
+                                                                            : 'bg-[#bef264] text-[#0a0908] hover:bg-[#d2fa8a] shadow-[0_3px_0_#050504]'}
                                                                 `}
                                                             >
                                                                 {isPassed ? (
@@ -681,17 +729,17 @@ const UserRoadmapView: React.FC<UserRoadmapViewProps> = ({
                                     </div>
 
                                     {/* Footer */}
-                                    <div className={`p-6 flex justify-end flex-shrink-0 ${
+                                    <div className={`p-5 sm:p-6 flex justify-end flex-shrink-0 ${
                                         isBento
-                                            ? 'border-t-[2.5px] border-black bg-white'
-                                            : 'border-t border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5'
+                                            ? 'border-t-[2.5px] border-black bg-[#faf8f2]'
+                                            : 'border-t border-[#2e2924] bg-[#0e0d0b]'
                                     }`}>
                                         <button
                                             onClick={() => setIsDetailsOpen(false)}
-                                            className={`px-6 py-3 font-black uppercase tracking-widest text-xs rounded-xl transition-all cursor-pointer ${
+                                            className={`px-6 py-2.5 font-black uppercase tracking-widest text-xs rounded-xl transition-all cursor-pointer ${
                                                 isBento
                                                     ? 'bg-white text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:bg-[#fde047]'
-                                                    : 'bg-white dark:bg-gray-700 text-black dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600'
+                                                    : 'bg-[#1c1917] text-[#f5f3ec] border border-[#2e2924] hover:border-[#bef264]'
                                             }`}
                                         >
                                             Close View
@@ -701,7 +749,8 @@ const UserRoadmapView: React.FC<UserRoadmapViewProps> = ({
                             );
                         })()}
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );

@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import QuizTaking from '../components/QuizTaking';
 import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
@@ -9,6 +9,7 @@ import type { AttemptData } from '../lib/api';
 import type { Quiz, QuizResult, PoolProgressData, Badge } from '../types';
 import { calculateLevel } from '../lib/gamification';
 import { saveAttemptWithOfflineFallback, initOfflineSyncListener } from '../lib/offlineSync';
+import { navigateBackSafely } from '../lib/navigation';
 
 const QuizTakingPage: React.FC = () => {
     const { quizId: encodedQuizId } = useParams<{ quizId: string }>();
@@ -17,6 +18,7 @@ const QuizTakingPage: React.FC = () => {
     const { currentUser, updateUser } = useAuth();
     const { showNotification } = useNotification();
     const navigate = useNavigate();
+    const location = useLocation();
 
     // Decode the quiz ID to handle special characters
     const quizId = encodedQuizId ? decodeURIComponent(encodedQuizId) : '';
@@ -325,11 +327,13 @@ const QuizTakingPage: React.FC = () => {
     })) || [];
 
     const handleBack = () => {
-        if (window.history.length > 1) {
-            navigate(-1);
-        } else {
-            navigate('/');
-        }
+        const navState = location.state as { from?: string } | null;
+        const fallbackPath =
+            (typeof navState?.from === 'string' && navState.from.startsWith('/') ? navState.from : null) ||
+            (tournamentId ? '/tournaments' : null) ||
+            (activeQuiz?.subjectId ? `/?subject=${encodeURIComponent(activeQuiz.subjectId.toString())}` : '/');
+
+        navigateBackSafely(navigate, fallbackPath);
     };
 
     return (

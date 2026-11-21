@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
 import { useNavigate } from 'react-router-dom';
 import { GUEST_USER } from '../constants/appDefaults';
+import { navigateBackSafely } from '../lib/navigation';
 
 const LeaderboardPage: React.FC = () => {
     const { currentUser } = useAuth();
@@ -11,11 +12,7 @@ const LeaderboardPage: React.FC = () => {
     const navigate = useNavigate();
 
     const handleBack = () => {
-        if (window.history.length > 1) {
-            navigate(-1);
-        } else {
-            navigate('/');
-        }
+        navigateBackSafely(navigate, '/');
     };
 
     return (

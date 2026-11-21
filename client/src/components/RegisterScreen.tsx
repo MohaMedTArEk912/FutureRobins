@@ -193,51 +193,98 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onVerified, onSwitchToL
         }
     };
 
-    const inputClass = `w-full ps-11 pe-4 py-2.5 rounded-2xl text-sm font-medium transition-all focus:outline-none ${
+    const inputClass = `w-full ps-11 pe-4 py-3 text-sm font-medium disabled:opacity-50 transition-all ${
         isBento
-            ? 'bg-white border-2 border-black text-black placeholder-slate-400 focus:ring-2 focus:ring-black/15 shadow-[2px_2px_0_#000]'
-            : 'bg-white dark:bg-[#141210] border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder-slate-400 focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/15 shadow-sm'
-    } disabled:opacity-60`;
+            ? 'bg-white border-[2.5px] border-black rounded-xl text-black placeholder-gray-500 focus:outline-none focus:shadow-[4px_4px_0px_#000] shadow-[2px_2px_0px_#000]'
+            : 'bg-[#141210] border border-[#f5f3ec]/14 rounded-2xl text-[#f5f3ec] placeholder-[#78716c] focus:outline-none focus:border-[#bef264] focus:ring-3 focus:ring-[#bef264]/15 shadow-sm'
+    }`;
 
     const primaryBtnClass = isBento
-        ? 'btn-unstyled w-full py-3 rounded-2xl font-black text-sm tracking-wide flex justify-center items-center gap-2 cursor-pointer border-2 border-black bg-[#bef264] text-black shadow-[3px_3px_0_#000] hover:translate-y-[-1px] active:translate-y-[1px] transition-all disabled:bg-slate-100 disabled:text-slate-400 disabled:border-slate-300 disabled:shadow-none disabled:cursor-not-allowed'
-        : 'w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-2xl font-bold text-sm transition-all shadow-md shadow-indigo-600/20 active:scale-[0.985] disabled:opacity-50 flex justify-center items-center gap-2 cursor-pointer';
+        ? 'btn-unstyled w-full py-3.5 bg-[#bef264] text-black rounded-xl border-[2.5px] border-black shadow-[4px_4px_0px_#000] hover:shadow-[5px_5px_0px_#000] hover:-translate-y-0.5 active:shadow-[1px_1px_0px_#000] active:translate-y-0.5 font-black text-sm uppercase tracking-wider flex justify-center items-center gap-2 cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed'
+        : 'w-full py-3.5 bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908] font-black text-sm rounded-2xl shadow-[0_10px_28px_-6px_rgba(190,242,100,0.35)] active:scale-[0.985] disabled:opacity-50 flex justify-center items-center gap-2 cursor-pointer transition-all';
 
-    const labelClass = `block text-xs ms-1 mb-1 transition-colors ${
+    const labelClass = `block text-xs ms-1 mb-1.5 transition-colors ${
         isBento
-            ? 'font-black uppercase tracking-wider text-black'
-            : 'font-semibold text-slate-700 dark:text-slate-300 group-focus-within:text-indigo-600 dark:group-focus-within:text-indigo-400'
+            ? 'text-black font-black uppercase tracking-wider'
+            : 'font-semibold text-[#d6d0c7] group-focus-within:text-[#bef264]'
+    }`;
+
+    const iconClass = `absolute start-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 transition-colors ${
+        isBento ? 'text-black' : 'text-[#888177] group-focus-within:text-[#bef264]'
     }`;
 
     return (
-        <div className="min-h-dvh bg-slate-50 dark:bg-[#0a0908] text-slate-900 dark:text-slate-100 flex relative overflow-x-hidden selection:bg-indigo-500/25">
-            {/* Ambient Background */}
+        <div className={`min-h-dvh flex relative overflow-hidden selection:bg-[#bef264]/28 ${
+            isBento
+                ? 'bg-[#f5f3ec] text-black'
+                : 'bg-[#0a0908] text-[#f5f3ec]'
+        }`}>
+            {/* Ambient Background - Shared across screens */}
             <AmbientBackground />
 
-            {/* Top Start Clickable Logo / Back to Home */}
-            <div className="absolute top-5 start-5 z-50 mt-safe ms-safe">
+            {/* Bento-specific patterned background overlay */}
+            {isBento && (
+                <div
+                    className="fixed inset-0 pointer-events-none z-0"
+                    style={{
+                        backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='1.25' fill='%23000000'/%3E%3C/svg%3E\")",
+                        backgroundSize: '24px 24px',
+                        opacity: 0.12
+                    }}
+                    aria-hidden="true"
+                />
+            )}
+
+            {/* Top Start Back to Home */}
+            <div className="absolute top-6 start-6 z-50 mt-safe ms-safe">
                 <button
                     type="button"
                     onClick={() => navigate('/')}
-                    className={`btn-unstyled flex items-center gap-2 p-2 rounded-xl transition-all cursor-pointer active:scale-95 ${
+                    className={`btn-unstyled flex items-center gap-1.5 px-3 py-2 rounded-xl transition-all cursor-pointer active:scale-95 ${
                         isBento
-                            ? 'bg-white border-2 border-black text-black shadow-[2px_2px_0_#000]'
-                            : 'bg-white/80 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 hover:bg-white dark:hover:bg-white/10 text-slate-700 dark:text-slate-300'
+                            ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#fde047] font-black'
+                            : 'bg-[#1c1917] border border-[#2e2924] hover:border-[#bef264]/60 hover:bg-[#24201c] text-[#f5f3ec] font-bold'
                     }`}
                     title={tx('Return to Home', 'الرجوع للرئيسية')}
                     aria-label={tx('Return to Home', 'الرجوع للرئيسية')}
                 >
-                    <div className="w-6 h-6 rounded-lg flex items-center justify-center font-black text-xs bg-indigo-600 text-white">
-                        Q
-                    </div>
-                    <span className="text-xs font-bold hidden sm:inline">{tx('Home', 'الرئيسية')}</span>
+                    <ArrowLeft className={`w-4 h-4 shrink-0 ${isArabic ? 'rotate-180' : ''}`} />
+                    <span className="text-xs hidden sm:inline">{tx('Home', 'الرئيسية')}</span>
                 </button>
             </div>
 
-            {/* Left Column - Mascot & Branding (Hidden on Mobile) */}
-            <div className="hidden lg:flex flex-col flex-[1.05] relative z-10 bg-slate-100/40 dark:bg-white/[0.02] backdrop-blur-xl border-e border-slate-200/80 dark:border-white/[0.06] items-center justify-center p-8 login-mascot-col">
-                <div className="w-full max-w-md flex flex-col items-center">
-                    <div className="w-[260px] xl:w-[320px] h-[260px] xl:h-[320px] flex items-center justify-center mb-4 mascot-card-wrapper transition-all">
+            {/* Left Column - Mascot & Branding (Matches LoginScreen 1:1) */}
+            <div className={`hidden lg:flex flex-col flex-[1.2] relative z-10 items-center justify-center p-12 login-mascot-col ${
+                isBento
+                    ? 'bg-[#bef264] border-e-[3px] border-black'
+                    : 'bg-transparent'
+            }`}>
+                {/* Bento decorative elements */}
+                {isBento && (
+                    <>
+                        <div className="absolute top-8 left-8 w-12 h-12 bg-[#fde047] border-[2.5px] border-black rounded-xl shadow-[3px_3px_0px_#000] rotate-12 z-0" />
+                        <div className="absolute top-16 right-12 w-8 h-8 bg-[#bae6fd] border-[2.5px] border-black rounded-full shadow-[2px_2px_0px_#000] z-0" />
+                        <div className="absolute bottom-12 left-16 w-10 h-10 bg-white border-[2.5px] border-black shadow-[3px_3px_0px_#000] rotate-45 z-0" />
+                        <div className="absolute bottom-8 right-8 w-6 h-6 bg-[#fed7aa] border-[2px] border-black rounded-lg shadow-[2px_2px_0px_#000] -rotate-12 z-0" />
+                        <div className="absolute top-1/3 left-6 w-4 h-4 bg-black rounded-full z-0" />
+                        <div className="absolute bottom-1/3 right-10 w-3 h-3 bg-black rotate-45 z-0" />
+                        <div
+                            className="absolute inset-0 pointer-events-none"
+                            style={{
+                                backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Ccircle cx='14' cy='14' r='1.5' fill='%23000000'/%3E%3C/svg%3E\")",
+                                backgroundSize: '28px 28px',
+                                opacity: 0.08
+                            }}
+                        />
+                    </>
+                )}
+
+                <div className="w-full max-w-lg flex flex-col items-center relative z-10">
+                    <div className={`w-[340px] sm:w-[380px] h-[340px] sm:h-[380px] flex items-center justify-center mb-6 mascot-card-wrapper transition-all ${
+                        isBento
+                            ? 'bg-white rounded-[2rem] border-[3px] border-black shadow-[7px_7px_0px_#000] p-6 relative'
+                            : ''
+                    }`}>
                         <AnimatedCharacter
                             isEmailFocused={isEmailFocused || step === 'verify'}
                             isPasswordFocused={isPasswordFocused}
@@ -246,19 +293,23 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onVerified, onSwitchToL
                     </div>
 
                     <div className="text-center space-y-2">
-                        <h1 className="text-3xl xl:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                        <h1 className={`text-4xl font-extrabold tracking-tight ${
+                            isBento ? 'text-black' : 'text-[#f5f3ec]'
+                        }`}>
                             {step === 'verify' ? (
                                 <>{tx('Verify your', 'أكّد')}{' '}<span className="bento-highlight">{tx('inbox', 'إيميلك')}</span></>
                             ) : (
                                 <>{tx('Join the', 'انضم')}{' '}<span className="bento-highlight">{tx('ranks', 'للأبطال')}</span></>
                             )}
                         </h1>
-                        <p className="text-slate-500 dark:text-slate-400 text-sm xl:text-base max-w-sm mx-auto">
+                        <p className={`text-base max-w-sm mx-auto ${
+                            isBento ? 'text-gray-800 font-semibold' : 'text-[#a8a29e]'
+                        }`}>
                             {step === 'verify'
                                 ? tx('Confirm your email via 6-digit OTP or the verification redirect link to activate your account.', 'أكد إيميلك بالكود الـ 6 أرقام أو رابط التفعيل عشان تفتح حسابك.')
                                 : tx('Create your learner profile and confirm your email address to start climbing.', 'اعمل حسابك وأكد إيميلك عشان تبدأ تتعلم وتنافس مع زمايلك.')}
                         </p>
-                        <div className="flex flex-wrap items-center justify-center gap-2 pt-1 select-none">
+                        <div className="flex flex-wrap items-center justify-center gap-2 pt-2 select-none">
                             <span className="bento-badge-tag bg-[#fde047] text-black -rotate-1">&ldquo;{tx('NEW COHORT', 'دفعة جديدة')}&rdquo;</span>
                             <span className="bento-badge-tag bg-[#0d9488] text-white rotate-1">&ldquo;{tx('OTP OR LINK', 'كود أو رابط')}&rdquo;</span>
                             <span className="bento-badge-tag bg-[#bef264] text-black -rotate-1">&ldquo;{tx('DUEL LIVE', 'تحدي لايف')}&rdquo;</span>
@@ -267,48 +318,56 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onVerified, onSwitchToL
                 </div>
             </div>
 
-            {/* Right Column - Form */}
-            <div className="flex-1 flex flex-col justify-center items-center p-5 sm:p-8 relative z-10 w-full animate-in fade-in duration-500">
+            {/* Right Column - Form (Exact LoginScreen 2-Half Layout) */}
+            <div className={`flex-1 flex flex-col justify-center items-center p-6 lg:p-10 relative z-10 w-full animate-in fade-in duration-500 ${
+                isBento ? 'bg-white' : ''
+            }`}>
                 <div
                     data-snake-wall="card"
-                    className={`w-full max-w-md space-y-4 ${
+                    className={`w-full max-w-md space-y-5 ${
                         isBento
-                            ? 'bg-white border-[3px] border-black rounded-3xl p-6 sm:p-8 shadow-[6px_6px_0_#000]'
-                            : 'bg-white dark:bg-[#141210] border border-slate-200 dark:border-[1.5px] dark:border-[#2e2924] rounded-3xl p-6 sm:p-8 shadow-xl dark:shadow-[0_6px_0_#050504]'
+                            ? ''
+                            : 'bg-[#141210] border-[1.5px] border-[#2e2924] rounded-3xl p-6 sm:p-8 shadow-[0_6px_0_#050504]'
                     }`}
                 >
                     {/* Mobile Logo & Heading */}
-                    <div className="lg:hidden text-center pt-6">
+                    <div className="lg:hidden text-center mb-2 pt-6">
                         <button
                             type="button"
                             onClick={() => navigate('/')}
-                            className="btn-unstyled w-14 h-14 mx-auto mb-2 relative flex items-center justify-center cursor-pointer active:scale-95 transition-transform bg-transparent border-0 p-0"
+                            className="btn-unstyled w-16 h-16 mx-auto mb-3 relative flex items-center justify-center cursor-pointer active:scale-95 transition-transform bg-transparent border-0 p-0"
                             aria-label={tx('Return to Home', 'الرجوع للرئيسية')}
                         >
                             <TransparentLogo src="/icon.png" className="w-full h-full object-contain" threshold={40} />
                         </button>
-                        <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                        <h1 className={`text-2xl font-extrabold tracking-tight ${
+                            isBento ? 'text-black' : 'text-[#f5f3ec]'
+                        }`}>
                             {step === 'verify' ? tx('Verify Your Email', 'تفعيل الإيميل') : tx('Create Account', 'إنشاء حساب جديد')}
                         </h1>
                     </div>
 
                     {/* Step Indicator + Heading */}
-                    <div className="space-y-1.5">
+                    <div className="text-start space-y-1.5">
                         <div className="flex items-center gap-2">
                             <span className={`inline-flex items-center gap-1.5 text-[11px] px-2.5 py-0.5 rounded-full ${
                                 isBento
-                                    ? 'bg-[#bae6fd] text-black border-2 border-black font-black uppercase'
-                                    : 'bg-indigo-50 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 font-bold border border-indigo-200 dark:border-indigo-500/30'
+                                    ? 'bg-[#bae6fd] text-black border-2 border-black font-black uppercase shadow-[2px_2px_0px_#000]'
+                                    : 'bg-[#192211] text-[#bef264] font-black uppercase border border-[#bef264]/40'
                             }`}>
                                 <ShieldCheck className="w-3.5 h-3.5" />
                                 <span>{step === 'verify' ? tx('Step 2 of 2 • Email Verification', 'خطوة 2 من 2 • تفعيل الإيميل') : tx('Step 1 of 2 • Account Info', 'خطوة 1 من 2 • بيانات الحساب')}</span>
                             </span>
                         </div>
-                        <div className="hidden lg:block">
-                            <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                        <div className="hidden lg:block pt-1">
+                            <h2 className={`text-3xl font-extrabold tracking-tight ${
+                                isBento ? 'text-black' : 'text-[#f5f3ec]'
+                            }`}>
                                 {step === 'verify' ? tx('Verify Your Email', 'تفعيل الإيميل') : tx('Create Account', 'إنشاء حساب جديد')}
                             </h2>
-                            <p className="text-slate-500 dark:text-slate-400 text-sm">
+                            <p className={`text-sm mt-1 ${
+                                isBento ? 'text-gray-600 font-semibold' : 'text-[#a8a29e]'
+                            }`}>
                                 {step === 'verify'
                                     ? tx('Enter the 6-digit OTP code or open the link we emailed you.', 'اكتب الكود المكون من 6 أرقام أو افتح الرابط اللي بعتناه على إيميلك.')
                                     : tx('We will verify that your email works before creating your account.', 'هنتأكد إن إيميلك شغال الأول قبل ما نفعّل حسابك.')}
@@ -317,23 +376,23 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onVerified, onSwitchToL
                     </div>
 
                     {error && (
-                        <div className={`p-3 rounded-2xl flex items-center gap-2.5 text-xs font-semibold animate-shake ${
+                        <div className={`p-3.5 flex items-center gap-2.5 text-xs font-semibold animate-shake ${
                             isBento
-                                ? 'bg-rose-100 border-2 border-black text-rose-800 shadow-[2px_2px_0_#000]'
-                                : 'bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 text-rose-600 dark:text-rose-400'
+                                ? 'bg-[#fde047] text-black border-[2.5px] border-black rounded-xl shadow-[3px_3px_0px_#000] font-black'
+                                : 'bg-[#2a1418] border border-[#fb7185]/45 text-[#fb7185] rounded-2xl'
                         }`}>
-                            <div className="w-2 h-2 shrink-0 rounded-full bg-rose-500 animate-pulse" />
+                            <div className={`w-1.5 h-1.5 shrink-0 rounded-full animate-pulse ${isBento ? 'bg-black' : 'bg-[#fb7185]'}`} />
                             <span>{error}</span>
                         </div>
                     )}
 
                     {info && (
-                        <div className={`p-3 rounded-2xl flex items-start gap-2.5 text-xs font-semibold ${
+                        <div className={`p-3.5 flex items-start gap-2.5 text-xs font-semibold ${
                             isBento
-                                ? 'bg-emerald-100 border-2 border-black text-black shadow-[2px_2px_0_#000]'
-                                : 'bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-300'
+                                ? 'bg-[#dcfce7] border-[2.5px] border-black text-black rounded-xl shadow-[3px_3px_0px_#000] font-bold'
+                                : 'bg-[#192211] border border-[#bef264]/40 text-[#bef264] rounded-2xl'
                         }`}>
-                            <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-emerald-600 dark:text-emerald-400" />
+                            <CheckCircle2 className={`w-4 h-4 shrink-0 mt-0.5 ${isBento ? 'text-black' : 'text-[#bef264]'}`} />
                             <div className="space-y-1">
                                 <span>{info}</span>
                                 {previewUrl && (
@@ -342,7 +401,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onVerified, onSwitchToL
                                             href={previewUrl}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="inline-flex items-center gap-1 underline font-bold text-indigo-700 dark:text-indigo-300"
+                                            className={`inline-flex items-center gap-1 underline font-black ${isBento ? 'text-black' : 'text-[#fde047]'}`}
                                         >
                                             <span>{tx('Open Ethereal Test Inbox Preview', 'فتح معاينة الإيميل التجريبي')}</span>
                                             <ExternalLink className="w-3 h-3" />
@@ -354,11 +413,11 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onVerified, onSwitchToL
                     )}
 
                     {step === 'details' ? (
-                        <form onSubmit={handleRequestSubmit} className="space-y-3.5">
+                        <form onSubmit={handleRequestSubmit} className="space-y-4">
                             <div className="group">
                                 <label className={labelClass}>{tx('Full Name', 'الاسم بالكامل')}</label>
                                 <div className="relative">
-                                    <User className="absolute start-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors w-4 h-4" />
+                                    <User className={iconClass} />
                                     <input
                                         type="text"
                                         value={name}
@@ -375,7 +434,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onVerified, onSwitchToL
                             <div className="group">
                                 <label className={labelClass}>{tx('Email Address', 'البريد الإلكتروني')}</label>
                                 <div className="relative">
-                                    <Mail className="absolute start-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors w-4 h-4" />
+                                    <Mail className={iconClass} />
                                     <input
                                         type="email"
                                         value={email}
@@ -394,7 +453,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onVerified, onSwitchToL
                             <div className="group">
                                 <label className={labelClass}>{tx('Password', 'كلمة السر')}</label>
                                 <div className="relative">
-                                    <Lock className="absolute start-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors w-4 h-4" />
+                                    <Lock className={iconClass} />
                                     <input
                                         type={showPassword ? 'text' : 'password'}
                                         value={password}
@@ -411,7 +470,9 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onVerified, onSwitchToL
                                         type="button"
                                         onClick={() => setShowPassword(!showPassword)}
                                         disabled={isSubmitting}
-                                        className="btn-unstyled absolute end-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-500 transition-colors p-1 bg-transparent border-0"
+                                        className={`btn-unstyled absolute end-4 top-1/2 -translate-y-1/2 p-1 transition-colors bg-transparent border-0 ${
+                                            isBento ? 'text-black hover:text-gray-600' : 'text-[#888177] hover:text-[#f5f3ec]'
+                                        }`}
                                         title={showPassword ? tx('Hide password', 'إخفاء كلمة السر') : tx('Show password', 'إظهار كلمة السر')}
                                     >
                                         {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -419,14 +480,14 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onVerified, onSwitchToL
                                 </div>
                             </div>
 
-                            <button type="submit" disabled={isSubmitting} className={`${primaryBtnClass} mt-1`}>
+                            <button type="submit" disabled={isSubmitting} className={`${primaryBtnClass} mt-2`}>
                                 {isSubmitting ? (
                                     <>
                                         <RefreshCw className="w-4 h-4 animate-spin" />
                                         <span>{tx('Sending Verification Email...', 'بنبعتلك إيميل التحقق...')}</span>
                                     </>
                                 ) : (
-                                    <span>{tx('Verify Email & Continue', 'تحقق من الإيميل وكمل')}</span>
+                                    <span>{isBento ? tx('⚡ VERIFY EMAIL & CONTINUE', '⚡ تحقق من الإيميل وكمل') : tx('Verify Email & Continue', 'تحقق من الإيميل وكمل')}</span>
                                 )}
                             </button>
                         </form>
@@ -441,11 +502,11 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onVerified, onSwitchToL
                             </button>
                         </div>
                     ) : (
-                        <form onSubmit={handleVerifyOtpSubmit} className="space-y-3.5">
-                            <div className={`p-3 rounded-2xl text-xs flex items-center justify-between gap-2 ${
+                        <form onSubmit={handleVerifyOtpSubmit} className="space-y-4">
+                            <div className={`p-3 rounded-xl text-xs flex items-center justify-between gap-2 ${
                                 isBento
-                                    ? 'bg-[#fef08a] border-2 border-black text-black font-bold'
-                                    : 'bg-slate-100 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300'
+                                    ? 'bg-[#fef08a] border-2 border-black text-black font-bold shadow-[2px_2px_0px_#000]'
+                                    : 'bg-[#1c1917] border border-[#2e2924] text-[#d6d0c7]'
                             }`}>
                                 <div className="truncate">
                                     <span className="opacity-75">{tx('Sent to: ', 'اتبعَت لـ: ')}</span>
@@ -469,20 +530,22 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onVerified, onSwitchToL
 
                             {isRedirectVerifying ? (
                                 <div className="py-6 flex flex-col items-center justify-center gap-2 text-sm font-bold">
-                                    <RefreshCw className="w-6 h-6 animate-spin text-indigo-500" />
+                                    <RefreshCw className={`w-6 h-6 animate-spin ${isBento ? 'text-black' : 'text-[#bef264]'}`} />
                                     <span>{tx('Confirming your verification link...', 'بنتأكد من رابط التفعيل...')}</span>
                                 </div>
                             ) : (
                                 <>
                                     <div className="group">
-                                        <div className="flex items-center justify-between mb-1">
+                                        <div className="flex items-center justify-between mb-1.5">
                                             <label className={`${labelClass} mb-0`}>{tx('6-Digit OTP Code', 'كود التفعيل (6 أرقام)')}</label>
                                             {name && password && (
                                                 <button
                                                     type="button"
                                                     onClick={dispatchVerificationEmail}
                                                     disabled={isSubmitting || resendCooldown > 0}
-                                                    className="btn-unstyled text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline disabled:opacity-50 disabled:cursor-not-allowed bg-transparent border-0 cursor-pointer"
+                                                    className={`btn-unstyled text-xs font-black hover:underline disabled:opacity-50 disabled:cursor-not-allowed bg-transparent border-0 cursor-pointer ${
+                                                        isBento ? 'text-black underline decoration-2 underline-offset-2' : 'text-[#fde047]'
+                                                    }`}
                                                 >
                                                     <span>
                                                         {resendCooldown > 0
@@ -493,7 +556,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onVerified, onSwitchToL
                                             )}
                                         </div>
                                         <div className="relative">
-                                            <KeyRound className="absolute start-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors w-4 h-4" />
+                                            <KeyRound className={iconClass} />
                                             <input
                                                 type="text"
                                                 inputMode="numeric"
@@ -507,7 +570,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onVerified, onSwitchToL
                                                 required
                                             />
                                         </div>
-                                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1.5 ms-1">
+                                        <p className={`text-[11px] mt-1.5 ms-1 ${isBento ? 'text-gray-700 font-semibold' : 'text-[#a8a29e]'}`}>
                                             {tx('Tip: You can enter the 6-digit code above', 'تقدر تكتب الكود المكون من 6 أرقام فوق')}{' '}
                                             <strong>{tx('or', 'أو')}</strong>{' '}
                                             {tx('click the redirect button directly inside the email.', 'تضغط على زرار التفعيل مباشرة جوه الإيميل.')}
@@ -525,7 +588,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onVerified, onSwitchToL
                                                 <span>{tx('Verifying & Creating Account...', 'بنفعل الحساب ونجهزه...')}</span>
                                             </>
                                         ) : (
-                                            <span>{tx('Verify & Create Account', 'تفعيل وإنشاء الحساب')}</span>
+                                            <span>{isBento ? tx('⚡ VERIFY & CREATE ACCOUNT', '⚡ تفعيل وإنشاء الحساب') : tx('Verify & Create Account', 'تفعيل وإنشاء الحساب')}</span>
                                         )}
                                     </button>
                                 </>
@@ -533,16 +596,22 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onVerified, onSwitchToL
                         </form>
                     )}
 
-                    <div className="relative py-0.5">
-                        <div className="w-full border-t border-slate-200 dark:border-white/[0.08]" />
+                    <div className="relative py-1">
+                        <div className={`w-full ${isBento ? 'border-t-[2px] border-black' : 'border-t border-[#f5f3ec]/10'}`} />
                     </div>
 
-                    <p className="text-center text-slate-500 dark:text-slate-400 font-medium text-xs">
+                    <p className={`text-center font-medium text-xs ${
+                        isBento ? 'text-gray-600' : 'text-[#a8a29e]'
+                    }`}>
                         {tx('Already have an account?', 'عندك حساب أصلاً؟')}{' '}
                         <button
                             type="button"
                             onClick={onSwitchToLogin}
-                            className="btn-unstyled text-indigo-600 dark:text-indigo-400 hover:underline font-semibold ms-1 cursor-pointer bg-transparent border-0"
+                            className={`btn-unstyled ms-1 cursor-pointer bg-transparent border-0 ${
+                                isBento
+                                    ? 'text-black underline decoration-2 underline-offset-2 font-black hover:no-underline'
+                                    : 'text-[#bef264] font-semibold hover:underline'
+                            }`}
                         >
                             {tx('Sign In', 'سجل دخول')}
                         </button>

@@ -376,9 +376,25 @@ export const BentoArcadeOverlay: React.FC = () => {
         }
     };
 
+    const [hasEnteredFrame, setHasEnteredFrame] = useState(false);
+
+    useEffect(() => {
+        let raf2 = 0;
+        const raf1 = window.requestAnimationFrame(() => {
+            raf2 = window.requestAnimationFrame(() => {
+                setHasEnteredFrame(true);
+            });
+        });
+        return () => {
+            window.cancelAnimationFrame(raf1);
+            if (raf2) window.cancelAnimationFrame(raf2);
+        };
+    }, []);
+
     const rankInfo = useMemo(() => getBentoRankInfo(profile.totalArcadeXp), [profile.totalArcadeXp]);
     const runXpPct = Math.min(100, Math.round((hud.runLevelXp / Math.max(1, hud.runLevelNextXp)) * 100));
-    const isVisible = phase === 'entering' || phase === 'active';
+    const isRevealed = hasEnteredFrame && (phase === 'entering' || phase === 'active');
+    const isExiting = phase === 'exiting';
 
     const deathLabel =
         summary?.deathReason === 'lives'
@@ -392,18 +408,38 @@ export const BentoArcadeOverlay: React.FC = () => {
             role="dialog"
             aria-modal="true"
             aria-label={tx('Neo-Brutalist Bento Secret Arcade', 'أركيد بينتو السري')}
-            className={`secret-arcade-shell fixed inset-0 z-[120] flex flex-col bg-[#f5f3ec] text-black select-none transition-opacity duration-350 ease-out ${
-                isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'
+            className={`secret-arcade-shell fixed inset-0 z-[120] flex flex-col bg-[#f5f3ec] text-black select-none will-change-[opacity,transform] transition-[opacity,transform] duration-[780ms] ease-[cubic-bezier(0.22,0.86,0.24,1)] ${
+                isRevealed
+                    ? 'opacity-100 scale-100'
+                    : isExiting
+                        ? 'opacity-0 scale-[1.035] pointer-events-none'
+                        : 'opacity-0 scale-[1.045] pointer-events-none'
             }`}
             style={{ paddingTop: 'env(safe-area-inset-top)' }}
         >
+            {/* Neo-Brutalist 4-Band Solid Paper Wipe Ribbon during Portal Enter */}
+            {phase === 'entering' && (
+                <div
+                    aria-hidden="true"
+                    className="arcade-bento-ribbon pointer-events-none absolute inset-x-0 top-0 h-3 z-[130] grid grid-cols-4 border-y-[2.5px] border-black"
+                >
+                    <div className="bg-[#fde047] border-r-2 border-black" />
+                    <div className="bg-[#bae6fd] border-r-2 border-black" />
+                    <div className="bg-[#bef264] border-r-2 border-black" />
+                    <div className="bg-[#fed7aa]" />
+                </div>
+            )}
+
             {/* Top Neo-Brutalist HUD Bar */}
-            <header className="shrink-0 h-13 sm:h-15 px-2.5 sm:px-5 bg-white border-b-[3px] border-black flex items-center justify-between gap-2 z-20">
+            <header
+                className={`shrink-0 h-13 sm:h-15 px-2.5 sm:px-5 bg-white border-b-[3px] border-black flex items-center justify-between gap-2 z-20 will-change-[opacity,transform] transition-[opacity,transform] duration-[680ms] ease-[cubic-bezier(0.22,0.86,0.24,1)] ${
+                    isRevealed
+                        ? 'opacity-100 translate-y-0 delay-[100ms]'
+                        : 'opacity-0 -translate-y-full delay-0'
+                }`}
+            >
                 {/* Left: Bento Arcade Brand + Mode Pill */}
                 <div className="flex items-center gap-2 min-w-0">
-                    <div className="w-8 h-8 rounded-lg bg-[#fde047] border-2 border-black shadow-[2px_2px_0px_#000] flex items-center justify-center shrink-0 font-black text-xs">
-                        B
-                    </div>
                     <div className="min-w-0 leading-tight">
                         <div className="flex items-center gap-1.5">
                             <span className="font-black text-xs sm:text-sm tracking-tight uppercase truncate">
@@ -587,7 +623,13 @@ export const BentoArcadeOverlay: React.FC = () => {
                 {/* MODE SELECTION OVERLAY */}
                 {hud.status === 'menu' && (
                     <div dir="auto" className="absolute inset-0 z-20 flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
-                        <div className="w-full max-w-3xl bg-white border-[3px] border-black rounded-2xl p-4 sm:p-5 shadow-[8px_8px_0px_#000] my-auto animate-in zoom-in-95 duration-250">
+                        <div
+                            className={`w-full max-w-3xl bg-white border-[3px] border-black rounded-2xl p-4 sm:p-5 shadow-[8px_8px_0px_#000] my-auto will-change-[opacity,transform] transition-[opacity,transform] duration-[720ms] ease-[cubic-bezier(0.22,0.86,0.24,1)] ${
+                                isRevealed
+                                    ? 'opacity-100 translate-y-0 scale-100 delay-[170ms]'
+                                    : 'opacity-0 translate-y-7 scale-[0.95] delay-0'
+                            }`}
+                        >
                             {/* Header + Persistent Bento Rank */}
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 mb-4 border-b-2 border-black">
                                 <div>

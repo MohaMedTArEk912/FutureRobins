@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { navigateBackSafely } from '../lib/navigation';
 import {
     ShieldAlert,
     EyeOff,
@@ -263,14 +264,7 @@ const ProctoringTelemetryPage: React.FC = () => {
                     <div className="flex items-center gap-2.5 min-w-0">
                         <button
                             type="button"
-                            onClick={() => {
-                                if (window.history.length > 1) {
-                                    navigate(-1);
-                                } else {
-                                    window.close();
-                                    navigate(isAdminRoute ? '/admin' : '/profile');
-                                }
-                            }}
+                            onClick={() => navigateBackSafely(navigate, isAdminRoute ? '/admin' : '/profile')}
                             className={`btn-unstyled inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black cursor-pointer transition-all shrink-0 ${
                                 isBento
                                     ? 'bg-[#fef08a] hover:bg-[#fde047] text-black border-2 border-black shadow-[2px_2px_0px_#000]'

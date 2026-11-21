@@ -427,9 +427,25 @@ export const NoirSnakeGameOverlay: React.FC = () => {
         touchStartRef.current = null;
     };
 
+    const [hasEnteredFrame, setHasEnteredFrame] = useState(false);
+
+    useEffect(() => {
+        let raf2 = 0;
+        const raf1 = window.requestAnimationFrame(() => {
+            raf2 = window.requestAnimationFrame(() => {
+                setHasEnteredFrame(true);
+            });
+        });
+        return () => {
+            window.cancelAnimationFrame(raf1);
+            if (raf2) window.cancelAnimationFrame(raf2);
+        };
+    }, []);
+
     const rankInfo = useMemo(() => getArcadeRankInfo(profile.totalArcadeXp), [profile.totalArcadeXp]);
     const runXpPct = Math.min(100, Math.round((hud.runLevelXp / Math.max(1, hud.runLevelNextXp)) * 100));
-    const isVisible = phase === 'entering' || phase === 'active';
+    const isRevealed = hasEnteredFrame && (phase === 'entering' || phase === 'active');
+    const isExiting = phase === 'exiting';
 
     const deathLabel =
         summary?.deathReason === 'hunter'
@@ -443,13 +459,31 @@ export const NoirSnakeGameOverlay: React.FC = () => {
             role="dialog"
             aria-modal="true"
             aria-label={tx('Noir Secret Snake Arcade', 'لعبة الثعبان السرية')}
-            className={`secret-arcade-shell fixed inset-0 z-[120] flex flex-col bg-[#0a0908] text-[#f5f3ec] select-none transition-opacity duration-350 ease-out ${
-                isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'
+            className={`secret-arcade-shell fixed inset-0 z-[120] flex flex-col bg-[#0a0908] text-[#f5f3ec] select-none will-change-[opacity,transform] transition-[opacity,transform] duration-[780ms] ease-[cubic-bezier(0.22,0.86,0.24,1)] ${
+                isRevealed
+                    ? 'opacity-100 scale-100'
+                    : isExiting
+                        ? 'opacity-0 scale-[1.035] pointer-events-none'
+                        : 'opacity-0 scale-[1.045] pointer-events-none'
             }`}
             style={{ paddingTop: 'env(safe-area-inset-top)' }}
         >
+            {/* Noir Tactical Scanline Sweep during Portal Enter */}
+            {phase === 'entering' && (
+                <div
+                    aria-hidden="true"
+                    className="arcade-noir-scanline pointer-events-none absolute inset-x-0 top-0 h-[3px] z-[130] bg-[#bef264]"
+                />
+            )}
+
             {/* Slim Top Tactical HUD Bar */}
-            <header className="shrink-0 h-12 sm:h-14 px-2.5 sm:px-5 bg-[#0e0d0b] border-b border-[#2e2924] flex items-center justify-between gap-2 z-20">
+            <header
+                className={`shrink-0 h-12 sm:h-14 px-2.5 sm:px-5 bg-[#0e0d0b] border-b border-[#2e2924] flex items-center justify-between gap-2 z-20 will-change-[opacity,transform] transition-[opacity,transform] duration-[680ms] ease-[cubic-bezier(0.22,0.86,0.24,1)] ${
+                    isRevealed
+                        ? 'opacity-100 translate-y-0 delay-[100ms]'
+                        : 'opacity-0 -translate-y-full delay-0'
+                }`}
+            >
                 {/* Left: Protocol Brand & Active Mode */}
                 <div className="flex items-center gap-2 min-w-0">
                     <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#141210] border border-[#bef264]/50 flex items-center justify-center shrink-0">
@@ -663,7 +697,13 @@ export const NoirSnakeGameOverlay: React.FC = () => {
                         dir="auto"
                         className="absolute inset-0 z-20 flex items-center justify-center p-3 sm:p-5 overflow-y-auto"
                     >
-                        <div className="w-full max-w-3xl bg-[#141210]/95 border-[1.5px] border-[#2e2924] rounded-2xl p-4 sm:p-5 shadow-[0_10px_0_#050504] my-auto animate-in zoom-in-95 fade-in duration-300">
+                        <div
+                            className={`w-full max-w-3xl bg-[#141210]/95 border-[1.5px] border-[#2e2924] rounded-2xl p-4 sm:p-5 shadow-[0_10px_0_#050504] my-auto will-change-[opacity,transform] transition-[opacity,transform] duration-[720ms] ease-[cubic-bezier(0.22,0.86,0.24,1)] ${
+                                isRevealed
+                                    ? 'opacity-100 translate-y-0 scale-100 delay-[170ms]'
+                                    : 'opacity-0 translate-y-7 scale-[0.95] delay-0'
+                            }`}
+                        >
                             {/* Top Arcade Rank Strip */}
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 mb-4 border-b border-[#2e2924]">
                                 <div>

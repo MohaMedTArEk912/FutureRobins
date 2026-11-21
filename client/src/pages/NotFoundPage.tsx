@@ -8,6 +8,7 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 import { usePersistentShell } from '../context/PersistentShellContext';
+import { navigateBackSafely } from '../lib/navigation';
 
 const NotFoundPage: React.FC = () => {
     const navigate = useNavigate();
@@ -121,7 +122,7 @@ const NotFoundPage: React.FC = () => {
                     <div className="mt-8 pt-6 border-t border-slate-200/60 dark:border-white/5">
                         <button
                             type="button"
-                            onClick={() => window.history.length > 1 ? navigate(-1) : navigate('/')}
+                            onClick={() => navigateBackSafely(navigate, '/')}
                             className="inline-flex items-center gap-1.5 text-xs text-indigo-500 hover:text-indigo-600 font-semibold cursor-pointer"
                         >
                             <ArrowLeft className="w-3.5 h-3.5" />

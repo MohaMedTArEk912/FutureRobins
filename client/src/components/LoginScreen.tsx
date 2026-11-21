@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import TransparentLogo from './TransparentLogo.tsx';
 import { AmbientBackground } from './AmbientBackground';
 import { AnimatedCharacter } from './AnimatedCharacter.tsx';
@@ -22,7 +22,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSwitchToRegister, 
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const { isBento } = useTheme();
-    const { tx } = useLanguage();
+    const { isArabic, tx } = useLanguage();
 
     // Focus states for the mascot "living" feel
     const [isEmailFocused, setIsEmailFocused] = useState(false);
@@ -67,25 +67,21 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSwitchToRegister, 
                 />
             )}
 
-            {/* Top Start Clickable Logo / Back to Home */}
+            {/* Top Start Back to Home */}
             <div className="absolute top-6 start-6 z-50 mt-safe ms-safe">
                 <button
                     type="button"
                     onClick={() => navigate('/')}
-                    className={`flex items-center gap-2 p-2 rounded-xl transition-all cursor-pointer active:scale-95 ${
+                    className={`btn-unstyled flex items-center gap-1.5 px-3 py-2 rounded-xl transition-all cursor-pointer active:scale-95 ${
                         isBento
-                            ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#fde047]'
-                            : 'bg-white/80 dark:bg-[#1c1917] border border-slate-200/80 dark:border-[#f5f3ec]/12 hover:bg-white dark:hover:bg-[#24201c] text-slate-700 dark:text-[#f5f3ec]'
+                            ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#fde047] font-black'
+                            : 'bg-[#1c1917] border border-[#2e2924] hover:border-[#bef264]/60 hover:bg-[#24201c] text-[#f5f3ec] font-bold'
                     }`}
                     title={tx('Return to Home', 'الرجوع للرئيسية')}
                     aria-label={tx('Return to Home', 'الرجوع للرئيسية')}
                 >
-                    <div className={`w-6 h-6 rounded-lg flex items-center justify-center font-black text-xs ${
-                        isBento ? 'bg-[#fde047] text-black border border-black' : 'bg-indigo-600 dark:bg-[#bef264] text-white dark:text-[#0a0908]'
-                    }`}>
-                        Q
-                    </div>
-                    <span className="text-xs font-bold hidden sm:inline">{tx('Home', 'الرئيسية')}</span>
+                    <ArrowLeft className={`w-4 h-4 shrink-0 ${isArabic ? 'rotate-180' : ''}`} />
+                    <span className="text-xs hidden sm:inline">{tx('Home', 'الرئيسية')}</span>
                 </button>
             </div>
 
@@ -93,7 +89,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSwitchToRegister, 
             <div className={`hidden lg:flex flex-col flex-[1.2] relative z-10 items-center justify-center p-12 login-mascot-col ${
                 isBento
                     ? 'bg-[#bef264] border-e-[3px] border-black'
-                    : 'bg-slate-100/40 dark:bg-transparent backdrop-blur-xl dark:backdrop-blur-none border-e border-slate-200/80 dark:border-[#2b2722]'
+                    : 'bg-transparent'
             }`}>
                 {/* Bento decorative elements */}
                 {isBento && (

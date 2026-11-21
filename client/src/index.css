@@ -747,7 +747,9 @@ button:active {
   border: var(--bento-border) !important;
   box-shadow: var(--bento-shadow) !important;
 }
+[data-layout="bento"] .lg\:col-span-5.grid > div:nth-child(1) .w-8,
 [data-layout="bento"] .lg\:col-span-5.grid > div:nth-child(1) .w-9,
+[data-theme="bento"] .lg\:col-span-5.grid > div:nth-child(1) .w-8,
 [data-theme="bento"] .lg\:col-span-5.grid > div:nth-child(1) .w-9 {
   background: #ffffff !important;
   border: 2px solid #000000 !important;
@@ -767,7 +769,9 @@ button:active {
   border: var(--bento-border) !important;
   box-shadow: var(--bento-shadow) !important;
 }
+[data-layout="bento"] .lg\:col-span-5.grid > div:nth-child(2) .w-8,
 [data-layout="bento"] .lg\:col-span-5.grid > div:nth-child(2) .w-9,
+[data-theme="bento"] .lg\:col-span-5.grid > div:nth-child(2) .w-8,
 [data-theme="bento"] .lg\:col-span-5.grid > div:nth-child(2) .w-9 {
   background: #ffffff !important;
   border: 2px solid #000000 !important;
@@ -787,7 +791,9 @@ button:active {
   border: var(--bento-border) !important;
   box-shadow: var(--bento-shadow) !important;
 }
+[data-layout="bento"] .lg\:col-span-5.grid > div:nth-child(3) .w-8,
 [data-layout="bento"] .lg\:col-span-5.grid > div:nth-child(3) .w-9,
+[data-theme="bento"] .lg\:col-span-5.grid > div:nth-child(3) .w-8,
 [data-theme="bento"] .lg\:col-span-5.grid > div:nth-child(3) .w-9 {
   background: #ffffff !important;
   border: 2px solid #000000 !important;
@@ -1311,7 +1317,7 @@ button:active {
   background-color: var(--bento-bg) !important;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='1.25' fill='%23000000'/%3E%3C/svg%3E") !important;
   background-size: 24px 24px !important;
-  border-right: 3px solid #000000 !important;
+  border-inline-end: 3px solid #000000 !important;
 }
 
 [data-layout="bento"] .mascot-card-wrapper,
@@ -2321,19 +2327,65 @@ button:active {
   -webkit-backface-visibility: hidden;
 }
 
-/* Gliding Active Indicator Pill inside Desktop Navbar (synchronized 560ms spring curve) */
+/* Gliding Active Indicator Pill inside Desktop Navbar (synchronized 860ms C2-smooth spatial glide) */
 .nav-glide-indicator {
   transition:
-    transform 560ms cubic-bezier(0.16, 1, 0.3, 1),
-    width 560ms cubic-bezier(0.16, 1, 0.3, 1),
-    opacity 180ms ease;
+    transform 860ms cubic-bezier(0.22, 0.86, 0.24, 1),
+    width 860ms cubic-bezier(0.22, 0.86, 0.24, 1),
+    opacity 240ms ease;
   will-change: transform, width;
   backface-visibility: hidden;
+}
+
+@keyframes arcade-noir-scan {
+  0% {
+    transform: translate3d(0, -10px, 0);
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  84% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate3d(0, 102dvh, 0);
+    opacity: 0;
+  }
+}
+
+@keyframes arcade-bento-wipe {
+  0% {
+    transform: translate3d(0, -18px, 0);
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  82% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(0, 102dvh, 0);
+    opacity: 0;
+  }
+}
+
+.arcade-noir-scanline {
+  animation: arcade-noir-scan 760ms cubic-bezier(0.22, 0.86, 0.24, 1) forwards;
+}
+
+.arcade-bento-ribbon {
+  animation: arcade-bento-wipe 760ms cubic-bezier(0.22, 0.86, 0.24, 1) forwards;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .nav-glide-indicator {
     transition: none !important;
+  }
+  .arcade-noir-scanline,
+  .arcade-bento-ribbon {
+    display: none !important;
   }
 }
 

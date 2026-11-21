@@ -33,10 +33,16 @@ const AppShellFrame: React.FC<{
     const currentUser = auth?.currentUser ?? null;
     const logout = auth?.logout;
     const { theme, isBento } = useTheme();
-    const { isChromeHidden } = useSecretGame();
+    const { phase, isChromeHidden } = useSecretGame();
+    const isSecretTransitioning = phase !== 'idle';
+    // CRITICAL: Never apply `transform` (`scale-*`/`translate-*`) or `will-change: transform` while idle!
+    // Either property turns this page-height wrapper into a CSS containing block for `position: fixed`
+    // descendants, pushing inline modals off the bottom of tall pages and breaking sticky chrome.
     const chromeTransitionClass = isChromeHidden
-        ? 'opacity-0 scale-[0.96] pointer-events-none select-none'
-        : 'opacity-100 scale-100';
+        ? 'transition-[opacity,transform] duration-[760ms] ease-[cubic-bezier(0.22,0.86,0.24,1)] will-change-[opacity,transform] origin-top opacity-0 scale-[0.93] translate-y-4 pointer-events-none select-none'
+        : isSecretTransitioning
+            ? 'transition-[opacity,transform] duration-[720ms] ease-[cubic-bezier(0.22,0.86,0.24,1)] will-change-[opacity,transform] origin-top opacity-100 scale-100 translate-y-0'
+            : '';
     const location = useLocation();
     const navigate = useNavigate();
     const contentScrollRef = useRef<HTMLDivElement | null>(null);
@@ -68,8 +74,8 @@ const AppShellFrame: React.FC<{
                 <div className={`min-h-dvh lg:h-dvh lg:overflow-hidden flex flex-col transition-colors relative ${styles.pageShell}`}>
                     <AmbientBackground />
                     <div
-                        aria-hidden={isChromeHidden}
-                        className={`flex-1 min-h-0 relative z-10 w-full max-w-[1520px] mx-auto px-3 sm:px-5 py-4 lg:py-0 flex flex-col lg:flex-row gap-5 transition-[opacity,transform] duration-[380ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${chromeTransitionClass}`}
+                        aria-hidden={isChromeHidden || undefined}
+                        className={`flex-1 min-h-0 relative z-10 w-full max-w-[1520px] mx-auto px-3 sm:px-5 py-4 lg:py-0 flex flex-col lg:flex-row gap-5 ${chromeTransitionClass}`}
                     >
                         <div className="lg:py-3 lg:h-full shrink-0">
                             <TeacherSidebar
@@ -117,8 +123,8 @@ const AppShellFrame: React.FC<{
                 }`}>
                     <AmbientBackground />
                     <div
-                        aria-hidden={isChromeHidden}
-                        className={`flex-1 flex flex-col justify-between transition-[opacity,transform] duration-[380ms] ease-[cubic-bezier(0.22,1,0.36,1)] will-change-[opacity,transform] ${chromeTransitionClass}`}
+                        aria-hidden={isChromeHidden || undefined}
+                        className={`flex-1 flex flex-col justify-between ${chromeTransitionClass}`}
                     >
                         <Navbar
                             user={currentUser}

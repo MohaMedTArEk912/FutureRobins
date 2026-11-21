@@ -343,13 +343,6 @@ const Footer: React.FC = () => {
                                 className="logo-btn inline-flex items-center gap-2.5 group cursor-pointer text-start outline-none focus:outline-none border-0"
                                 aria-label={tx('Quiz Platform Home', 'الصفحة الرئيسية لمنصة Quiz Platform')}
                             >
-                                <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-black text-base transition-transform group-hover:-translate-y-0.5 ${
-                                    isBento
-                                        ? 'bg-[#fde047] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                        : 'bg-indigo-600 dark:bg-[#bef264] text-white dark:text-[#0a0908] dark:border dark:border-[#0a0908] shadow-sm dark:shadow-[0_3px_0_#050504]'
-                                }`}>
-                                    Q
-                                </div>
                                 <div className="flex flex-col leading-tight">
                                     <span className={`text-base font-black tracking-tight ${
                                         isBento ? 'text-black font-mono' : 'text-white dark:text-[#f5f3ec]'

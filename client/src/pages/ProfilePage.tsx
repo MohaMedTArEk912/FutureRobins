@@ -11,6 +11,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { AmbientBackground } from '../components/AmbientBackground';
 import { usePersistentShell } from '../context/PersistentShellContext';
+import { navigateBackSafely } from '../lib/navigation';
 
 const ProfilePage: React.FC = () => {
     const { userId: routeUserId } = useParams<{ userId?: string }>();
@@ -21,11 +22,7 @@ const ProfilePage: React.FC = () => {
     const navigate = useNavigate();
 
     const handleBack = () => {
-        if (window.history.length > 1) {
-            navigate(-1);
-        } else {
-            navigate('/');
-        }
+        navigateBackSafely(navigate, '/');
     };
 
     // If viewing another user's profile:

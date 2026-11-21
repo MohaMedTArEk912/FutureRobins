@@ -25,6 +25,9 @@ const SecretGameContext = createContext<SecretGameContextValue>({
 
 export const useSecretGame = () => useContext(SecretGameContext);
 
+const ARCADE_ENTER_MS = 820;
+const ARCADE_EXIT_MS = 720;
+
 export const SecretGameProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { theme } = useTheme();
     const [activeGame, setActiveGame] = useState<SecretGameId | null>(null);
@@ -73,7 +76,7 @@ export const SecretGameProvider: React.FC<{ children: React.ReactNode }> = ({ ch
             timerRef.current = window.setTimeout(() => {
                 setPhase('active');
                 timerRef.current = null;
-            }, 380);
+            }, ARCADE_ENTER_MS);
         },
         [phase, lockBodyScroll]
     );
@@ -100,7 +103,7 @@ export const SecretGameProvider: React.FC<{ children: React.ReactNode }> = ({ ch
             setPhase('idle');
             restoreBodyScroll();
             timerRef.current = null;
-        }, 360);
+        }, ARCADE_EXIT_MS);
     }, [phase, restoreBodyScroll]);
 
     // Safety guard: immediately close the active secret game if the user switches to the other theme
