@@ -23,7 +23,7 @@ Whether you are an educational institution hosting formal exams, a coding bootca
 ### 🧮 1. LaTeX & Rich Mathematical Formula Support
 * **KaTeX Rendering Engine**:
   * Seamless mathematical typesetting for inline equations (`$...$`) and multiline block math (`$$...$$`).
-  * Live equation previewing in question editor, flashcard decks, attempt inspector, and result reviews.
+  * Live equation previewing in question editor, attempt inspector, and result reviews.
   * Resilient fallback rendering for complex scientific notations, Greek symbols, matrices, and fractions.
 
 ---
@@ -132,7 +132,7 @@ Quiz-Platform/
 │       │   ├── badges/         # Badge nodes & skill progression UI
 │       │   ├── chat/           # Global and direct messaging windows
 │       │   ├── common/         # Modals, SearchBars, EmptyStates
-│       │   ├── engage/         # DailyChallenge, Shop, StudyCard, Tournaments
+│       │   ├── engage/         # DailyChallenge, Shop, Tournaments
 │       │   ├── multiplayer/    # Real-time WebSocket 1v1 VS Game
 │       │   ├── question-types/ # Compiler & Blockly question renderers
 │       │   ├── quizzes/        # Quiz cards, editor modals, question editors

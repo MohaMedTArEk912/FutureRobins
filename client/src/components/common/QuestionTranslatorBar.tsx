@@ -45,7 +45,7 @@ export const QuestionTranslatorBar: React.FC<QuestionTranslatorBarProps> = ({
         <div
             className={`flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 p-2 sm:px-3 sm:py-2 rounded-2xl transition-all ${
                 isBento
-                    ? 'bg-white dark:bg-[#111827] border-2 border-black dark:border-white/20 shadow-[2px_2px_0px_#000]'
+                    ? 'bg-white dark:bg-[#141210] border-2 border-black dark:border-white/20 shadow-[2px_2px_0px_#000]'
                     : 'bg-white/70 dark:bg-white/[0.04] backdrop-blur-xl border border-gray-200/70 dark:border-white/10 shadow-sm'
             } ${className}`}
         >
@@ -58,10 +58,10 @@ export const QuestionTranslatorBar: React.FC<QuestionTranslatorBarProps> = ({
                     className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl font-bold text-xs transition-all shrink-0 cursor-pointer ${
                         isBento
                             ? isTranslated && currentLanguage !== 'original'
-                                ? 'bg-[#8b5cf6] text-white border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000]'
+                                ? 'bg-[#0d9488] text-white border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000]'
                                 : 'bg-slate-100 hover:bg-slate-200 text-black border-2 border-black shadow-[2px_2px_0px_#000]'
                             : isTranslated && currentLanguage !== 'original'
-                                ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-500/20 hover:scale-102 active:scale-98'
+                                ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/20 hover:scale-102 active:scale-98'
                                 : 'bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/15 text-gray-700 dark:text-gray-200'
                     }`}
                     title="Change translation language"
@@ -93,8 +93,8 @@ export const QuestionTranslatorBar: React.FC<QuestionTranslatorBarProps> = ({
                                 className={`px-2 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
                                     isBento
                                         ? active
-                                            ? 'bg-[#8b5cf6] text-white border-1.5 border-black shadow-[1.5px_1.5px_0px_#000]'
-                                            : 'bg-white hover:bg-purple-50 text-black border-1.5 border-black'
+                                            ? 'bg-[#0d9488] text-white border-1.5 border-black shadow-[1.5px_1.5px_0px_#000]'
+                                            : 'bg-white hover:bg-teal-50 text-black border-1.5 border-black'
                                         : active
                                             ? 'bg-indigo-600 text-white shadow-sm'
                                             : 'bg-gray-100/80 hover:bg-indigo-50 dark:bg-white/5 dark:hover:bg-white/10 text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400'
@@ -120,7 +120,7 @@ export const QuestionTranslatorBar: React.FC<QuestionTranslatorBarProps> = ({
                             isBento
                                 ? !isTranslated
                                     ? 'bg-[#fed7aa] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                    : 'bg-[#ddd6fe] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                    : 'bg-[#fed7aa] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
                                 : !isTranslated
                                     ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30'
                                     : 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/20'
@@ -142,7 +142,7 @@ export const QuestionTranslatorBar: React.FC<QuestionTranslatorBarProps> = ({
                     title="Automatically translate next questions to this language"
                 >
                     {autoTranslate ? (
-                        <ToggleRight className={`w-4 h-4 ${isBento ? 'text-[#8b5cf6]' : 'text-indigo-600 dark:text-indigo-400'}`} />
+                        <ToggleRight className={`w-4 h-4 ${isBento ? 'text-[#0d9488]' : 'text-indigo-600 dark:text-indigo-400'}`} />
                     ) : (
                         <ToggleLeft className="w-4 h-4 text-gray-400" />
                     )}

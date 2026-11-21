@@ -37,9 +37,9 @@ const THEME_STYLES: Record<PresentationTheme, {
     optionBg: string;
 }> = {
     'dark-tech': {
-        bg: 'bg-gradient-to-br from-[#070913] via-[#0e1326] to-[#140d26] text-white',
+        bg: 'bg-[#0a0908] text-[#f5f3ec]',
         card: 'bg-white/[0.04] border border-white/10 backdrop-blur-xl shadow-2xl',
-        accent: 'from-indigo-500 to-violet-500',
+        accent: 'bg-indigo-500',
         badge: 'bg-indigo-500/20 text-indigo-300 border border-indigo-400/30',
         muted: 'text-slate-300',
         optionBg: 'bg-white/[0.06] hover:bg-white/[0.12] border-white/15'
@@ -47,7 +47,7 @@ const THEME_STYLES: Record<PresentationTheme, {
     'bento': {
         bg: 'bg-[#fefce8] text-black',
         card: 'bg-white border-2 border-black shadow-[4px_4px_0px_#000]',
-        accent: 'from-amber-400 to-lime-400',
+        accent: 'bg-[#bef264]',
         badge: 'bg-[#fde047] text-black border-2 border-black',
         muted: 'text-slate-700',
         optionBg: 'bg-white hover:bg-[#fef9c3] border-2 border-black shadow-[2px_2px_0px_#000]'
@@ -55,15 +55,15 @@ const THEME_STYLES: Record<PresentationTheme, {
     'editorial': {
         bg: 'bg-[#f8f6f1] text-slate-900',
         card: 'bg-white border border-slate-200 shadow-xl',
-        accent: 'from-slate-800 to-slate-900',
+        accent: 'bg-slate-900',
         badge: 'bg-slate-900 text-white',
         muted: 'text-slate-600',
         optionBg: 'bg-slate-50 hover:bg-slate-100 border border-slate-300'
     },
     'neon': {
-        bg: 'bg-gradient-to-br from-[#05050a] via-[#0a192f] to-[#090d16] text-cyan-50',
+        bg: 'bg-[#0a0908] text-cyan-50',
         card: 'bg-[#0b1324]/90 border border-cyan-400/30 shadow-[0_0_40px_rgba(34,211,238,0.12)]',
-        accent: 'from-cyan-400 to-fuchsia-500',
+        accent: 'bg-cyan-400',
         badge: 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40',
         muted: 'text-cyan-100/80',
         optionBg: 'bg-cyan-950/40 hover:bg-cyan-900/50 border border-cyan-400/30'
@@ -101,7 +101,7 @@ export const PresentationModePlayer: React.FC<PresentationModePlayerProps> = ({
     onClose
 }) => {
     const { socket, connected } = useSocket();
-    const { isBento, theme: appTheme } = useTheme();
+    const { isBento } = useTheme();
     const containerRef = useRef<HTMLDivElement>(null);
     const stageRef = useRef<HTMLDivElement>(null);
 
@@ -135,9 +135,7 @@ export const PresentationModePlayer: React.FC<PresentationModePlayerProps> = ({
     const currentSlide = slides[Math.min(currentIndex, slides.length - 1)];
     const resolvedTheme: PresentationTheme = isBento
         ? 'bento'
-        : appTheme === 'light' && (!presentation.theme || presentation.theme === 'dark-tech')
-            ? 'editorial'
-            : (presentation.theme || 'dark-tech');
+        : (presentation.theme || 'dark-tech');
     const themeStyle = THEME_STYLES[resolvedTheme] || THEME_STYLES['dark-tech'];
     const isLightSurface = resolvedTheme === 'bento' || resolvedTheme === 'editorial';
     const isLastSlide = currentIndex === slides.length - 1;
@@ -577,10 +575,10 @@ export const PresentationModePlayer: React.FC<PresentationModePlayerProps> = ({
                                                     ? 'bg-emerald-50 text-slate-900 border-emerald-600 ring-2 ring-emerald-500'
                                                     : 'bg-emerald-500/25 text-white border-amber-400 ring-2 ring-amber-400'
                                             : isBento
-                                                ? 'bg-[#f3e8ff] text-black border-black hover:bg-[#fef9c3] shadow-[4px_4px_0px_#000]'
+                                                ? 'bg-[#ffedd5] text-black border-black hover:bg-[#fef9c3] shadow-[4px_4px_0px_#000]'
                                                 : isLightSurface
                                                     ? 'bg-slate-50 text-slate-900 border-slate-300 hover:border-indigo-400 shadow-sm'
-                                                    : 'bg-gradient-to-r from-indigo-500/15 to-purple-500/15 text-white border-white/20 hover:border-white/40'
+                                                    : 'bg-indigo-500/15 text-white border-white/20 hover:border-white/40'
                                     }`}
                                 >
                                     <div>
@@ -865,7 +863,7 @@ export const PresentationModePlayer: React.FC<PresentationModePlayerProps> = ({
             {/* Progress Bar */}
             <div className="w-full h-1 bg-current/10 shrink-0">
                 <div
-                    className={`h-full bg-gradient-to-r ${themeStyle.accent} transition-all duration-300`}
+                    className={`h-full ${themeStyle.accent} transition-all duration-300`}
                     style={{ width: `${((currentIndex + 1) / slides.length) * 100}%` }}
                 />
             </div>

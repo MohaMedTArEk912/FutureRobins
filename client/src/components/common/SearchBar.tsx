@@ -9,7 +9,7 @@ interface SearchBarProps {
 
 const SearchBar: React.FC<SearchBarProps> = ({ value, onChange, resultCount }) => {
     return (
-        <div className="flex items-center gap-4 mb-6 bg-white dark:bg-[#13141f] p-4 rounded-xl border border-gray-200 dark:border-white/10 shadow-sm">
+        <div className="flex items-center gap-4 mb-6 bg-white dark:bg-[#141210] p-4 rounded-xl border border-gray-200 dark:border-white/10 shadow-sm">
             <Search className="w-5 h-5 text-gray-400" />
             <input
                 type="text"

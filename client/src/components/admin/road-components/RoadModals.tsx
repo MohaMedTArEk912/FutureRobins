@@ -68,7 +68,7 @@ const RoadModals: React.FC<RoadModalsProps> = ({
             {/* Create Modal */}
             {isCreateModalOpen && (
                 <div className="app-dialog-overlay fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
-                    <div className="app-dialog-panel app-dialog-panel--padded bg-white dark:bg-[#1e1e2d] rounded-3xl w-full max-w-lg shadow-2xl p-8 border border-white/20 dark:border-white/5 scale-100 animate-in zoom-in-95 duration-200 relative overflow-hidden">
+                    <div className="app-dialog-panel app-dialog-panel--padded bg-white dark:bg-[#1c1917] rounded-3xl w-full max-w-lg shadow-2xl p-8 border border-white/20 dark:border-white/5 scale-100 animate-in zoom-in-95 duration-200 relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-bl-full -mr-16 -mt-16 pointer-events-none" />
 
                         <div className="flex justify-between items-center mb-8 relative z-10">
@@ -112,7 +112,7 @@ const RoadModals: React.FC<RoadModalsProps> = ({
                                     className={`px-6 py-3 rounded-xl font-bold transition-all flex items-center gap-2 cursor-pointer ${
     isBento
         ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:shadow-[4px_4px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 font-mono'
-        : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg shadow-indigo-500/30'
+        : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/30'
 }`}
                                 >
                                     {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Create Road'}
@@ -126,7 +126,7 @@ const RoadModals: React.FC<RoadModalsProps> = ({
             {/* Edit Modal */}
             {isEditModalOpen && (
                 <div className="app-dialog-overlay fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
-                    <div className="app-dialog-panel app-dialog-panel--padded bg-white dark:bg-[#1e1e2d] rounded-3xl w-full max-w-lg shadow-2xl p-8 border border-white/20 dark:border-white/5 scale-100 animate-in zoom-in-95 duration-200 relative overflow-hidden">
+                    <div className="app-dialog-panel app-dialog-panel--padded bg-white dark:bg-[#1c1917] rounded-3xl w-full max-w-lg shadow-2xl p-8 border border-white/20 dark:border-white/5 scale-100 animate-in zoom-in-95 duration-200 relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-bl-full -mr-16 -mt-16 pointer-events-none" />
 
                         <div className="flex justify-between items-center mb-8 relative z-10">
@@ -168,7 +168,7 @@ const RoadModals: React.FC<RoadModalsProps> = ({
                                     className={`px-6 py-3 rounded-xl font-bold transition-all flex items-center gap-2 cursor-pointer ${
     isBento
         ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:shadow-[4px_4px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 font-mono'
-        : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/30'
+        : 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/30'
 }`}
                                 >
                                     {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Save Changes'}

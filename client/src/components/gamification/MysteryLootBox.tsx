@@ -65,11 +65,11 @@ export const MysteryLootBox: React.FC<MysteryLootBoxProps> = ({
             <div className={`app-dialog-panel app-dialog-panel--padded app-dialog-panel--accent relative w-full max-w-md p-8 text-center overflow-hidden transition-all ${
                 isBento
                     ? 'bg-white text-black rounded-2xl border-[3px] border-black shadow-[6px_6px_0px_#000]'
-                    : 'bg-gradient-to-b from-[#18192b] via-[#111222] to-[#0a0a14] rounded-2xl border border-indigo-500/30 shadow-2xl shadow-indigo-500/20 text-white'
+                    : 'bg-[#18192b] rounded-2xl border border-indigo-500/30 shadow-2xl shadow-indigo-500/20 text-white'
             }`}>
                 {/* Background Aura */}
                 {!isBento && (
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-gradient-to-r from-indigo-600/30 to-purple-600/30 rounded-full blur-[90px] pointer-events-none" />
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-indigo-600/30 rounded-full blur-[90px] pointer-events-none" />
                 )}
 
                 {boxState === 'closed' && (
@@ -77,7 +77,7 @@ export const MysteryLootBox: React.FC<MysteryLootBoxProps> = ({
                         <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
                             isBento
                                 ? 'bg-[#fde047] border-2 border-black text-black shadow-[2px_2px_0px_#000]'
-                                : 'bg-purple-500/10 border border-purple-500/30 text-purple-400'
+                                : 'bg-teal-500/10 border border-teal-500/30 text-teal-400'
                         }`}>
                             <Sparkles className="w-3 h-3" />
                             Mythic Streak Reward
@@ -101,7 +101,7 @@ export const MysteryLootBox: React.FC<MysteryLootBoxProps> = ({
                                     <Gift className="w-16 h-16 text-black" />
                                 </div>
                             ) : (
-                                <div className="w-32 h-32 mx-auto rounded-3xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 p-1 shadow-2xl shadow-purple-500/40 group-hover:scale-110 group-active:scale-95 transition-transform animate-bounce">
+                                <div className="w-32 h-32 mx-auto rounded-3xl bg-indigo-600 p-1 shadow-2xl shadow-teal-500/40 group-hover:scale-110 group-active:scale-95 transition-transform animate-bounce">
                                     <div className="w-full h-full bg-[#131424] rounded-[22px] flex items-center justify-center border border-white/15">
                                         <Gift className="w-16 h-16 text-amber-300 drop-shadow-[0_0_15px_rgba(251,191,36,0.6)]" />
                                     </div>
@@ -123,7 +123,7 @@ export const MysteryLootBox: React.FC<MysteryLootBoxProps> = ({
                                 <Sparkles className="w-16 h-16 text-black" />
                             </div>
                         ) : (
-                            <div className="w-32 h-32 mx-auto rounded-3xl bg-gradient-to-tr from-amber-400 via-purple-600 to-indigo-600 p-1 animate-spin shadow-2xl shadow-amber-500/50">
+                            <div className="w-32 h-32 mx-auto rounded-3xl bg-amber-400 p-1 animate-spin shadow-2xl shadow-amber-500/50">
                                 <div className="w-full h-full bg-[#131424] rounded-[22px] flex items-center justify-center">
                                     <Sparkles className="w-16 h-16 text-amber-300 animate-pulse" />
                                 </div>
@@ -150,7 +150,7 @@ export const MysteryLootBox: React.FC<MysteryLootBoxProps> = ({
                         <div className={`p-6 space-y-3 ${
                             isBento
                                 ? 'bg-[#f5f3ec] border-2 border-black rounded-2xl shadow-[4px_4px_0px_#000]'
-                                : 'rounded-3xl bg-gradient-to-b from-white/10 to-white/5 border border-white/15 shadow-2xl'
+                                : 'rounded-3xl bg-white/10 border border-white/15 shadow-2xl'
                         }`}>
                             <div className="text-5xl">{reward.icon}</div>
                             <h3 className={`text-2xl font-black ${isBento ? 'text-black' : 'text-white'}`}>
@@ -167,7 +167,7 @@ export const MysteryLootBox: React.FC<MysteryLootBoxProps> = ({
                             className={`w-full py-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all cursor-pointer ${
                                 isBento
                                     ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[4px_4px_0px_#000] active:translate-x-0.5 active:translate-y-0.5'
-                                    : 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white rounded-2xl shadow-lg shadow-emerald-500/30'
+                                    : 'bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl shadow-lg shadow-emerald-500/30'
                             }`}
                         >
                             Claim Reward &amp; Continue

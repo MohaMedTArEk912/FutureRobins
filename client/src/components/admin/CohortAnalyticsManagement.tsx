@@ -68,7 +68,7 @@ const CohortAnalyticsManagement: React.FC<CohortAnalyticsManagementProps> = ({
 
     const cardSurface = isBento
         ? 'bg-white rounded-2xl border-[2.5px] border-black shadow-[5px_5px_0px_#000]'
-        : 'bg-white/70 dark:bg-[#13141f]/70 backdrop-blur-xl rounded-3xl border border-gray-200 dark:border-white/5 shadow-sm';
+        : 'bg-white/70 dark:bg-[#141210]/70 backdrop-blur-xl rounded-3xl border border-gray-200 dark:border-white/5 shadow-sm';
 
     return (
         <div className="space-y-6">
@@ -77,7 +77,7 @@ const CohortAnalyticsManagement: React.FC<CohortAnalyticsManagementProps> = ({
                 className={`flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-6 ${
                     isBento
                         ? 'bg-white rounded-2xl border-[3px] border-black shadow-[6px_6px_0px_#000]'
-                        : 'bg-white/70 dark:bg-[#13141f]/70 backdrop-blur-xl rounded-3xl border border-gray-200 dark:border-white/5 shadow-sm'
+                        : 'bg-white/70 dark:bg-[#141210]/70 backdrop-blur-xl rounded-3xl border border-gray-200 dark:border-white/5 shadow-sm'
                 }`}
             >
                 <div>
@@ -121,7 +121,7 @@ const CohortAnalyticsManagement: React.FC<CohortAnalyticsManagementProps> = ({
 
             {/* KPI Summary Row */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className={`p-5 ${isBento ? 'bg-[#e0f2fe] rounded-2xl border-[2.5px] border-black shadow-[5px_5px_0px_#000]' : 'rounded-3xl bg-white/70 dark:bg-[#13141f]/70 backdrop-blur-xl border border-gray-200/70 dark:border-white/5 shadow-sm'}`}>
+                <div className={`p-5 ${isBento ? 'bg-[#e0f2fe] rounded-2xl border-[2.5px] border-black shadow-[5px_5px_0px_#000]' : 'rounded-3xl bg-white/70 dark:bg-[#141210]/70 backdrop-blur-xl border border-gray-200/70 dark:border-white/5 shadow-sm'}`}>
                     <div className="flex items-center justify-between mb-2">
                         <span className={`text-[10px] font-black uppercase tracking-widest ${isBento ? 'text-black' : 'text-gray-400'}`}>
                             {tx('Total Students', 'إجمالي الطلاب')}
@@ -138,7 +138,7 @@ const CohortAnalyticsManagement: React.FC<CohortAnalyticsManagementProps> = ({
                     </div>
                 </div>
 
-                <div className={`p-5 ${isBento ? 'bg-[#d9f99d] rounded-2xl border-[2.5px] border-black shadow-[5px_5px_0px_#000]' : 'rounded-3xl bg-white/70 dark:bg-[#13141f]/70 backdrop-blur-xl border border-gray-200/70 dark:border-white/5 shadow-sm'}`}>
+                <div className={`p-5 ${isBento ? 'bg-[#d9f99d] rounded-2xl border-[2.5px] border-black shadow-[5px_5px_0px_#000]' : 'rounded-3xl bg-white/70 dark:bg-[#141210]/70 backdrop-blur-xl border border-gray-200/70 dark:border-white/5 shadow-sm'}`}>
                     <div className="flex items-center justify-between mb-2">
                         <span className={`text-[10px] font-black uppercase tracking-widest ${isBento ? 'text-black' : 'text-gray-400'}`}>
                             {tx('High Performers', 'المتفوقون')}
@@ -155,7 +155,7 @@ const CohortAnalyticsManagement: React.FC<CohortAnalyticsManagementProps> = ({
                     </div>
                 </div>
 
-                <div className={`p-5 ${isBento ? 'bg-[#ede9fe] rounded-2xl border-[2.5px] border-black shadow-[5px_5px_0px_#000]' : 'rounded-3xl bg-white/70 dark:bg-[#13141f]/70 backdrop-blur-xl border border-gray-200/70 dark:border-white/5 shadow-sm'}`}>
+                <div className={`p-5 ${isBento ? 'bg-[#ffedd5] rounded-2xl border-[2.5px] border-black shadow-[5px_5px_0px_#000]' : 'rounded-3xl bg-white/70 dark:bg-[#141210]/70 backdrop-blur-xl border border-gray-200/70 dark:border-white/5 shadow-sm'}`}>
                     <div className="flex items-center justify-between mb-2">
                         <span className={`text-[10px] font-black uppercase tracking-widest ${isBento ? 'text-black' : 'text-gray-400'}`}>
                             {tx('Proficient Learners', 'مستوى متوسط')}
@@ -172,7 +172,7 @@ const CohortAnalyticsManagement: React.FC<CohortAnalyticsManagementProps> = ({
                     </div>
                 </div>
 
-                <div className={`p-5 ${isBento ? 'bg-[#ffe4e6] rounded-2xl border-[2.5px] border-black shadow-[5px_5px_0px_#000]' : 'rounded-3xl bg-white/70 dark:bg-[#13141f]/70 backdrop-blur-xl border border-gray-200/70 dark:border-white/5 shadow-sm'}`}>
+                <div className={`p-5 ${isBento ? 'bg-[#ffe4e6] rounded-2xl border-[2.5px] border-black shadow-[5px_5px_0px_#000]' : 'rounded-3xl bg-white/70 dark:bg-[#141210]/70 backdrop-blur-xl border border-gray-200/70 dark:border-white/5 shadow-sm'}`}>
                     <div className="flex items-center justify-between mb-2">
                         <span className={`text-[10px] font-black uppercase tracking-widest ${isBento ? 'text-black' : 'text-gray-400'}`}>
                             {tx('Needs Attention', 'يحتاج متابعة')}
@@ -383,7 +383,7 @@ const CohortAnalyticsManagement: React.FC<CohortAnalyticsManagementProps> = ({
             {/* Category Mastery Table */}
             <div className={`${cardSurface} p-6 space-y-4`}>
                 <div className="flex items-center gap-2">
-                    <div className={`p-2 rounded-xl ${isBento ? 'bg-[#ddd6fe] border-2 border-black text-black shadow-[2px_2px_0px_#000]' : 'text-indigo-500'}`}>
+                    <div className={`p-2 rounded-xl ${isBento ? 'bg-[#fed7aa] border-2 border-black text-black shadow-[2px_2px_0px_#000]' : 'text-indigo-500'}`}>
                         <BookOpen className="w-5 h-5" />
                     </div>
                     <h3 className={`text-base font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-gray-900 dark:text-white'}`}>

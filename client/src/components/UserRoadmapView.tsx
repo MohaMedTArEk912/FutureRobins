@@ -246,10 +246,10 @@ const UserRoadmapView: React.FC<UserRoadmapViewProps> = ({
                                             ? 'bg-[#bef264] border-[2.5px] border-black text-black'
                                             : 'bg-white border-[2.5px] border-black text-black'
                                     : isLocked
-                                        ? 'bg-gray-100 dark:bg-[#1e1e2d] border-gray-300 dark:border-white/5 opacity-80 grayscale-[0.5]'
+                                        ? 'bg-gray-100 dark:bg-[#1c1917] border-gray-300 dark:border-white/5 opacity-80 grayscale-[0.5]'
                                         : isCompleted
-                                            ? 'bg-white dark:bg-[#1e1e2d] border-emerald-500/50 dark:border-emerald-500/30 shadow-lg'
-                                            : 'bg-white dark:bg-[#1e1e2d] border-indigo-500/50 dark:border-indigo-500/30 shadow-lg';
+                                            ? 'bg-white dark:bg-[#1c1917] border-emerald-500/50 dark:border-emerald-500/30 shadow-lg'
+                                            : 'bg-white dark:bg-[#1c1917] border-indigo-500/50 dark:border-indigo-500/30 shadow-lg';
 
                                 const shadowClasses = isBento
                                     ? isLocked
@@ -361,11 +361,11 @@ const UserRoadmapView: React.FC<UserRoadmapViewProps> = ({
                                         {/* Mini Progress Bar in Card (if active) */}
                                         {!isLocked && !isCompleted && progressPercent > 0 && (
                                             <div className={`mt-4 w-full rounded-full overflow-hidden ${
-                                                isBento ? 'h-2 bg-white border-2 border-black' : 'h-1.5 bg-gray-200 dark:bg-gray-800'
+                                                isBento ? 'h-2 bg-white border-2 border-black' : 'h-1.5 bg-gray-200 dark:bg-[#1c1917]'
                                             }`}>
                                                 <div
                                                     className={`h-full rounded-full ${
-                                                        isBento ? 'bg-black' : 'bg-gradient-to-r from-indigo-500 to-purple-500'
+                                                        isBento ? 'bg-black' : 'bg-indigo-500'
                                                     }`}
                                                     style={{ width: `${progressPercent}%` }}
                                                 />
@@ -393,7 +393,7 @@ const UserRoadmapView: React.FC<UserRoadmapViewProps> = ({
                     <div role="dialog" aria-modal="true" className={`app-dialog-panel app-dialog-panel--structured relative w-full max-w-2xl rounded-3xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh] ${
                         isBento
                             ? 'bg-white border-[3px] border-black shadow-[8px_8px_0px_#000] text-black'
-                            : 'bg-white dark:bg-[#1e1e2d] border border-gray-200 dark:border-white/10 shadow-2xl'
+                            : 'bg-white dark:bg-[#1c1917] border border-gray-200 dark:border-white/10 shadow-2xl'
                     }`}>
                         {(() => {
                             const { progressPercent, completedItems, totalItems, moduleQuizzes } = getModuleDetails(selectedModule);
@@ -457,7 +457,7 @@ const UserRoadmapView: React.FC<UserRoadmapViewProps> = ({
                                             }`}>
                                                 <div
                                                     className={`h-full transition-all duration-700 ease-out ${
-                                                        isBento ? 'bg-[#bef264] border-r-2 border-black' : 'bg-gradient-to-r from-indigo-500 to-purple-500'
+                                                        isBento ? 'bg-[#bef264] border-r-2 border-black' : 'bg-indigo-500'
                                                     }`}
                                                     style={{ width: `${progressPercent}%` }}
                                                 />
@@ -657,11 +657,11 @@ const UserRoadmapView: React.FC<UserRoadmapViewProps> = ({
                                                                     ${isBento
                                                                         ? isPassed
                                                                             ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#a3e635]'
-                                                                            : 'bg-[#8b5cf6] text-white border-2 border-black shadow-[3px_3px_0px_#000] hover:bg-[#7c3aed] active:translate-x-[1px] active:translate-y-[1px]'
+                                                                            : 'bg-[#0d9488] text-white border-2 border-black shadow-[3px_3px_0px_#000] hover:bg-[#0f766e] active:translate-x-[1px] active:translate-y-[1px]'
                                                                         : isPassed
                                                                             ? 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20'
                                                                             : isPoolInProgress
-                                                                                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-500 hover:to-indigo-500 shadow-md shadow-indigo-500/20'
+                                                                                ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-md shadow-indigo-500/20'
                                                                                 : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-500/20'}
                                                                 `}
                                                             >

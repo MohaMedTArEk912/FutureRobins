@@ -113,12 +113,17 @@ export const getDailyChallenge = async (req, res) => {
         });
       }
 
-      const createdChallenge = await DailyChallenge.create({
-        date: targetDate,
-        compilerQuestionId: eligibleQuestion.questionId
-      });
-      await CompilerQuestion.markAsUsed(eligibleQuestion.questionId);
-      challenge = createdChallenge.toObject();
+      try {
+        challenge = await DailyChallenge.findOneAndUpdate(
+          { date: { $gte: targetDate, $lt: nextDay } },
+          { $setOnInsert: { date: targetDate, compilerQuestionId: eligibleQuestion.questionId } },
+          { upsert: true, new: true }
+        ).lean();
+        await CompilerQuestion.markAsUsed(eligibleQuestion.questionId).catch(() => {});
+      } catch (createErr) {
+        challenge = await DailyChallenge.findOne({ date: { $gte: targetDate, $lt: nextDay } }).lean() || await DailyChallenge.findOne().sort({ date: -1 }).lean();
+        if (!challenge) throw createErr;
+      }
     }
 
     // Step 6: Fetch compiler questions for primary & all tiers

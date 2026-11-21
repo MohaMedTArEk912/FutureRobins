@@ -50,10 +50,10 @@ const PwaUpdatePrompt: React.FC<PwaUpdatePromptProps> = ({ inline = false }) => 
                     : 'fixed bottom-20 xl:bottom-6 left-3 right-3 sm:left-auto sm:right-6 z-[100] animate-in slide-in-from-bottom-5 duration-300 pb-safe'
             }
         >
-            <div className="bg-white/95 dark:bg-[#12131f]/95 backdrop-blur-2xl border border-indigo-500/30 dark:border-indigo-500/40 p-4 rounded-3xl shadow-2xl shadow-indigo-500/20 max-w-full sm:max-w-md flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 ring-1 ring-black/5 dark:ring-white/10">
+            <div className="bg-white/95 dark:bg-[#141210]/95 backdrop-blur-2xl border border-indigo-500/30 dark:border-indigo-500/40 p-4 rounded-3xl shadow-2xl shadow-indigo-500/20 max-w-full sm:max-w-md flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 ring-1 ring-black/5 dark:ring-white/10">
                 {/* Left Icon Badge */}
                 <div className="flex items-center gap-3 sm:gap-3.5">
-                    <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 flex items-center justify-center text-white shrink-0 shadow-lg shadow-indigo-500/30 relative">
+                    <div className="w-11 h-11 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shrink-0 shadow-lg shadow-indigo-500/30 relative">
                         <ArrowUpCircle className={`w-6 h-6 ${isUpdating ? 'animate-spin' : 'animate-bounce'}`} />
                         <Sparkles className="w-3.5 h-3.5 text-amber-300 absolute -top-1 -right-1 animate-pulse" />
                     </div>
@@ -89,7 +89,7 @@ const PwaUpdatePrompt: React.FC<PwaUpdatePromptProps> = ({ inline = false }) => 
                         type="button"
                         onClick={handleUpdate}
                         disabled={isUpdating}
-                        className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white font-black text-xs uppercase tracking-wider hover:opacity-95 active:scale-95 transition-all shadow-lg shadow-indigo-500/25 cursor-pointer disabled:opacity-50"
+                        className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-2xl bg-indigo-600 text-white font-black text-xs uppercase tracking-wider hover:opacity-95 active:scale-95 transition-all shadow-lg shadow-indigo-500/25 cursor-pointer disabled:opacity-50"
                     >
                         <RefreshCw className={`w-3.5 h-3.5 ${isUpdating ? 'animate-spin' : ''}`} />
                         <span>{isUpdating ? 'Updating...' : 'Update Now'}</span>

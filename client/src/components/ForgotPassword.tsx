@@ -3,6 +3,7 @@ import { Mail, Lock, ArrowLeft, Eye, EyeOff, CheckCircle2, XCircle, AlertCircle 
 import { api } from '../lib/api';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
+import { AmbientBackground } from './AmbientBackground';
 
 interface ForgotPasswordProps {
     onBack: () => void;
@@ -220,7 +221,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
     const submitBtnClass = `btn-unstyled w-full py-3 px-5 rounded-xl font-black text-sm sm:text-base tracking-wide transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed ${
         isBento
             ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[4px_4px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-[1px_1px_0px_#000] disabled:bg-slate-100 disabled:text-slate-400 disabled:border-slate-300 disabled:shadow-none disabled:hover:translate-x-0 disabled:hover:translate-y-0'
-            : 'bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-500 dark:to-purple-500 text-white hover:from-indigo-700 hover:to-purple-700 hover:-translate-y-0.5 active:translate-y-0 shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 disabled:opacity-50 disabled:hover:translate-y-0 disabled:shadow-none'
+            : 'bg-indigo-600 dark:bg-indigo-500 hover:bg-indigo-700 text-white hover:-translate-y-0.5 active:translate-y-0 shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 disabled:opacity-50 disabled:hover:translate-y-0 disabled:shadow-none'
     }`;
 
     const getInputClass = (spacingClass: string, matchState: boolean | null = null) => {
@@ -236,7 +237,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
                 : matchState
                     ? 'border-green-500 dark:border-green-500 focus:border-green-500'
                     : 'border-red-500 dark:border-red-500 focus:border-red-500';
-        return `w-full ${spacingClass} text-sm rounded-xl transition-all border-2 ${borderColor} focus:outline-none focus:ring-4 focus:ring-indigo-500/10 bg-white dark:bg-[#090d16]/70 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500`;
+        return `w-full ${spacingClass} text-sm rounded-xl transition-all border-2 ${borderColor} focus:outline-none focus:ring-4 focus:ring-indigo-500/10 bg-white dark:bg-[#0a0908]/70 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500`;
     };
 
     const renderSpinnerLabel = (label: string) => (
@@ -253,20 +254,15 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
         <div className={`min-h-dvh flex items-center justify-center p-3 sm:p-5 relative overflow-x-hidden transition-colors duration-300 p-safe ${
             isBento
                 ? 'bg-[#f5f3ec]'
-                : 'bg-slate-50 dark:bg-[#090d16]'
+                : 'bg-slate-50 dark:bg-[#0a0908]'
         }`}>
-            {/* Background Decorations */}
-            {!isBento && (
-                <div className="fixed inset-0 overflow-hidden z-0 pointer-events-none">
-                    <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-200/40 dark:bg-indigo-500/15 rounded-full blur-3xl animate-pulse"></div>
-                    <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-200/40 dark:bg-purple-500/15 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
-                </div>
-            )}
+            {/* Ambient Background */}
+            <AmbientBackground />
 
             <div className={`forgot-password-card relative z-10 w-full max-w-4xl overflow-hidden grid grid-cols-1 md:grid-cols-12 transition-all duration-300 ${
                 isBento
                     ? 'bg-white border-[3px] border-black rounded-3xl shadow-[8px_8px_0px_#000]'
-                    : 'bg-white/95 dark:bg-[#0f1526]/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-200/90 dark:border-white/10'
+                    : 'bg-white/95 dark:bg-[#141210]/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-200/90 dark:border-white/10'
             }`}>
                 {/* Left Identity & Progress Column */}
                 <div className={`md:col-span-5 p-5 sm:p-6 md:p-7 flex flex-col justify-between gap-4 md:gap-6 ${
@@ -301,7 +297,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
                         <div className={`w-12 h-12 sm:w-14 sm:h-14 shrink-0 rounded-2xl flex items-center justify-center ${
                             isBento
                                 ? 'bg-[#fde047] text-black border-[2.5px] border-black shadow-[4px_4px_0px_#000]'
-                                : 'bg-gradient-to-br from-indigo-500/15 to-purple-500/15 border border-indigo-200 dark:border-indigo-500/25 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                                : 'bg-indigo-500/15 border border-indigo-200 dark:border-indigo-500/25 text-indigo-600 dark:text-indigo-400 shadow-sm'
                         }`}>
                             {step === 'email' ? <Mail className="w-6 h-6" /> : <Lock className="w-6 h-6" />}
                         </div>
@@ -309,7 +305,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
                             <h1 className={`text-xl sm:text-2xl md:text-[1.75rem] font-black tracking-tight leading-tight ${
                                 isBento
                                     ? 'text-black'
-                                    : 'bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400 bg-clip-text text-transparent'
+                                    : 'text-indigo-600 dark:text-[#f5f3ec]'
                             }`}>
                                 {step === 'email' ? tx('Forgot Password', 'نسيت كلمة السر') : tx('Reset Password', 'تغيير كلمة السر')}
                             </h1>
@@ -454,7 +450,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
                                             type="button"
                                             disabled={loading || resendCooldown > 0}
                                             onClick={dispatchResetEmail}
-                                            className={`btn-unstyled transition-colors underline underline-offset-2 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed ${isBento ? 'text-indigo-700 hover:text-black' : 'text-indigo-600 dark:text-purple-400 hover:text-indigo-700'}`}
+                                            className={`btn-unstyled transition-colors underline underline-offset-2 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed ${isBento ? 'text-indigo-700 hover:text-black' : 'text-indigo-600 dark:text-teal-400 hover:text-indigo-700'}`}
                                         >
                                             {resendCooldown > 0
                                                 ? tx(`Resend in ${resendCooldown}s`, `إعادة إرسال بعد ${resendCooldown}ث`)
@@ -472,7 +468,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
                                     className={`w-full px-4 py-2.5 rounded-xl tracking-[0.3em] font-mono text-center text-base font-black transition-all ${
                                         isBento
                                             ? 'border-2 border-black bg-white text-black placeholder:tracking-widest placeholder-slate-300 shadow-[3px_3px_0px_#000] focus:outline-none focus:shadow-[4px_4px_0px_#000]'
-                                            : 'border-2 border-slate-200 dark:border-white/10 focus:border-indigo-500 dark:focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 bg-white dark:bg-[#090d16]/70 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600'
+                                            : 'border-2 border-slate-200 dark:border-white/10 focus:border-indigo-500 dark:focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 bg-white dark:bg-[#0a0908]/70 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600'
                                     }`}
                                     required
                                 />

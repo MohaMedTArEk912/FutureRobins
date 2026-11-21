@@ -95,7 +95,7 @@ export const MediaPromptPlayer: React.FC<MediaPromptPlayerProps> = ({
             {/* Video Prompt Player */}
             {videoUrl && (
                 <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-purple-600 dark:text-purple-400">
+                    <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-teal-600 dark:text-teal-400">
                         <Film className="w-4 h-4" />
                         <span>Video Comprehension Clip</span>
                     </div>

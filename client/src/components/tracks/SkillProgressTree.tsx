@@ -57,7 +57,7 @@ const SkillProgressTree: React.FC<SkillProgressTreeProps> = ({
                             size="large"
                         />
                         {/* Connecting line */}
-                        <div className="w-1 h-12 bg-gradient-to-b from-purple-500/50 to-transparent" />
+                        <div className="w-1 h-12 bg-teal-500/50" />
                     </div>
                 ))}
 
@@ -80,9 +80,9 @@ const SkillProgressTree: React.FC<SkillProgressTreeProps> = ({
                                 <div
                                     onClick={() => isUnlocked && onModuleClick?.(module.moduleId)}
                                     className={`relative w-full max-w-sm rounded-2xl p-6 border-2 transition-all duration-300 ${isCompleted
-                                            ? 'bg-gradient-to-br from-green-500/20 to-emerald-500/20 border-green-500/50 shadow-lg shadow-green-500/20'
+                                            ? 'bg-green-500/20 border-green-500/50 shadow-lg shadow-green-500/20'
                                             : isUnlocked
-                                                ? 'bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border-blue-500/50 hover:border-blue-400 cursor-pointer hover:scale-105'
+                                                ? 'bg-blue-500/20 border-blue-500/50 hover:border-blue-400 cursor-pointer hover:scale-105'
                                                 : 'bg-gray-800/50 border-gray-700 opacity-60'
                                         }`}
                                 >
@@ -145,7 +145,7 @@ const SkillProgressTree: React.FC<SkillProgressTreeProps> = ({
                                         {relatedBadges.map(badgeNode => (
                                             <div key={badgeNode.badgeId} className="relative">
                                                 {/* Connecting line from module to badge */}
-                                                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 w-1 h-4 bg-gradient-to-b from-purple-500/30 to-transparent" />
+                                                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 w-1 h-4 bg-teal-500/30" />
 
                                                 <BadgeNodeCard
                                                     badge={badgeNode.badge!}
@@ -161,7 +161,7 @@ const SkillProgressTree: React.FC<SkillProgressTreeProps> = ({
 
                                 {/* Connecting line to next module */}
                                 {index < track.modules.length - 1 && (
-                                    <div className="w-1 h-8 bg-gradient-to-b from-gray-600/50 to-transparent" />
+                                    <div className="w-1 h-8 bg-gray-600/50" />
                                 )}
                             </div>
                         );
@@ -172,11 +172,11 @@ const SkillProgressTree: React.FC<SkillProgressTreeProps> = ({
                 {badgeTree?.nodes.filter(n => n.isSpecial).map(node => (
                     <div key={node.badgeId} className="flex flex-col items-center mt-8">
                         {/* Connecting line */}
-                        <div className="w-1 h-12 bg-gradient-to-b from-transparent to-yellow-500/50" />
+                        <div className="w-1 h-12 bg-yellow-500/50" />
 
                         <div className="relative">
                             {/* Glow effect for special badges */}
-                            <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 to-orange-400/20 rounded-full blur-2xl animate-pulse" />
+                            <div className="absolute inset-0 bg-yellow-400/20 rounded-full blur-2xl animate-pulse" />
 
                             <BadgeNodeCard
                                 badge={node.badge!}
@@ -188,7 +188,7 @@ const SkillProgressTree: React.FC<SkillProgressTreeProps> = ({
                         </div>
 
                         {/* Special badge label */}
-                        <div className="mt-4 flex items-center gap-2 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/30 rounded-full px-4 py-2">
+                        <div className="mt-4 flex items-center gap-2 bg-yellow-500/20 border border-yellow-500/30 rounded-full px-4 py-2">
                             <Award className="w-4 h-4 text-yellow-400" />
                             <span className="text-sm font-bold text-yellow-400">Master Achievement</span>
                         </div>
@@ -197,7 +197,7 @@ const SkillProgressTree: React.FC<SkillProgressTreeProps> = ({
             </div>
 
             {/* Progress Summary */}
-            <div className="mt-8 bg-gray-100 dark:bg-gray-800/50 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+            <div className="mt-8 bg-gray-100 dark:bg-[#1c1917]/50 rounded-xl p-6 border border-gray-200 dark:border-[#f5f3ec]/16">
                 <h3 className="text-lg font-bold text-white mb-4">Progress Summary</h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div className="bg-blue-500/10 rounded-lg p-4 border border-blue-500/20">
@@ -206,8 +206,8 @@ const SkillProgressTree: React.FC<SkillProgressTreeProps> = ({
                             {userProgress.completedModules.length}/{track.modules.length}
                         </p>
                     </div>
-                    <div className="bg-purple-500/10 rounded-lg p-4 border border-purple-500/20">
-                        <p className="text-sm text-purple-400 mb-1">Badges</p>
+                    <div className="bg-teal-500/10 rounded-lg p-4 border border-teal-500/20">
+                        <p className="text-sm text-teal-400 mb-1">Badges</p>
                         <p className="text-2xl font-bold text-white">
                             {userProgress.earnedBadges.length}/{badgeTree?.nodes.length || 0}
                         </p>

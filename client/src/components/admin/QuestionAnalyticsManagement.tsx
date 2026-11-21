@@ -89,7 +89,7 @@ const QuestionAnalyticsManagement: React.FC<QuestionAnalyticsManagementProps> = 
                 className={`p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 ${
                     isBento
                         ? 'bg-white rounded-2xl border-[3px] border-black shadow-[6px_6px_0px_#000]'
-                        : 'rounded-[2.5rem] bg-gradient-to-br from-red-500/10 via-amber-500/5 to-purple-500/10 dark:from-red-950/30 dark:via-amber-950/20 dark:to-purple-950/20 border border-red-500/20 shadow-sm'
+                        : 'rounded-[2.5rem] bg-red-500/10 dark:bg-red-950/30 border border-red-500/20 shadow-sm'
                 }`}
             >
                 <div>
@@ -160,7 +160,7 @@ const QuestionAnalyticsManagement: React.FC<QuestionAnalyticsManagementProps> = 
                     className={`p-5 ${
                         isBento
                             ? 'bg-[#ffe4e6] rounded-2xl border-[2.5px] border-black shadow-[5px_5px_0px_#000]'
-                            : 'rounded-3xl bg-white/70 dark:bg-[#13141f]/70 backdrop-blur-xl border border-gray-200/70 dark:border-white/5 shadow-sm'
+                            : 'rounded-3xl bg-white/70 dark:bg-[#141210]/70 backdrop-blur-xl border border-gray-200/70 dark:border-white/5 shadow-sm'
                     }`}
                 >
                     <div className="flex items-center justify-between mb-2">
@@ -183,7 +183,7 @@ const QuestionAnalyticsManagement: React.FC<QuestionAnalyticsManagementProps> = 
                     className={`p-5 ${
                         isBento
                             ? 'bg-[#d9f99d] rounded-2xl border-[2.5px] border-black shadow-[5px_5px_0px_#000]'
-                            : 'rounded-3xl bg-white/70 dark:bg-[#13141f]/70 backdrop-blur-xl border border-gray-200/70 dark:border-white/5 shadow-sm'
+                            : 'rounded-3xl bg-white/70 dark:bg-[#141210]/70 backdrop-blur-xl border border-gray-200/70 dark:border-white/5 shadow-sm'
                     }`}
                 >
                     <div className="flex items-center justify-between mb-2">
@@ -205,22 +205,22 @@ const QuestionAnalyticsManagement: React.FC<QuestionAnalyticsManagementProps> = 
                 <div
                     className={`p-5 ${
                         isBento
-                            ? 'bg-[#ede9fe] rounded-2xl border-[2.5px] border-black shadow-[5px_5px_0px_#000]'
-                            : 'rounded-3xl bg-white/70 dark:bg-[#13141f]/70 backdrop-blur-xl border border-gray-200/70 dark:border-white/5 shadow-sm'
+                            ? 'bg-[#ffedd5] rounded-2xl border-[2.5px] border-black shadow-[5px_5px_0px_#000]'
+                            : 'rounded-3xl bg-white/70 dark:bg-[#141210]/70 backdrop-blur-xl border border-gray-200/70 dark:border-white/5 shadow-sm'
                     }`}
                 >
                     <div className="flex items-center justify-between mb-2">
                         <span className={`text-[10px] font-black uppercase tracking-widest ${isBento ? 'text-black' : 'text-gray-400'}`}>
                             {tx('Toughest Quiz', 'أصعب كويز')}
                         </span>
-                        <div className={`p-2 rounded-xl ${isBento ? 'bg-white border-2 border-black text-black shadow-[2px_2px_0px_#000]' : 'bg-purple-500/10 text-purple-500'}`}>
+                        <div className={`p-2 rounded-xl ${isBento ? 'bg-white border-2 border-black text-black shadow-[2px_2px_0px_#000]' : 'bg-teal-500/10 text-teal-500'}`}>
                             <Flame className="w-4 h-4" />
                         </div>
                     </div>
                     <div className={`text-lg sm:text-xl font-black truncate ${isBento ? 'text-black' : 'text-gray-900 dark:text-white'}`}>
                         {summary?.hardestQuiz?.title || tx('None', 'لا يوجد')}
                     </div>
-                    <div className={`text-[10px] font-bold mt-1 ${isBento ? 'text-black/80' : 'text-purple-500'}`}>
+                    <div className={`text-[10px] font-bold mt-1 ${isBento ? 'text-black/80' : 'text-teal-500'}`}>
                         {summary?.hardestQuiz ? `${summary.hardestQuiz.averageFailureRate}% error rate` : tx('No data', 'مفيش بيانات')}
                     </div>
                 </div>
@@ -229,7 +229,7 @@ const QuestionAnalyticsManagement: React.FC<QuestionAnalyticsManagementProps> = 
                     className={`p-5 ${
                         isBento
                             ? 'bg-[#e0f2fe] rounded-2xl border-[2.5px] border-black shadow-[5px_5px_0px_#000]'
-                            : 'rounded-3xl bg-white/70 dark:bg-[#13141f]/70 backdrop-blur-xl border border-gray-200/70 dark:border-white/5 shadow-sm'
+                            : 'rounded-3xl bg-white/70 dark:bg-[#141210]/70 backdrop-blur-xl border border-gray-200/70 dark:border-white/5 shadow-sm'
                     }`}
                 >
                     <div className="flex items-center justify-between mb-2">
@@ -256,7 +256,7 @@ const QuestionAnalyticsManagement: React.FC<QuestionAnalyticsManagementProps> = 
                     className={`flex-1 px-4 py-2.5 flex items-center gap-3 ${
                         isBento
                             ? 'bg-white rounded-2xl border-[2.5px] border-black shadow-[4px_4px_0px_#000]'
-                            : 'bg-white/70 dark:bg-[#13141f]/70 backdrop-blur-xl rounded-3xl border border-gray-200 dark:border-white/5 shadow-sm'
+                            : 'bg-white/70 dark:bg-[#141210]/70 backdrop-blur-xl rounded-3xl border border-gray-200 dark:border-white/5 shadow-sm'
                     }`}
                 >
                     <Search className={`w-4 h-4 shrink-0 ${isBento ? 'text-black' : 'text-gray-400'}`} />
@@ -276,7 +276,7 @@ const QuestionAnalyticsManagement: React.FC<QuestionAnalyticsManagementProps> = 
                     className={`min-w-[210px] px-4 py-2 flex items-center gap-2 ${
                         isBento
                             ? 'bg-white rounded-2xl border-[2.5px] border-black shadow-[4px_4px_0px_#000]'
-                            : 'bg-white/70 dark:bg-[#13141f]/70 backdrop-blur-xl rounded-3xl border border-gray-200 dark:border-white/5'
+                            : 'bg-white/70 dark:bg-[#141210]/70 backdrop-blur-xl rounded-3xl border border-gray-200 dark:border-white/5'
                     }`}
                 >
                     <BookOpen className={`w-4 h-4 shrink-0 ${isBento ? 'text-black' : 'text-indigo-500'}`} />
@@ -287,11 +287,11 @@ const QuestionAnalyticsManagement: React.FC<QuestionAnalyticsManagementProps> = 
                             isBento ? 'text-black' : 'text-gray-900 dark:text-white'
                         }`}
                     >
-                        <option value="all" className="dark:bg-[#1a1b26]">
+                        <option value="all" className="dark:bg-[#1c1917]">
                             {tx('All Quizzes', 'كل الكويزات')}
                         </option>
                         {quizzes.map((q) => (
-                            <option key={q.id} value={q.id} className="dark:bg-[#1a1b26]">
+                            <option key={q.id} value={q.id} className="dark:bg-[#1c1917]">
                                 {q.title}
                             </option>
                         ))}
@@ -310,7 +310,7 @@ const QuestionAnalyticsManagement: React.FC<QuestionAnalyticsManagementProps> = 
                                     : 'bg-white hover:bg-[#fef9c3] text-black rounded-xl border-2 border-black shadow-[2px_2px_0px_#000]'
                                 : failureThreshold === 'all'
                                   ? 'bg-indigo-600 text-white rounded-2xl shadow-sm'
-                                  : 'bg-white/70 dark:bg-[#13141f]/70 text-gray-500 dark:text-gray-400 rounded-2xl border border-gray-200 dark:border-white/5'
+                                  : 'bg-white/70 dark:bg-[#141210]/70 text-gray-500 dark:text-gray-400 rounded-2xl border border-gray-200 dark:border-white/5'
                         }`}
                     >
                         {tx('All', 'الكل')}
@@ -399,7 +399,7 @@ const QuestionAnalyticsManagement: React.FC<QuestionAnalyticsManagementProps> = 
                                           ? 'rounded-3xl border bg-red-50/30 dark:bg-red-950/10 border-red-200 dark:border-red-500/20 shadow-sm hover:shadow-md'
                                           : isHigh
                                             ? 'rounded-3xl border bg-amber-50/30 dark:bg-amber-950/10 border-amber-200 dark:border-amber-500/20 shadow-sm hover:shadow-md'
-                                            : 'rounded-3xl border bg-white/70 dark:bg-[#13141f]/70 border-gray-200 dark:border-white/5 shadow-sm hover:shadow-md'
+                                            : 'rounded-3xl border bg-white/70 dark:bg-[#141210]/70 border-gray-200 dark:border-white/5 shadow-sm hover:shadow-md'
                                 }`}
                             >
                                 {/* Main Question Card Row */}
@@ -433,7 +433,7 @@ const QuestionAnalyticsManagement: React.FC<QuestionAnalyticsManagementProps> = 
                                                 <span
                                                     className={`px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${
                                                         isBento
-                                                            ? 'bg-[#ddd6fe] text-black border border-black'
+                                                            ? 'bg-[#fed7aa] text-black border border-black'
                                                             : 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20'
                                                     }`}
                                                 >

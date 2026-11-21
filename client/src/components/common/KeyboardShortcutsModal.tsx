@@ -57,7 +57,7 @@ export const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({
                     className={`w-full py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all cursor-pointer ${
                         isBento
                             ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[3px_3px_0px_#000] active:translate-x-0.5 active:translate-y-0.5'
-                            : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:opacity-95 shadow-md shadow-indigo-500/25'
+                            : 'bg-indigo-600 text-white hover:opacity-95 shadow-md shadow-indigo-500/25'
                     }`}
                 >
                     Got It, Continue Quiz
@@ -97,7 +97,7 @@ export const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({
                                                 className={`px-2.5 py-1 rounded-lg font-mono text-xs font-black shadow-sm ${
                                                     isBento
                                                         ? 'bg-[#fde047] border-2 border-black text-black shadow-[1.5px_1.5px_0px_#000]'
-                                                        : 'bg-white dark:bg-[#1a1b26] border border-gray-300 dark:border-white/15 text-gray-900 dark:text-white'
+                                                        : 'bg-white dark:bg-[#1c1917] border border-gray-300 dark:border-white/15 text-gray-900 dark:text-white'
                                                 }`}
                                             >
                                                 {k}

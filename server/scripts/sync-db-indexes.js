@@ -16,7 +16,6 @@ import '../models/DailyChallenge.js';
 import '../models/ShopItem.js';
 import '../models/SkillTrack.js';
 import '../models/SkillTrackProgress.js';
-import '../models/StudyCard.js';
 import '../models/Tournament.js';
 
 

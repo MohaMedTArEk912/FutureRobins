@@ -77,7 +77,7 @@ const ReplaceQuizModal: React.FC<ReplaceQuizModalProps> = ({
                         className={`flex-1 px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-2 ${
                             isBento
                                 ? 'bg-[#67e8f9] hover:bg-[#22d3ee] text-black border-2 border-black shadow-[2px_2px_0px_#000] disabled:opacity-50'
-                                : 'bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-lg shadow-cyan-500/25 disabled:opacity-50'
+                                : 'bg-cyan-600 hover:bg-cyan-500 text-white shadow-lg shadow-cyan-500/25 disabled:opacity-50'
                         }`}
                     >
                         {isLoading ? (

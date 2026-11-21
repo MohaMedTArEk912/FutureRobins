@@ -195,7 +195,7 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                 className={`app-dialog-panel app-dialog-panel--structured relative z-10 w-full max-w-4xl h-[86dvh] md:h-[600px] max-h-[90dvh] overflow-hidden flex flex-col md:flex-row transition-all ${
                     isBento
                         ? 'bg-white border-[3px] border-black shadow-[8px_8px_0px_#000] rounded-3xl'
-                        : 'bg-white dark:bg-[#131624] rounded-3xl shadow-2xl border border-slate-200 dark:border-white/10'
+                        : 'bg-white dark:bg-[#141210] rounded-3xl shadow-2xl border border-slate-200 dark:border-white/10'
                 }`}
             >
                 {/* LEFT COLUMN: LIVE PREVIEW STAGE */}
@@ -208,7 +208,7 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                     style={
                         isBento
                             ? {
-                                  backgroundImage: 'radial-gradient(#000000 1px, transparent 1px)',
+                                  backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 18 18'%3E%3Ccircle cx='9' cy='9' r='1' fill='%23000000'/%3E%3C/svg%3E\")",
                                   backgroundSize: '18px 18px'
                               }
                             : undefined
@@ -234,7 +234,7 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                             className={`p-2 rounded-full transition-transform duration-300 ${
                                 isBento
                                     ? 'bg-white border-[3px] border-black shadow-[4px_4px_0px_#000] sm:shadow-[5px_5px_0px_#000]'
-                                    : 'bg-white dark:bg-slate-800 shadow-xl ring-1 ring-slate-200 dark:ring-white/10'
+                                    : 'bg-white dark:bg-[#1c1917] shadow-xl ring-1 ring-slate-200 dark:ring-white/10'
                             }`}
                         >
                             <Avatar config={config} size="xl" className="sm:hidden" />
@@ -295,7 +295,7 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                 </div>
 
                 {/* RIGHT COLUMN: CONTROLS */}
-                <div className="flex-1 flex flex-col min-h-0 bg-white dark:bg-[#131624]">
+                <div className="flex-1 flex flex-col min-h-0 bg-white dark:bg-[#141210]">
                     {/* Modal Header */}
                     <div
                         className={`px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between shrink-0 ${
@@ -308,7 +308,7 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                             <div
                                 className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 ${
                                     isBento
-                                        ? 'bg-[#c084fc] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                        ? 'bg-[#fdba74] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
                                         : 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
                                 }`}
                             >
@@ -824,8 +824,8 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                             disabled={saving}
                             className={`btn-unstyled h-10 sm:h-11 px-5 sm:px-7 rounded-xl font-black text-xs sm:text-sm flex-1 sm:flex-none flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
                                 isBento
-                                    ? 'bg-[#8b5cf6] text-white border-2 border-black shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 active:translate-y-0'
-                                    : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-lg shadow-indigo-500/25'
+                                    ? 'bg-[#0d9488] text-white border-2 border-black shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 active:translate-y-0'
+                                    : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/25'
                             }`}
                         >
                             {saving ? (

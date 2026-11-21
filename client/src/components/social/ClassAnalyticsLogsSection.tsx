@@ -190,7 +190,7 @@ export const ClassAnalyticsLogsSection: React.FC<ClassAnalyticsLogsSectionProps>
                             className={`px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 cursor-pointer ${
                                 isBento
                                     ? 'bg-[#fde047] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                    : 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow'
+                                    : 'bg-sky-600 text-white shadow'
                             }`}
                         >
                             <Sparkles className="w-3.5 h-3.5" />
@@ -250,10 +250,10 @@ export const ClassAnalyticsLogsSection: React.FC<ClassAnalyticsLogsSectionProps>
                     </div>
                 </div>
 
-                <div className={`p-4 rounded-2xl ${isBento ? 'bg-[#f3e8ff] border-2 border-black shadow-[3px_3px_0px_#000]' : 'bg-violet-500/10 border border-violet-500/20'}`}>
+                <div className={`p-4 rounded-2xl ${isBento ? 'bg-[#ffedd5] border-2 border-black shadow-[3px_3px_0px_#000]' : 'bg-sky-500/10 border border-sky-500/20'}`}>
                     <div className="text-[10px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                         <span>Quiz Activity</span>
-                        <Activity className="w-3.5 h-3.5 text-violet-500" />
+                        <Activity className="w-3.5 h-3.5 text-sky-500" />
                     </div>
                     <div className="text-2xl font-black mt-1">{overview.totalQuizAttempts}</div>
                     <div className="text-[11px] font-bold mt-1 opacity-75">
@@ -528,7 +528,7 @@ export const ClassAnalyticsLogsSection: React.FC<ClassAnalyticsLogsSectionProps>
                                     <div className={`text-[10px] font-black uppercase ${isBento ? 'text-slate-700' : 'opacity-65'}`}>Homework</div>
                                     <div className="text-lg font-black">{selectedStudent.finishedHomeworkSessions}/{selectedStudent.totalHomeworkSessions}</div>
                                 </div>
-                                <div className={`p-3 rounded-2xl ${isBento ? 'bg-[#f3e8ff] border-2 border-black' : 'bg-black/5 dark:bg-white/5'}`}>
+                                <div className={`p-3 rounded-2xl ${isBento ? 'bg-[#ffedd5] border-2 border-black' : 'bg-black/5 dark:bg-white/5'}`}>
                                     <div className={`text-[10px] font-black uppercase ${isBento ? 'text-slate-700' : 'opacity-65'}`}>Study Time</div>
                                     <div className="text-lg font-black">{Math.round(selectedStudent.totalTimeSeconds / 60)}m</div>
                                 </div>
@@ -709,7 +709,18 @@ export const ClassAnalyticsLogsSection: React.FC<ClassAnalyticsLogsSectionProps>
                                         <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase self-end sm:self-center shrink-0 ${
                                             log.passed ? 'bg-emerald-500/15 text-emerald-500' : 'bg-rose-500/15 text-rose-500'
                                         }`}>
-                                            {log.passed ? `Passed (${log.score}/${log.totalQuestions})` : `Needs Retry (${log.score}/${log.totalQuestions})`}
+                                            {(() => {
+                                                const total = Number(log.totalQuestions) || 0;
+                                                const sc = Number(log.score) || 0;
+                                                const pct = Number(log.percentage) || 0;
+                                                const correct =
+                                                    total > 0 && (sc > total || Math.abs((sc / total) * 100 - pct) > 2)
+                                                        ? Math.min(total, Math.max(0, Math.round((pct / 100) * total)))
+                                                        : Math.min(total || sc, Math.max(0, sc));
+                                                return log.passed
+                                                    ? `Passed (${correct}/${total})`
+                                                    : `Needs Retry (${correct}/${total})`;
+                                            })()}
                                         </span>
                                     )}
                                 </div>

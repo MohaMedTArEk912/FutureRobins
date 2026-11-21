@@ -59,12 +59,12 @@ const InstallPWA: React.FC<InstallPWAProps> = ({ inline = false }) => {
                 <div className={`p-3.5 sm:p-4 rounded-2xl max-w-full sm:max-w-sm flex items-center gap-3 ${
                     isBento
                         ? 'bg-white text-black border-[3px] border-black shadow-[5px_5px_0_#000]'
-                        : 'bg-white/95 dark:bg-[#13141f]/95 backdrop-blur-xl border border-slate-200 dark:border-white/10 shadow-2xl shadow-indigo-500/15'
+                        : 'bg-white/95 dark:bg-[#141210]/95 backdrop-blur-xl border border-slate-200 dark:border-white/10 shadow-2xl shadow-indigo-500/15'
                 }`}>
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
                         isBento
                             ? 'bg-[#fde047] text-black border-2 border-black shadow-[2px_2px_0_#000]'
-                            : 'bg-gradient-to-br from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-500/30'
+                            : 'bg-indigo-600 text-white shadow-md shadow-indigo-500/30'
                     }`}>
                         <Download className="w-5 h-5" />
                     </div>
@@ -92,7 +92,7 @@ const InstallPWA: React.FC<InstallPWAProps> = ({ inline = false }) => {
                             className={`btn-unstyled px-3.5 py-1.5 rounded-xl font-black text-xs uppercase tracking-wider active:scale-95 transition-all cursor-pointer ${
                                 isBento
                                     ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[2px_2px_0_#000]'
-                                    : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:opacity-90 text-white shadow-md shadow-indigo-500/25'
+                                    : 'bg-indigo-600 hover:opacity-90 text-white shadow-md shadow-indigo-500/25'
                             }`}
                         >
                             {tx('Install', 'تثبيت')}
@@ -123,7 +123,7 @@ const InstallPWA: React.FC<InstallPWAProps> = ({ inline = false }) => {
                         className={`app-dialog-panel app-dialog-panel--padded rounded-3xl p-6 max-w-sm w-full animate-in zoom-in-95 duration-200 ${
                             isBento
                                 ? 'bg-white text-black border-[3px] border-black shadow-[6px_6px_0_#000]'
-                                : 'bg-white dark:bg-[#13141f] border border-slate-200 dark:border-white/10 shadow-2xl'
+                                : 'bg-white dark:bg-[#141210] border border-slate-200 dark:border-white/10 shadow-2xl'
                         }`}
                         onClick={(e) => e.stopPropagation()}
                     >
@@ -197,7 +197,7 @@ const InstallPWA: React.FC<InstallPWAProps> = ({ inline = false }) => {
                             className={`btn-unstyled w-full mt-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider cursor-pointer ${
                                 isBento
                                     ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[3px_3px_0_#000]'
-                                    : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white'
+                                    : 'bg-indigo-600 text-white'
                             }`}
                         >
                             {tx('Got It', 'فهمت')}

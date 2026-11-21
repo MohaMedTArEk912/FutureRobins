@@ -72,7 +72,7 @@ export const TextQuestion: React.FC<TextQuestionProps> = ({
             }`}>
                 <span className="flex items-center gap-1.5">
                     <span>{tx('Short Answer / Text Fill', 'إجابة نصية قصيرة')}</span>
-                    <span className="text-[10px] px-2 py-0.5 rounded-md font-black bg-purple-100 text-purple-900 dark:bg-purple-950/60 dark:text-purple-300 border border-purple-300 dark:border-purple-800">
+                    <span className="text-[10px] px-2 py-0.5 rounded-md font-black bg-teal-100 text-teal-900 dark:bg-teal-950/60 dark:text-teal-300 border border-teal-300 dark:border-teal-800">
                         {tx('70%+ Match Passes', 'تطابق 70%+ بينجح')}
                     </span>
                 </span>
@@ -97,7 +97,7 @@ export const TextQuestion: React.FC<TextQuestionProps> = ({
                                     ? passed
                                         ? 'bg-[#bef264] border-[2.5px] border-black text-black shadow-[3px_3px_0px_#000]'
                                         : 'bg-[#fecdd3] border-[2.5px] border-black text-black shadow-[3px_3px_0px_#000]'
-                                    : 'bg-white dark:bg-[#111827] border-[2.5px] border-black dark:border-white/20 text-black dark:text-white shadow-[4px_4px_0px_#000] focus:shadow-[6px_6px_0px_#000] focus:bg-[#fef9c3] dark:focus:bg-[#1f2937]'
+                                    : 'bg-white dark:bg-[#141210] border-[2.5px] border-black dark:border-white/20 text-black dark:text-white shadow-[4px_4px_0px_#000] focus:shadow-[6px_6px_0px_#000] focus:bg-[#fef9c3] dark:focus:bg-[#1f2937]'
                                 : submitted
                                     ? passed
                                         ? 'bg-emerald-500/15 border-2 border-emerald-500 text-emerald-900 dark:text-emerald-200'

@@ -74,18 +74,18 @@ const InitialTrackSelectionModal: React.FC<InitialTrackSelectionModalProps> = ({
         <div className="app-dialog-overlay fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/30 dark:bg-black/45 backdrop-blur-md animate-in fade-in duration-500 overflow-y-auto">
             {/* Ambient Background Glows */}
             <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[700px] bg-gradient-to-tr from-indigo-600/30 via-purple-600/30 to-pink-600/30 rounded-full blur-[140px]" />
+                <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[700px] bg-indigo-600/30 rounded-full blur-[140px]" />
             </div>
 
-            <div className="app-dialog-panel app-dialog-panel--structured app-dialog-panel--padded relative w-full max-w-4xl bg-white/95 dark:bg-[#11121d]/95 backdrop-blur-2xl rounded-2xl border border-white/40 dark:border-white/10 shadow-2xl p-6 sm:p-10 flex flex-col my-auto max-h-[90vh]">
+            <div className="app-dialog-panel app-dialog-panel--structured app-dialog-panel--padded relative w-full max-w-4xl bg-white/95 dark:bg-[#141210]/95 backdrop-blur-2xl rounded-2xl border border-white/40 dark:border-white/10 shadow-2xl p-6 sm:p-10 flex flex-col my-auto max-h-[90vh]">
                 {/* Header */}
                 <div className="text-center mb-8 shrink-0">
-                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 text-xs font-black uppercase tracking-[0.2em] mb-4">
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 text-xs font-black uppercase tracking-[0.2em] mb-4">
                         <Sparkles className="w-4 h-4 text-indigo-500 animate-spin-slow" />
                         <span>Welcome, {currentUser.name || 'Student'}!</span>
                     </div>
                     <h2 className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white uppercase tracking-tight mb-3">
-                        Choose Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">Learning Road</span>
+                        Choose Your <span className="text-indigo-600 dark:text-[#bef264]">Learning Road</span>
                     </h2>
                     <p className="text-gray-500 dark:text-gray-400 text-sm sm:text-base font-medium max-w-xl mx-auto">
                         Select which primary track you belong to. Your chosen road will unlock immediately. You can request access to additional roads anytime!
@@ -105,7 +105,7 @@ const InitialTrackSelectionModal: React.FC<InitialTrackSelectionModalProps> = ({
                                     onClick={() => setSelectedSubjectId(subject._id)}
                                     className={`relative p-5 rounded-3xl border transition-all duration-300 cursor-pointer flex flex-col group overflow-hidden ${
                                         isSelected
-                                            ? 'bg-gradient-to-b from-indigo-500/15 to-purple-500/10 border-indigo-500 ring-2 ring-indigo-500/50 shadow-xl shadow-indigo-500/20 scale-[1.02]'
+                                            ? 'bg-indigo-500/15 border-indigo-500 ring-2 ring-indigo-500/50 shadow-xl shadow-indigo-500/20 scale-[1.02]'
                                             : 'bg-white/60 dark:bg-white/5 border-gray-200/70 dark:border-white/5 hover:border-indigo-500/40 hover:bg-white dark:hover:bg-white/10'
                                     }`}
                                 >
@@ -176,7 +176,7 @@ const InitialTrackSelectionModal: React.FC<InitialTrackSelectionModalProps> = ({
                         type="button"
                         onClick={handleConfirm}
                         disabled={!selectedSubjectId || isSubmitting}
-                        className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-700 hover:to-pink-700 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-3 cursor-pointer"
+                        className="w-full sm:w-auto px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-3 cursor-pointer"
                     >
                         {isSubmitting ? (
                             <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />

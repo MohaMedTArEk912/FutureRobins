@@ -233,7 +233,7 @@ export const GlobalChatDrawer: React.FC = () => {
                         className={`flex-1 py-2 sm:py-2.5 px-3 sm:px-3.5 rounded-xl text-xs sm:text-sm font-medium outline-none transition-all ${
                             isBento
                                 ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] focus:shadow-[3px_3px_0px_#000]'
-                                : 'bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white focus:border-violet-500'
+                                : 'bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white focus:border-sky-500'
                         }`}
                     />
                     <button
@@ -242,7 +242,7 @@ export const GlobalChatDrawer: React.FC = () => {
                         className={`p-2 sm:p-2.5 rounded-xl font-black transition-all cursor-pointer disabled:opacity-40 shrink-0 ${
                             isBento
                                 ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000] active:translate-y-0.5'
-                                : 'bg-violet-600 hover:bg-violet-700 text-white shadow-md'
+                                : 'bg-sky-600 hover:bg-sky-700 text-white shadow-md'
                         }`}
                         title="Send Message"
                     >
@@ -311,8 +311,8 @@ export const GlobalChatDrawer: React.FC = () => {
                                 className={`p-3 rounded-2xl flex items-center justify-between transition-all cursor-pointer select-none ${
                                     isSelected
                                         ? (isBento
-                                            ? 'bg-[#ddd6fe] border-2 border-black shadow-[3px_3px_0px_#000]'
-                                            : 'bg-violet-500/15 dark:bg-violet-500/20 border-violet-500/40 border')
+                                            ? 'bg-[#fed7aa] border-2 border-black shadow-[3px_3px_0px_#000]'
+                                            : 'bg-sky-500/15 dark:bg-sky-500/20 border-sky-500/40 border')
                                         : (isBento
                                             ? 'bg-white border-2 border-black shadow-[2.5px_2.5px_0px_#000] hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_#000]'
                                             : 'bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 border border-gray-200 dark:border-white/5')
@@ -323,7 +323,7 @@ export const GlobalChatDrawer: React.FC = () => {
                                         {friend.avatar ? (
                                             <Avatar config={friend.avatar} size="sm" className="w-10 h-10 rounded-full" />
                                         ) : (
-                                            <div className="w-10 h-10 rounded-full bg-violet-600 text-white font-bold flex items-center justify-center text-sm">
+                                            <div className="w-10 h-10 rounded-full bg-sky-600 text-white font-bold flex items-center justify-center text-sm">
                                                 {friend.name.charAt(0)}
                                             </div>
                                         )}
@@ -400,7 +400,7 @@ export const GlobalChatDrawer: React.FC = () => {
                                     {activeFriend.avatar ? (
                                         <Avatar config={activeFriend.avatar} size="sm" className="w-7 h-7 sm:w-8 sm:h-8 rounded-full" />
                                     ) : (
-                                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-violet-600 text-white font-bold flex items-center justify-center text-xs">
+                                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-sky-600 text-white font-bold flex items-center justify-center text-xs">
                                             {activeFriend.name.charAt(0)}
                                         </div>
                                     )}
@@ -541,7 +541,7 @@ export const GlobalChatDrawer: React.FC = () => {
                 <div className={`p-3 sm:p-4 border-b flex flex-col gap-2.5 sm:gap-3 shrink-0 ${
                     isBento
                         ? 'bg-[#fde047] border-b-[2.5px] border-black text-black'
-                        : 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white'
+                        : 'bg-sky-600 text-white'
                 }`}>
                     <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2 font-black text-sm sm:text-base uppercase tracking-tight min-w-0">
@@ -606,7 +606,7 @@ export const GlobalChatDrawer: React.FC = () => {
                             }}
                             className={`flex-1 py-1.5 sm:py-2 px-2 sm:px-3 rounded-lg text-[11px] sm:text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1 sm:gap-1.5 transition-all cursor-pointer truncate ${
                                 activeTab === 'clan'
-                                    ? (isBento ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]' : 'bg-white text-violet-700 shadow')
+                                    ? (isBento ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]' : 'bg-white text-sky-700 shadow')
                                     : 'opacity-70 hover:opacity-100'
                             }`}
                         >
@@ -625,7 +625,7 @@ export const GlobalChatDrawer: React.FC = () => {
                             onClick={() => setActiveTab('direct')}
                             className={`flex-1 py-1.5 sm:py-2 px-2 sm:px-3 rounded-lg text-[11px] sm:text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1 sm:gap-1.5 transition-all cursor-pointer truncate ${
                                 activeTab === 'direct'
-                                    ? (isBento ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]' : 'bg-white text-violet-700 shadow')
+                                    ? (isBento ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]' : 'bg-white text-sky-700 shadow')
                                     : 'opacity-70 hover:opacity-100'
                             }`}
                         >
@@ -697,7 +697,7 @@ export const GlobalChatDrawer: React.FC = () => {
                                                     <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'} group relative`}>
                                                         <div className={`max-w-[85%] rounded-2xl p-3 shadow-sm transition-all ${
                                                             isMe
-                                                                ? (isBento ? 'bg-[#bef264] text-black border-2 border-black' : 'bg-violet-600 text-white')
+                                                                ? (isBento ? 'bg-[#bef264] text-black border-2 border-black' : 'bg-sky-600 text-white')
                                                                 : (isBento ? 'bg-white text-black border-2 border-black' : 'bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white')
                                                         }`}>
                                                             <div className="flex items-center gap-2 mb-1">
@@ -809,7 +809,7 @@ export const GlobalChatDrawer: React.FC = () => {
                                     className={`px-5 py-3 rounded-2xl font-black text-xs uppercase tracking-wider transition-all cursor-pointer ${
                                         isBento
                                             ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:shadow-[4px_4px_0px_#000]'
-                                            : 'bg-violet-600 text-white hover:bg-violet-700 shadow-md'
+                                            : 'bg-sky-600 text-white hover:bg-sky-700 shadow-md'
                                     }`}
                                 >
                                     Explore Clans

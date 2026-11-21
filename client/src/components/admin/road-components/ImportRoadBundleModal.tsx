@@ -136,7 +136,7 @@ const ImportRoadBundleModal: React.FC<ImportRoadBundleModalProps> = ({
                     className={`app-dialog-header px-6 py-5 flex items-center justify-between border-b ${
                         isBento
                             ? 'bg-[#fef9c3] border-b-2 border-black'
-                            : 'bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-transparent border-gray-100 dark:border-white/10'
+                            : 'bg-indigo-500/10 border-gray-100 dark:border-white/10'
                     }`}
                 >
                     <div className="flex items-center gap-3">
@@ -216,13 +216,13 @@ const ImportRoadBundleModal: React.FC<ImportRoadBundleModalProps> = ({
                                 <div
                                     className={`p-3.5 rounded-2xl ${
                                         isBento
-                                            ? 'bg-purple-50 border-2 border-black shadow-[2px_2px_0px_#000]'
-                                            : 'bg-purple-500/10 border border-purple-500/20 text-purple-900 dark:text-purple-200'
+                                            ? 'bg-teal-50 border-2 border-black shadow-[2px_2px_0px_#000]'
+                                            : 'bg-teal-500/10 border border-teal-500/20 text-teal-900 dark:text-teal-200'
                                     }`}
                                 >
                                     <div className="flex items-center gap-2 mb-1">
-                                        <FileArchive className="w-4 h-4 text-purple-600" />
-                                        <span className="text-xs font-bold uppercase tracking-wider text-purple-700 dark:text-purple-400">
+                                        <FileArchive className="w-4 h-4 text-teal-600" />
+                                        <span className="text-xs font-bold uppercase tracking-wider text-teal-700 dark:text-teal-400">
                                             Quizzes
                                         </span>
                                     </div>
@@ -367,7 +367,7 @@ const ImportRoadBundleModal: React.FC<ImportRoadBundleModalProps> = ({
                                 className={`px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
                                     isBento
                                         ? 'bg-indigo-600 text-white border-2 border-black shadow-[3px_3px_0px_#000] hover:translate-y-[-1px] active:translate-y-[1px] cursor-pointer'
-                                        : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg shadow-indigo-500/25 cursor-pointer'
+                                        : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/25 cursor-pointer'
                                 }`}
                             >
                                 {isLoading ? (

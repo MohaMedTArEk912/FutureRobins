@@ -712,19 +712,6 @@ export interface DailyChallengeCalendarResponse {
     days: DailyChallengeCalendarDay[];
 }
 
-export interface StudyCard {
-    id: string;
-    title: string;
-    content: string;
-    category: string;
-    language?: string;
-    // Road and module ownership
-    subjectId?: string;
-    moduleId?: string;
-    tags?: string[];
-    createdAt: string;
-}
-
 // Badge Tree System Types
 export interface BadgeNode {
     badgeId: string;

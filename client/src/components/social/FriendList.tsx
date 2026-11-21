@@ -97,21 +97,21 @@ const FriendList: React.FC<FriendListProps> = ({ currentUser, allUsers, onRefres
     };
 
     // Bento color rotation for friend cards
-    const bentoCardColors = ['#bef264', '#fde047', '#bae6fd', '#ddd6fe'];
+    const bentoCardColors = ['#bef264', '#fde047', '#bae6fd', '#fed7aa'];
     const getBentoColor = (index: number) => bentoCardColors[index % bentoCardColors.length];
 
     const tabConfig = [
         { id: 'friends', label: 'Friends', count: friendsList.length, icon: Users, bentoColor: '#bef264' },
         { id: 'requests', label: 'Requests', count: requestList.length, icon: Shield, bentoColor: '#fde047' },
         { id: 'challenges', label: 'Challenges', count: challenges.length, icon: Swords, bentoColor: '#bae6fd' },
-        { id: 'add', label: 'Add Friend', count: null, icon: UserPlus, bentoColor: '#ddd6fe' }
+        { id: 'add', label: 'Add Friend', count: null, icon: UserPlus, bentoColor: '#fed7aa' }
     ];
 
     return (
         <div className={`social-hub-container min-h-[600px] flex flex-col relative select-none ${
             isBento
                 ? 'bg-white rounded-[2rem] border-[3px] border-black shadow-[6px_6px_0px_#000]'
-                : 'bg-white dark:bg-[#13141f] rounded-[2rem] border border-gray-200 dark:border-white/5 shadow-2xl'
+                : 'bg-white dark:bg-[#141210] rounded-[2rem] border border-gray-200 dark:border-white/5 shadow-2xl'
         } overflow-hidden`}>
 
             {/* Decorative Corner Elements (Bento Only) */}
@@ -127,7 +127,7 @@ const FriendList: React.FC<FriendListProps> = ({ currentUser, allUsers, onRefres
 
             {/* Top Shine (light/dark only) */}
             {!isBento && (
-                <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-purple-500/5 to-transparent rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute top-0 right-0 w-96 h-96 bg-teal-500/5 rounded-full blur-3xl pointer-events-none" />
             )}
 
             {/* Header */}
@@ -142,7 +142,7 @@ const FriendList: React.FC<FriendListProps> = ({ currentUser, allUsers, onRefres
                     <div className={`w-10 h-10 flex items-center justify-center ${
                         isBento
                             ? 'rounded-xl bg-white border-[2.5px] border-black shadow-[3px_3px_0px_#000]'
-                            : 'rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 shadow-lg'
+                            : 'rounded-xl bg-teal-500 shadow-lg'
                     }`}>
                         <Users className={`w-5 h-5 ${isBento ? 'text-black' : 'text-white'}`} />
                     </div>
@@ -167,7 +167,7 @@ const FriendList: React.FC<FriendListProps> = ({ currentUser, allUsers, onRefres
                                         : 'bg-white hover:bg-gray-50 shadow-[2px_2px_0px_#000] hover:-translate-y-0.5'
                                 } text-black`
                                 : `rounded-xl ${activeTab === tab.id
-                                    ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-500/20'
+                                    ? 'bg-teal-600 text-white shadow-lg shadow-teal-500/20'
                                     : 'bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white'
                                 }`
                         }`}
@@ -228,7 +228,7 @@ const FriendList: React.FC<FriendListProps> = ({ currentUser, allUsers, onRefres
                                     <div className={`w-12 h-12 flex items-center justify-center text-lg font-black overflow-hidden group-hover/friend:scale-105 transition-transform ${
                                         isBento
                                             ? 'rounded-xl border-[2.5px] border-black shadow-[2px_2px_0px_#000]'
-                                            : 'rounded-2xl bg-gradient-to-br from-indigo-500 to-blue-600 text-white shadow-inner'
+                                            : 'rounded-2xl bg-indigo-500 text-white shadow-inner'
                                     }`} style={isBento ? { backgroundColor: getBentoColor(index) } : undefined}>
                                         {friend.avatar ? (
                                             <Avatar config={friend.avatar} size="md" className="w-full h-full" />
@@ -258,7 +258,7 @@ const FriendList: React.FC<FriendListProps> = ({ currentUser, allUsers, onRefres
                                         className={`p-3 transition-all ${
                                             isBento
                                                 ? 'rounded-xl bg-[#bae6fd] border-[2.5px] border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 text-black'
-                                                : 'rounded-xl bg-violet-500/10 text-violet-400 hover:bg-violet-500/20 border border-violet-500/20'
+                                                : 'rounded-xl bg-sky-500/10 text-sky-400 hover:bg-sky-500/20 border border-sky-500/20'
                                         }`}
                                         title="Chat & Challenge"
                                     >
@@ -319,7 +319,7 @@ const FriendList: React.FC<FriendListProps> = ({ currentUser, allUsers, onRefres
                                     <div className={`w-12 h-12 flex items-center justify-center text-lg font-black overflow-hidden group-hover/req:scale-105 transition-transform ${
                                         isBento
                                             ? 'rounded-xl border-[2.5px] border-black shadow-[2px_2px_0px_#000]'
-                                            : 'rounded-2xl bg-gradient-to-br from-orange-400 to-red-500 text-white'
+                                            : 'rounded-2xl bg-orange-400 text-white'
                                     }`} style={isBento ? { backgroundColor: getBentoColor(index + 1) } : undefined}>
                                         {user?.avatar ? (
                                              <Avatar config={user.avatar} size="md" className="w-full h-full" />
@@ -362,7 +362,7 @@ const FriendList: React.FC<FriendListProps> = ({ currentUser, allUsers, onRefres
                         <form onSubmit={handleSearch} className="flex gap-3 mb-8">
                             <div className="relative flex-1 group">
                                 <Search className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${
-                                    isBento ? 'text-black' : 'text-gray-500 group-focus-within:text-purple-400'
+                                    isBento ? 'text-black' : 'text-gray-500 group-focus-within:text-teal-400'
                                 }`} />
                                 <input
                                     type="text"
@@ -372,7 +372,7 @@ const FriendList: React.FC<FriendListProps> = ({ currentUser, allUsers, onRefres
                                     className={`w-full pl-12 pr-4 py-4 font-medium transition-all ${
                                         isBento
                                             ? 'bg-white border-[2.5px] border-black rounded-xl text-black placeholder-gray-500 focus:outline-none focus:shadow-[4px_4px_0px_#000] shadow-[2px_2px_0px_#000]'
-                                            : 'bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-2xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-600 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50'
+                                            : 'bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-2xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-600 focus:outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/50'
                                     }`}
                                 />
                             </div>
@@ -382,7 +382,7 @@ const FriendList: React.FC<FriendListProps> = ({ currentUser, allUsers, onRefres
                                 className={`px-6 font-bold transition-all disabled:opacity-50 ${
                                     isBento
                                         ? 'bg-[#bef264] text-black rounded-xl border-[2.5px] border-black shadow-[3px_3px_0px_#000] hover:shadow-[4px_4px_0px_#000] hover:-translate-y-0.5 active:shadow-[1px_1px_0px_#000] active:translate-y-0.5'
-                                        : 'bg-purple-600 hover:bg-purple-500 text-white rounded-2xl shadow-lg hover:shadow-purple-500/25'
+                                        : 'bg-teal-600 hover:bg-teal-500 text-white rounded-2xl shadow-lg hover:shadow-teal-500/25'
                                 }`}
                             >
                                 {isLoading ? <div className={`w-5 h-5 border-2 rounded-full animate-spin ${isBento ? 'border-black/30 border-t-black' : 'border-white/30 border-t-white'}`} /> : <Search className="w-5 h-5" />}
@@ -410,7 +410,7 @@ const FriendList: React.FC<FriendListProps> = ({ currentUser, allUsers, onRefres
                                             <div className={`w-12 h-12 flex items-center justify-center text-lg font-bold overflow-hidden group-hover/search:scale-105 transition-transform ${
                                                 isBento
                                                     ? 'rounded-xl border-[2.5px] border-black shadow-[2px_2px_0px_#000]'
-                                                    : 'rounded-2xl bg-gradient-to-br from-gray-700 to-gray-800 text-white border border-white/10'
+                                                    : 'rounded-2xl bg-gray-700 text-white border border-white/10'
                                             }`} style={isBento ? { backgroundColor: getBentoColor(index + 2) } : undefined}>
                                                 {user.avatar ? (
                                                     <Avatar config={user.avatar} size="md" className="w-full h-full" />
@@ -460,11 +460,11 @@ const FriendList: React.FC<FriendListProps> = ({ currentUser, allUsers, onRefres
                                                     className={`flex items-center gap-2 px-4 py-2 font-bold text-sm transition-all ${
                                                         isBento
                                                             ? `rounded-xl border-[2.5px] border-black shadow-[3px_3px_0px_#000] hover:shadow-[4px_4px_0px_#000] hover:-translate-y-0.5 ${
-                                                                processingIds.has(user.userId!) ? 'bg-gray-200 cursor-wait' : 'bg-[#ddd6fe] text-black'
+                                                                processingIds.has(user.userId!) ? 'bg-gray-200 cursor-wait' : 'bg-[#fed7aa] text-black'
                                                             }`
                                                             : `rounded-xl ${processingIds.has(user.userId!)
                                                                 ? 'bg-gray-100 text-gray-400 cursor-wait'
-                                                                : 'bg-purple-600/20 text-purple-400 hover:bg-purple-600/30 border border-purple-500/30'
+                                                                : 'bg-teal-600/20 text-teal-400 hover:bg-teal-600/30 border border-teal-500/30'
                                                             }`
                                                     }`}
                                                 >
@@ -488,7 +488,7 @@ const FriendList: React.FC<FriendListProps> = ({ currentUser, allUsers, onRefres
                     <div className="space-y-3">
                         {challenges.length === 0 && (
                             <div className={`text-center py-12 ${
-                                isBento ? 'bg-[#ddd6fe]/30 rounded-2xl border-[2.5px] border-black border-dashed p-8' : ''
+                                isBento ? 'bg-[#fed7aa]/30 rounded-2xl border-[2.5px] border-black border-dashed p-8' : ''
                             }`}>
                                 <div className={`mx-auto mb-4 flex items-center justify-center ${
                                     isBento ? 'w-20 h-20 bg-white rounded-2xl border-[2.5px] border-black shadow-[4px_4px_0px_#000]' : ''
@@ -520,7 +520,7 @@ const FriendList: React.FC<FriendListProps> = ({ currentUser, allUsers, onRefres
                                         <div className={`w-12 h-12 flex items-center justify-center text-lg font-black overflow-hidden ${
                                             isBento
                                                 ? 'rounded-xl border-[2.5px] border-black shadow-[2px_2px_0px_#000] p-0.5'
-                                                : 'rounded-2xl bg-gradient-to-br from-indigo-500 to-cyan-500 text-white p-0.5 shadow-md'
+                                                : 'rounded-2xl bg-indigo-500 text-white p-0.5 shadow-md'
                                         }`} style={isBento ? { backgroundColor: getBentoColor(index) } : undefined}>
                                             {isBento ? (
                                                 opponentUser?.avatar ? (
@@ -529,7 +529,7 @@ const FriendList: React.FC<FriendListProps> = ({ currentUser, allUsers, onRefres
                                                     <span className="text-black">{opponentUser?.name.charAt(0) || '?'}</span>
                                                 )
                                             ) : (
-                                                <div className="w-full h-full bg-white dark:bg-[#13141f] rounded-[10px] flex items-center justify-center overflow-hidden">
+                                                <div className="w-full h-full bg-white dark:bg-[#141210] rounded-[10px] flex items-center justify-center overflow-hidden">
                                                     {opponentUser?.avatar ? (
                                                         <Avatar config={opponentUser.avatar} size="md" className="w-full h-full" />
                                                     ) : (

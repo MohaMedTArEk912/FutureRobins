@@ -75,7 +75,7 @@ export const CLAN_EMBLEM_PRESETS = [
     },
     {
         name: 'Code Sorcerers',
-        logo: { shape: 'rounded', icon: 'Terminal', bgColor: '#8b5cf6', iconColor: '#bef264', showTag: true }
+        logo: { shape: 'rounded', icon: 'Terminal', bgColor: '#0d9488', iconColor: '#bef264', showTag: true }
     },
     {
         name: 'Solar Phoenix',
@@ -99,7 +99,7 @@ export const CLAN_EMBLEM_PRESETS = [
     },
     {
         name: 'Cosmic Pioneers',
-        logo: { shape: 'hexagon', icon: 'Rocket', bgColor: '#a855f7', iconColor: '#ffffff', showTag: true }
+        logo: { shape: 'hexagon', icon: 'Rocket', bgColor: '#14b8a6', iconColor: '#ffffff', showTag: true }
     },
     {
         name: 'Trophy Hunters',

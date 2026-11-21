@@ -182,7 +182,7 @@ const RoadResources: React.FC<RoadResourcesProps> = ({ subject, adminId, onNotif
                     className={`p-6 ${
                         isBento
                             ? 'bg-white rounded-2xl border-[2.5px] border-black shadow-[5px_5px_0px_#000]'
-                            : 'bg-white/60 dark:bg-[#1e1e2d]/60 backdrop-blur-xl rounded-3xl border border-white/20 dark:border-white/5 shadow-sm'
+                            : 'bg-white/60 dark:bg-[#1c1917]/60 backdrop-blur-xl rounded-3xl border border-white/20 dark:border-white/5 shadow-sm'
                     }`}
                 >
                     <div className="flex justify-between items-center mb-6">
@@ -231,7 +231,7 @@ const RoadResources: React.FC<RoadResourcesProps> = ({ subject, adminId, onNotif
                                     {!m.isProcessed && (
                                         <button
                                             onClick={(e) => { e.stopPropagation(); handleProcess(m._id); }}
-                                            className="p-2 text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-900/20 rounded-lg transition-colors"
+                                            className="p-2 text-teal-600 hover:bg-teal-100 dark:hover:bg-teal-900/20 rounded-lg transition-colors"
                                             title="Process with AI"
                                         >
                                             <Sparkles className="w-4 h-4" />
@@ -262,12 +262,12 @@ const RoadResources: React.FC<RoadResourcesProps> = ({ subject, adminId, onNotif
                     className={`p-6 ${
                         isBento
                             ? 'bg-white rounded-2xl border-[2.5px] border-black shadow-[5px_5px_0px_#000]'
-                            : 'bg-white/60 dark:bg-[#1e1e2d]/60 backdrop-blur-xl rounded-3xl border border-white/20 dark:border-white/5 shadow-sm'
+                            : 'bg-white/60 dark:bg-[#1c1917]/60 backdrop-blur-xl rounded-3xl border border-white/20 dark:border-white/5 shadow-sm'
                     }`}
                 >
                     <h3 className={`font-black flex items-center gap-2 mb-6 text-lg ${isBento ? 'text-black' : 'text-gray-900 dark:text-white'}`}>
-                        <span className={`p-2 rounded-lg ${isBento ? 'bg-[#ddd6fe] border-2 border-black text-black' : 'bg-purple-500/10'}`}>
-                            <Bot className={`w-5 h-5 ${isBento ? 'text-black' : 'text-purple-500'}`} />
+                        <span className={`p-2 rounded-lg ${isBento ? 'bg-[#fed7aa] border-2 border-black text-black' : 'bg-teal-500/10'}`}>
+                            <Bot className={`w-5 h-5 ${isBento ? 'text-black' : 'text-teal-500'}`} />
                         </span>
                         AI Generator
                     </h3>
@@ -276,13 +276,13 @@ const RoadResources: React.FC<RoadResourcesProps> = ({ subject, adminId, onNotif
                         <div>
                             <div className="flex justify-between text-xs font-bold text-gray-500 dark:text-gray-400 mb-3 uppercase tracking-wider">
                                 <span>Question Count</span>
-                                <span className="text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-900/20 px-2 py-0.5 rounded text-[10px]">{genConfig.count}</span>
+                                <span className="text-teal-600 dark:text-teal-400 bg-teal-100 dark:bg-teal-900/20 px-2 py-0.5 rounded text-[10px]">{genConfig.count}</span>
                             </div>
                             <input
                                 type="range" min="5" max="50" step="5"
                                 value={genConfig.count}
                                 onChange={(e) => setGenConfig({ ...genConfig, count: parseInt(e.target.value) })}
-                                className="w-full accent-purple-600 h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                                className="w-full accent-teal-600 h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
                             />
                         </div>
 
@@ -294,7 +294,7 @@ const RoadResources: React.FC<RoadResourcesProps> = ({ subject, adminId, onNotif
                                         key={d}
                                         onClick={() => setGenConfig({ ...genConfig, difficulty: d })}
                                         className={`py-2.5 text-xs font-bold rounded-xl transition-all border ${genConfig.difficulty === d
-                                            ? 'bg-purple-600 text-white border-purple-600 shadow-lg shadow-purple-500/20'
+                                            ? 'bg-teal-600 text-white border-teal-600 shadow-lg shadow-teal-500/20'
                                             : 'bg-white/50 dark:bg-white/5 text-gray-600 dark:text-gray-400 border-transparent hover:bg-white dark:hover:bg-white/10'
                                             }`}
                                     >
@@ -307,7 +307,7 @@ const RoadResources: React.FC<RoadResourcesProps> = ({ subject, adminId, onNotif
                         <button
                             onClick={handleGenerate}
                             disabled={isGenerating || genSelectedMaterials.length === 0}
-                            className="w-full py-4 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-black shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 disabled:transform-none flex items-center justify-center gap-3 text-sm"
+                            className="w-full py-4 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-black shadow-lg shadow-teal-500/30 hover:shadow-teal-500/50 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 disabled:transform-none flex items-center justify-center gap-3 text-sm"
                         >
                             {isGenerating ? <Loader2 className="w-5 h-5 animate-spin" /> : (
                                 <>
@@ -330,7 +330,7 @@ const RoadResources: React.FC<RoadResourcesProps> = ({ subject, adminId, onNotif
                 className={`lg:col-span-2 p-8 ${
                     isBento
                         ? 'bg-white rounded-2xl border-[2.5px] border-black shadow-[5px_5px_0px_#000]'
-                        : 'bg-white/60 dark:bg-[#1e1e2d]/60 backdrop-blur-xl rounded-3xl border border-white/20 dark:border-white/5 shadow-sm'
+                        : 'bg-white/60 dark:bg-[#1c1917]/60 backdrop-blur-xl rounded-3xl border border-white/20 dark:border-white/5 shadow-sm'
                 }`}
             >
                 <div className="flex justify-between items-center mb-6">
@@ -389,7 +389,7 @@ const RoadResources: React.FC<RoadResourcesProps> = ({ subject, adminId, onNotif
             {/* Publish Modal */}
             {isPublishModalOpen && (
                 <div className="app-dialog-overlay fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
-                    <div className="app-dialog-panel app-dialog-panel--padded bg-white dark:bg-[#1e1e2d] rounded-3xl w-full max-w-md shadow-2xl p-8 border border-white/20 dark:border-white/5 relative overflow-hidden scale-100 animate-in zoom-in-95 duration-200">
+                    <div className="app-dialog-panel app-dialog-panel--padded bg-white dark:bg-[#1c1917] rounded-3xl w-full max-w-md shadow-2xl p-8 border border-white/20 dark:border-white/5 relative overflow-hidden scale-100 animate-in zoom-in-95 duration-200">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/10 rounded-bl-full -mr-16 -mt-16 pointer-events-none" />
 
                         <div className="flex justify-between items-center mb-6 relative z-10">
@@ -439,7 +439,7 @@ const RoadResources: React.FC<RoadResourcesProps> = ({ subject, adminId, onNotif
                             <button
                                 onClick={handlePublish}
                                 disabled={isPublishing}
-                                className="px-6 py-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold shadow-lg shadow-green-500/30 hover:shadow-green-500/50 transition-all flex items-center gap-2"
+                                className="px-6 py-3 rounded-xl bg-green-500 hover:bg-green-600 text-white font-bold shadow-lg shadow-green-500/30 hover:shadow-green-500/50 transition-all flex items-center gap-2"
                             >
                                 {isPublishing ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Confirm Publish'}
                             </button>

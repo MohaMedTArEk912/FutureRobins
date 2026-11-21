@@ -81,7 +81,7 @@ const LiveProctoringManagement: React.FC<LiveProctoringManagementProps> = ({
                 className={`flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-6 transition-all ${
                     isBento
                         ? 'bg-white rounded-2xl border-[3px] border-black shadow-[6px_6px_0px_#000]'
-                        : 'bg-white/70 dark:bg-[#13141f]/70 backdrop-blur-xl rounded-3xl border border-gray-200 dark:border-white/5 shadow-sm'
+                        : 'bg-white/70 dark:bg-[#141210]/70 backdrop-blur-xl rounded-3xl border border-gray-200 dark:border-white/5 shadow-sm'
                 }`}
             >
                 <div>
@@ -137,7 +137,7 @@ const LiveProctoringManagement: React.FC<LiveProctoringManagementProps> = ({
                     className={`p-5 transition-all ${
                         isBento
                             ? 'bg-[#d9f99d] rounded-2xl border-[2.5px] border-black shadow-[5px_5px_0px_#000]'
-                            : 'rounded-3xl bg-white/70 dark:bg-[#13141f]/70 backdrop-blur-xl border border-gray-200/70 dark:border-white/5 shadow-sm'
+                            : 'rounded-3xl bg-white/70 dark:bg-[#141210]/70 backdrop-blur-xl border border-gray-200/70 dark:border-white/5 shadow-sm'
                     }`}
                 >
                     <div className="flex items-center justify-between mb-2">
@@ -160,7 +160,7 @@ const LiveProctoringManagement: React.FC<LiveProctoringManagementProps> = ({
                     className={`p-5 transition-all ${
                         isBento
                             ? 'bg-[#ffe4e6] rounded-2xl border-[2.5px] border-black shadow-[5px_5px_0px_#000]'
-                            : 'rounded-3xl bg-white/70 dark:bg-[#13141f]/70 backdrop-blur-xl border border-gray-200/70 dark:border-white/5 shadow-sm'
+                            : 'rounded-3xl bg-white/70 dark:bg-[#141210]/70 backdrop-blur-xl border border-gray-200/70 dark:border-white/5 shadow-sm'
                     }`}
                 >
                     <div className="flex items-center justify-between mb-2">
@@ -183,7 +183,7 @@ const LiveProctoringManagement: React.FC<LiveProctoringManagementProps> = ({
                     className={`p-5 transition-all ${
                         isBento
                             ? 'bg-[#fef9c3] rounded-2xl border-[2.5px] border-black shadow-[5px_5px_0px_#000]'
-                            : 'rounded-3xl bg-white/70 dark:bg-[#13141f]/70 backdrop-blur-xl border border-gray-200/70 dark:border-white/5 shadow-sm'
+                            : 'rounded-3xl bg-white/70 dark:bg-[#141210]/70 backdrop-blur-xl border border-gray-200/70 dark:border-white/5 shadow-sm'
                     }`}
                 >
                     <div className="flex items-center justify-between mb-2">
@@ -206,7 +206,7 @@ const LiveProctoringManagement: React.FC<LiveProctoringManagementProps> = ({
                     className={`p-5 transition-all ${
                         isBento
                             ? 'bg-[#e0f2fe] rounded-2xl border-[2.5px] border-black shadow-[5px_5px_0px_#000]'
-                            : 'rounded-3xl bg-white/70 dark:bg-[#13141f]/70 backdrop-blur-xl border border-gray-200/70 dark:border-white/5 shadow-sm'
+                            : 'rounded-3xl bg-white/70 dark:bg-[#141210]/70 backdrop-blur-xl border border-gray-200/70 dark:border-white/5 shadow-sm'
                     }`}
                 >
                     <div className="flex items-center justify-between mb-2">
@@ -232,7 +232,7 @@ const LiveProctoringManagement: React.FC<LiveProctoringManagementProps> = ({
                     className={`flex-1 flex items-center gap-3 px-4 py-2.5 ${
                         isBento
                             ? 'bg-white rounded-2xl border-[2.5px] border-black shadow-[4px_4px_0px_#000]'
-                            : 'bg-white/70 dark:bg-[#13141f]/70 backdrop-blur-xl rounded-3xl border border-gray-200 dark:border-white/5 shadow-sm'
+                            : 'bg-white/70 dark:bg-[#141210]/70 backdrop-blur-xl rounded-3xl border border-gray-200 dark:border-white/5 shadow-sm'
                     }`}
                 >
                     <Search className={`w-4 h-4 shrink-0 ${isBento ? 'text-black' : 'text-gray-400'}`} />
@@ -258,7 +258,7 @@ const LiveProctoringManagement: React.FC<LiveProctoringManagementProps> = ({
                                     : 'bg-white hover:bg-[#fef9c3] text-black rounded-xl border-2 border-black shadow-[2px_2px_0px_#000]'
                                 : riskFilter === 'all'
                                   ? 'bg-indigo-600 text-white rounded-2xl shadow-md shadow-indigo-500/30'
-                                  : 'bg-white/70 dark:bg-[#13141f]/70 text-gray-600 dark:text-gray-400 rounded-2xl border border-gray-200 dark:border-white/5 hover:bg-gray-100 dark:hover:bg-white/10'
+                                  : 'bg-white/70 dark:bg-[#141210]/70 text-gray-600 dark:text-gray-400 rounded-2xl border border-gray-200 dark:border-white/5 hover:bg-gray-100 dark:hover:bg-white/10'
                         }`}
                     >
                         {tx('All', 'الكل')} ({allSessions.length})
@@ -333,7 +333,7 @@ const LiveProctoringManagement: React.FC<LiveProctoringManagementProps> = ({
                     className={`py-20 text-center ${
                         isBento
                             ? 'bg-white rounded-2xl border-[2.5px] border-black shadow-[5px_5px_0px_#000]'
-                            : 'bg-white/70 dark:bg-[#13141f]/70 rounded-3xl border border-gray-200 dark:border-white/5'
+                            : 'bg-white/70 dark:bg-[#141210]/70 rounded-3xl border border-gray-200 dark:border-white/5'
                     }`}
                 >
                     <ShieldCheck className="w-12 h-12 text-emerald-500 mx-auto mb-3" />
@@ -366,7 +366,7 @@ const LiveProctoringManagement: React.FC<LiveProctoringManagementProps> = ({
                                           ? 'rounded-3xl border bg-red-50/50 dark:bg-red-950/15 border-red-300 dark:border-red-500/30 hover:shadow-lg'
                                           : isModerate
                                             ? 'rounded-3xl border bg-amber-50/50 dark:bg-amber-950/15 border-amber-300 dark:border-amber-500/30 hover:shadow-lg'
-                                            : 'rounded-3xl border bg-white/70 dark:bg-[#13141f]/70 border-gray-200 dark:border-white/5 hover:shadow-lg'
+                                            : 'rounded-3xl border bg-white/70 dark:bg-[#141210]/70 border-gray-200 dark:border-white/5 hover:shadow-lg'
                                 }`}
                             >
                                 <div>
@@ -377,7 +377,7 @@ const LiveProctoringManagement: React.FC<LiveProctoringManagementProps> = ({
                                                 <span
                                                     className={`px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider truncate max-w-[200px] ${
                                                         isBento
-                                                            ? 'bg-[#ddd6fe] text-black border border-black'
+                                                            ? 'bg-[#fed7aa] text-black border border-black'
                                                             : 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20'
                                                     }`}
                                                 >

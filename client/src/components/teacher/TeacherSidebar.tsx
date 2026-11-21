@@ -412,7 +412,7 @@ export const TeacherSidebar: React.FC<TeacherSidebarProps> = ({
     return (
         <>
             {/* Mobile & Tablet Top Bar (replaces Top Navbar for Teachers) */}
-            <div className={`lg:hidden flex items-center justify-between gap-2.5 p-3 rounded-2xl mb-1 ${styles.mobileTopBar}`}>
+            <div data-snake-wall="top" className={`lg:hidden flex items-center justify-between gap-2.5 p-3 rounded-2xl mb-1 ${styles.mobileTopBar}`}>
                 <div className="flex items-center gap-2 min-w-0">
                     <button
                         type="button"
@@ -446,7 +446,6 @@ export const TeacherSidebar: React.FC<TeacherSidebarProps> = ({
                 </div>
 
                 <div className="flex items-center gap-1.5 shrink-0">
-                    <DemoRoleSwitchButton variant="navbar-mobile" />
                     <button
                         type="button"
                         onClick={() => (isChatOpen ? closeChat() : openChat())}

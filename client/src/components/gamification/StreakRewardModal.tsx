@@ -137,7 +137,7 @@ export const StreakRewardModal: React.FC<StreakRewardModalProps> = ({
                                         : 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[3px_3px_0px_#000] active:translate-x-0.5 active:translate-y-0.5'
                                     : isClaimedToday
                                         ? 'bg-gray-200 dark:bg-white/10 text-gray-400 cursor-default shadow-none'
-                                        : 'bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-md shadow-orange-500/25'
+                                        : 'bg-orange-500 hover:bg-orange-600 text-white shadow-md shadow-orange-500/25'
                             }`}
                         >
                             {isClaimedToday ? '✓ Claimed Today' : 'Claim Day Reward'}
@@ -150,7 +150,7 @@ export const StreakRewardModal: React.FC<StreakRewardModalProps> = ({
                     <div className={`p-4 rounded-xl flex items-center justify-between ${
                         isBento
                             ? 'bg-[#fff7ed] border-2 border-black shadow-[3px_3px_0px_#000]'
-                            : 'bg-gradient-to-r from-orange-500/10 via-amber-500/10 to-transparent border border-orange-500/20'
+                            : 'bg-orange-500/10 border border-orange-500/20'
                     }`}>
                         <div className="flex items-center gap-3">
                             <div className={`w-10 h-10 rounded-lg flex items-center justify-center font-black text-lg ${
@@ -198,7 +198,7 @@ export const StreakRewardModal: React.FC<StreakRewardModalProps> = ({
                                         isToday
                                             ? isBento
                                                 ? 'bg-[#fed7aa] border-2 border-black shadow-[3px_3px_0px_#000] z-10 text-black'
-                                                : 'bg-gradient-to-b from-orange-500/20 to-amber-500/10 border-2 border-orange-500 ring-2 ring-orange-500/40 shadow-md shadow-orange-500/20 z-10'
+                                                : 'bg-orange-500/20 border-2 border-orange-500 ring-2 ring-orange-500/40 shadow-md shadow-orange-500/20 z-10'
                                             : isPast
                                                 ? isBento
                                                     ? 'bg-[#dcfce7] border-2 border-black shadow-[2px_2px_0px_#000] text-black'

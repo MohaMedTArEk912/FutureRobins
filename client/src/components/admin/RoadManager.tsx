@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-    Sparkles, Edit, BookOpen, GraduationCap, Brain, Eye, EyeOff
+    Sparkles, Edit, GraduationCap, Brain, Eye, EyeOff
 } from 'lucide-react';
 import { api } from '../../lib/api';
 import type { UserData, Subject, Quiz } from '../../types';
 import { useTheme } from '../../context/ThemeContext';
-import StudyCardManagement from './StudyCardManagement';
 import RoadmapManagement from './RoadmapManagement';
 import RoadResources from './RoadResources';
 import QuizEditorModal from '../quizzes/QuizEditorModal';
@@ -22,7 +21,7 @@ type RoadTab = 'roadmap' | 'quizzes' | 'materials';
 const TABS: { id: RoadTab; label: string; icon: React.ComponentType<{ className?: string }>; description: string }[] = [
     { id: 'roadmap', label: 'Visual Roadmap', icon: Brain, description: 'Interactive node graph & curriculum' },
     { id: 'quizzes', label: 'Quizzes & Assessment', icon: GraduationCap, description: 'Assigned and available quizzes' },
-    { id: 'materials', label: 'Learning Hub & AI', icon: Sparkles, description: 'AI quiz generator, documents & flashcards' },
+    { id: 'materials', label: 'Learning Hub & AI', icon: Sparkles, description: 'AI quiz generator & course documents' },
 ];
 
 interface RoadManagerProps {
@@ -59,7 +58,6 @@ const RoadManager: React.FC<RoadManagerProps> = ({ currentUser, onNotification }
 
     // Tab State for Detail View (Defaults directly to the Roadmap workspace!)
     const [activeTab, setActiveTab] = useState<RoadTab>('roadmap');
-    const [materialsSubTab, setMaterialsSubTab] = useState<'resources' | 'study'>('resources');
     const [roadmapDirty, setRoadmapDirty] = useState(false);
     const [roadmapLeaveGuard, setRoadmapLeaveGuard] = useState<(() => Promise<boolean>) | null>(null);
 
@@ -367,7 +365,7 @@ const RoadManager: React.FC<RoadManagerProps> = ({ currentUser, onNotification }
                     <div className={`p-4 sm:p-5 rounded-3xl mb-5 transition-all ${
                         isBento
                             ? 'bg-white text-black border-[2.5px] border-black shadow-[4px_4px_0px_#000]'
-                            : 'bg-white/60 dark:bg-[#1e1e2d]/60 backdrop-blur-xl border border-white/20 dark:border-white/5 shadow-sm'
+                            : 'bg-white/60 dark:bg-[#1c1917]/60 backdrop-blur-xl border border-white/20 dark:border-white/5 shadow-sm'
                     }`}>
                         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                             {/* Left: Road Identity & Info */}
@@ -375,7 +373,7 @@ const RoadManager: React.FC<RoadManagerProps> = ({ currentUser, onNotification }
                                 <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-sm ${
                                     isBento
                                         ? 'bg-[#fef08a] border-2 border-black text-black'
-                                        : 'bg-gradient-to-br from-indigo-500/10 to-purple-500/10 text-indigo-500 border border-indigo-500/20'
+                                        : 'bg-indigo-500/10 text-indigo-500 border border-indigo-500/20'
                                 }`}>
                                     <RoadIcon iconName={selectedRoad.icon} className="w-6 h-6 sm:w-7 sm:h-7" />
                                 </div>
@@ -452,8 +450,8 @@ const RoadManager: React.FC<RoadManagerProps> = ({ currentUser, onNotification }
                                         className={`px-4 sm:px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-2 transition-all shrink-0 cursor-pointer ${
                                             isActive
                                                 ? isBento
-                                                    ? 'bg-[#8b5cf6] text-white border-2 border-black shadow-[2.5px_2.5px_0px_#000]'
-                                                    : 'bg-white dark:bg-[#1e1e2d] text-indigo-600 dark:text-indigo-400 shadow-md shadow-indigo-500/10 ring-1 ring-black/5 dark:ring-white/10'
+                                                    ? 'bg-[#0d9488] text-white border-2 border-black shadow-[2.5px_2.5px_0px_#000]'
+                                                    : 'bg-white dark:bg-[#1c1917] text-indigo-600 dark:text-indigo-400 shadow-md shadow-indigo-500/10 ring-1 ring-black/5 dark:ring-white/10'
                                                 : isBento
                                                     ? 'hover:bg-slate-100 text-black'
                                                     : 'hover:bg-white/50 dark:hover:bg-white/5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
@@ -514,72 +512,23 @@ const RoadManager: React.FC<RoadManagerProps> = ({ currentUser, onNotification }
                             />
                         )}
 
-                        {/* Tab 3: Unified Learning Hub (Documents, AI Quiz Generator & Flashcards) */}
+                        {/* Tab 3: Learning Hub (Documents & AI Quiz Generator) */}
                         {activeTab === 'materials' && (
                             <div className="space-y-6">
-                                {/* Segmented Control inside Learning Hub */}
-                                <div className={`p-2 rounded-2xl flex items-center justify-between flex-wrap gap-3 transition-all ${
-                                    isBento
-                                        ? 'bg-white text-black border-2 border-black shadow-[3px_3px_0px_#000]'
-                                        : 'bg-white/60 dark:bg-[#1e1e2d]/60 backdrop-blur-xl border border-white/20 dark:border-white/5 shadow-sm'
-                                }`}>
-                                    <div className="flex items-center gap-2">
-                                        <button
-                                            type="button"
-                                            onClick={() => setMaterialsSubTab('resources')}
-                                            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
-                                                materialsSubTab === 'resources'
-                                                    ? isBento
-                                                        ? 'bg-[#fef08a] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                                        : 'bg-white dark:bg-[#252538] text-indigo-600 dark:text-indigo-400 shadow-sm border border-slate-200 dark:border-white/10'
-                                                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                                            }`}
-                                        >
-                                            <Sparkles className="w-4 h-4 text-purple-500" />
-                                            <span>Documents & AI Quiz Generator</span>
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => setMaterialsSubTab('study')}
-                                            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
-                                                materialsSubTab === 'study'
-                                                    ? isBento
-                                                        ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                                        : 'bg-white dark:bg-[#252538] text-indigo-600 dark:text-indigo-400 shadow-sm border border-slate-200 dark:border-white/10'
-                                                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                                            }`}
-                                        >
-                                            <BookOpen className="w-4 h-4 text-indigo-500" />
-                                            <span>Study Flashcard Decks</span>
-                                        </button>
-                                    </div>
-                                    <span className="text-xs text-slate-500 dark:text-slate-400 font-medium px-2 hidden md:inline">
-                                        {materialsSubTab === 'resources' ? 'Upload course content and generate AI quizzes' : 'Manage active recall cards for this subject'}
-                                    </span>
-                                </div>
-
-                                {materialsSubTab === 'resources' ? (
-                                    <RoadResources
-                                        subject={selectedRoad}
-                                        adminId={currentUser.userId}
-                                        onNotification={onNotification}
-                                        onRefresh={() => {
-                                            loadRoads();
-                                            api.getAllSubjects(currentUser.userId).then(subjects => {
-                                                if (selectedRoad) {
-                                                    const updated = subjects.find((r: Subject) => r._id === selectedRoad._id);
-                                                    if (updated) setSelectedRoad(updated);
-                                                }
-                                            });
-                                        }}
-                                    />
-                                ) : (
-                                    <StudyCardManagement
-                                        currentUser={currentUser}
-                                        onNotification={onNotification}
-                                        subjectId={selectedRoad._id}
-                                    />
-                                )}
+                                <RoadResources
+                                    subject={selectedRoad}
+                                    adminId={currentUser.userId}
+                                    onNotification={onNotification}
+                                    onRefresh={() => {
+                                        loadRoads();
+                                        api.getAllSubjects(currentUser.userId).then(subjects => {
+                                            if (selectedRoad) {
+                                                const updated = subjects.find((r: Subject) => r._id === selectedRoad._id);
+                                                if (updated) setSelectedRoad(updated);
+                                            }
+                                        });
+                                    }}
+                                />
                             </div>
                         )}
                     </div>

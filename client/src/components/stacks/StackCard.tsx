@@ -31,7 +31,7 @@ const StackCard: React.FC<StackCardProps> = ({
             className={`p-6 transition-all group cursor-pointer relative overflow-hidden ${
                 isBento
                     ? 'card bg-white rounded-2xl border-[2.5px] border-black shadow-[4px_4px_0px_#000] hover:shadow-[6px_6px_0px_#000] hover:-translate-y-0.5'
-                    : 'bg-white dark:bg-[#1a1b26] rounded-3xl border border-gray-200 dark:border-white/5 hover:border-purple-500/50 hover:shadow-xl hover:shadow-purple-500/10'
+                    : 'bg-white dark:bg-[#1c1917] rounded-3xl border border-gray-200 dark:border-white/5 hover:border-teal-500/50 hover:shadow-xl hover:shadow-teal-500/10'
             }`}
         >
             {!isUncategorized && subject && (
@@ -78,8 +78,8 @@ const StackCard: React.FC<StackCardProps> = ({
                         ? 'bg-gray-100 border-2 border-black text-black shadow-[2px_2px_0px_#000]'
                         : 'bg-[#fde047] border-2 border-black text-black shadow-[3px_3px_0px_#000] group-hover:scale-105'
                     : isUncategorized
-                        ? 'bg-gray-100 dark:bg-white/5 text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-400'
-                        : 'bg-gradient-to-br from-purple-500/10 to-indigo-500/10 text-purple-600 dark:text-purple-400 group-hover:scale-110'
+                        ? 'bg-gray-100 dark:bg-white/5 text-gray-400 group-hover:text-teal-600 dark:group-hover:text-teal-400'
+                        : 'bg-teal-500/10 text-teal-600 dark:text-teal-400 group-hover:scale-110'
             }`}>
                 {React.createElement(subject ? getIcon(subject.icon) : Folder, { className: "w-8 h-8" })}
             </div>
@@ -98,7 +98,7 @@ const StackCard: React.FC<StackCardProps> = ({
                             : 'h-1 w-12 bg-gray-100 dark:bg-white/10 rounded-full'
                     }`}>
                         <div
-                            className={`h-full ${isBento ? 'bg-[#bef264]' : 'bg-purple-500'}`}
+                            className={`h-full ${isBento ? 'bg-[#bef264]' : 'bg-teal-500'}`}
                             style={{ width: `${Math.min((quizCount / 20) * 100, 100)}%` }}
                         />
                     </div>

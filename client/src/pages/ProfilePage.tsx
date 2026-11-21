@@ -10,12 +10,14 @@ import { ArrowLeft, User as UserIcon } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { AmbientBackground } from '../components/AmbientBackground';
+import { usePersistentShell } from '../context/PersistentShellContext';
 
 const ProfilePage: React.FC = () => {
     const { userId: routeUserId } = useParams<{ userId?: string }>();
     const { currentUser, updateUser } = useAuth();
     const { userWithRank, allAttempts, allUsers } = useData();
     const { isBento } = useTheme();
+    const { inPersistentShell } = usePersistentShell();
     const navigate = useNavigate();
 
     const handleBack = () => {
@@ -29,9 +31,9 @@ const ProfilePage: React.FC = () => {
     // If viewing another user's profile:
     if (routeUserId && routeUserId !== currentUser?.userId) {
         return (
-            <div className={`min-h-screen relative flex flex-col ${isBento ? 'bg-[#fffbeb]' : 'bg-[#090d16]'}`}>
-                <AmbientBackground />
-                <Navbar user={currentUser} />
+            <div className={inPersistentShell ? 'w-full relative flex flex-col' : `min-h-dvh relative flex flex-col ${isBento ? 'bg-[#fffbeb]' : 'bg-slate-50 dark:bg-[#0a0908]'}`}>
+                {!inPersistentShell && <AmbientBackground />}
+                {!inPersistentShell && <Navbar user={currentUser} />}
 
                 <main className="flex-1 max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8 w-full relative z-10 space-y-6">
                     {/* Back Button Bar */}
@@ -61,7 +63,7 @@ const ProfilePage: React.FC = () => {
                     />
                 </main>
 
-                <Footer />
+                {!inPersistentShell && <Footer />}
             </div>
         );
     }

@@ -652,7 +652,7 @@ const QuizManager: React.FC<QuizManagerProps> = ({ quizzes, currentUser, onRefre
                             className={`p-2.5 sm:p-3 rounded-xl transition-all cursor-pointer ${
                                 isBento
                                     ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5'
-                                    : 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-900/50'
+                                    : 'bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 hover:bg-teal-200 dark:hover:bg-teal-900/50'
                             }`}
                             title="More Options"
                         >
@@ -662,7 +662,7 @@ const QuizManager: React.FC<QuizManagerProps> = ({ quizzes, currentUser, onRefre
                             <div className={`absolute right-0 top-full mt-2 w-48 rounded-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 ${
                                 isBento
                                     ? 'bg-white border-2 border-black shadow-[4px_4px_0px_#000] text-black font-mono'
-                                    : 'bg-white dark:bg-[#1e1e2d] shadow-xl border border-gray-100 dark:border-gray-700 text-gray-700 dark:text-gray-200'
+                                    : 'bg-white dark:bg-[#1c1917] shadow-xl border border-gray-100 dark:border-[#f5f3ec]/16 text-gray-700 dark:text-gray-200'
                             }`}>
                                 <button
                                     onClick={() => { handleDownloadSample(); setActiveHeaderMenu(false); }}
@@ -695,7 +695,7 @@ const QuizManager: React.FC<QuizManagerProps> = ({ quizzes, currentUser, onRefre
                         className={`px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 cursor-pointer shrink-0 ${
                             isBento
                                 ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:shadow-[4px_4px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 font-mono'
-                                : 'bg-purple-600 hover:bg-purple-700 text-white shadow-lg shadow-purple-600/25 hover:shadow-purple-600/40 hover:-translate-y-0.5'
+                                : 'bg-teal-600 hover:bg-teal-700 text-white shadow-lg shadow-teal-600/25 hover:shadow-teal-600/40 hover:-translate-y-0.5'
                         }`}
                     >
                         <Plus className={`w-4 h-4 sm:w-5 sm:h-5 ${isBento ? 'text-black' : 'text-white'}`} />
@@ -720,7 +720,7 @@ const QuizManager: React.FC<QuizManagerProps> = ({ quizzes, currentUser, onRefre
                             quizTypeFilter === 'all'
                                 ? isBento
                                     ? 'bg-black text-white border-2 border-black shadow-[2px_2px_0px_#bef264] font-mono'
-                                    : 'bg-purple-600 text-white shadow-lg shadow-purple-500/30'
+                                    : 'bg-teal-600 text-white shadow-lg shadow-teal-500/30'
                                 : isBento
                                     ? 'bg-white text-black border-2 border-black hover:bg-neutral-100 font-mono'
                                     : 'bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/20'
@@ -734,7 +734,7 @@ const QuizManager: React.FC<QuizManagerProps> = ({ quizzes, currentUser, onRefre
                             quizTypeFilter === 'session'
                                 ? isBento
                                     ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000] font-mono'
-                                    : 'bg-purple-600 text-white shadow-lg shadow-purple-500/30'
+                                    : 'bg-teal-600 text-white shadow-lg shadow-teal-500/30'
                                 : isBento
                                     ? 'bg-white text-black border-2 border-black hover:bg-neutral-100 font-mono'
                                     : 'bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/20'
@@ -809,7 +809,7 @@ const QuizManager: React.FC<QuizManagerProps> = ({ quizzes, currentUser, onRefre
                                 const allSelected = visibleIds.length > 0 && visibleIds.every(id => selectedQuizIds.includes(id));
                                 return (
                                     <>
-                                        {allSelected ? <CheckSquare className="w-4 h-4 text-purple-600 dark:text-purple-400" /> : <Square className="w-4 h-4 text-gray-400" />}
+                                        {allSelected ? <CheckSquare className="w-4 h-4 text-teal-600 dark:text-teal-400" /> : <Square className="w-4 h-4 text-gray-400" />}
                                         <span>{allSelected ? 'Deselect All' : 'Select All'}</span>
                                     </>
                                 );
@@ -819,7 +819,7 @@ const QuizManager: React.FC<QuizManagerProps> = ({ quizzes, currentUser, onRefre
                             <span className={`px-2.5 py-1 rounded-xl text-xs font-black uppercase tracking-wider ${
                                 isBento
                                     ? 'bg-[#fef08a] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]'
-                                    : 'bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300'
+                                    : 'bg-teal-100 dark:bg-teal-900/40 text-teal-700 dark:text-teal-300'
                             }`}>
                                 {selectedQuizIds.length} Selected
                             </span>
@@ -834,7 +834,7 @@ const QuizManager: React.FC<QuizManagerProps> = ({ quizzes, currentUser, onRefre
                                 className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer ${
                                     isBento
                                         ? 'bg-[#bef264] text-black border-2 border-black shadow-[2.5px_2.5px_0px_#000] hover:shadow-[3.5px_3.5px_0px_#000] active:translate-x-0.5 active:translate-y-0.5'
-                                        : 'bg-purple-600 hover:bg-purple-500 text-white shadow-md'
+                                        : 'bg-teal-600 hover:bg-teal-500 text-white shadow-md'
                                 }`}
                             >
                                 <Sliders className="w-4 h-4" />

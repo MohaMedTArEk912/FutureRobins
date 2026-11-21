@@ -24,7 +24,7 @@ const RoadQuizzes: React.FC<RoadQuizzesProps> = ({
     return (
         <div className="h-full overflow-y-auto space-y-6">
             {/* Assigned Quizzes Section */}
-            <div className="bg-white/60 dark:bg-[#1e1e2d]/60 backdrop-blur-xl p-6 rounded-3xl border border-white/20 dark:border-white/5">
+            <div className="bg-white/60 dark:bg-[#1c1917]/60 backdrop-blur-xl p-6 rounded-3xl border border-white/20 dark:border-white/5">
                 <div className="flex items-center justify-between mb-4">
                     <h3 className="text-xl font-black text-gray-900 dark:text-white flex items-center gap-3">
                         <span className="p-2 bg-green-500/10 rounded-lg">
@@ -37,7 +37,7 @@ const RoadQuizzes: React.FC<RoadQuizzesProps> = ({
                         className={`px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
                             isBento
                                 ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 font-mono'
-                                : 'bg-purple-600 hover:bg-purple-700 text-white shadow-md shadow-purple-600/20'
+                                : 'bg-teal-600 hover:bg-teal-700 text-white shadow-md shadow-teal-600/20'
                         }`}
                     >
                         <Plus className={`w-4 h-4 ${isBento ? 'text-black' : 'text-white'}`} />
@@ -82,7 +82,7 @@ const RoadQuizzes: React.FC<RoadQuizzesProps> = ({
             </div>
 
             {/* All Available Quizzes Section */}
-            <div className="bg-white/60 dark:bg-[#1e1e2d]/60 backdrop-blur-xl p-6 rounded-3xl border border-white/20 dark:border-white/5">
+            <div className="bg-white/60 dark:bg-[#1c1917]/60 backdrop-blur-xl p-6 rounded-3xl border border-white/20 dark:border-white/5">
                 <h3 className="text-xl font-black text-gray-900 dark:text-white mb-4 flex items-center gap-3">
                     <span className="p-2 bg-indigo-500/10 rounded-lg">
                         <GraduationCap className="w-5 h-5 text-indigo-500" />

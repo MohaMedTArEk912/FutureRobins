@@ -1,13 +1,19 @@
 import React from 'react';
 import { useTheme } from '../context/ThemeContext';
+import { useSecretGame } from '../context/SecretGameContext';
+import { NoirGeometricSnakeCanvas } from './NoirGeometricSnakeCanvas';
+
+const NOIR_STAGE_GRAIN =
+    "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='s'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23s)' opacity='0.06'/%3E%3C/svg%3E\")";
 
 export const AmbientBackground: React.FC = React.memo(() => {
     const { isBento } = useTheme();
+    const { activeGame } = useSecretGame();
 
     return (
-        <div 
+        <div
             className="ambient-background fixed inset-0 overflow-hidden pointer-events-none z-0 select-none"
-            style={{ 
+            style={{
                 contain: 'strict',
                 willChange: 'transform',
                 transform: 'translateZ(0)'
@@ -15,22 +21,9 @@ export const AmbientBackground: React.FC = React.memo(() => {
             aria-hidden="true"
         >
             {isBento ? (
-                /* Bento Mode: Floating geometric shapes + subtle colored corner washes */
+                /* Bento Mode: Solid floating geometric shapes (zero gradients), hidden during secret Bento Arcade */
+                activeGame === 'bento-arcade' ? null : (
                 <>
-                    {/* Soft colored corner washes for depth */}
-                    <div 
-                        className="absolute inset-0"
-                        style={{
-                            background: `
-                                radial-gradient(ellipse 50% 40% at 0% 0%, rgba(190, 242, 100, 0.12) 0%, transparent 70%),
-                                radial-gradient(ellipse 45% 35% at 100% 100%, rgba(186, 230, 253, 0.15) 0%, transparent 70%),
-                                radial-gradient(ellipse 40% 30% at 100% 0%, rgba(253, 224, 71, 0.1) 0%, transparent 65%),
-                                radial-gradient(ellipse 35% 25% at 0% 100%, rgba(221, 214, 254, 0.12) 0%, transparent 60%)
-                            `
-                        }}
-                    />
-
-                    {/* Floating geometric shapes scattered across the viewport */}
                     {/* Top-left cluster */}
                     <div className="absolute top-[6%] left-[4%] w-10 h-10 bg-[#fde047] border-[2.5px] border-black rounded-xl shadow-[3px_3px_0px_#000] rotate-12 animate-[float_6s_ease-in-out_infinite]" />
                     <div className="absolute top-[14%] left-[8%] w-4 h-4 bg-black rounded-full" />
@@ -48,7 +41,7 @@ export const AmbientBackground: React.FC = React.memo(() => {
 
                     {/* Bottom-left */}
                     <div className="absolute bottom-[12%] left-[3%] w-8 h-8 bg-white border-[2.5px] border-black shadow-[3px_3px_0px_#000] rotate-45 animate-[float_7s_ease-in-out_infinite_1.5s]" />
-                    <div className="absolute bottom-[6%] left-[7%] w-5 h-5 bg-[#ddd6fe] border-[2px] border-black rounded-lg shadow-[2px_2px_0px_#000] rotate-6 animate-[float_8s_ease-in-out_infinite_3s]" />
+                    <div className="absolute bottom-[6%] left-[7%] w-5 h-5 bg-[#fed7aa] border-[2px] border-black rounded-lg shadow-[2px_2px_0px_#000] rotate-6 animate-[float_8s_ease-in-out_infinite_3s]" />
 
                     {/* Bottom-right */}
                     <div className="absolute bottom-[10%] right-[5%] w-6 h-6 bg-[#bae6fd] border-[2px] border-black rounded-full shadow-[2px_2px_0px_#000] animate-[float_6s_ease-in-out_infinite_2.5s]" />
@@ -59,33 +52,20 @@ export const AmbientBackground: React.FC = React.memo(() => {
                     <div className="absolute top-[70%] right-[15%] w-3 h-3 bg-black rounded-full opacity-40" />
                     <div className="absolute top-[85%] left-[45%] w-4 h-4 bg-[#fde047] border-[2px] border-black rounded-full shadow-[2px_2px_0px_#000] animate-[float_10s_ease-in-out_infinite_4s]" />
                 </>
+                )
             ) : (
-                <>
-                    {/* Light Mode High-Performance Atmospheric Mesh (Clean, calm, zero-eye-fatigue) */}
-                    <div 
-                        className="absolute inset-0 dark:hidden transition-opacity duration-300"
+                /* Noir Studio Dark Mode: Tactile matte grain stage + interactive geometric orthogonal snake (zero gradients) */
+                <div className="absolute inset-0">
+                    <div
+                        className="absolute inset-0 pointer-events-none"
                         style={{
-                            background: `
-                                radial-gradient(ellipse 70% 45% at 50% -8%, rgba(99, 102, 241, 0.08) 0%, rgba(224, 231, 255, 0.15) 45%, transparent 70%),
-                                radial-gradient(circle 600px at 0% 25%, rgba(241, 245, 249, 0.9) 0%, transparent 60%),
-                                radial-gradient(circle 500px at 100% 60%, rgba(238, 242, 255, 0.5) 0%, transparent 65%)
-                            `
+                            backgroundImage: NOIR_STAGE_GRAIN,
+                            backgroundRepeat: 'repeat',
+                            backgroundSize: '160px 160px'
                         }}
                     />
-
-                    {/* Dark Mode High-Performance Atmospheric Mesh (Deep obsidian, rich indigo/violet horizon) */}
-                    <div 
-                        className="absolute inset-0 hidden dark:block transition-opacity duration-300"
-                        style={{
-                            background: `
-                                radial-gradient(ellipse 75% 50% at 50% -10%, rgba(99, 102, 241, 0.16) 0%, rgba(139, 92, 246, 0.08) 45%, transparent 75%),
-                                radial-gradient(circle 650px at 0% 30%, rgba(55, 48, 163, 0.12) 0%, transparent 65%),
-                                radial-gradient(circle 600px at 100% 60%, rgba(109, 40, 217, 0.1) 0%, transparent 65%),
-                                radial-gradient(circle 450px at 50% 100%, rgba(30, 27, 75, 0.25) 0%, transparent 70%)
-                            `
-                        }}
-                    />
-                </>
+                    {activeGame !== 'noir-snake' && <NoirGeometricSnakeCanvas />}
+                </div>
             )}
         </div>
     );

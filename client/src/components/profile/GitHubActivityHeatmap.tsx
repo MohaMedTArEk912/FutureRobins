@@ -122,7 +122,7 @@ export const GitHubActivityHeatmap: React.FC<GitHubActivityHeatmapProps> = ({
         <div className={`p-5 rounded-3xl transition-all ${
             isBento
                 ? 'bg-white text-black border-3 border-black shadow-[5px_5px_0px_#000]'
-                : 'bg-white dark:bg-[#111625] text-slate-900 dark:text-white border border-slate-200/80 dark:border-white/10 shadow-lg'
+                : 'bg-white dark:bg-[#141210] text-slate-900 dark:text-white border border-slate-200/80 dark:border-white/10 shadow-lg'
         }`}>
             {/* Header with Title and Streak Quick-Counters */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">

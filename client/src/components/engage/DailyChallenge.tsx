@@ -82,13 +82,25 @@ const formatDisplayDate = (dateStr: string) => {
   }
 };
 
+let cachedTodayDailyChallenge: DailyCompilerChallenge | null = null;
+
 const DailyChallenge: React.FC<DailyChallengeProps> = ({ user, onUserUpdate }) => {
   const { isBento } = useTheme();
 
-  // Challenge and active tier state
-  const [challenge, setChallenge] = useState<DailyCompilerChallenge | null>(null);
+  // Challenge and active tier state (seeded from memory cache for 0ms Frame-0 spatial swaps)
+  const [challenge, setChallenge] = useState<DailyCompilerChallenge | null>(() => cachedTodayDailyChallenge);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [activeTier, setActiveTier] = useState<TierKey>('easy');
+  const [activeTier, setActiveTier] = useState<TierKey>(() => {
+    if (cachedTodayDailyChallenge?.tiers) {
+      const tierKeys: TierKey[] = ['easy', 'medium', 'hard'];
+      return (
+        tierKeys.find(k => cachedTodayDailyChallenge?.tiers?.[k] && !cachedTodayDailyChallenge.tiers[k]?.completed) ||
+        tierKeys.find(k => cachedTodayDailyChallenge?.tiers?.[k]) ||
+        'easy'
+      );
+    }
+    return 'easy';
+  });
   const [codeByTier, setCodeByTier] = useState<Record<TierKey, string>>({
     easy: '',
     medium: '',
@@ -109,7 +121,7 @@ const DailyChallenge: React.FC<DailyChallengeProps> = ({ user, onUserUpdate }) =
     hard: null
   });
   const [showHints, setShowHints] = useState(false);
-  const [initialLoading, setInitialLoading] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(() => !cachedTodayDailyChallenge);
 
   // Calendar state
   const [showCalendar, setShowCalendar] = useState(false);
@@ -119,17 +131,35 @@ const DailyChallenge: React.FC<DailyChallengeProps> = ({ user, onUserUpdate }) =
   const [calendarLoading, setCalendarLoading] = useState(false);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const loadRequestIdRef = useRef(0);
+  const challengeRef = useRef<DailyCompilerChallenge | null>(null);
   const todayDateString = getTodayDateString();
 
   /**
    * Load challenge for today or a specific date
    */
   const loadChallenge = async (dateStr?: string | null) => {
+    const reqId = ++loadRequestIdRef.current;
     try {
       setLoadingChallenge(true);
       setError(null);
-      const res = await api.getDailyChallenge(user.userId, dateStr || undefined) as DailyCompilerChallenge;
+      let res: DailyCompilerChallenge;
+      try {
+        res = await api.getDailyChallenge(user.userId, dateStr || undefined) as DailyCompilerChallenge;
+      } catch (firstErr) {
+        // Retry once automatically in case a concurrent initial request triggered an upsert race
+        await new Promise((resolve) => setTimeout(resolve, 180));
+        if (reqId !== loadRequestIdRef.current && challengeRef.current) return;
+        res = await api.getDailyChallenge(user.userId, dateStr || undefined) as DailyCompilerChallenge;
+        void firstErr;
+      }
+      if (reqId !== loadRequestIdRef.current) return;
+      challengeRef.current = res;
+      if (!dateStr) {
+        cachedTodayDailyChallenge = res;
+      }
       setChallenge(res);
+      setError(null);
       setSelectedDate(dateStr || null);
 
       // Select first incomplete tier or first available tier
@@ -145,16 +175,28 @@ const DailyChallenge: React.FC<DailyChallengeProps> = ({ user, onUserUpdate }) =
       setRunOutputByTier({ easy: null, medium: null, hard: null });
       setResultByTier({ easy: null, medium: null, hard: null });
     } catch (err: unknown) {
+      if (reqId !== loadRequestIdRef.current) return;
+      // Do not display a generic failure banner if the challenge data is already loaded on screen
+      if (challengeRef.current && !dateStr) {
+        setError(null);
+        return;
+      }
       const errorMessage = err instanceof Error ? err.message : 'Failed to load challenge';
-      if (errorMessage.includes('No compiler questions') || errorMessage.includes('not found')) {
-        setError(dateStr ? `No coding challenge scheduled for ${formatDisplayDate(dateStr)}.` : 'No daily challenge available today. Check back tomorrow!');
+      if (
+        errorMessage.includes('No compiler questions') ||
+        errorMessage.includes('not found') ||
+        errorMessage.includes('Failed to process daily challenge request')
+      ) {
+        setError(dateStr ? `No coding challenge scheduled for ${formatDisplayDate(dateStr)}.` : null);
       } else {
         setError(errorMessage);
       }
       console.error('Daily challenge error:', err);
     } finally {
-      setLoadingChallenge(false);
-      setInitialLoading(false);
+      if (reqId === loadRequestIdRef.current) {
+        setLoadingChallenge(false);
+        setInitialLoading(false);
+      }
     }
   };
 
@@ -298,7 +340,7 @@ const DailyChallenge: React.FC<DailyChallengeProps> = ({ user, onUserUpdate }) =
           particleCount: res.allTiersCompleted ? 300 : 200,
           spread: 120,
           origin: { y: 0.6 },
-          colors: activeTier === 'hard' ? ['#F59E0B', '#EF4444', '#8B5CF6'] : ['#10B981', '#34D399', '#6EE7B7', '#A7F3D0']
+          colors: activeTier === 'hard' ? ['#F59E0B', '#EF4444', '#0d9488'] : ['#10B981', '#34D399', '#6EE7B7', '#A7F3D0']
         });
 
         // Update user balances (only update streak if today's challenge)
@@ -366,10 +408,10 @@ const DailyChallenge: React.FC<DailyChallengeProps> = ({ user, onUserUpdate }) =
   };
 
   const getStreakLevel = (streakCount: number) => {
-    if (streakCount >= 30) return { level: 'LEGENDARY', color: 'from-purple-500 to-pink-500', icon: '👑' };
-    if (streakCount >= 14) return { level: 'MASTER', color: 'from-red-500 to-orange-600', icon: '🔥' };
-    if (streakCount >= 7) return { level: 'ON FIRE', color: 'from-orange-400 to-yellow-500', icon: '⚡' };
-    return { level: 'RISING', color: 'from-blue-400 to-cyan-500', icon: '🌟' };
+    if (streakCount >= 30) return { level: 'LEGENDARY', color: 'bg-teal-600', icon: '👑' };
+    if (streakCount >= 14) return { level: 'MASTER', color: 'bg-rose-600', icon: '🔥' };
+    if (streakCount >= 7) return { level: 'ON FIRE', color: 'bg-amber-500', icon: '⚡' };
+    return { level: 'RISING', color: 'bg-sky-500', icon: '🌟' };
   };
 
   const streakInfo = getStreakLevel(streak);
@@ -384,7 +426,7 @@ const DailyChallenge: React.FC<DailyChallengeProps> = ({ user, onUserUpdate }) =
 
   if (initialLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0b] flex items-center justify-center">
+      <div className="min-h-[65vh] bg-transparent flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="w-12 h-12 text-orange-500 animate-spin mx-auto mb-4" />
           <p className="text-gray-600 dark:text-gray-400 font-medium">Loading challenge arena...</p>
@@ -394,7 +436,7 @@ const DailyChallenge: React.FC<DailyChallengeProps> = ({ user, onUserUpdate }) =
   }
 
   return (
-    <div className="min-h-dvh bg-slate-50 dark:bg-[#090d16] text-slate-900 dark:text-slate-100 selection:bg-indigo-500/25 p-4 md:p-6 relative overflow-hidden">
+    <div className="w-full bg-transparent text-slate-900 dark:text-slate-100 selection:bg-indigo-500/25 p-4 md:p-6 relative overflow-hidden">
       {/* Error Banner */}
       {error && (
         <div className="max-w-5xl mx-auto mb-6 bg-rose-500/10 border border-rose-500/20 text-rose-500 dark:text-rose-400 p-4 rounded-2xl flex items-center gap-2 backdrop-blur-md relative z-10 text-sm">
@@ -417,7 +459,7 @@ const DailyChallenge: React.FC<DailyChallengeProps> = ({ user, onUserUpdate }) =
             <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 ${
               isBento
                 ? 'bg-[#fde047] text-black border-2 border-black shadow-[3px_3px_0px_#000]'
-                : 'bg-gradient-to-br from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-500/25'
+                : 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/25'
             }`}>
               <Swords className="w-8 h-8" />
             </div>
@@ -431,7 +473,7 @@ const DailyChallenge: React.FC<DailyChallengeProps> = ({ user, onUserUpdate }) =
                   <Layers className="w-3.5 h-3.5" /> 3 Tiers Daily
                 </span>
                 {isArchived && (
-                  <span className="px-2.5 py-0.5 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-600 dark:text-purple-400 text-xs font-black uppercase tracking-wider flex items-center gap-1">
+                  <span className="px-2.5 py-0.5 rounded-lg bg-teal-500/20 border border-teal-500/30 text-teal-600 dark:text-teal-400 text-xs font-black uppercase tracking-wider flex items-center gap-1">
                     <History className="w-3.5 h-3.5" /> Archive Mode
                   </span>
                 )}
@@ -507,7 +549,7 @@ const DailyChallenge: React.FC<DailyChallengeProps> = ({ user, onUserUpdate }) =
               <div className="flex items-center gap-3">
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
                   isBento
-                    ? 'bg-[#c4b5fd] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                    ? 'bg-[#fdba74] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
                     : 'bg-indigo-500/10 text-indigo-500 dark:text-indigo-400'
                 }`}>
                   <Calendar className="w-5 h-5" />
@@ -667,7 +709,7 @@ const DailyChallenge: React.FC<DailyChallengeProps> = ({ user, onUserUpdate }) =
                               <span className="hidden sm:inline">{dayData?.completedTiers}/{dayData?.totalTiers}</span>
                             </span>
                           ) : (
-                            <span className="flex items-center gap-0.5 text-[9px] sm:text-[10px] font-black text-purple-600 dark:text-purple-400">
+                            <span className="flex items-center gap-0.5 text-[9px] sm:text-[10px] font-black text-teal-600 dark:text-teal-400">
                               <Code2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                               <span className="hidden sm:inline">Solve</span>
                             </span>
@@ -692,7 +734,7 @@ const DailyChallenge: React.FC<DailyChallengeProps> = ({ user, onUserUpdate }) =
                   <span className={isBento ? 'text-black/80' : 'text-slate-600 dark:text-slate-300'}>In Progress</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="w-3 h-3 rounded-full bg-purple-500 inline-block" />
+                  <span className="w-3 h-3 rounded-full bg-teal-500 inline-block" />
                   <span className={isBento ? 'text-black/80' : 'text-slate-600 dark:text-slate-300'}>Available to Solve</span>
                 </div>
                 <div className="flex items-center gap-1.5 opacity-50">
@@ -714,7 +756,7 @@ const DailyChallenge: React.FC<DailyChallengeProps> = ({ user, onUserUpdate }) =
         <div className="max-w-5xl mx-auto mb-6 relative z-10 animate-in fade-in slide-in-from-top-2 duration-300">
           <div className={`p-4 sm:p-5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 ${
             isBento
-              ? 'bg-[#c4b5fd] text-black border-3 border-black shadow-[4px_4px_0px_#000]'
+              ? 'bg-[#fdba74] text-black border-3 border-black shadow-[4px_4px_0px_#000]'
               : 'bg-indigo-500/10 border-2 border-indigo-500/30 backdrop-blur-xl'
           }`}>
             <div className="flex items-center gap-3">
@@ -793,7 +835,7 @@ const DailyChallenge: React.FC<DailyChallengeProps> = ({ user, onUserUpdate }) =
           <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-3 ${
             isBento
               ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-              : 'bg-gradient-to-br from-amber-400 to-amber-500 text-white shadow-lg shadow-amber-500/20'
+              : 'bg-amber-400 text-white shadow-lg shadow-amber-500/20'
           }`}>
             <Trophy className="w-6 h-6" />
           </div>
@@ -822,7 +864,7 @@ const DailyChallenge: React.FC<DailyChallengeProps> = ({ user, onUserUpdate }) =
           <div className={`p-5 rounded-3xl flex items-center justify-between gap-4 ${
             isBento
               ? 'bg-[#bef264] text-black border-3 border-black shadow-[6px_6px_0px_#000]'
-              : 'bg-gradient-to-r from-emerald-500/20 via-amber-500/20 to-purple-500/20 border-2 border-emerald-500/40 backdrop-blur-xl'
+              : 'bg-emerald-500/20 border-2 border-emerald-500/40 backdrop-blur-xl'
           }`}>
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-2xl bg-amber-400/30 flex items-center justify-center text-2xl shrink-0">
@@ -859,7 +901,7 @@ const DailyChallenge: React.FC<DailyChallengeProps> = ({ user, onUserUpdate }) =
             <div className="max-w-5xl mx-auto mb-6 relative z-10">
               <div className="flex items-center justify-between mb-3">
                 <h3 className={`text-sm font-black uppercase tracking-wider flex items-center gap-2 ${isBento ? 'text-black' : 'text-gray-700 dark:text-gray-300'}`}>
-                  <Layers className="w-4 h-4 text-purple-500" />
+                  <Layers className="w-4 h-4 text-teal-500" />
                   Select Difficulty Tier:
                 </h3>
                 <span className="text-xs font-bold text-gray-400">
@@ -959,7 +1001,7 @@ const DailyChallenge: React.FC<DailyChallengeProps> = ({ user, onUserUpdate }) =
                   <div className="flex flex-wrap items-center gap-2 mb-3">
                     <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider ${
                       isBento
-                        ? 'bg-[#ddd6fe] text-black border-2 border-black'
+                        ? 'bg-[#fed7aa] text-black border-2 border-black'
                         : 'bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400'
                     }`}>
                       {currentQuestion.category}
@@ -1038,7 +1080,7 @@ const DailyChallenge: React.FC<DailyChallengeProps> = ({ user, onUserUpdate }) =
                     className={`w-full h-64 rounded-2xl p-4 font-mono text-xs sm:text-sm resize-none focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed ${
                       isBento
                         ? 'bg-black text-[#bef264] border-3 border-black shadow-[4px_4px_0px_#000] focus:ring-3 focus:ring-black'
-                        : 'bg-slate-900 text-emerald-400 dark:bg-[#070b14] border border-slate-700/60 dark:border-white/10 placeholder-slate-500 focus:ring-2 focus:ring-indigo-500/50 shadow-inner'
+                        : 'bg-slate-900 text-emerald-400 dark:bg-[#0a0908] border border-slate-700/60 dark:border-white/10 placeholder-slate-500 focus:ring-2 focus:ring-indigo-500/50 shadow-inner'
                     }`}
                     spellCheck={false}
                   />
@@ -1238,7 +1280,7 @@ const DailyChallenge: React.FC<DailyChallengeProps> = ({ user, onUserUpdate }) =
                       <div className="flex items-center justify-between mb-2.5">
                         <h5 className={`font-black text-xs uppercase tracking-wider flex items-center gap-2 ${isBento ? 'text-black' : 'text-slate-900 dark:text-white'}`}>
                           <span className={`w-5 h-5 rounded-md flex items-center justify-center ${
-                            isBento ? 'bg-[#c084fc] text-black border border-black shadow-[1px_1px_0px_#000]' : 'bg-purple-500/20 text-purple-400'
+                            isBento ? 'bg-[#fdba74] text-black border border-black shadow-[1px_1px_0px_#000]' : 'bg-teal-500/20 text-teal-400'
                           }`}>
                             <Sparkles className="w-3 h-3" />
                           </span>

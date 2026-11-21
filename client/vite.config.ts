@@ -22,8 +22,8 @@ export default defineConfig(({ command, mode }) => ({
         name: 'Quiz Platform',
         short_name: 'Quiz Platform',
         description: 'Test your computer science knowledge, master skill tracks, and compete on the leaderboard.',
-        theme_color: '#101326',
-        background_color: '#101326',
+        theme_color: '#0a0908',
+        background_color: '#0a0908',
         display: 'standalone',
         display_override: ['window-controls-overlay', 'standalone', 'minimal-ui'],
         orientation: 'portrait-primary',
@@ -79,13 +79,6 @@ export default defineConfig(({ command, mode }) => ({
             short_name: 'Leaderboard',
             description: 'Check your rank on the leaderboard',
             url: '/leaderboard',
-            icons: [{ src: 'pwa-192x192.png', sizes: '192x192' }]
-          },
-          {
-            name: 'Study Cards',
-            short_name: 'Study',
-            description: 'Review flashcards and concept summaries',
-            url: '/study',
             icons: [{ src: 'pwa-192x192.png', sizes: '192x192' }]
           }
         ]

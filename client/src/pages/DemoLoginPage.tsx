@@ -13,6 +13,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage, type AppLanguage } from '../context/LanguageContext';
+import { AmbientBackground } from '../components/AmbientBackground';
 
 const DEMO_VISITOR_NAME_KEY = 'demoVisitorName';
 
@@ -118,17 +119,18 @@ const DemoLoginPage: React.FC = () => {
 
     return (
         <div
-            className={`min-h-dvh flex items-center justify-center p-4 ${
+            className={`min-h-dvh flex items-center justify-center p-4 relative overflow-hidden ${
                 isBento
                     ? 'bg-[#f5f3ec] text-black'
-                    : 'bg-slate-50 dark:bg-[#090d16] text-slate-900 dark:text-white'
+                    : 'bg-slate-50 dark:bg-[#0a0908] text-slate-900 dark:text-[#f5f3ec]'
             }`}
         >
+            <AmbientBackground />
             <div
-                className={`w-full max-w-md p-6 sm:p-8 rounded-3xl space-y-5 relative ${
+                className={`w-full max-w-md p-6 sm:p-8 rounded-3xl space-y-5 relative z-10 ${
                     isBento
                         ? 'bg-white border-[3px] border-black shadow-[8px_8px_0px_#000]'
-                        : 'bg-white dark:bg-[#111625] border border-slate-200 dark:border-white/10 shadow-2xl'
+                        : 'bg-white dark:bg-[#141210] border border-slate-200 dark:border-[1.5px] dark:border-[#2e2924] shadow-2xl dark:shadow-[0_6px_0_#050504]'
                 }`}
             >
                 <div className="flex items-center justify-between gap-2">
@@ -151,7 +153,7 @@ const DemoLoginPage: React.FC = () => {
                         className={`w-16 h-16 mx-auto rounded-2xl flex items-center justify-center ${
                             isBento
                                 ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000]'
-                                : 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
+                                : 'bg-indigo-600 dark:bg-[#bef264] text-white dark:text-[#0a0908] shadow-md dark:shadow-[0_3px_0_#050504]'
                         }`}
                     >
                         {error ? (
@@ -262,7 +264,7 @@ const DemoLoginPage: React.FC = () => {
                                     className={`w-full ps-10 pe-3.5 py-3 text-sm font-bold outline-none transition-all ${
                                         isBento
                                             ? 'bg-[#f8f7f2] text-black rounded-xl border-2 border-black focus:bg-white focus:shadow-[3px_3px_0px_#000]'
-                                            : 'bg-slate-50 dark:bg-white/5 text-slate-900 dark:text-white rounded-xl border border-slate-200 dark:border-white/10 focus:border-indigo-500'
+                                            : 'bg-slate-50 dark:bg-[#1c1917] text-slate-900 dark:text-[#f5f3ec] rounded-xl border border-slate-200 dark:border-[#2e2924] focus:border-indigo-500 dark:focus:border-[#bef264]'
                                     }`}
                                 />
                             </div>
@@ -285,10 +287,10 @@ const DemoLoginPage: React.FC = () => {
                                         selectedRole === 'student'
                                             ? isBento
                                                 ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                                : 'bg-indigo-600 text-white shadow-sm'
+                                                : 'bg-indigo-600 dark:bg-[#bef264] text-white dark:text-[#0a0908] shadow-sm dark:shadow-[0_3px_0_#050504]'
                                             : isBento
                                               ? 'bg-white text-black border-2 border-black/30 hover:border-black'
-                                              : 'bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-slate-300 border border-transparent'
+                                              : 'bg-slate-100 dark:bg-[#1c1917] text-slate-700 dark:text-[#b5aea4] border border-transparent dark:border-[#2e2924]'
                                     }`}
                                 >
                                     <Zap className="w-3.5 h-3.5 shrink-0" />
@@ -301,10 +303,10 @@ const DemoLoginPage: React.FC = () => {
                                         selectedRole === 'teacher'
                                             ? isBento
                                                 ? 'bg-[#bae6fd] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                                : 'bg-indigo-600 text-white shadow-sm'
+                                                : 'bg-indigo-600 dark:bg-[#bae6fd] text-white dark:text-[#0a0908] shadow-sm dark:shadow-[0_3px_0_#050504]'
                                             : isBento
                                               ? 'bg-white text-black border-2 border-black/30 hover:border-black'
-                                              : 'bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-slate-300 border border-transparent'
+                                              : 'bg-slate-100 dark:bg-[#1c1917] text-slate-700 dark:text-[#b5aea4] border border-transparent dark:border-[#2e2924]'
                                     }`}
                                 >
                                     <GraduationCap className="w-3.5 h-3.5 shrink-0" />
@@ -318,7 +320,7 @@ const DemoLoginPage: React.FC = () => {
                             className={`btn-unstyled w-full py-3.5 px-4 rounded-xl font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer transition-all ${
                                 isBento
                                     ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-[2.5px] border-black shadow-[4px_4px_0px_#000] active:translate-y-0.5'
-                                    : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-600/25'
+                                    : 'bg-indigo-600 hover:bg-indigo-700 dark:bg-[#bef264] dark:hover:bg-[#d2fa8a] text-white dark:text-[#0a0908] shadow-lg shadow-indigo-600/25 dark:shadow-[0_4px_0_#050504]'
                             }`}
                         >
                             <span>{tx('Start Live Demo', 'ابدأ الديمو دلوقتي')}</span>

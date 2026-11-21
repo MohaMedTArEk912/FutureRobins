@@ -60,7 +60,7 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({ adminEmail, onClose }) =>
             <div className={`app-dialog-panel app-dialog-panel--padded w-full max-w-md p-6 sm:p-8 relative max-h-[90vh] overflow-y-auto custom-scrollbar ${
                 isBento
                     ? 'bg-white text-black border-[3px] border-black rounded-2xl shadow-[8px_8px_0px_#000]'
-                    : 'bg-white dark:bg-[#13141f] border border-gray-200 dark:border-white/10 rounded-[2rem] shadow-2xl'
+                    : 'bg-white dark:bg-[#141210] border border-gray-200 dark:border-white/10 rounded-[2rem] shadow-2xl'
             }`}>
                 <button
                     onClick={onClose}
@@ -114,7 +114,7 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({ adminEmail, onClose }) =>
                                 className={`w-full pl-12 pr-12 py-3 rounded-xl transition-all font-medium ${
                                     isBento
                                         ? 'border-2 border-black bg-white text-black placeholder-gray-500 shadow-[2px_2px_0px_#000] focus:outline-none'
-                                        : 'bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 focus:border-purple-500 focus:outline-none text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600'
+                                        : 'bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 focus:border-teal-500 focus:outline-none text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600'
                                 }`}
                                 required
                             />
@@ -141,7 +141,7 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({ adminEmail, onClose }) =>
                                 className={`w-full pl-12 pr-12 py-3 rounded-xl transition-all font-medium ${
                                     isBento
                                         ? 'border-2 border-black bg-white text-black placeholder-gray-500 shadow-[2px_2px_0px_#000] focus:outline-none'
-                                        : 'bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 focus:border-purple-500 focus:outline-none text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600'
+                                        : 'bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 focus:border-teal-500 focus:outline-none text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600'
                                 }`}
                                 required
                                 minLength={6}
@@ -169,7 +169,7 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({ adminEmail, onClose }) =>
                                 className={`w-full pl-12 pr-12 py-3 rounded-xl transition-all font-medium ${
                                     isBento
                                         ? 'border-2 border-black bg-white text-black placeholder-gray-500 shadow-[2px_2px_0px_#000] focus:outline-none'
-                                        : 'bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 focus:border-purple-500 focus:outline-none text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600'
+                                        : 'bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 focus:border-teal-500 focus:outline-none text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600'
                                 }`}
                                 required
                                 minLength={6}
@@ -202,7 +202,7 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({ adminEmail, onClose }) =>
                             className={`flex-1 px-4 py-3 rounded-xl font-black transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
                                 isBento
                                     ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[3px_3px_0px_#000] active:translate-x-0.5 active:translate-y-0.5'
-                                    : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-500 hover:to-purple-500 shadow-lg shadow-purple-500/20'
+                                    : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-teal-500/20'
                             }`}
                         >
                             {loading ? 'Changing...' : 'Change Password'}

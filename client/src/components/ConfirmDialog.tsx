@@ -87,12 +87,12 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 
         switch (type) {
             case 'danger':
-                return 'bg-red-600 hover:bg-red-500 text-white shadow-lg shadow-red-500/25 hover:-translate-y-0.5 active:translate-y-0';
+                return 'bg-red-600 hover:bg-red-500 dark:bg-[#fb7185] dark:hover:bg-[#fda4af] text-white dark:text-[#0a0908] shadow-lg shadow-red-500/25 dark:shadow-[0_8px_20px_-6px_rgba(251,113,133,0.3)] hover:-translate-y-0.5 active:translate-y-0';
             case 'warning':
-                return 'bg-amber-500 hover:bg-amber-600 text-white shadow-lg shadow-amber-500/25 hover:-translate-y-0.5 active:translate-y-0';
+                return 'bg-amber-500 hover:bg-amber-600 dark:bg-[#fde047] dark:hover:bg-[#fef08a] text-white dark:text-[#0a0908] shadow-lg shadow-amber-500/25 dark:shadow-[0_8px_20px_-6px_rgba(253,224,71,0.3)] hover:-translate-y-0.5 active:translate-y-0';
             case 'info':
             default:
-                return 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-500/25 hover:-translate-y-0.5 active:translate-y-0';
+                return 'bg-blue-600 hover:bg-blue-500 dark:bg-[#bae6fd] dark:hover:bg-[#e0f2fe] text-white dark:text-[#0a0908] shadow-lg shadow-blue-500/25 dark:shadow-[0_8px_20px_-6px_rgba(186,230,253,0.3)] hover:-translate-y-0.5 active:translate-y-0';
         }
     };
 
@@ -100,7 +100,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         if (isBento) {
             return 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-gray-100 hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none';
         }
-        return 'bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-white/10 hover:bg-gray-200 dark:hover:bg-white/10 active:scale-95';
+        return 'bg-gray-100 dark:bg-[#1c1917] text-gray-700 dark:text-[#d6d0c7] border border-gray-200 dark:border-[#f5f3ec]/14 hover:bg-gray-200 dark:hover:bg-[#24201c] active:scale-95';
     };
 
     const shouldShowBanner = showWarningBanner ?? (type === 'danger');

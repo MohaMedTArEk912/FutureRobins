@@ -10,6 +10,8 @@ import { getEnrichedUser } from '../services/userService.js';
 import { evaluateAndAwardBadges } from '../services/badgeService.js';
 import { escapeRegex } from '../utils/regexUtils.js';
 import { getSharedRuntimeCache } from '../utils/vercelUtils.js';
+import { isDemoUserId, isDemoReq, NON_DEMO_USER_FILTER, isDemoClanDoc } from '../utils/demoFilter.js';
+import { syncClanXp } from '../utils/xpSync.js';
 
 let localLeaderboardCache = { data: null, expiresAt: 0 };
 
@@ -133,13 +135,19 @@ export const getUserData = async (req, res) => {
     // Automatically check and award any newly unlocked badges on profile / app load
     await evaluateAndAwardBadges(userId).catch(() => {});
 
+    const isDemoCaller = isDemoUserId(userId);
+
     // Fetch user and all core data concurrently
     const [enrichedUser, attempts, badges, leaderboard, challenges, shopItems] = await Promise.all([
       getEnrichedUser(userId),
       Attempt.find({ userId }).sort({ completedAt: -1 }).lean(),
       Badge.find({}).lean(),
       User.find(
-        { role: { $ne: 'admin' }, isAdmin: { $ne: true } },
+        {
+          role: { $ne: 'admin' },
+          isAdmin: { $ne: true },
+          ...(isDemoCaller ? {} : NON_DEMO_USER_FILTER)
+        },
         'userId name totalScore totalAttempts xp level streak lastLoginDate badges role avatar equippedBadgeId'
       )
         .sort({ totalScore: -1 })
@@ -159,13 +167,16 @@ export const getUserData = async (req, res) => {
     }
 
     const { password: _pw, ...user } = enrichedUser;
+    if (!isDemoCaller && Array.isArray(user.friends)) {
+      user.friends = user.friends.filter((fid) => !isDemoUserId(fid));
+    }
 
     // Build friend / request participant list
     const friendIds = new Set([
       ...(user.friends || []),
       ...((user.friendRequests || []).map((r) => r.from)),
       ...((user.friendRequests || []).map((r) => r.to)),
-    ].filter(Boolean));
+    ].filter((fid) => Boolean(fid) && (isDemoCaller || !isDemoUserId(fid))));
 
     const friendDocs = friendIds.size > 0
       ? await User.find(
@@ -202,7 +213,9 @@ export const searchUsers = async (req, res) => {
         
         const safeQuery = escapeRegex(query, 40);
         
+        const isDemoCaller = isDemoReq(req);
         const users = await User.find({
+            ...(isDemoCaller ? {} : NON_DEMO_USER_FILTER),
             $or: [
                 { email: { $regex: safeQuery, $options: 'i' } },
                 { name: { $regex: safeQuery, $options: 'i' } },
@@ -401,7 +414,11 @@ export const getPublicLeaderboard = async (req, res) => {
         }
 
         const users = await User.find(
-            { role: { $ne: 'admin' }, isAdmin: { $ne: true } },
+            {
+                role: { $ne: 'admin' },
+                isAdmin: { $ne: true },
+                ...NON_DEMO_USER_FILTER
+            },
             'userId name totalScore totalAttempts xp level streak lastLoginDate badges role avatar equippedBadgeId'
         )
             .sort({ totalScore: -1 })
@@ -441,14 +458,15 @@ export const getPublicUserProfile = async (req, res) => {
             .select('userId name role totalScore totalAttempts totalTime xp level streak lastLoginDate avatar badges equippedBadgeId friends friendRequests clanId createdAt skillTracks')
             .lean();
 
-        if (!targetUser) {
+        if (!targetUser || (!isDemoUserId(currentUserId) && isDemoUserId(targetUser.userId))) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Rank calculation among non-admins
+        // Rank calculation among non-admins (and non-demo users for real users)
         const rank = await User.countDocuments({
             role: { $ne: 'admin' },
             isAdmin: { $ne: true },
+            ...(isDemoUserId(currentUserId) ? {} : NON_DEMO_USER_FILTER),
             totalScore: { $gt: targetUser.totalScore || 0 }
         }) + 1;
 
@@ -456,7 +474,7 @@ export const getPublicUserProfile = async (req, res) => {
         let clan = null;
         if (targetUser.clanId) {
             const clanDoc = await Clan.findOne({ clanId: targetUser.clanId }).lean();
-            if (clanDoc) {
+            if (clanDoc && (isDemoUserId(currentUserId) || !isDemoClanDoc(clanDoc))) {
                 const member = clanDoc.members?.find(m => m.userId === targetUser.userId);
                 clan = {
                     clanId: clanDoc.clanId,
@@ -545,5 +563,96 @@ export const getPublicUserProfile = async (req, res) => {
     } catch (error) {
         console.error('Error fetching public user profile:', error);
         res.status(500).json({ message: 'Error fetching user profile', error: error.message });
+    }
+};
+
+/**
+ * Awards capped real Quiz Platform XP for completed Secret Arcade runs.
+ * Guarded by per-run (max 150 XP) and per-day (max 500 XP) anti-abuse limits.
+ */
+export const claimArcadeXp = async (req, res) => {
+    try {
+        const userId = req.user?.userId;
+        if (!userId) {
+            return res.status(401).json({ message: 'Authentication required' });
+        }
+
+        const { mode, durationSeconds = 0, score = 0, arcadeXpEarned = 0 } = req.body || {};
+        if (!['hunt', 'harvest', 'smash', 'dash'].includes(mode)) {
+            return res.status(400).json({ message: 'Invalid arcade mode' });
+        }
+
+        const safeDuration = Math.max(0, Math.min(3600, Math.floor(Number(durationSeconds) || 0)));
+        const safeScore = Math.max(0, Math.min(500000, Math.floor(Number(score) || 0)));
+        const safeArcadeXp = Math.max(0, Math.min(20000, Math.floor(Number(arcadeXpEarned) || 0)));
+
+        // Derive a fair, capped platform XP conversion (max 150 XP per run, 500 XP per UTC day)
+        const MAX_RUN_PLATFORM_XP = 150;
+        const MAX_DAILY_PLATFORM_XP = 500;
+
+        // Require meaningful gameplay (> 4s or score >= 25) to earn platform XP
+        const rawCandidate = (safeDuration >= 4 || safeScore >= 25)
+            ? Math.min(
+                MAX_RUN_PLATFORM_XP,
+                Math.floor(safeArcadeXp * 0.35) + Math.min(30, Math.floor(safeDuration / 8))
+            )
+            : 0;
+
+        const user = await User.findOne({ userId });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const todayKey = new Date().toISOString().slice(0, 10);
+        const earnedToday = user.arcadeXpDailyDate === todayKey ? (user.arcadeXpDailyEarned || 0) : 0;
+        const remainingDaily = Math.max(0, MAX_DAILY_PLATFORM_XP - earnedToday);
+        const awardedPlatformXp = Math.max(0, Math.min(rawCandidate, remainingDaily));
+
+        user.arcadeXpDailyDate = todayKey;
+        user.arcadeXpDailyEarned = earnedToday + awardedPlatformXp;
+
+        const prevStats = user.arcadeStats || {};
+        user.arcadeStats = {
+            bestHuntSeconds: mode === 'hunt'
+                ? Math.max(prevStats.bestHuntSeconds || 0, safeDuration)
+                : (prevStats.bestHuntSeconds || 0),
+            bestHuntScore: mode === 'hunt'
+                ? Math.max(prevStats.bestHuntScore || 0, safeScore)
+                : (prevStats.bestHuntScore || 0),
+            bestHarvestScore: mode === 'harvest'
+                ? Math.max(prevStats.bestHarvestScore || 0, safeScore)
+                : (prevStats.bestHarvestScore || 0),
+            bestSmashScore: mode === 'smash'
+                ? Math.max(prevStats.bestSmashScore || 0, safeScore)
+                : (prevStats.bestSmashScore || 0),
+            bestDashDistance: mode === 'dash'
+                ? Math.max(prevStats.bestDashDistance || 0, safeScore)
+                : (prevStats.bestDashDistance || 0),
+            totalArcadeXp: (prevStats.totalArcadeXp || 0) + safeArcadeXp
+        };
+
+        if (awardedPlatformXp > 0) {
+            user.xp = (user.xp || 0) + awardedPlatformXp;
+            user.level = 1 + Math.floor(Math.max(0, user.xp) / 1000);
+        }
+
+        await user.save();
+
+        if (awardedPlatformXp > 0 && user.clanId) {
+            await syncClanXp(user.userId, awardedPlatformXp, user.clanId);
+        }
+
+        res.json({
+            awardedPlatformXp,
+            dailyEarned: user.arcadeXpDailyEarned,
+            dailyCap: MAX_DAILY_PLATFORM_XP,
+            dailyRemaining: Math.max(0, MAX_DAILY_PLATFORM_XP - user.arcadeXpDailyEarned),
+            xp: user.xp,
+            level: user.level,
+            arcadeStats: user.arcadeStats
+        });
+    } catch (error) {
+        console.error('Error claiming arcade XP:', error);
+        res.status(500).json({ message: 'Failed to sync arcade XP' });
     }
 };

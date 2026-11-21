@@ -850,7 +850,7 @@ export const demoLogin = async (req, res) => {
                     tag: 'DEMO',
                     description: 'Interactive showcase classroom — explore live discussions, announcements, curriculum modules, and homework.',
                     leaderId: demoTeacher.userId,
-                    isPublic: true,
+                    isPublic: false,
                     totalXP: 3650,
                     level: 4,
                     trackId: firstTrackId,
@@ -885,7 +885,7 @@ export const demoLogin = async (req, res) => {
                             senderName: demoStudent.name,
                             senderAvatar: demoStudent.avatar,
                             senderRole: 'member',
-                            content: 'Ready to explore all the quizzes, tracks, daily challenges, and flashcards!',
+                            content: 'Ready to explore all the quizzes, tracks, and daily challenges!',
                             createdAt: new Date(Date.now() - 1000 * 60 * 5)
                         }
                     ]
@@ -893,6 +893,16 @@ export const demoLogin = async (req, res) => {
                 await demoClass.save();
             } else {
                 let changed = false;
+                if (demoClass.isPublic !== false) {
+                    demoClass.isPublic = false;
+                    changed = true;
+                }
+                const allowedDemoIds = new Set([demoTeacher.userId, demoStudent.userId]);
+                const filteredMembers = (demoClass.members || []).filter((m) => allowedDemoIds.has(m.userId));
+                if (filteredMembers.length !== (demoClass.members || []).length) {
+                    demoClass.members = filteredMembers;
+                    changed = true;
+                }
                 for (const [uid, roleName] of [
                     [demoTeacher.userId, 'leader'],
                     [demoStudent.userId, 'member']
@@ -910,6 +920,11 @@ export const demoLogin = async (req, res) => {
             }
 
             if (demoClass?.clanId) {
+                // Clean up any non-demo user that accidentally had clanId pointing to the demo class
+                await User.updateMany(
+                    { clanId: demoClass.clanId, userId: { $nin: [demoTeacher.userId, demoStudent.userId] } },
+                    { $set: { clanId: null } }
+                ).catch(() => {});
                 const clanUpdates = [];
                 if (demoTeacher.clanId !== demoClass.clanId) {
                     demoTeacher.clanId = demoClass.clanId;

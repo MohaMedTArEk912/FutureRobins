@@ -146,11 +146,11 @@ export const StorylineOdysseyView: React.FC<StorylineOdysseyViewProps> = ({
             <div className={`p-5 sm:p-6 rounded-[2rem] mb-6 transition-all relative overflow-hidden ${
                 isBento
                     ? 'bg-white text-black border-[3px] border-black shadow-[6px_6px_0px_#000]'
-                    : 'bg-white/80 dark:bg-[#0c101c]/90 text-slate-900 dark:text-white border border-slate-200/80 dark:border-white/10 shadow-xl backdrop-blur-xl'
+                    : 'bg-white/80 dark:bg-[#141210]/90 text-slate-900 dark:text-white border border-slate-200/80 dark:border-white/10 shadow-xl backdrop-blur-xl'
             }`}>
                 {/* Decorative background radial glow */}
                 {!isBento && (
-                    <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-indigo-500/10 dark:bg-purple-600/15 rounded-full blur-3xl pointer-events-none" />
+                    <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-indigo-500/10 dark:bg-teal-600/15 rounded-full blur-3xl pointer-events-none" />
                 )}
 
                 <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
@@ -159,7 +159,7 @@ export const StorylineOdysseyView: React.FC<StorylineOdysseyViewProps> = ({
                         <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center text-3xl sm:text-4xl shrink-0 shadow-md ${
                             isBento
                                 ? 'bg-[#fde047] text-black border-2 border-black shadow-[3px_3px_0px_#000]'
-                                : 'bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-indigo-500/25'
+                                : 'bg-indigo-500 text-white shadow-indigo-500/25'
                         }`}>
                             {track.icon || '🗺️'}
                         </div>
@@ -207,7 +207,7 @@ export const StorylineOdysseyView: React.FC<StorylineOdysseyViewProps> = ({
                                     className={`h-full transition-all duration-700 rounded-full ${
                                         isBento
                                             ? 'bg-[#bef264]'
-                                            : 'bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-500'
+                                            : 'bg-indigo-500'
                                     }`}
                                     style={{ width: `${progressPercent}%` }}
                                 />
@@ -285,7 +285,7 @@ export const StorylineOdysseyView: React.FC<StorylineOdysseyViewProps> = ({
             {/* The Horizontal Storytelling Canvas */}
             <div className="relative">
                 {/* Horizontal Illuminated Spine (Line connecting chapters behind cards) */}
-                <div className="absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500/30 via-purple-500/20 to-emerald-500/30 -translate-y-1/2 pointer-events-none z-0" />
+                <div className="absolute top-1/2 left-0 right-0 h-1 bg-indigo-500/30 -translate-y-1/2 pointer-events-none z-0" />
 
                 <div
                     ref={scrollContainerRef}
@@ -323,7 +323,7 @@ export const StorylineOdysseyView: React.FC<StorylineOdysseyViewProps> = ({
                                             ? 'bg-black border-[3px] border-black shadow-[8px_8px_0px_#000]'
                                             : 'bg-black border-[3px] border-black shadow-[5px_5px_0px_#000]'
                                         : isCurrent
-                                            ? 'bg-gradient-to-b from-indigo-500/30 via-purple-500/20 to-indigo-500/10 border-2 border-indigo-500/50 shadow-2xl shadow-indigo-500/20'
+                                            ? 'bg-indigo-500/30 border-2 border-indigo-500/50 shadow-2xl shadow-indigo-500/20'
                                             : isCompleted
                                                 ? 'bg-emerald-500/10 border border-emerald-500/30 shadow-md'
                                                 : 'bg-slate-200/60 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 shadow-lg'
@@ -337,10 +337,10 @@ export const StorylineOdysseyView: React.FC<StorylineOdysseyViewProps> = ({
                                                     ? 'bg-[#ecfccb] text-black'
                                                     : 'bg-white text-black'
                                             : isCurrent
-                                                ? 'bg-white dark:bg-[#0f1424] text-slate-900 dark:text-white'
+                                                ? 'bg-white dark:bg-[#141210] text-slate-900 dark:text-white'
                                                 : isCompleted
                                                     ? 'bg-white dark:bg-[#0c131d] text-slate-900 dark:text-white'
-                                                    : 'bg-white dark:bg-[#0c101c] text-slate-900 dark:text-white'
+                                                    : 'bg-white dark:bg-[#141210] text-slate-900 dark:text-white'
                                     }`}>
                                         {/* Chapter Header & Badges */}
                                         <div>

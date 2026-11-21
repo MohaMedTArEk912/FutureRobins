@@ -50,7 +50,7 @@ const QuizCard: React.FC<QuizCardProps> = ({
             action: () => onPlay(quiz),
             style: isBento
                 ? 'bg-[#fde047] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000]'
-                : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white shadow-md shadow-purple-500/20',
+                : 'bg-teal-600 hover:bg-teal-500 text-white shadow-md shadow-teal-500/20',
             title: 'Teacher Revision Mode — View questions, reveal answers & explanations with students'
         } : null,
         onHost ? {
@@ -67,8 +67,8 @@ const QuizCard: React.FC<QuizCardProps> = ({
             icon: Share2,
             action: () => onShare(quiz),
             style: isBento
-                ? 'bg-[#ddd6fe] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000]'
-                : 'bg-violet-100 dark:bg-violet-500/10 text-violet-700 dark:text-violet-400 hover:bg-violet-200 dark:hover:bg-violet-500/20',
+                ? 'bg-[#fed7aa] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000]'
+                : 'bg-sky-100 dark:bg-sky-500/10 text-sky-700 dark:text-sky-400 hover:bg-sky-200 dark:hover:bg-sky-500/20',
             title: 'Share this quiz'
         },
         {
@@ -122,10 +122,10 @@ const QuizCard: React.FC<QuizCardProps> = ({
             isSelected
                 ? isBento
                     ? 'bg-[#fef9c3] text-black border-3 border-black shadow-[6px_6px_0px_#000] ring-4 ring-[#bef264]'
-                    : 'border-2 border-purple-500 bg-purple-50/50 dark:bg-purple-950/20 shadow-lg shadow-purple-500/10'
+                    : 'border-2 border-teal-500 bg-teal-50/50 dark:bg-teal-950/20 shadow-lg shadow-teal-500/10'
                 : isBento
                     ? 'bg-white text-black border-3 border-black shadow-[5px_5px_0px_#000] hover:shadow-[7px_7px_0px_#000] hover:-translate-y-1'
-                    : 'border border-gray-200 bg-white/90 shadow-sm hover:border-purple-500/30 hover:shadow-lg hover:shadow-purple-500/10 dark:bg-black/20 dark:border-white/5'
+                    : 'border border-gray-200 bg-white/90 shadow-sm hover:border-teal-500/30 hover:shadow-lg hover:shadow-teal-500/10 dark:bg-black/20 dark:border-white/5'
         }`}>
             <div className="flex h-full flex-col">
                 <div className="mb-4 flex items-start justify-between gap-3">
@@ -143,10 +143,10 @@ const QuizCard: React.FC<QuizCardProps> = ({
                                     isSelected
                                         ? isBento
                                             ? 'bg-[#bef264] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]'
-                                            : 'bg-purple-600 text-white shadow-sm'
+                                            : 'bg-teal-600 text-white shadow-sm'
                                         : isBento
                                             ? 'bg-white border-2 border-black hover:bg-gray-100 shadow-[1px_1px_0px_#000]'
-                                            : 'bg-gray-100 dark:bg-white/10 border border-gray-300 dark:border-white/20 text-transparent hover:border-purple-400'
+                                            : 'bg-gray-100 dark:bg-white/10 border border-gray-300 dark:border-white/20 text-transparent hover:border-teal-400'
                                 }`}
                             >
                                 {isSelected && <Check className="w-4 h-4 stroke-[3]" />}
@@ -155,7 +155,7 @@ const QuizCard: React.FC<QuizCardProps> = ({
                         <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl transition-transform group-hover:scale-105 ${
                             isBento
                                 ? 'bg-[#bef264] text-black border-2.5 border-black shadow-[3px_3px_0px_#000]'
-                                : 'bg-gradient-to-br from-purple-500/10 to-indigo-500/10 text-purple-600 dark:text-purple-400'
+                                : 'bg-teal-500/10 text-teal-600 dark:text-teal-400'
                         }`}>
                             <QuizIcon className="h-6 w-6" />
                         </div>
@@ -197,7 +197,7 @@ const QuizCard: React.FC<QuizCardProps> = ({
                         <div className={`rounded-lg px-2.5 py-1 text-[10px] font-black uppercase tracking-wider ${
                             isBento
                                 ? 'bg-[#fed7aa] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]'
-                                : (isPool ? 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300' : 'bg-purple-100 text-purple-700 dark:bg-purple-500/10 dark:text-purple-300')
+                                : (isPool ? 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300' : 'bg-teal-100 text-teal-700 dark:bg-teal-500/10 dark:text-teal-300')
                         }`}>
                             {quizSetLabel}
                         </div>

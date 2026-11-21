@@ -66,6 +66,9 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const { currentUser } = useAuth();
     const { socket, connected } = useSocket();
     const { allUsers } = useData();
+    const currentUserId = currentUser?.userId;
+    const currentUserClanId = currentUser?.clanId;
+    const currentUserName = currentUser?.name;
 
     const [isOpen, setIsOpen] = useState(false);
     const [activeTab, setActiveTab] = useState<'clan' | 'direct'>('clan');
@@ -73,6 +76,7 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const [returnToLabel, setReturnToLabel] = useState<string | null>(null);
 
     const [clan, setClan] = useState<Clan | null>(null);
+    const currentClanId = clan?.clanId;
     const [clanMessages, setClanMessages] = useState<ClanChatMessage[]>([]);
     const [unreadClanCount, setUnreadClanCount] = useState(0);
 
@@ -82,8 +86,8 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     // LocalStorage key for Direct Messages
     const dmStorageKey = useMemo(() => {
-        return currentUser?.userId ? `quiz_direct_messages_${currentUser.userId}` : null;
-    }, [currentUser?.userId]);
+        return currentUserId ? `quiz_direct_messages_${currentUserId}` : null;
+    }, [currentUserId]);
 
     // Load initial cached DMs
     useEffect(() => {
@@ -93,7 +97,7 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             if (raw) {
                 const parsed = JSON.parse(raw);
                 if (typeof parsed === 'object' && parsed !== null) {
-                    setDirectMessages(parsed);
+                    queueMicrotask(() => setDirectMessages(parsed));
                 }
             }
         } catch {
@@ -113,14 +117,23 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     // Load User's Clan
     const loadClan = useCallback(async () => {
-        if (!currentUser?.clanId || !currentUser?.userId) {
+        if (!currentUserClanId || !currentUserId) {
             setClan(null);
             setClanMessages([]);
             return;
         }
 
         try {
-            const clanData = await api.getClan(currentUser.clanId, currentUser.userId, true);
+            const clanData = await api.getClan(currentUserClanId, currentUserId, true);
+            const isDemoViewer = currentUserId === 'demo_student' || currentUserId === 'demo_teacher';
+            if (
+                !isDemoViewer &&
+                (clanData.tag === 'DEMO' || clanData.name === 'Live Demo Cohort' || clanData.leaderId === 'demo_teacher')
+            ) {
+                setClan(null);
+                setClanMessages([]);
+                return;
+            }
             setClan(clanData);
             if (clanData.chatMessages) {
                 setClanMessages(clanData.chatMessages);
@@ -129,10 +142,12 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             // User might not be in clan
             setClan(null);
         }
-    }, [currentUser?.clanId, currentUser?.userId]);
+    }, [currentUserClanId, currentUserId]);
 
     useEffect(() => {
-        loadClan();
+        queueMicrotask(() => {
+            void loadClan();
+        });
     }, [loadClan]);
 
     // Join clan room and user room via socket
@@ -151,7 +166,7 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 setOnlineUserIds(new Set(res));
             } else if (res && typeof res === 'object') {
                 const online = Object.entries(res as Record<string, boolean>)
-                    .filter(([_, isOnline]) => Boolean(isOnline))
+                    .filter(([, isOnline]) => Boolean(isOnline))
                     .map(([uid]) => uid);
                 setOnlineUserIds(new Set(online));
             }
@@ -257,14 +272,14 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const markClanAsRead = useCallback(() => {
         setUnreadClanCount(0);
-        if (clan?.clanId) {
+        if (currentClanId) {
             try {
-                localStorage.setItem(`clan_chat_last_viewed_${clan.clanId}`, Date.now().toString());
+                localStorage.setItem(`clan_chat_last_viewed_${currentClanId}`, Date.now().toString());
             } catch {
                 // ignore
             }
         }
-    }, [clan?.clanId]);
+    }, [currentClanId]);
 
     const markFriendAsRead = useCallback((friendId: string) => {
         setUnreadByFriend(prev => {
@@ -324,13 +339,13 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     // Send direct message
     const sendDirectMessage = useCallback((receiverId: string, content: string, type: 'text' | 'challenge' = 'text', challengeData?: ChallengeDataPayload) => {
-        if (!currentUser?.userId || !content.trim()) return;
+        if (!currentUserId || !content.trim()) return;
 
         const messageId = `dm_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
         const newMsg: EnrichedDirectMessage = {
             id: messageId,
-            senderId: currentUser.userId,
-            senderName: currentUser.name || 'User',
+            senderId: currentUserId,
+            senderName: currentUserName || 'User',
             receiverId,
             content: content.trim(),
             type,
@@ -352,7 +367,7 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (socket && connected) {
             socket.emit('send_direct_message', newMsg);
         }
-    }, [currentUser?.userId, currentUser?.name, socket, connected, saveDirectMessagesToStorage]);
+    }, [currentUserId, currentUserName, socket, connected, saveDirectMessagesToStorage]);
 
     // Send Clan Message
     const sendClanMessage = useCallback(async (content: string) => {
@@ -390,38 +405,38 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     // Edit Clan Message
     const editClanMessage = useCallback(async (messageId: string, content: string) => {
-        if (!currentUser?.clanId || !currentUser?.userId || !content.trim()) return;
+        if (!currentUserClanId || !currentUserId || !content.trim()) return;
 
         setClanMessages(prev => prev.map(m => m.id === messageId ? { ...m, content: content.trim(), isEdited: true } : m));
 
         if (socket && connected) {
             socket.emit('edit_clan_message', {
-                clanId: currentUser.clanId,
+                clanId: currentUserClanId,
                 messageId,
                 newContent: content.trim(),
-                userId: currentUser.userId
+                userId: currentUserId
             });
         } else {
-            await api.editClanMessage(currentUser.clanId, messageId, content.trim(), currentUser.userId);
+            await api.editClanMessage(currentUserClanId, messageId, content.trim(), currentUserId);
         }
-    }, [currentUser?.clanId, currentUser?.userId, socket, connected]);
+    }, [currentUserClanId, currentUserId, socket, connected]);
 
     // Delete Clan Message
     const deleteClanMessage = useCallback(async (messageId: string) => {
-        if (!currentUser?.clanId || !currentUser?.userId) return;
+        if (!currentUserClanId || !currentUserId) return;
 
         setClanMessages(prev => prev.filter(m => m.id !== messageId));
 
         if (socket && connected) {
             socket.emit('delete_clan_message', {
-                clanId: currentUser.clanId,
+                clanId: currentUserClanId,
                 messageId,
-                userId: currentUser.userId
+                userId: currentUserId
             });
         } else {
-            await api.deleteClanMessage(currentUser.clanId, messageId, currentUser.userId);
+            await api.deleteClanMessage(currentUserClanId, messageId, currentUserId);
         }
-    }, [currentUser?.clanId, currentUser?.userId, socket, connected]);
+    }, [currentUserClanId, currentUserId, socket, connected]);
 
     // Total unread count
     const totalUnreadCount = useMemo(() => {

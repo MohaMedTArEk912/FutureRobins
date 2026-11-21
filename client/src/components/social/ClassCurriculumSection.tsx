@@ -319,7 +319,7 @@ export const ClassCurriculumSection: React.FC<ClassCurriculumSectionProps> = ({
             <div className={`p-5 sm:p-6 rounded-3xl transition-all ${
                 isBento
                     ? 'bg-[#e0f2fe] text-black border-2 border-black shadow-[4px_4px_0px_#000]'
-                    : 'bg-gradient-to-br from-indigo-500/10 via-violet-500/10 to-purple-500/5 border border-indigo-500/25 shadow-lg'
+                    : 'bg-indigo-500/10 border border-indigo-500/25 shadow-lg'
             }`}>
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                     <div className="flex items-start gap-3.5 min-w-0">
@@ -363,7 +363,7 @@ export const ClassCurriculumSection: React.FC<ClassCurriculumSectionProps> = ({
                                 className={`w-full sm:w-auto sm:min-w-[230px] px-4 py-2.5 rounded-xl text-xs font-black cursor-pointer ${
                                     isBento
                                         ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                        : 'bg-white dark:bg-[#13141f] border border-gray-300 dark:border-white/15 text-gray-900 dark:text-white'
+                                        : 'bg-white dark:bg-[#141210] border border-gray-300 dark:border-white/15 text-gray-900 dark:text-white'
                                 }`}
                             >
                                 <option value="">-- Choose Class Track --</option>
@@ -722,7 +722,7 @@ export const ClassCurriculumSection: React.FC<ClassCurriculumSectionProps> = ({
 
                                     {/* Quick Teaching Board & Assigned Slides Card */}
                                     <div className={`p-5 rounded-2xl space-y-4 ${
-                                        isBento ? 'bg-[#f5f3ff] border-2 border-black' : 'bg-indigo-500/5 border border-indigo-500/20'
+                                        isBento ? 'bg-[#fff7ed] border-2 border-black' : 'bg-indigo-500/5 border border-indigo-500/20'
                                     }`}>
                                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                                             <div className="flex items-center gap-2.5 min-w-0">

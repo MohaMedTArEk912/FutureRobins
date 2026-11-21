@@ -40,11 +40,6 @@ export const NAV_AR_TRANSLATIONS: Record<string, { label: string; shortLabel: st
         shortLabel: 'المسارات',
         description: 'خريطة المسارات التعليمية خطوة بخطوة'
     },
-    '/study': {
-        label: 'كروت المذاكرة',
-        shortLabel: 'المذاكرة',
-        description: 'بطاقات مراجعة سريعة لتثبيت المعلومات'
-    },
     '/tournaments': {
         label: 'البطولات والساحات',
         shortLabel: 'البطولات',
@@ -110,7 +105,7 @@ export const NAV_AR_TRANSLATIONS: Record<string, { label: string; shortLabel: st
 export const NAV_PRESET_AR: Record<PresetKey, { title: string; description: string }> = {
     default: {
         title: 'المتوازن (الافتراضي)',
-        description: 'توازن مثالي بين المسارات والمذاكرة والبطولات والترتيب'
+        description: 'توازن مثالي بين المسارات والبطولات والترتيب والتحديات'
     },
     competitor: {
         title: '⚔️ البطولات والتحديات',
@@ -118,7 +113,7 @@ export const NAV_PRESET_AR: Record<PresetKey, { title: string; description: stri
     },
     scholar: {
         title: '📚 المذاكرة والدراسة',
-        description: 'يركز على المسارات وكروت المذاكرة والكلاس لايف والتحليلات'
+        description: 'يركز على المسارات والساحة المباشرة والتحليلات والترتيب'
     },
     completionist: {
         title: '⭐ التحديات اليومية والجوائز',
@@ -141,14 +136,6 @@ export const ALL_NAV_REGISTRY: Record<string, NavItemDef> = {
         shortLabel: 'Tracks',
         icon: Compass,
         description: 'Guided curriculum trees & learning roads',
-        category: 'learning'
-    },
-    '/study': {
-        path: '/study',
-        label: 'Study Cards',
-        shortLabel: 'Study',
-        icon: BookOpen,
-        description: 'Spaced repetition flashcards & rapid review',
         category: 'learning'
     },
     '/tournaments': {
@@ -241,13 +228,13 @@ export const ALL_NAV_REGISTRY: Record<string, NavItemDef> = {
     }
 };
 
-export const DEFAULT_PRIMARY_PATHS = ['/', '/tracks', '/study', '/tournaments', '/leaderboard'];
-export const DEFAULT_SECONDARY_PATHS = ['/classroom', '/daily', '/clans', '/shop', '/social', '/analytics'];
+export const DEFAULT_PRIMARY_PATHS = ['/', '/tracks', '/tournaments', '/leaderboard', '/daily'];
+export const DEFAULT_SECONDARY_PATHS = ['/classroom', '/clans', '/shop', '/social', '/analytics'];
 
 export const TEACHER_PRIMARY_PATHS = ['/', '/classes', '/tracks', '/classroom', '/analytics'];
 export const TEACHER_SECONDARY_PATHS = ['/quizzes', '/leaderboard', '/social'];
 
-const TEACHER_HIDDEN_PATHS = new Set(['/shop', '/daily', '/tournaments', '/study', '/clans']);
+const TEACHER_HIDDEN_PATHS = new Set(['/shop', '/daily', '/tournaments', '/clans']);
 
 export interface NavArrangementConfig {
     primaryPaths: string[];
@@ -261,27 +248,27 @@ export type PresetKey = 'default' | 'competitor' | 'scholar' | 'completionist';
 export const NAV_PRESETS: Record<PresetKey, { title: string; description: string; primary: string[]; secondary: string[] }> = {
     default: {
         title: 'Platform Balanced (Default)',
-        description: 'Standard balance between curriculum, study, arenas, and leaderboards',
-        primary: ['/', '/tracks', '/study', '/tournaments', '/leaderboard'],
-        secondary: ['/classroom', '/daily', '/clans', '/shop', '/social', '/analytics']
+        description: 'Standard balance between curriculum, arenas, leaderboards, and daily challenges',
+        primary: ['/', '/tracks', '/tournaments', '/leaderboard', '/daily'],
+        secondary: ['/classroom', '/clans', '/shop', '/social', '/analytics']
     },
     competitor: {
         title: '⚔️ Arenas & Clans',
         description: 'Optimized for players focused on duels, clan wars, and leaderboard climbing',
         primary: ['/', '/tournaments', '/clans', '/social', '/leaderboard'],
-        secondary: ['/daily', '/tracks', '/study', '/classroom', '/shop', '/analytics']
+        secondary: ['/daily', '/tracks', '/classroom', '/shop', '/analytics']
     },
     scholar: {
         title: '📚 Academic & Study',
-        description: 'Focused on tracks, study flashcards, classroom duels, and analytics',
-        primary: ['/', '/study', '/tracks', '/classroom', '/analytics'],
-        secondary: ['/daily', '/tournaments', '/leaderboard', '/clans', '/shop', '/social']
+        description: 'Focused on skill tracks, live arena, analytics, and leaderboards',
+        primary: ['/', '/tracks', '/classroom', '/analytics', '/leaderboard'],
+        secondary: ['/daily', '/tournaments', '/clans', '/shop', '/social']
     },
     completionist: {
         title: '⭐ Daily & Rewards',
         description: 'Tailored for streak hunters, shop collectors, and daily quest grinders',
         primary: ['/', '/daily', '/shop', '/tracks', '/leaderboard'],
-        secondary: ['/tournaments', '/clans', '/social', '/study', '/classroom', '/analytics']
+        secondary: ['/tournaments', '/clans', '/social', '/classroom', '/analytics']
     }
 };
 
@@ -337,9 +324,9 @@ export const NavArrangementProvider: React.FC<{ children: ReactNode }> = ({ chil
                 const parsed = JSON.parse(raw);
                 if (Array.isArray(parsed.primaryPaths) && Array.isArray(parsed.secondaryPaths)) {
                     return {
-                        primaryPaths: parsed.primaryPaths,
-                        secondaryPaths: parsed.secondaryPaths,
-                        hiddenPaths: Array.isArray(parsed.hiddenPaths) ? parsed.hiddenPaths : [],
+                        primaryPaths: parsed.primaryPaths.filter((p: string) => Boolean(ALL_NAV_REGISTRY[p])),
+                        secondaryPaths: parsed.secondaryPaths.filter((p: string) => Boolean(ALL_NAV_REGISTRY[p])),
+                        hiddenPaths: Array.isArray(parsed.hiddenPaths) ? parsed.hiddenPaths.filter((p: string) => Boolean(ALL_NAV_REGISTRY[p])) : [],
                         syncWithBottomNav: parsed.syncWithBottomNav ?? true
                     };
                 }

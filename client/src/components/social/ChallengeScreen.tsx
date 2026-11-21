@@ -2,6 +2,7 @@ import React from 'react';
 import type { Quiz } from '../../types';
 import { Trophy, Swords, ArrowRight } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
+import { AmbientBackground } from '../AmbientBackground';
 
 interface ChallengeScreenProps {
     challenge: {
@@ -17,12 +18,13 @@ const ChallengeScreen: React.FC<ChallengeScreenProps> = ({ challenge, onStart, o
     const { isBento } = useTheme();
 
     return (
-        <div className={`min-h-screen flex items-center justify-center p-6 ${
+        <div className={`min-h-screen flex items-center justify-center p-6 relative overflow-hidden ${
             isBento
                 ? 'bg-[#f5f3ec]'
-                : 'bg-gray-50 dark:bg-gradient-to-br dark:from-slate-900 dark:to-indigo-900'
+                : 'bg-slate-50 dark:bg-[#0a0908]'
         }`}>
-            <div className={`max-w-md w-full p-8 text-center animate-in zoom-in duration-300 ${
+            <AmbientBackground />
+            <div className={`max-w-md w-full p-8 text-center animate-in zoom-in duration-300 relative z-10 ${
                 isBento
                     ? 'bg-white border-[3px] border-black rounded-2xl shadow-[8px_8px_0px_#000]'
                     : 'bg-white dark:bg-white/10 backdrop-blur-xl rounded-3xl border border-gray-200 dark:border-white/20 shadow-2xl'
@@ -30,7 +32,7 @@ const ChallengeScreen: React.FC<ChallengeScreenProps> = ({ challenge, onStart, o
                 <div className={`w-20 h-20 flex items-center justify-center mx-auto mb-6 ${
                     isBento
                         ? 'bg-[#fed7aa] border-2 border-black rounded-2xl text-black shadow-[4px_4px_0px_#000]'
-                        : 'bg-gradient-to-tr from-orange-500 to-red-500 rounded-full text-white shadow-orange-500/50 shadow-lg'
+                        : 'bg-orange-500 rounded-full text-white shadow-orange-500/50 shadow-lg'
                 }`}>
                     <Swords className="w-10 h-10" />
                 </div>

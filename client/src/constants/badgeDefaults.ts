@@ -20,11 +20,11 @@ export const BADGE_CRITERIA_TYPES = [
 ] as const;
 
 export const BADGE_RARITY_COLORS = {
-    mythic: 'from-fuchsia-500 via-rose-500 to-amber-400',
-    legendary: 'from-yellow-400 to-orange-500',
-    epic: 'from-orange-500 to-red-500',
-    rare: 'from-purple-500 to-pink-500',
-    common: 'from-blue-500 to-cyan-500',
-    default: 'from-blue-500 to-cyan-500'
+    mythic: 'bg-rose-600 dark:bg-[#fb7185]',
+    legendary: 'bg-amber-500 dark:bg-[#fde047]',
+    epic: 'bg-orange-600 dark:bg-[#fb923c]',
+    rare: 'bg-teal-600 dark:bg-[#5eead4]',
+    common: 'bg-sky-600 dark:bg-[#bae6fd]',
+    default: 'bg-sky-600 dark:bg-[#bae6fd]'
 } as const;
 

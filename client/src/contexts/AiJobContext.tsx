@@ -61,9 +61,9 @@ export const AiJobProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             {/* TOASTER / FLOATING STATUS BAR */}
             {currentJob && (
                 <div className="fixed bottom-20 xl:bottom-6 start-3 end-3 sm:end-auto sm:start-6 z-[9999] animate-in slide-in-from-bottom duration-300 pb-safe">
-                    <div className="bg-white dark:bg-[#1a1b26] border border-gray-200 dark:border-white/10 rounded-xl shadow-2xl p-4 flex items-center gap-4 min-w-0 sm:min-w-[320px] max-w-md">
+                    <div className="bg-white dark:bg-[#1c1917] border border-gray-200 dark:border-white/10 rounded-xl shadow-2xl p-4 flex items-center gap-4 min-w-0 sm:min-w-[320px] max-w-md">
                         {currentJob.status === 'processing' ? (
-                            <div className="w-5 h-5 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+                            <div className="w-5 h-5 border-2 border-teal-500 border-t-transparent rounded-full animate-spin" />
                         ) : (
                             <div className="w-5 h-5 rounded-full bg-gray-200 dark:bg-white/10" />
                         )}
@@ -72,7 +72,7 @@ export const AiJobProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                             <div className="text-xs text-gray-500 dark:text-gray-400 capitalize">{currentJob.status}...</div>
                         </div>
                         {currentJob.status === 'processing' && (
-                            <div className="text-xs font-mono font-bold text-purple-600 dark:text-purple-400">
+                            <div className="text-xs font-mono font-bold text-teal-600 dark:text-teal-400">
                                 {currentJob.progress ? `${currentJob.progress}%` : 'Working'}
                             </div>
                         )}

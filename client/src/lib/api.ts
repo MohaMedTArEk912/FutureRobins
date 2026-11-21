@@ -24,7 +24,6 @@ import type {
     ClassHomeworkStatusResponse,
     MotionPresentation,
     DailyChallengeDef,
-    StudyCard,
     BadgeNode,
     BadgeTree,
     BadgeTreeNode,
@@ -71,7 +70,6 @@ export type {
     Clan,
     ClanAnnouncement,
     DailyChallengeDef,
-    StudyCard,
     BadgeNode,
     BadgeTree,
     BadgeTreeNode,
@@ -1246,64 +1244,6 @@ export const api = {
         if (!response.ok) {
             throw new Error('Failed to generate AI mistake analysis');
         }
-        return response.json();
-    },
-
-    // Study Cards
-    async getStudyCards(subjectId?: string) {
-        const url = subjectId
-            ? `/study-cards?subjectId=${subjectId}`
-            : `/study-cards`;
-        const response = await fetchWithFallback(url);
-        if (!response.ok) throw new Error('Failed to load study cards');
-        return response.json();
-    },
-
-    async createStudyCard(card: Partial<StudyCard>, adminId: string) {
-        const response = await fetchWithFallback('/study-cards', {
-            method: 'POST',
-            headers: getHeaders(adminId),
-            body: JSON.stringify(card)
-        });
-        if (!response.ok) throw new Error('Failed to create study card');
-        return response.json();
-    },
-
-    async updateStudyCard(id: string, card: Partial<StudyCard>, adminId: string) {
-        const response = await fetchWithFallback(`/study-cards/${id}`, {
-            method: 'PUT',
-            headers: getHeaders(adminId),
-            body: JSON.stringify(card)
-        });
-        if (!response.ok) throw new Error('Failed to update study card');
-        return response.json();
-    },
-
-    async deleteStudyCard(id: string, adminId: string) {
-        const response = await fetchWithFallback(`/study-cards/${id}`, {
-            method: 'DELETE',
-            headers: getHeaders(adminId)
-        });
-        if (!response.ok) throw new Error('Failed to delete study card');
-        return response.json();
-    },
-
-    async deleteStudyStack(category: string, adminId: string) {
-        const response = await fetchWithFallback(`/study-cards/stack/${encodeURIComponent(category)}`, {
-            method: 'DELETE',
-            headers: getHeaders(adminId)
-        });
-        if (!response.ok) throw new Error('Failed to delete study stack');
-        return response.json();
-    },
-
-    async updateStudyStack(oldCategory: string, newCategory: string, adminId: string) {
-        const response = await fetchWithFallback('/study-cards/stack/rename', {
-            method: 'PUT',
-            headers: getHeaders(adminId),
-            body: JSON.stringify({ oldCategory, newCategory })
-        });
-        if (!response.ok) throw new Error('Failed to rename study stack');
         return response.json();
     },
 
@@ -2880,6 +2820,31 @@ export const api = {
             method: 'DELETE',
             headers: getHeaders()
         }).catch(() => {});
+    },
+
+    async claimArcadeXp(payload: {
+        mode: 'hunt' | 'harvest' | 'smash' | 'dash';
+        durationSeconds: number;
+        score: number;
+        arcadeXpEarned: number;
+    }): Promise<{
+        awardedPlatformXp: number;
+        dailyEarned: number;
+        dailyCap: number;
+        dailyRemaining: number;
+        xp: number;
+        level: number;
+    }> {
+        const response = await fetchWithFallback('/users/arcade-xp', {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify(payload)
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            throw new Error(data.message || 'Failed to sync arcade XP');
+        }
+        return data;
     }
 };
 

@@ -196,7 +196,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onVerified, onSwitchToL
     const inputClass = `w-full ps-11 pe-4 py-2.5 rounded-2xl text-sm font-medium transition-all focus:outline-none ${
         isBento
             ? 'bg-white border-2 border-black text-black placeholder-slate-400 focus:ring-2 focus:ring-black/15 shadow-[2px_2px_0_#000]'
-            : 'bg-white dark:bg-[#0f1422] border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder-slate-400 focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/15 shadow-sm'
+            : 'bg-white dark:bg-[#141210] border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder-slate-400 focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/15 shadow-sm'
     } disabled:opacity-60`;
 
     const primaryBtnClass = isBento
@@ -210,7 +210,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onVerified, onSwitchToL
     }`;
 
     return (
-        <div className="min-h-dvh bg-slate-50 dark:bg-[#090d16] text-slate-900 dark:text-slate-100 flex relative overflow-x-hidden selection:bg-indigo-500/25">
+        <div className="min-h-dvh bg-slate-50 dark:bg-[#0a0908] text-slate-900 dark:text-slate-100 flex relative overflow-x-hidden selection:bg-indigo-500/25">
             {/* Ambient Background */}
             <AmbientBackground />
 
@@ -260,7 +260,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onVerified, onSwitchToL
                         </p>
                         <div className="flex flex-wrap items-center justify-center gap-2 pt-1 select-none">
                             <span className="bento-badge-tag bg-[#fde047] text-black -rotate-1">&ldquo;{tx('NEW COHORT', 'دفعة جديدة')}&rdquo;</span>
-                            <span className="bento-badge-tag bg-[#8b5cf6] text-white rotate-1">&ldquo;{tx('OTP OR LINK', 'كود أو رابط')}&rdquo;</span>
+                            <span className="bento-badge-tag bg-[#0d9488] text-white rotate-1">&ldquo;{tx('OTP OR LINK', 'كود أو رابط')}&rdquo;</span>
                             <span className="bento-badge-tag bg-[#bef264] text-black -rotate-1">&ldquo;{tx('DUEL LIVE', 'تحدي لايف')}&rdquo;</span>
                         </div>
                     </div>
@@ -269,7 +269,14 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onVerified, onSwitchToL
 
             {/* Right Column - Form */}
             <div className="flex-1 flex flex-col justify-center items-center p-5 sm:p-8 relative z-10 w-full animate-in fade-in duration-500">
-                <div className="w-full max-w-md space-y-4">
+                <div
+                    data-snake-wall="card"
+                    className={`w-full max-w-md space-y-4 ${
+                        isBento
+                            ? 'bg-white border-[3px] border-black rounded-3xl p-6 sm:p-8 shadow-[6px_6px_0_#000]'
+                            : 'bg-white dark:bg-[#141210] border border-slate-200 dark:border-[1.5px] dark:border-[#2e2924] rounded-3xl p-6 sm:p-8 shadow-xl dark:shadow-[0_6px_0_#050504]'
+                    }`}
+                >
                     {/* Mobile Logo & Heading */}
                     <div className="lg:hidden text-center pt-6">
                         <button

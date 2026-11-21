@@ -39,7 +39,7 @@ const BENTO_ACCENTS = [
     { bg: 'bg-[#bae6fd]', text: 'text-black' }, // Sky Blue
     { bg: 'bg-[#bef264]', text: 'text-black' }, // Lime Green
     { bg: 'bg-[#fef08a]', text: 'text-black' }, // Light Yellow
-    { bg: 'bg-[#ddd6fe]', text: 'text-black' }, // Lavender Purple
+    { bg: 'bg-[#fed7aa]', text: 'text-black' }, // Lavender Purple
     { bg: 'bg-[#fed7aa]', text: 'text-black' }, // Soft Peach
     { bg: 'bg-[#fbcfe8]', text: 'text-black' }, // Bubblegum Pink
 ];
@@ -64,7 +64,7 @@ const RoadList: React.FC<RoadListProps> = ({
                         className={
                             isBento
                                 ? 'bg-white p-6 rounded-[28px] border-[2.5px] border-black shadow-[4px_4px_0px_#000] animate-pulse flex flex-col justify-between min-h-[300px]'
-                                : 'bg-white/60 dark:bg-[#1e1e2d]/60 backdrop-blur-xl p-6 rounded-3xl border border-white/20 dark:border-white/5 animate-pulse min-h-[300px]'
+                                : 'bg-white/60 dark:bg-[#1c1917]/60 backdrop-blur-xl p-6 rounded-3xl border border-white/20 dark:border-white/5 animate-pulse min-h-[300px]'
                         }
                     >
                         <div>
@@ -138,7 +138,7 @@ const RoadList: React.FC<RoadListProps> = ({
                                 </div>
 
                                 {/* Title & Description */}
-                                <h3 className="text-xl font-black text-black mb-1.5 tracking-tight group-hover:text-purple-700 transition-colors line-clamp-1">
+                                <h3 className="text-xl font-black text-black mb-1.5 tracking-tight group-hover:text-teal-700 transition-colors line-clamp-1">
                                     {road.title}
                                 </h3>
                                 <p className="text-neutral-600 text-xs sm:text-sm font-medium line-clamp-2 leading-relaxed mb-4 min-h-[38px]">
@@ -164,7 +164,7 @@ const RoadList: React.FC<RoadListProps> = ({
                                     </span>
 
                                     <span
-                                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-black bg-[#f3e8ff] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]"
+                                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-black bg-[#ffedd5] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]"
                                         title="Interactive visual roadmap"
                                     >
                                         <Brain className="w-3.5 h-3.5 stroke-[2.5]" />
@@ -251,12 +251,12 @@ const RoadList: React.FC<RoadListProps> = ({
                                 onSelectRoad(road);
                             }
                         }}
-                        className="group relative bg-white/70 dark:bg-[#1e1e2d]/70 backdrop-blur-xl p-6 rounded-3xl border border-gray-200/80 dark:border-white/10 hover:border-indigo-500/50 dark:hover:border-indigo-500/50 shadow-sm hover:shadow-xl hover:shadow-indigo-500/10 hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col justify-between overflow-hidden text-left outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                        className="group relative bg-white/70 dark:bg-[#1c1917]/70 backdrop-blur-xl p-6 rounded-3xl border border-gray-200/80 dark:border-white/10 hover:border-indigo-500/50 dark:hover:border-indigo-500/50 shadow-sm hover:shadow-xl hover:shadow-indigo-500/10 hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col justify-between overflow-hidden text-left outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
                     >
                         <div>
                             {/* Header: Icon + Visibility Badge */}
                             <div className="flex items-start justify-between gap-3 mb-4">
-                                <div className="w-14 h-14 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-2xl flex items-center justify-center shadow-sm border border-indigo-200/50 dark:border-white/10 group-hover:scale-105 transition-transform shrink-0">
+                                <div className="w-14 h-14 bg-indigo-100 dark:bg-indigo-900/30 rounded-2xl flex items-center justify-center shadow-sm border border-indigo-200/50 dark:border-white/10 group-hover:scale-105 transition-transform shrink-0">
                                     <RoadIcon iconName={road.icon} className="w-7 h-7 text-indigo-600 dark:text-indigo-400" />
                                 </div>
 
@@ -323,7 +323,7 @@ const RoadList: React.FC<RoadListProps> = ({
                                     className={`px-3.5 py-2 rounded-xl font-bold text-xs flex items-center gap-1.5 cursor-pointer transition-all ${
                                         isBento
                                             ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 font-mono'
-                                            : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-sm hover:shadow-indigo-500/20'
+                                            : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm hover:shadow-indigo-500/20'
                                     }`}
                                 >
                                     <span>Open Road</span>
@@ -383,7 +383,7 @@ const RoadList: React.FC<RoadListProps> = ({
                     className={
                         isBento
                             ? 'col-span-full py-16 text-center border-[2.5px] border-dashed border-black rounded-[28px] bg-white shadow-[4px_4px_0px_#000]'
-                            : 'col-span-full py-16 text-center border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-3xl bg-gray-50/50 dark:bg-white/5'
+                            : 'col-span-full py-16 text-center border-2 border-dashed border-gray-200 dark:border-[#f5f3ec]/10 rounded-3xl bg-gray-50/50 dark:bg-white/5'
                     }
                 >
                     <div

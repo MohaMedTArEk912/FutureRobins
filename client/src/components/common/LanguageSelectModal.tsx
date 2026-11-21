@@ -50,7 +50,7 @@ const LanguageSelectModalContent: React.FC<Omit<LanguageSelectModalProps, 'isOpe
             <div className={`app-dialog-panel app-dialog-panel--structured relative w-full max-w-xl max-h-[85vh] rounded-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 ${
                 isBento
                     ? 'bg-white text-black border-[3px] border-black shadow-[6px_6px_0px_#000]'
-                    : 'bg-white dark:bg-[#111322] border border-gray-200 dark:border-white/10 shadow-2xl'
+                    : 'bg-white dark:bg-[#141210] border border-gray-200 dark:border-white/10 shadow-2xl'
             }`}>
                 {/* Header */}
                 <div className={`app-dialog-header p-5 sm:p-6 flex items-center justify-between ${
@@ -62,7 +62,7 @@ const LanguageSelectModalContent: React.FC<Omit<LanguageSelectModalProps, 'isOpe
                         <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${
                             isBento
                                 ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                : 'bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-md shadow-indigo-500/20'
+                                : 'bg-indigo-500 text-white shadow-md shadow-indigo-500/20'
                         }`}>
                             <Languages className="w-5 h-5" />
                         </div>

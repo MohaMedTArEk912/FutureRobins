@@ -9,6 +9,7 @@ router.put('/users/:userId', verifyUser, userController.updateUser);
 router.delete('/users/:userId', verifyAdmin, userController.deleteUser);
 router.get(['/leaderboard', '/users/leaderboard'], userController.getPublicLeaderboard);
 router.get('/user/data', verifyUser, userController.getUserData);
+router.post('/users/arcade-xp', verifyUser, userController.claimArcadeXp);
 router.get('/users/search', verifyUser, userController.searchUsers);
 router.get('/users/:userId/public', extractOptionalUser, userController.getPublicUserProfile);
 router.post('/friends/request', verifyUser, userController.sendFriendRequest);

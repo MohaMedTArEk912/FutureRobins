@@ -6,6 +6,7 @@ import { Badge } from '../models/Badge.js';
 import { Challenge } from '../models/Challenge.js';
 import { ShopItem } from '../models/ShopItem.js';
 import { evaluateTextAnswer } from '../utils/textSimilarity.js';
+import { isDemoReq, NON_DEMO_USER_FILTER, DEMO_USER_IDS } from '../utils/demoFilter.js';
 
 const getGroqClient = () => {
   const key = (process.env.GROQ_API_KEY || '').trim();
@@ -679,9 +680,10 @@ export const getQuestionAnalytics = async (req, res) => {
  */
 export const getCohortAnalytics = async (req, res) => {
   try {
+    const isDemoCaller = isDemoReq(req);
     const [users, attempts, quizzes] = await Promise.all([
-      User.find({}, 'userId name email level xp totalScore totalAttempts').limit(5000).lean(),
-      Attempt.find({})
+      User.find(isDemoCaller ? {} : NON_DEMO_USER_FILTER, 'userId name email level xp totalScore totalAttempts').limit(5000).lean(),
+      Attempt.find(isDemoCaller ? {} : { userId: { $nin: DEMO_USER_IDS } })
         .select('userId percentage passed quizId completedAt')
         .sort({ completedAt: -1 })
         .limit(5000)
@@ -879,16 +881,19 @@ export const getData = async (req, res) => {
   try {
     const isAdmin = req.user?.role === 'admin';
     const userId = req.user?.userId;
+    const isDemoCaller = isDemoReq(req);
+    const userFilter = isDemoCaller ? {} : NON_DEMO_USER_FILTER;
+    const attemptAdminFilter = isDemoCaller ? {} : { userId: { $nin: DEMO_USER_IDS } };
 
     const [users, attempts, badges, challenges, shopItems, attemptStatsAgg, totalUsersCount] = await Promise.all([
       isAdmin
-        ? User.find({}, '-password').sort({ createdAt: -1 }).limit(2000).lean()
-        : User.find({}, 'userId name totalScore totalAttempts xp level streak rank lastLoginDate createdAt badges')
+        ? User.find(userFilter, '-password').sort({ createdAt: -1 }).limit(2000).lean()
+        : User.find(userFilter, 'userId name totalScore totalAttempts xp level streak rank lastLoginDate createdAt badges')
             .sort({ totalScore: -1 })
             .limit(100)
             .lean(),
       isAdmin
-        ? Attempt.find({}).select('-attemptQuestions').sort({ completedAt: -1 }).limit(2000).lean()
+        ? Attempt.find(attemptAdminFilter).select('-attemptQuestions').sort({ completedAt: -1 }).limit(2000).lean()
         : Attempt.find({ userId }).select('-attemptQuestions').sort({ completedAt: -1 }).limit(1000).lean(),
       Badge.find({}).lean(),
       Challenge.find({
@@ -899,7 +904,7 @@ export const getData = async (req, res) => {
         .lean(),
       ShopItem.find({}).lean(),
       Attempt.aggregate([
-        ...(isAdmin ? [] : [{ $match: { userId } }]),
+        ...(isAdmin ? (isDemoCaller ? [] : [{ $match: attemptAdminFilter }]) : [{ $match: { userId } }]),
         {
           $group: {
             _id: null,
@@ -909,7 +914,7 @@ export const getData = async (req, res) => {
           }
         }
       ]),
-      isAdmin ? User.countDocuments({}) : Promise.resolve(null)
+      isAdmin ? User.countDocuments(userFilter) : Promise.resolve(null)
     ]);
 
     const aggRow = Array.isArray(attemptStatsAgg) && attemptStatsAgg[0] ? attemptStatsAgg[0] : null;

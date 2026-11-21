@@ -30,7 +30,7 @@ const QuizSelectionModal: React.FC<QuizSelectionModalProps> = ({ quizzes, isOpen
             <div className={`app-dialog-panel app-dialog-panel--structured rounded-2xl w-full max-w-2xl max-h-[80vh] flex flex-col shadow-2xl overflow-hidden relative ${
                 isBento
                     ? 'bg-white border-[3px] border-black shadow-[6px_6px_0px_#000]'
-                    : 'bg-white dark:bg-[#1a1b26] rounded-2xl border border-white/10'
+                    : 'bg-white dark:bg-[#1c1917] rounded-2xl border border-white/10'
             }`}>
                 {/* Close Button */}
                 <button

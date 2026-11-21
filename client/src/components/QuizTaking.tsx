@@ -1556,15 +1556,15 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
 
     const getPowerUpColor = (type: string) => {
         switch (type) {
-            case 'hint': return 'from-yellow-500 to-orange-500';
-            case 'time': return 'from-blue-500 to-cyan-500';
-            case 'skip': return 'from-purple-500 to-pink-500';
-            case 'shield': return 'from-green-500 to-emerald-500';
-            case 'auto_pair': return 'from-teal-500 to-emerald-500';
-            case 'lock_step': return 'from-violet-500 to-indigo-500';
-            case 'letter_reveal': return 'from-amber-500 to-orange-500';
-            case 'code_hint': return 'from-sky-500 to-indigo-500';
-            default: return 'from-indigo-500 to-purple-500';
+            case 'hint': return 'bg-amber-500';
+            case 'time': return 'bg-sky-600';
+            case 'skip': return 'bg-teal-600';
+            case 'shield': return 'bg-emerald-600';
+            case 'auto_pair': return 'bg-teal-600';
+            case 'lock_step': return 'bg-sky-600';
+            case 'letter_reveal': return 'bg-orange-500';
+            case 'code_hint': return 'bg-indigo-600';
+            default: return 'bg-indigo-600';
         }
     };
 
@@ -1606,7 +1606,7 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
     return (
         <div className={`w-full transition-colors flex flex-col font-sans relative ${embedded
             ? 'h-full bg-transparent'
-            : 'h-screen bg-slate-100/90 dark:bg-[#070b14] p-2 sm:p-3 md:p-4 overflow-hidden'
+            : 'h-screen bg-slate-100/90 dark:bg-[#0a0908] p-2 sm:p-3 md:p-4 overflow-hidden'
             } text-gray-900 dark:text-gray-100`}>
             
             {!embedded && <AmbientBackground />}
@@ -1661,7 +1661,7 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
 
             {/* Proctored Exam Fullscreen Warning / Entry Banner */}
             {(quiz.requireFullscreen || quiz.isProctored) && !isFullscreenActive && !(user?.role === 'admin' || user?.isAdmin) && (
-                <div className="bg-gradient-to-r from-red-600 via-indigo-600 to-purple-600 text-white px-4 py-2 text-xs font-black uppercase tracking-wider flex items-center justify-between gap-3 z-40 shadow-lg animate-pulse">
+                <div className="bg-red-600 text-white px-4 py-2 text-xs font-black uppercase tracking-wider flex items-center justify-between gap-3 z-40 shadow-lg animate-pulse">
                     <div className="flex items-center gap-2">
                         <Shield className="w-4 h-4 text-amber-300" />
                         <span>🔒 Proctored Exam Mode — Fullscreen is required for this assessment.</span>
@@ -1679,7 +1679,7 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
             {/* Fullscreen Exit Warning Modal */}
             {showFullscreenWarning && !(user?.role === 'admin' || user?.isAdmin) && (
                 <div className="app-dialog-overlay fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-                    <div className="app-dialog-panel app-dialog-panel--padded bg-white dark:bg-[#11121d] text-gray-900 dark:text-white border-2 border-red-500 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-4 text-center">
+                    <div className="app-dialog-panel app-dialog-panel--padded bg-white dark:bg-[#141210] text-gray-900 dark:text-white border-2 border-red-500 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-4 text-center">
                         <div className="w-14 h-14 rounded-2xl bg-red-500/15 text-red-500 flex items-center justify-center mx-auto">
                             <Shield className="w-8 h-8" />
                         </div>
@@ -1692,7 +1692,7 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                         <button
                             type="button"
                             onClick={enterFullscreen}
-                            className="w-full py-3.5 bg-gradient-to-r from-red-600 to-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-[1.01] active:scale-[0.99] transition-all shadow-lg shadow-red-500/25 cursor-pointer"
+                            className="w-full py-3.5 bg-red-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-[1.01] active:scale-[0.99] transition-all shadow-lg shadow-red-500/25 cursor-pointer"
                         >
                             Return to Fullscreen
                         </button>
@@ -1714,22 +1714,22 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
             {/* --- ELEVATED QUIZ BOARD CONTAINER (Generous margin, rounded-3xl corners, drop shadow) --- */}
             <div className={`w-full max-w-7xl 2xl:max-w-[1536px] mx-auto flex-1 flex flex-col rounded-3xl overflow-hidden relative z-10 transition-all ${
                 isBento
-                    ? 'border-[3px] border-black bg-white dark:bg-[#0b0f19] shadow-[8px_8px_0px_#000] dark:shadow-[8px_8px_0px_rgba(255,255,255,0.08)]'
-                    : 'border border-slate-200/90 dark:border-white/10 bg-white dark:bg-[#0c101c] shadow-[0_20px_50px_-12px_rgba(15,23,42,0.08),0_1px_3px_rgba(15,23,42,0.04)] dark:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85),inset_0_1px_0_rgba(255,255,255,0.06)]'
+                    ? 'border-[3px] border-black bg-white dark:bg-[#0a0908] shadow-[8px_8px_0px_#000] dark:shadow-[8px_8px_0px_rgba(255,255,255,0.08)]'
+                    : 'border border-slate-200/90 dark:border-white/10 bg-white dark:bg-[#141210] shadow-[0_20px_50px_-12px_rgba(15,23,42,0.08),0_1px_3px_rgba(15,23,42,0.04)] dark:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85),inset_0_1px_0_rgba(255,255,255,0.06)]'
             }`}>
                 {/* --- TOP BAR (Inside Card Header) --- */}
                 {!embedded && (
                     <header className={`sticky top-0 flex-none h-14 sm:h-16 landscape:h-12 lg:landscape:h-16 flex items-center justify-between px-4 sm:px-6 z-20 shadow-sm ${
                         isBento
-                            ? 'bg-white dark:bg-[#0f172a] border-b-2 border-black dark:border-white/20'
-                            : 'bg-white/95 dark:bg-[#0f1424]/95 border-b border-slate-200/80 dark:border-white/10 backdrop-blur-xl'
+                            ? 'bg-white dark:bg-[#141210] border-b-2 border-black dark:border-white/20'
+                            : 'bg-white/95 dark:bg-[#141210]/95 border-b border-slate-200/80 dark:border-white/10 backdrop-blur-xl'
                     }`}>
                     <div className="flex items-center gap-3 sm:gap-4">
                         <button
                             onClick={onBack}
                             className={`flex items-center gap-2 p-1.5 sm:p-2 rounded-xl transition-all cursor-pointer ${
                                 isBento
-                                    ? 'bg-white dark:bg-slate-800 text-black dark:text-white border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000] active:translate-y-0.5'
+                                    ? 'bg-white dark:bg-[#1c1917] text-black dark:text-white border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000] active:translate-y-0.5'
                                     : 'glass-card hover:bg-slate-100 dark:hover:bg-white/5 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/10'
                             }`}
                         >
@@ -1738,7 +1738,7 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                         <div className="flex items-center gap-2 min-w-0">
                             <span className={`text-[10px] sm:text-xs font-extrabold uppercase tracking-wider truncate max-w-[140px] sm:max-w-xs px-2.5 py-1 rounded-lg ${
                                 isBento
-                                    ? 'bg-purple-100 text-purple-900 border-2 border-black font-black shadow-[2px_2px_0px_#000]'
+                                    ? 'bg-teal-100 text-teal-900 border-2 border-black font-black shadow-[2px_2px_0px_#000]'
                                     : 'text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 border border-indigo-500/20'
                             }`}>
                                 {retryMode ? '⚠ Retry' : quiz.title}
@@ -1746,8 +1746,8 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                             {(user?.role === 'admin' || user?.isAdmin) && (
                                 <span className={`hidden sm:inline-flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-lg ${
                                     isBento
-                                        ? 'bg-purple-200 text-black border-2 border-black font-black shadow-[2px_2px_0px_#000]'
-                                        : 'bg-purple-500/15 text-purple-600 dark:text-purple-300 border border-purple-500/30'
+                                        ? 'bg-teal-200 text-black border-2 border-black font-black shadow-[2px_2px_0px_#000]'
+                                        : 'bg-teal-500/15 text-teal-600 dark:text-teal-300 border border-teal-500/30'
                                 }`}>
                                     <span>🛡️</span> Admin
                                 </span>
@@ -1813,8 +1813,8 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                         : 'landscape:w-1/2 lg:w-1/2'
                 } h-auto landscape:h-full lg:h-full flex flex-col ${
                     isBento
-                        ? 'bg-white dark:bg-[#0b0f19] border-b-2 landscape:border-b-0 landscape:border-r-2 lg:border-r-2 border-black dark:border-white/20'
-                        : 'bg-white dark:bg-[#0c101c] border-b landscape:border-b-0 landscape:border-r lg:border-r border-slate-200/80 dark:border-white/10'
+                        ? 'bg-white dark:bg-[#0a0908] border-b-2 landscape:border-b-0 landscape:border-r-2 lg:border-r-2 border-black dark:border-white/20'
+                        : 'bg-white dark:bg-[#141210] border-b landscape:border-b-0 landscape:border-r lg:border-r border-slate-200/80 dark:border-white/10'
                 } relative z-20 landscape:sticky landscape:top-0 lg:sticky lg:top-0 landscape:overflow-y-auto lg:overflow-y-auto no-scrollbar`}>
                     
                     <div className="w-full flex flex-col flex-1">
@@ -1832,9 +1832,9 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                                         onClick={flipToClue}
                                         className={`flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
                                             isClueFlipped
-                                                ? 'rounded-xl bg-[#c084fc] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                                ? 'rounded-xl bg-[#fdba74] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
                                                 : isBento
-                                                    ? 'rounded-l-xl bg-white hover:bg-purple-50 text-black border-2 border-black border-r-0 shadow-[2px_2px_0px_#000] active:translate-y-0.5'
+                                                    ? 'rounded-l-xl bg-white hover:bg-teal-50 text-black border-2 border-black border-r-0 shadow-[2px_2px_0px_#000] active:translate-y-0.5'
                                                     : theme === 'dark'
                                                         ? 'rounded-l-xl bg-indigo-950/60 hover:bg-indigo-900/70 text-indigo-300 border border-indigo-500/30 border-r-0'
                                                         : 'rounded-l-xl bg-indigo-50/90 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 border-r-0'
@@ -1845,13 +1845,13 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                                                 : `Get AI clue (${aiCoachUsesLeft} hint${aiCoachUsesLeft === 1 ? '' : 's'} remaining)`
                                         }
                                     >
-                                        <Sparkles className={`w-3.5 h-3.5 ${isClueFlipped ? 'text-black rotate-12' : 'text-purple-600 animate-pulse'}`} />
+                                        <Sparkles className={`w-3.5 h-3.5 ${isClueFlipped ? 'text-black rotate-12' : 'text-teal-600 animate-pulse'}`} />
                                         <span className="text-[11px] sm:text-xs font-black">{isClueFlipped ? 'Question' : 'AI Coach'}</span>
                                         {!isClueFlipped && (
                                             <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-black leading-none ${
                                                 aiCoachUsesLeft > 0
                                                     ? isBento
-                                                        ? 'bg-[#c084fc] text-black border border-black'
+                                                        ? 'bg-[#fdba74] text-black border border-black'
                                                         : theme === 'dark'
                                                             ? 'bg-indigo-500/30 text-indigo-200 border border-indigo-400/30'
                                                             : 'bg-indigo-200 text-indigo-800'
@@ -1916,20 +1916,20 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                                     aria-expanded={showQuestionMenu}
                                     className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-black border transition-all cursor-pointer ${
                                         isBento
-                                            ? 'bg-white text-black border-2 border-black hover:bg-purple-100 shadow-[2px_2px_0px_#000]'
+                                            ? 'bg-white text-black border-2 border-black hover:bg-teal-100 shadow-[2px_2px_0px_#000]'
                                             : 'glass-card hover:bg-slate-100 dark:hover:bg-white/5 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-white/10 shadow-sm'
                                     }`}
                                 >
                                     <List className="w-4 h-4" />
                                     <span className="hidden sm:inline">Questions</span>
                                 </button>
-                                <div className={`font-tabular font-extrabold text-xs sm:text-sm ${isBento ? 'text-purple-700 dark:text-purple-300 font-black' : 'text-indigo-600 dark:text-indigo-400'}`}>{Math.round(progressPercentage)}%</div>
+                                <div className={`font-tabular font-extrabold text-xs sm:text-sm ${isBento ? 'text-teal-700 dark:text-teal-300 font-black' : 'text-indigo-600 dark:text-indigo-400'}`}>{Math.round(progressPercentage)}%</div>
                             </div>
                             {showQuestionMenu && (
                                 <div className={`absolute right-5 sm:right-8 lg:right-10 top-14 z-50 w-64 rounded-2xl p-3 shadow-2xl animate-in fade-in zoom-in-95 duration-150 ${
                                     isBento
                                         ? 'bg-white text-black border-2 border-black shadow-[5px_5px_0px_#000]'
-                                        : 'bg-white dark:bg-[#121829] border border-slate-200 dark:border-white/10 shadow-2xl text-slate-900 dark:text-white'
+                                        : 'bg-white dark:bg-[#141210] border border-slate-200 dark:border-white/10 shadow-2xl text-slate-900 dark:text-white'
                                 }`}>
                                     <div className="flex items-center justify-between mb-2">
                                         <span className="text-xs font-black uppercase tracking-wider">Jump to question</span>
@@ -1965,14 +1965,14 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                                                                     : 'bg-rose-100 text-rose-900 border-rose-600 hover:bg-rose-200 dark:bg-rose-950/60 dark:text-rose-200 dark:border-rose-500'
                                                                 : isMenuSub
                                                                     ? isBento
-                                                                        ? 'bg-[#ddd6fe] !text-black border-black font-black hover:bg-[#c4b5fd]'
+                                                                        ? 'bg-[#fed7aa] !text-black border-black font-black hover:bg-[#fdba74]'
                                                                         : 'bg-indigo-100 dark:bg-indigo-950/60 text-indigo-900 dark:text-indigo-200 border-indigo-500 hover:border-indigo-600'
                                                                     : hasMenuChanged
                                                                         ? isBento
                                                                             ? 'bg-[#fef08a] !text-black border-black font-black hover:bg-[#fde047]'
                                                                             : 'bg-amber-100 dark:bg-amber-950/60 text-amber-900 dark:text-amber-200 border-amber-500 hover:border-amber-600'
                                                                         : isBento
-                                                                            ? 'bg-slate-50 !text-black border-black hover:bg-[#f3e8ff]'
+                                                                            ? 'bg-slate-50 !text-black border-black hover:bg-[#ffedd5]'
                                                                             : 'bg-slate-50 dark:bg-white/5 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-white/10 hover:border-indigo-400'
                                                     }`}
                                                 >
@@ -2002,7 +2002,7 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                                     ? 'h-2.5 bg-slate-100 dark:bg-white/10 border-1.5 border-black'
                                     : 'h-1.5 bg-slate-200/60 dark:bg-white/10'
                             }`}>
-                                <div className={`h-full rounded-full transition-all duration-300 ${isBento ? 'bg-[#8b5cf6]' : 'bg-indigo-600'}`} style={{ width: `${progressPercentage}%` }}></div>
+                                <div className={`h-full rounded-full transition-all duration-300 ${isBento ? 'bg-[#0d9488]' : 'bg-indigo-600'}`} style={{ width: `${progressPercentage}%` }}></div>
                             </div>
                         </div>
 
@@ -2044,17 +2044,14 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                                         isReviewModeSubmitted ? 'justify-start' : 'justify-between'
                                     } transition-all overflow-hidden relative ${
                                         theme === 'bento'
-                                            ? 'border-[3.5px] border-black bg-white dark:bg-[#111827] shadow-[6px_6px_0px_#000] dark:shadow-[6px_6px_0px_rgba(255,255,255,0.15)] text-black dark:text-white'
+                                            ? 'border-[3.5px] border-black bg-white dark:bg-[#141210] shadow-[6px_6px_0px_#000] dark:shadow-[6px_6px_0px_rgba(255,255,255,0.15)] text-black dark:text-white'
                                             : theme === 'dark'
-                                                ? 'border border-indigo-500/35 bg-gradient-to-b from-[#11182c] via-[#0d1424] to-[#090d18] shadow-[0_20px_45px_-10px_rgba(0,0,0,0.85),inset_0_1px_0_rgba(255,255,255,0.12),inset_0_0_24px_rgba(99,102,241,0.08)] text-white'
-                                                : 'border border-slate-200/90 bg-gradient-to-b from-white via-white to-slate-50/80 shadow-[0_12px_36px_-6px_rgba(15,23,42,0.08),0_2px_6px_rgba(15,23,42,0.02)] text-slate-900'
+                                                ? 'border-[1.5px] border-[#2e2924] bg-[#141210] shadow-[0_5px_0_#050504] text-[#f5f3ec]'
+                                                : 'border border-slate-200/90 bg-white shadow-[0_12px_36px_-6px_rgba(15,23,42,0.08),0_2px_6px_rgba(15,23,42,0.02)] text-slate-900'
                                     } ${isClueFlipped ? 'pointer-events-none' : ''}`}>
-                                        {/* Top ambient highlight line for Dark / Light */}
+                                        {/* Top ambient highlight line for Dark */}
                                         {theme === 'dark' && (
-                                            <div className="absolute top-0 left-8 right-8 h-[1px] bg-gradient-to-r from-transparent via-indigo-400/60 to-transparent pointer-events-none" />
-                                        )}
-                                        {theme === 'light' && (
-                                            <div className="absolute top-0 left-8 right-8 h-[1px] bg-gradient-to-r from-transparent via-indigo-500/25 to-transparent pointer-events-none" />
+                                            <div className="absolute top-0 left-8 right-8 h-[1px] pointer-events-none" />
                                         )}
 
                                         {!isReviewModeSubmitted ? (
@@ -2075,8 +2072,7 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                                                                     ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 shadow-sm flex items-center gap-1.5'
                                                                     : 'bg-indigo-50 text-indigo-700 border border-indigo-200/80 shadow-sm flex items-center gap-1.5'
                                                         }`}>
-                                                            {theme === 'dark' && <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 shadow-[0_0_6px_#818cf8] animate-pulse" />}
-                                                            {theme === 'light' && <span className="w-1.5 h-1.5 rounded-full bg-indigo-600" />}
+                                                            {theme === 'dark' && <span className="w-1.5 h-1.5 rounded-full bg-[#bef264] animate-pulse" />}
                                                             Question {currentQuestion + 1}
                                                         </span>
                                                         <span className={`px-2.5 py-1 rounded-lg sm:rounded-xl text-xs font-black uppercase tracking-wider ${
@@ -2187,10 +2183,10 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                                     {/* BACK FACE: Revealed Socratic Clue Card (Themed for Bento, Dark, and Light) */}
                                     <div className={`backface-hidden rotate-y-180 absolute inset-0 w-full h-full rounded-2xl sm:rounded-3xl p-5 sm:p-6 flex flex-col justify-between transition-all overflow-hidden ${
                                         theme === 'bento'
-                                            ? 'border-[3.5px] border-black bg-[#faf5ff] text-black shadow-[6px_6px_0px_#000]'
+                                            ? 'border-[3.5px] border-black bg-[#fff7ed] text-black shadow-[6px_6px_0px_#000]'
                                             : theme === 'dark'
-                                                ? 'border border-indigo-500/35 bg-gradient-to-br from-[#121833] via-[#0f1426] to-[#090d18] text-white shadow-[0_20px_45px_-10px_rgba(0,0,0,0.85),inset_0_1px_0_rgba(255,255,255,0.12)]'
-                                                : 'border border-indigo-200/90 bg-gradient-to-br from-indigo-50/90 via-purple-50/50 to-white text-slate-900 shadow-[0_12px_36px_-6px_rgba(15,23,42,0.08)]'
+                                                ? 'border-[1.5px] border-[#2e2924] bg-[#141210] text-[#f5f3ec] shadow-[0_5px_0_#050504]'
+                                                : 'border border-indigo-200/90 bg-indigo-50/90 text-slate-900 shadow-[0_12px_36px_-6px_rgba(15,23,42,0.08)]'
                                     } ${!isClueFlipped ? 'pointer-events-none' : ''}`}>
                                         {/* Top row: Badges & Action Buttons */}
                                         <div className={`flex items-center justify-between gap-2 shrink-0 pb-2.5 ${
@@ -2199,7 +2195,7 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                                             <div className="flex items-center gap-2 min-w-0">
                                                 <span className={`px-2.5 py-1 rounded-lg text-xs font-black uppercase tracking-wider truncate ${
                                                     theme === 'bento'
-                                                        ? 'bg-[#c084fc] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]'
+                                                        ? 'bg-[#fdba74] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]'
                                                         : theme === 'dark'
                                                             ? 'bg-indigo-500/25 text-indigo-300 border border-indigo-500/40 shadow-sm'
                                                             : 'bg-indigo-100 text-indigo-800 border border-indigo-200'
@@ -2212,9 +2208,9 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                                                             key={lvl}
                                                             className={`w-2 h-2 rounded-full transition-all ${
                                                                 theme === 'bento'
-                                                                    ? lvl <= inlineClueLevel ? 'bg-[#8b5cf6] border border-black' : 'bg-white border border-black'
+                                                                    ? lvl <= inlineClueLevel ? 'bg-[#0d9488] border border-black' : 'bg-white border border-black'
                                                                     : theme === 'dark'
-                                                                        ? lvl <= inlineClueLevel ? 'bg-indigo-400 shadow-[0_0_6px_#818cf8]' : 'bg-white/20'
+                                                                        ? lvl <= inlineClueLevel ? 'bg-[#bef264]' : 'bg-white/20'
                                                                         : lvl <= inlineClueLevel ? 'bg-indigo-600' : 'bg-slate-200'
                                                             }`}
                                                         />
@@ -2261,7 +2257,7 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                                                     disabled={isInlineClueLoading}
                                                     className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-black uppercase tracking-wider active:translate-y-0.5 cursor-pointer disabled:opacity-50 transition-all ${
                                                         theme === 'bento'
-                                                            ? 'bg-white hover:bg-purple-100 text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]'
+                                                            ? 'bg-white hover:bg-teal-100 text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]'
                                                             : theme === 'dark'
                                                                 ? 'bg-white/10 hover:bg-white/15 text-white border border-white/15 shadow-sm'
                                                                 : 'bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 shadow-sm'
@@ -2293,8 +2289,8 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                                         {/* Clue Content */}
                                         <div className="flex-1 flex items-center py-3 overflow-y-auto no-scrollbar">
                                             {isInlineClueLoading ? (
-                                                <div className="flex items-center gap-2.5 text-sm font-bold text-purple-700 dark:text-purple-300 animate-pulse">
-                                                    <Sparkles className="w-4 h-4 animate-spin text-purple-600 dark:text-purple-400" />
+                                                <div className="flex items-center gap-2.5 text-sm font-bold text-teal-700 dark:text-teal-300 animate-pulse">
+                                                    <Sparkles className="w-4 h-4 animate-spin text-teal-600 dark:text-teal-400" />
                                                     <span>Consulting AI Coach for a spoiler-free pointer...</span>
                                                 </div>
                                             ) : (
@@ -2337,7 +2333,7 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                                     alt="Reference"
                                     loading="lazy"
                                     decoding="async"
-                                    className={`w-full rounded-2xl mb-8 object-cover max-h-64 ${isBento ? 'border-2 border-black shadow-[3px_3px_0px_#000]' : 'shadow-lg border border-gray-100 dark:border-gray-800'}`}
+                                    className={`w-full rounded-2xl mb-8 object-cover max-h-64 ${isBento ? 'border-2 border-black shadow-[3px_3px_0px_#000]' : 'shadow-lg border border-gray-100 dark:border-[#f5f3ec]/10'}`}
                                 />
                             )}
 
@@ -2354,10 +2350,10 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                             {q.codeSnippet && q.type !== 'code-output' && (
                                 <div className={`rounded-2xl overflow-hidden mb-6 ${
                                     isBento
-                                        ? 'bg-[#f8fafc] dark:bg-[#0d0d1a] border-2 border-black shadow-[3px_3px_0px_#000]'
-                                        : 'bg-[#F6F7F8] dark:bg-[#0d0d1a] border border-gray-100 dark:border-[#1f2937] shadow-[inset_0_2px_8px_rgba(0,0,0,0.05)] dark:shadow-inner'
+                                        ? 'bg-[#f8fafc] dark:bg-[#141210] border-2 border-black shadow-[3px_3px_0px_#000]'
+                                        : 'bg-[#F6F7F8] dark:bg-[#141210] border border-gray-100 dark:border-[#1f2937] shadow-[inset_0_2px_8px_rgba(0,0,0,0.05)] dark:shadow-inner'
                                 }`}>
-                                    <div className={`flex items-center gap-2 px-4 py-3 border-b ${isBento ? 'border-black bg-white dark:bg-[#111827]' : 'border-gray-200 dark:border-[#1f2937] bg-white dark:bg-[#111827]'}`}>
+                                    <div className={`flex items-center gap-2 px-4 py-3 border-b ${isBento ? 'border-black bg-white dark:bg-[#141210]' : 'border-gray-200 dark:border-[#1f2937] bg-white dark:bg-[#141210]'}`}>
                                         <div className="w-3 h-3 rounded-full bg-red-400 border border-black/20"></div>
                                         <div className="w-3 h-3 rounded-full bg-yellow-400 border border-black/20"></div>
                                         <div className="w-3 h-3 rounded-full bg-green-400 border border-black/20"></div>
@@ -2396,8 +2392,8 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                         : 'landscape:w-1/2 lg:w-1/2'
                 } h-auto landscape:h-full lg:h-full flex flex-col ${
                     isBento 
-                        ? 'bg-[#f8fafc] dark:bg-[#030712]' 
-                        : 'bg-slate-50/70 dark:bg-[#080c16]'
+                        ? 'bg-[#f8fafc] dark:bg-[#0a0908]' 
+                        : 'bg-slate-50/70 dark:bg-[#0a0908]'
                 } relative z-10 landscape:overflow-y-auto lg:overflow-y-auto no-scrollbar`}>
                     <div
                         role="radiogroup"
@@ -2546,11 +2542,11 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                                     textClass = theme === 'bento' ? "text-black font-bold" : theme === 'dark' ? "text-emerald-300 font-bold" : "text-emerald-900 font-bold";
                                 } else if (isSelected) {
                                     stateClass = theme === 'bento'
-                                        ? "bg-[#ddd6fe] text-black border-[2.5px] border-black shadow-[4px_4px_0px_#000] ring-2 ring-purple-600 scale-[1.01] z-10"
+                                        ? "bg-[#fed7aa] text-black border-[2.5px] border-black shadow-[4px_4px_0px_#000] ring-2 ring-teal-600 scale-[1.01] z-10"
                                         : theme === 'dark'
                                             ? "bg-indigo-950/60 border-indigo-500 ring-2 ring-indigo-500/40 text-white shadow-lg shadow-indigo-950/50 scale-[1.01] z-10"
                                             : "bg-indigo-50/90 border-indigo-600 ring-2 ring-indigo-500/30 text-indigo-950 shadow-md scale-[1.01] z-10";
-                                    badgeClass = theme === 'bento' ? "bg-[#8b5cf6] text-white border-2 border-black font-black" : "bg-indigo-600 text-white font-black shadow-sm";
+                                    badgeClass = theme === 'bento' ? "bg-[#0d9488] text-white border-2 border-black font-black" : "bg-indigo-600 text-white font-black shadow-sm";
                                     textClass = theme === 'bento' ? "text-black font-extrabold" : theme === 'dark' ? "text-white font-bold" : "text-indigo-950 font-bold";
                                 }
 
@@ -2589,8 +2585,8 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
             {/* Bottom Action Footer (Docked neatly inside the elevated card) */}
             <div className={`sticky bottom-0 flex-none px-4 sm:px-6 pt-3.5 sm:pt-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] sm:pb-[max(1.25rem,env(safe-area-inset-bottom,0px))] z-20 w-full flex items-center justify-between pointer-events-auto ${
                 isBento
-                    ? 'bg-white dark:bg-[#0f172a] border-t-2 border-black dark:border-white/20 shadow-[0px_-4px_12px_rgba(0,0,0,0.04)]'
-                    : 'bg-white/95 dark:bg-[#0c101c]/95 border-t border-slate-200/80 dark:border-white/10 shadow-[0px_-4px_16px_rgba(15,23,42,0.03)] backdrop-blur-xl'
+                    ? 'bg-white dark:bg-[#141210] border-t-2 border-black dark:border-white/20 shadow-[0px_-4px_12px_rgba(0,0,0,0.04)]'
+                    : 'bg-white/95 dark:bg-[#141210]/95 border-t border-slate-200/80 dark:border-white/10 shadow-[0px_-4px_16px_rgba(15,23,42,0.03)] backdrop-blur-xl'
             }`}>
                 {!isMobileDevice && (
                     <div className={`hidden lg:flex font-medium items-center gap-2 px-3.5 py-2 rounded-xl text-xs ${
@@ -2611,7 +2607,7 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                             type="button"
                             onClick={() => setShowKeyboardShortcuts(true)}
                             className={`ml-2 text-xs font-bold flex items-center gap-1 cursor-pointer hover:underline ${
-                                isBento ? 'text-purple-700 font-black' : 'text-indigo-600 dark:text-indigo-400'
+                                isBento ? 'text-teal-700 font-black' : 'text-indigo-600 dark:text-indigo-400'
                             }`}
                         >
                             <Keyboard className="w-3.5 h-3.5" />
@@ -2674,7 +2670,7 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                         {isCurrentQuestionSubmitted ? (
                             <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black ${
                                 isBento
-                                    ? 'bg-[#ddd6fe] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                    ? 'bg-[#fed7aa] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
                                     : 'bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20'
                             }`}>
                                 <CheckCircle className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
@@ -2753,7 +2749,7 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                                 disabled={isReviewMode && !isCurrentQuestionSubmitted}
                                 className={`flex-1 sm:flex-none px-5 sm:px-6 py-2.5 font-bold text-xs uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer ${
                                     isBento
-                                        ? 'bg-[#8b5cf6] hover:bg-[#7c3aed] text-white border-2 border-black shadow-[3px_3px_0px_#000] hover:shadow-[4px_4px_0px_#000] hover:-translate-y-0.5 active:translate-y-0.5 active:shadow-[1px_1px_0px_#000] disabled:opacity-40 disabled:hover:translate-y-0 disabled:hover:shadow-[3px_3px_0px_#000]'
+                                        ? 'bg-[#0d9488] hover:bg-[#0f766e] text-white border-2 border-black shadow-[3px_3px_0px_#000] hover:shadow-[4px_4px_0px_#000] hover:-translate-y-0.5 active:translate-y-0.5 active:shadow-[1px_1px_0px_#000] disabled:opacity-40 disabled:hover:translate-y-0 disabled:hover:shadow-[3px_3px_0px_#000]'
                                         : 'bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white shadow-lg shadow-indigo-600/25 active:scale-[0.985]'
                                 }`}
                             >
@@ -2815,14 +2811,14 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                     <div className={`app-dialog-panel app-dialog-panel--structured w-full max-w-md h-full sm:h-auto flex flex-col animate-in slide-in-from-right sm:slide-in-from-bottom-8 ${
                         isBento
                             ? 'bg-white border-[3px] border-black sm:rounded-2xl shadow-[8px_8px_0px_#000]'
-                            : 'bg-white dark:bg-[#111827] sm:rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-800'
+                            : 'bg-white dark:bg-[#141210] sm:rounded-3xl shadow-2xl border border-gray-200 dark:border-[#f5f3ec]/10'
                     }`}>
                         
                         {/* Shop Header */}
                         <div className={`app-dialog-header p-6 flex justify-between items-center ${
                             isBento
                                 ? 'bg-[#fde047] border-b-[2.5px] border-black'
-                                : 'p-6 border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-[#0d0d1c]'
+                                : 'p-6 border-b border-gray-100 dark:border-[#f5f3ec]/10 bg-gray-50 dark:bg-[#141210]'
                         }`}>
                             <div className="flex items-center gap-3">
                                 <div className={`p-2 rounded-lg ${
@@ -2842,7 +2838,7 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                                 className={`p-2 rounded-xl transition shrink-0 ${
                                     isBento
                                         ? 'border-2 border-black bg-white text-black hover:bg-[#fed7aa] shadow-[2px_2px_0px_#000] active:translate-x-0.5 active:translate-y-0.5'
-                                        : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300'
+                                        : 'bg-gray-200 hover:bg-gray-300 dark:bg-[#1c1917] dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300'
                                 }`}
                             >
                                 <XCircle className="w-6 h-6" />
@@ -2863,7 +2859,7 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
 
                         {/* Owned Inventory Quick Access inside Store (Filtered by Question Type) */}
                         {localPowerUps.some(p => p.quantity > 0 && isPowerUpRelevantForType(p.type, currentQuestionType)) && (
-                            <div className={`px-6 pb-4 border-b ${isBento ? 'border-black' : 'border-gray-100 dark:border-gray-800'}`}>
+                            <div className={`px-6 pb-4 border-b ${isBento ? 'border-black' : 'border-gray-100 dark:border-[#f5f3ec]/10'}`}>
                                 <div className={`text-xs font-black uppercase tracking-wider mb-2 text-start ${isBento ? 'text-black' : 'text-gray-400 dark:text-gray-500'}`}>
                                     {tx('Your Inventory', 'أدواتك الجاهزة')}
                                 </div>
@@ -2878,7 +2874,7 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                                             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-black text-xs transition-all cursor-pointer ${
                                                 isBento
                                                     ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000] active:translate-x-0.5 active:translate-y-0.5'
-                                                    : `bg-gradient-to-r ${getPowerUpColor(p.type)} text-white font-extrabold shadow-md hover:scale-105`
+                                                    : `${getPowerUpColor(p.type)} text-white font-extrabold shadow-md hover:scale-105`
                                             }`}
                                             title={`Use ${p.type}`}
                                         >
@@ -2922,13 +2918,13 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                                     <div key={item.type} className={`flex flex-row items-center gap-4 p-4 rounded-2xl relative overflow-hidden transition-all ${
                                         isBento
                                             ? 'bg-[#f5f3ec] border-2 border-black shadow-[3px_3px_0px_#000] hover:shadow-[5px_5px_0px_#000]'
-                                            : 'bg-gray-50 dark:bg-[#1f2937] border border-gray-200 dark:border-gray-700 shadow-sm group hover:border-indigo-300 dark:hover:border-indigo-500 hover:shadow-md'
+                                            : 'bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/16 shadow-sm group hover:border-indigo-300 dark:hover:border-indigo-500 hover:shadow-md'
                                     }`}>
                                         
                                         <div className={`w-14 h-14 rounded-xl flex items-center justify-center shrink-0 transition-transform ${
                                             isBento
                                                 ? 'bg-[#bae6fd] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                                : `bg-gradient-to-br ${getPowerUpColor(item.icon)} shadow-lg text-white group-hover:scale-105`
+                                                : `${getPowerUpColor(item.icon)} shadow-lg text-white group-hover:scale-105`
                                         }`}>
                                             {getPowerUpIcon(item.icon, "w-7 h-7")}
                                         </div>
@@ -3007,7 +3003,7 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                     <div 
                         className={`app-dialog-panel app-dialog-panel--structured max-w-md w-full rounded-3xl overflow-hidden transition-all flex flex-col max-h-[92vh] animate-in zoom-in-95 duration-200 ${
                             isBento
-                                ? 'bg-[#faf5ff] border-[3.5px] border-black shadow-[8px_8px_0px_#000] text-black'
+                                ? 'bg-[#fff7ed] border-[3.5px] border-black shadow-[8px_8px_0px_#000] text-black'
                                 : theme === 'dark'
                                     ? 'bg-[#0c1020]/95 backdrop-blur-2xl border border-indigo-500/35 text-white shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9)]'
                                     : 'bg-white/95 backdrop-blur-2xl border border-slate-200 text-slate-900 shadow-2xl'
@@ -3025,10 +3021,10 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                             <div className="flex items-center gap-3">
                                 <div className={`p-2.5 rounded-2xl ${
                                     isBento
-                                        ? 'bg-[#c084fc] border-2 border-black shadow-[2px_2px_0px_#000] text-black'
+                                        ? 'bg-[#fdba74] border-2 border-black shadow-[2px_2px_0px_#000] text-black'
                                         : theme === 'dark'
-                                            ? 'bg-gradient-to-br from-purple-500/30 to-indigo-500/30 border border-purple-400/30 text-purple-300 shadow-sm'
-                                            : 'bg-purple-100 text-purple-700 border border-purple-200'
+                                            ? 'bg-teal-500/30 border border-teal-400/30 text-teal-300 shadow-sm'
+                                            : 'bg-teal-100 text-teal-700 border border-teal-200'
                                 }`}>
                                     <Sparkles className="w-6 h-6 animate-pulse" />
                                 </div>
@@ -3062,18 +3058,18 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                             isBento
                                 ? 'bg-white border-b-2 border-black'
                                 : theme === 'dark'
-                                    ? 'bg-gradient-to-b from-indigo-950/40 to-transparent border-indigo-500/15'
-                                    : 'bg-gradient-to-b from-purple-50/50 to-transparent border-slate-100'
+                                    ? 'bg-indigo-950/40 border-indigo-500/15'
+                                    : 'bg-teal-50/50 border-slate-100'
                         }`}>
                             <div className="flex items-center gap-3 w-full justify-between px-1">
                                 <div className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl ${
                                     isBento
-                                        ? 'bg-[#c084fc] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                        ? 'bg-[#fdba74] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
                                         : theme === 'dark'
-                                            ? 'bg-purple-500/20 text-purple-200 border border-purple-400/30'
-                                            : 'bg-purple-100 text-purple-800 border border-purple-200'
+                                            ? 'bg-teal-500/20 text-teal-200 border border-teal-400/30'
+                                            : 'bg-teal-100 text-teal-800 border border-teal-200'
                                 }`}>
-                                    <Sparkles className="w-4 h-4 text-purple-600 dark:text-purple-300" />
+                                    <Sparkles className="w-4 h-4 text-teal-600 dark:text-teal-300" />
                                     <span className="text-xs font-black">
                                         {aiCoachUsesLeft} hint{aiCoachUsesLeft === 1 ? '' : 's'} remaining
                                     </span>
@@ -3204,7 +3200,7 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                                                             ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
                                                             : 'bg-gray-200 text-gray-400 border-2 border-gray-400'
                                                         : canAfford
-                                                            ? 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-md'
+                                                            ? 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-md'
                                                             : 'bg-white/10 text-slate-500 border border-white/10'
                                                 }`}
                                             >
@@ -3247,7 +3243,7 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                     <div className={`app-dialog-panel app-dialog-panel--padded p-8 max-w-md w-full animate-in fade-in zoom-in duration-200 ${
                         isBento
                             ? 'bg-white border-[3px] border-black rounded-2xl shadow-[8px_8px_0px_#000] text-black'
-                            : 'bg-white dark:bg-[#0f0f1e] text-gray-900 dark:text-white border border-gray-200 dark:border-white/[0.10] rounded-3xl shadow-2xl'
+                            : 'bg-white dark:bg-[#141210] text-gray-900 dark:text-white border border-gray-200 dark:border-white/[0.10] rounded-3xl shadow-2xl'
                     }`}>
                         <div className="flex items-center gap-4 mb-6">
                             <div className={`p-3 rounded-2xl ${

@@ -3,11 +3,23 @@
 
 @theme {
   --color-background-light: #f8fafc;
-  --color-background-dark: #080c16;
+  --color-background-dark: #0a0908;
   --color-surface-light: #ffffff;
-  --color-surface-dark: #0f1526;
+  --color-surface-dark: #141210;
   --color-text-light: #0f172a;
-  --color-text-dark: #f8fafc;
+  --color-text-dark: #f5f3ec;
+  /* Recalibrate Tailwind indigo scale to crisp architectural sky-cerulean (zero vibe-coded purple) */
+  --color-indigo-50: #f0f9ff;
+  --color-indigo-100: #e0f2fe;
+  --color-indigo-200: #bae6fd;
+  --color-indigo-300: #7dd3fc;
+  --color-indigo-400: #38bdf8;
+  --color-indigo-500: #0ea5e9;
+  --color-indigo-600: #0284c7;
+  --color-indigo-700: #0369a1;
+  --color-indigo-800: #075985;
+  --color-indigo-900: #0c4a6e;
+  --color-indigo-950: #082f49;
   --font-sans: 'Outfit', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
@@ -38,13 +50,14 @@ html {
   text-wrap: pretty;
 }
 
-/* Chrome/Safari Autofill Fix - Harmonized with dark slate palette */
+/* Chrome/Safari Autofill Fix - Harmonized with Noir Studio obsidian palette */
 .dark input:-webkit-autofill,
-.dark input:-webkit-autofill:hover, 
-.dark input:-webkit-autofill:focus, 
+.dark input:-webkit-autofill:hover,
+.dark input:-webkit-autofill:focus,
 .dark input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 40px #0f1526 inset !important;
-  -webkit-text-fill-color: #f8fafc !important;
+  -webkit-box-shadow: 0 0 0 40px #141210 inset !important;
+  -webkit-text-fill-color: #f5f3ec !important;
+  caret-color: #bef264;
   transition: background-color 5000s ease-in-out 0s;
 }
 
@@ -148,13 +161,61 @@ pre, code, table {
   justify-content: center;
 }
 
-:root.dark body,
-html.dark body {
-  background-color: var(--color-background-dark);
-  color: var(--color-text-dark);
+:root.dark,
+html.dark,
+[data-theme="dark"] {
+  --noir-bg: #0a0908;
+  --noir-surface: #141210;
+  --noir-surface-elevated: #1c1917;
+  --noir-surface-hover: #24201c;
+  --noir-well: #0e0d0b;
+  --noir-ink: #f5f3ec;
+  --noir-ink-secondary: #b5aea4;
+  --noir-ink-muted: #888177;
+  --noir-border: rgba(245, 243, 236, 0.1);
+  --noir-border-strong: rgba(245, 243, 236, 0.2);
+  --noir-catchlight: rgba(255, 248, 235, 0.08);
+
+  /* Bento Signature Palette — Studio Dark Calibrated (WCAG AA/AAA) */
+  --noir-lime: #bef264;
+  --noir-lime-hover: #d2fa8a;
+  --noir-lime-ink: #0a0908;
+  --noir-lime-soft: rgba(190, 242, 100, 0.14);
+
+  --noir-yellow: #fde047;
+  --noir-yellow-soft: rgba(253, 224, 71, 0.13);
+
+  --noir-sky: #bae6fd;
+  --noir-sky-soft: rgba(186, 230, 253, 0.13);
+
+  --noir-violet: #fdba74;
+  --noir-violet-soft: rgba(253, 186, 116, 0.14);
+
+  --noir-ember: #fb7185;
+  --noir-ember-soft: rgba(251, 113, 133, 0.15);
+
+  /* Tactile Hardware Surface Textures (pure SVG tiles — zero CSS gradients) */
+  --noir-grain-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.88' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23g)' opacity='0.065'/%3E%3C/svg%3E");
+  --noir-hatch-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M-2 10 L10 -2 M2 14 L14 2' stroke='%23f5f3ec' stroke-width='0.75' stroke-opacity='0.045'/%3E%3C/svg%3E");
+  --noir-dot-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Ccircle cx='7' cy='7' r='1' fill='%23f5f3ec' fill-opacity='0.065'/%3E%3C/svg%3E");
+  --noir-groove-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5' viewBox='0 0 8 5'%3E%3Cline x1='0' y1='0.5' x2='8' y2='0.5' stroke='%23f5f3ec' stroke-opacity='0.032' stroke-width='1'/%3E%3C/svg%3E");
+  --noir-restricted-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M-2 2 L10 14 M2 -2 L14 10' stroke='%23fde047' stroke-width='1.5' stroke-opacity='0.04'/%3E%3C/svg%3E");
+
+  color-scheme: dark;
 }
 
-/* High-end glassmorphic and surface elevation classes (optimized for GPU) */
+:root.dark body,
+html.dark body {
+  background-color: var(--noir-bg);
+  color: var(--noir-ink);
+}
+
+.dark ::selection {
+  background-color: rgba(190, 242, 100, 0.28);
+  color: #f5f3ec;
+}
+
+/* High-end glassmorphic (Light) & Noir Studio matte elevation (Dark) classes */
 .glass-panel {
   background: rgba(255, 255, 255, 0.94);
   backdrop-filter: blur(14px);
@@ -165,11 +226,13 @@ html.dark body {
 }
 
 .dark .glass-panel {
-  background: rgba(15, 21, 38, 0.9);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 10px 32px -4px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
+  background-color: #11100e;
+  background-image: var(--noir-grain-svg);
+  background-repeat: repeat;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid #2d2823;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.55);
   transform: translateZ(0);
 }
 
@@ -184,32 +247,42 @@ html.dark body {
 }
 
 .dark .glass-card {
-  background: rgba(18, 24, 42, 0.92);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+  position: relative;
+  background-color: #151311;
+  background-image: var(--noir-grain-svg), var(--noir-hatch-svg);
+  background-repeat: repeat, repeat;
+  background-size: 140px 140px, 12px 12px;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1.5px solid #2e2924;
+  box-shadow:
+    inset 0 1px 0 rgba(245, 243, 236, 0.08),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.55),
+    0 5px 0 #050504;
   transform: translateZ(0);
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .glass-card:hover {
-  border-color: rgba(99, 102, 241, 0.5);
-  box-shadow: 0 4px 16px -2px rgba(99, 102, 241, 0.08), 0 1px 3px rgba(15, 23, 42, 0.04);
+  border-color: rgba(2, 132, 199, 0.45);
+  box-shadow: 0 4px 16px -2px rgba(2, 132, 199, 0.08), 0 1px 3px rgba(15, 23, 42, 0.04);
 }
 
 .dark .glass-card:hover {
-  border-color: rgba(129, 140, 248, 0.45);
-  box-shadow: 0 12px 36px -4px rgba(0, 0, 0, 0.6), inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+  border-color: #4a4239;
+  box-shadow:
+    inset 0 1px 0 rgba(245, 243, 236, 0.14),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.6),
+    0 7px 0 #050504;
 }
 
-/* Custom gradient backgrounds */
+/* Custom solid utility backgrounds (zero gradients) */
 .bg-galaxy {
-  background: radial-gradient(circle at 50% 50%, #4c1d95 0%, #1e1b4b 100%);
+  background-color: #141210;
 }
 
 .bg-neon {
-  background: linear-gradient(135deg, #06b6d4 0%, #d946ef 100%);
+  background-color: #bef264;
 }
 
 /* PWA, Notch & Dynamic Island Safe Areas */
@@ -336,16 +409,16 @@ button:active {
   --bento-yellow: #fde047;     /* Bright Sunflower / Lemon Yellow */
   --bento-yellow-dark: #a16207;
   --bento-blue: #bae6fd;       /* Vibrant Sky Blue */
-  --bento-purple: #8b5cf6;     /* Electric LinkUp Purple */
+  --bento-purple: #0d9488;     /* Deep Studio Teal */
   --bento-white: #ffffff;      /* Crisp Pure White */
   --bento-gap: 1.25rem;
 }
 
-/* 1. Substrate Canvas: Warm Vintage Paper Cream with Black Dot Matrix Grid */
+/* 1. Substrate Canvas: Warm Vintage Paper Cream with Black Dot Matrix Grid (pure SVG tile) */
 [data-layout="bento"],
 [data-theme="bento"] {
   background-color: var(--bento-bg) !important;
-  background-image: radial-gradient(#000000 1.25px, transparent 1.25px) !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='1.25' fill='%23000000'/%3E%3C/svg%3E") !important;
   background-size: 24px 24px !important;
   background-attachment: fixed !important;
   color: #000000 !important;
@@ -657,8 +730,8 @@ button:active {
   border-radius: 9999px !important;
   padding: 0 !important;
 }
-[data-layout="bento"] .lg\:col-span-7.glass-card .h-full.bg-gradient-to-r,
-[data-theme="bento"] .lg\:col-span-7.glass-card .h-full.bg-gradient-to-r {
+[data-layout="bento"] .lg\:col-span-7.glass-card .w-full.h-2\.5 > div,
+[data-theme="bento"] .lg\:col-span-7.glass-card .w-full.h-2\.5 > div {
   background: var(--bento-green) !important;
   border-right: 2px solid #000000 !important;
   border-radius: 9999px 0 0 9999px !important;
@@ -755,8 +828,8 @@ button:active {
 
 [data-layout="bento"] .grid.md\:grid-cols-2 > div:nth-child(1).glass-card button:disabled,
 [data-theme="bento"] .grid.md\:grid-cols-2 > div:nth-child(1).glass-card button:disabled,
-[data-layout="bento"] .grid.md\:grid-cols-2 > div:nth-child(1).glass-card button.bg-purple-600,
-[data-theme="bento"] .grid.md\:grid-cols-2 > div:nth-child(1).glass-card button.bg-purple-600 {
+[data-layout="bento"] .grid.md\:grid-cols-2 > div:nth-child(1).glass-card button.bg-teal-600,
+[data-theme="bento"] .grid.md\:grid-cols-2 > div:nth-child(1).glass-card button.bg-teal-600 {
   background: #000000 !important;
   color: var(--bento-green) !important;
   border: 2px solid #000000 !important;
@@ -925,8 +998,8 @@ button:active {
 /* Primary Action Buttons across the app (Bento Lime/Green with black text) */
 [data-layout="bento"] button.bg-indigo-600,
 [data-theme="bento"] button.bg-indigo-600,
-[data-layout="bento"] button.bg-purple-600,
-[data-theme="bento"] button.bg-purple-600,
+[data-layout="bento"] button.bg-teal-600,
+[data-theme="bento"] button.bg-teal-600,
 [data-layout="bento"] button[type="submit"]:not(.btn-unstyled),
 [data-theme="bento"] button[type="submit"]:not(.btn-unstyled) {
   background: var(--bento-green) !important;
@@ -938,8 +1011,8 @@ button:active {
 }
 [data-layout="bento"] button.bg-indigo-600:hover,
 [data-theme="bento"] button.bg-indigo-600:hover,
-[data-layout="bento"] button.bg-purple-600:hover,
-[data-theme="bento"] button.bg-purple-600:hover,
+[data-layout="bento"] button.bg-teal-600:hover,
+[data-theme="bento"] button.bg-teal-600:hover,
 [data-layout="bento"] button[type="submit"]:not(.btn-unstyled):hover,
 [data-theme="bento"] button[type="submit"]:not(.btn-unstyled):hover {
   transform: translate(-1px, -1px) !important;
@@ -947,8 +1020,8 @@ button:active {
 }
 [data-layout="bento"] button.bg-indigo-600:active,
 [data-theme="bento"] button.bg-indigo-600:active,
-[data-layout="bento"] button.bg-purple-600:active,
-[data-theme="bento"] button.bg-purple-600:active,
+[data-layout="bento"] button.bg-teal-600:active,
+[data-theme="bento"] button.bg-teal-600:active,
 [data-layout="bento"] button[type="submit"]:not(.btn-unstyled):active,
 [data-theme="bento"] button[type="submit"]:not(.btn-unstyled):active {
   transform: translate(2px, 2px) !important;
@@ -962,10 +1035,10 @@ button:active {
 [data-theme="bento"] [role="dialog"]:not(.fixed),
 [data-layout="bento"] .animate-in.fade-in.zoom-in-95:not(.fixed),
 [data-theme="bento"] .animate-in.fade-in.zoom-in-95:not(.fixed),
-[data-layout="bento"] .fixed.inset-0:not(.chat-overlay-shell) > .relative.bg-white,
-[data-theme="bento"] .fixed.inset-0:not(.chat-overlay-shell) > .relative.bg-white,
-[data-layout="bento"] .fixed.inset-0:not(.chat-overlay-shell) > div:not(.fixed):not(.absolute),
-[data-theme="bento"] .fixed.inset-0:not(.chat-overlay-shell) > div:not(.fixed):not(.absolute) {
+[data-layout="bento"] .fixed.inset-0:not(.chat-overlay-shell):not(.secret-arcade-shell) > .relative.bg-white,
+[data-theme="bento"] .fixed.inset-0:not(.chat-overlay-shell):not(.secret-arcade-shell) > .relative.bg-white,
+[data-layout="bento"] .fixed.inset-0:not(.chat-overlay-shell):not(.secret-arcade-shell) > div:not(.fixed):not(.absolute),
+[data-theme="bento"] .fixed.inset-0:not(.chat-overlay-shell):not(.secret-arcade-shell) > div:not(.fixed):not(.absolute) {
   background: #ffffff !important;
   border: 3px solid #000000 !important;
   box-shadow: 8px 8px 0px #000000 !important;
@@ -975,8 +1048,8 @@ button:active {
 }
 
 /* Modals & Dialogs: outer fixed overlay must remain transparent */
-[data-layout="bento"] .fixed.inset-0:not(.chat-overlay-shell):not(.live-arena-stage),
-[data-theme="bento"] .fixed.inset-0:not(.chat-overlay-shell):not(.live-arena-stage) {
+[data-layout="bento"] .fixed.inset-0:not(.chat-overlay-shell):not(.live-arena-stage):not(.secret-arcade-shell),
+[data-theme="bento"] .fixed.inset-0:not(.chat-overlay-shell):not(.live-arena-stage):not(.secret-arcade-shell) {
   background-color: transparent !important;
   border: none !important;
   box-shadow: none !important;
@@ -1020,20 +1093,20 @@ button:active {
 }
 
 /* Modal Headers & Footers in Bento Mode (scoped to dialog header/footer panels so inner cards keep their colors) */
-[data-layout="bento"] .fixed.inset-0:not(.chat-overlay-shell) .app-dialog-header,
-[data-theme="bento"] .fixed.inset-0:not(.chat-overlay-shell) .app-dialog-header,
-[data-layout="bento"] .fixed.inset-0:not(.chat-overlay-shell) > div:not(.fixed):not(.absolute) > .border-b,
-[data-theme="bento"] .fixed.inset-0:not(.chat-overlay-shell) > div:not(.fixed):not(.absolute) > .border-b {
+[data-layout="bento"] .fixed.inset-0:not(.chat-overlay-shell):not(.secret-arcade-shell) .app-dialog-header,
+[data-theme="bento"] .fixed.inset-0:not(.chat-overlay-shell):not(.secret-arcade-shell) .app-dialog-header,
+[data-layout="bento"] .fixed.inset-0:not(.chat-overlay-shell):not(.secret-arcade-shell) > div:not(.fixed):not(.absolute) > .border-b,
+[data-theme="bento"] .fixed.inset-0:not(.chat-overlay-shell):not(.secret-arcade-shell) > div:not(.fixed):not(.absolute) > .border-b {
   border-bottom: 2.5px solid #000000 !important;
   background-color: #ffffff !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
 
-[data-layout="bento"] .fixed.inset-0:not(.chat-overlay-shell) .app-dialog-footer,
-[data-theme="bento"] .fixed.inset-0:not(.chat-overlay-shell) .app-dialog-footer,
-[data-layout="bento"] .fixed.inset-0:not(.chat-overlay-shell) > div:not(.fixed):not(.absolute) > .border-t,
-[data-theme="bento"] .fixed.inset-0:not(.chat-overlay-shell) > div:not(.fixed):not(.absolute) > .border-t {
+[data-layout="bento"] .fixed.inset-0:not(.chat-overlay-shell):not(.secret-arcade-shell) .app-dialog-footer,
+[data-theme="bento"] .fixed.inset-0:not(.chat-overlay-shell):not(.secret-arcade-shell) .app-dialog-footer,
+[data-layout="bento"] .fixed.inset-0:not(.chat-overlay-shell):not(.secret-arcade-shell) > div:not(.fixed):not(.absolute) > .border-t,
+[data-theme="bento"] .fixed.inset-0:not(.chat-overlay-shell):not(.secret-arcade-shell) > div:not(.fixed):not(.absolute) > .border-t {
   border-top: 2.5px solid #000000 !important;
   background-color: #ffffff !important;
   backdrop-filter: none !important;
@@ -1041,12 +1114,12 @@ button:active {
 }
 
 /* Close buttons inside modals in Bento Mode */
-[data-layout="bento"] .fixed.inset-0 button[aria-label*="lose"],
-[data-theme="bento"] .fixed.inset-0 button[aria-label*="lose"],
-[data-layout="bento"] .fixed.inset-0 button[title*="lose"],
-[data-theme="bento"] .fixed.inset-0 button[title*="lose"],
-[data-layout="bento"] .fixed.inset-0 button:has(> svg.lucide-x),
-[data-theme="bento"] .fixed.inset-0 button:has(> svg.lucide-x) {
+[data-layout="bento"] .fixed.inset-0:not(.secret-arcade-shell) button[aria-label*="lose"],
+[data-theme="bento"] .fixed.inset-0:not(.secret-arcade-shell) button[aria-label*="lose"],
+[data-layout="bento"] .fixed.inset-0:not(.secret-arcade-shell) button[title*="lose"],
+[data-theme="bento"] .fixed.inset-0:not(.secret-arcade-shell) button[title*="lose"],
+[data-layout="bento"] .fixed.inset-0:not(.secret-arcade-shell) button:has(> svg.lucide-x),
+[data-theme="bento"] .fixed.inset-0:not(.secret-arcade-shell) button:has(> svg.lucide-x) {
   border: 2px solid #000000 !important;
   box-shadow: 2px 2px 0px #000000 !important;
   background-color: #ffffff !important;
@@ -1055,10 +1128,10 @@ button:active {
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-[data-layout="bento"] .fixed.inset-0 button[aria-label*="lose"]:hover,
-[data-theme="bento"] .fixed.inset-0 button[aria-label*="lose"]:hover,
-[data-layout="bento"] .fixed.inset-0 button:has(> svg.lucide-x):hover,
-[data-theme="bento"] .fixed.inset-0 button:has(> svg.lucide-x):hover {
+[data-layout="bento"] .fixed.inset-0:not(.secret-arcade-shell) button[aria-label*="lose"]:hover,
+[data-theme="bento"] .fixed.inset-0:not(.secret-arcade-shell) button[aria-label*="lose"]:hover,
+[data-layout="bento"] .fixed.inset-0:not(.secret-arcade-shell) button:has(> svg.lucide-x):hover,
+[data-theme="bento"] .fixed.inset-0:not(.secret-arcade-shell) button:has(> svg.lucide-x):hover {
   background-color: var(--bento-yellow) !important;
   transform: translate(-1px, -1px);
   box-shadow: 3px 3px 0px #000000 !important;
@@ -1066,16 +1139,16 @@ button:active {
 
 [data-layout="bento"] [role="menu"] button,
 [data-theme="bento"] [role="menu"] button,
-[data-layout="bento"] .animate-in.fade-in.zoom-in-95 button:not(.text-white):not(.bg-indigo-600):not([type="submit"]):not([class*="bg-indigo-"]):not([class*="bg-purple-"]):not([class*="bg-black"]):not([class*="bg-emerald-"]):not([class*="bg-rose-"]):not([class*="bg-red-"]):not([class*="bg-blue-"]):not([class*="bg-green-"]):not([class*="bg-amber-"]),
-[data-theme="bento"] .animate-in.fade-in.zoom-in-95 button:not(.text-white):not(.bg-indigo-600):not([type="submit"]):not([class*="bg-indigo-"]):not([class*="bg-purple-"]):not([class*="bg-black"]):not([class*="bg-emerald-"]):not([class*="bg-rose-"]):not([class*="bg-red-"]):not([class*="bg-blue-"]):not([class*="bg-green-"]):not([class*="bg-amber-"]) {
+[data-layout="bento"] .animate-in.fade-in.zoom-in-95 button:not(.text-white):not(.bg-indigo-600):not([type="submit"]):not([class*="bg-indigo-"]):not([class*="bg-teal-"]):not([class*="bg-black"]):not([class*="bg-emerald-"]):not([class*="bg-rose-"]):not([class*="bg-red-"]):not([class*="bg-blue-"]):not([class*="bg-green-"]):not([class*="bg-amber-"]),
+[data-theme="bento"] .animate-in.fade-in.zoom-in-95 button:not(.text-white):not(.bg-indigo-600):not([type="submit"]):not([class*="bg-indigo-"]):not([class*="bg-teal-"]):not([class*="bg-black"]):not([class*="bg-emerald-"]):not([class*="bg-rose-"]):not([class*="bg-red-"]):not([class*="bg-blue-"]):not([class*="bg-green-"]):not([class*="bg-amber-"]) {
   color: #000000 !important;
 }
 
 /* High-contrast black text for lime-overridden Bento primary/submit buttons inside modals and dropdowns */
 [data-layout="bento"] .animate-in.fade-in.zoom-in-95 button.bg-indigo-600,
 [data-theme="bento"] .animate-in.fade-in.zoom-in-95 button.bg-indigo-600,
-[data-layout="bento"] .animate-in.fade-in.zoom-in-95 button.bg-purple-600,
-[data-theme="bento"] .animate-in.fade-in.zoom-in-95 button.bg-purple-600,
+[data-layout="bento"] .animate-in.fade-in.zoom-in-95 button.bg-teal-600,
+[data-theme="bento"] .animate-in.fade-in.zoom-in-95 button.bg-teal-600,
 [data-layout="bento"] .animate-in.fade-in.zoom-in-95 button[type="submit"]:not(.btn-unstyled),
 [data-theme="bento"] .animate-in.fade-in.zoom-in-95 button[type="submit"]:not(.btn-unstyled) {
   color: #000000 !important;
@@ -1236,7 +1309,7 @@ button:active {
 [data-layout="bento"] .login-mascot-col,
 [data-theme="bento"] .login-mascot-col {
   background-color: var(--bento-bg) !important;
-  background-image: radial-gradient(#000000 1.25px, transparent 1.25px) !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='1.25' fill='%23000000'/%3E%3C/svg%3E") !important;
   background-size: 24px 24px !important;
   border-right: 3px solid #000000 !important;
 }
@@ -1335,7 +1408,7 @@ button:active {
 
 [data-layout="bento"] .profile-stat-card-purple,
 [data-theme="bento"] .profile-stat-card-purple {
-  background: #ddd6fe !important;
+  background: #fed7aa !important;
   border: 2.5px solid #000000 !important;
   box-shadow: 4px 4px 0px #000000 !important;
   color: #000000 !important;
@@ -1372,10 +1445,23 @@ button:active {
 }
 
 .dark .learning-road-card.unlocked-road {
-  background: rgba(15, 23, 42, 0.7);
-  backdrop-filter: blur(16px);
-  border: 1.5px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.3);
+  background-color: #151311;
+  background-image: var(--noir-grain-svg), var(--noir-hatch-svg);
+  background-repeat: repeat, repeat;
+  background-size: 140px 140px, 12px 12px;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1.5px solid #2e2924;
+  box-shadow:
+    inset 0 1px 0 rgba(245, 243, 236, 0.08),
+    0 5px 0 #050504;
+}
+
+.dark .learning-road-card.unlocked-road:hover {
+  border-color: #bef264;
+  box-shadow:
+    inset 0 1px 0 rgba(190, 242, 100, 0.16),
+    0 7px 0 #050504;
 }
 
 .learning-road-card.restricted-road {
@@ -1386,10 +1472,16 @@ button:active {
 }
 
 .dark .learning-road-card.restricted-road {
-  background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(12px);
-  border: 1.5px solid rgba(245, 158, 11, 0.25);
-  box-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.25);
+  background-color: #13110f;
+  background-image: var(--noir-grain-svg), var(--noir-restricted-svg);
+  background-repeat: repeat, repeat;
+  background-size: 140px 140px, 12px 12px;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1.5px solid #594b1e;
+  box-shadow:
+    inset 0 1px 0 rgba(253, 224, 71, 0.1),
+    0 5px 0 #050504;
 }
 
 .learning-road-card:hover {
@@ -1544,7 +1636,7 @@ button:active {
 [data-layout="bento"] [class*="bg-purple-"]:has(> svg:not(.avatar-svg)):not(button):not(a):not(.avatar-root),
 [data-layout="bento"] [class*="bg-violet-"]:has(> svg:not(.avatar-svg)):not(button):not(a):not(.avatar-root),
 [data-layout="bento"] [class*="bg-fuchsia-"]:has(> svg:not(.avatar-svg)):not(button):not(a):not(.avatar-root) {
-  background-color: #ddd6fe !important;
+  background-color: #fed7aa !important;
   color: #000000 !important;
   border: 2px solid #000000 !important;
   box-shadow: 2.5px 2.5px 0px #000000 !important;
@@ -1744,6 +1836,386 @@ button:active {
   box-shadow: none !important;
 }
 
+/* ==========================================================================
+   NOIR STUDIO DARK THEME SYSTEM
+   Solid matte obsidian hardware + zero glassmorphism + Bento high-contrast DNA
+   (Strictly scoped to .dark / [data-theme="dark"] — Light & Bento untouched)
+   ========================================================================== */
+
+/* 0. Eliminate frosted-glass / blur haze on all dark UI surfaces (keeps modal dim crisp) */
+.dark header,
+.dark nav,
+.dark aside,
+.dark .glass-panel,
+.dark .glass-card,
+.dark .app-dialog-panel,
+.dark [role="dialog"],
+.dark [role="menu"],
+.dark [class*="backdrop-blur"]:not(.modal-backdrop):not(.app-dialog-backdrop) {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Hide decorative glowing blur orbs in Dark Mode (zero vibe-coded fog) */
+.dark .blur-3xl,
+.dark .blur-2xl,
+.dark .blur-\[90px\] {
+  display: none !important;
+}
+
+/* 1. Scrollbar & Focus Discipline */
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #3a342e;
+}
+.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--noir-lime);
+}
+.dark .custom-scrollbar {
+  scrollbar-color: #3a342e transparent;
+}
+
+.dark :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--noir-lime);
+  outline-offset: 2px;
+}
+
+/* 2. Warm Stage Typography & Keyboard Badges */
+.dark h1,
+.dark h2,
+.dark h3,
+.dark h4 {
+  color: var(--noir-ink);
+  letter-spacing: -0.02em;
+}
+
+.dark kbd {
+  background-color: #1c1917;
+  color: var(--noir-yellow);
+  border: 1.5px solid #443d35;
+  box-shadow: 0 2px 0 #050504;
+  font-weight: 800;
+  border-radius: 6px;
+  padding: 2px 7px;
+}
+
+/* 3. Solid Matte Studio Inputs & Recessed Wells */
+.dark input:not(.chat-bare-input):not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+.dark textarea:not(.chat-bare-input),
+.dark select {
+  border-color: #2f2a24;
+  color: var(--noir-ink);
+}
+
+.dark input:not(.chat-bare-input):not([type="checkbox"]):not([type="radio"]):not([type="range"]):focus,
+.dark textarea:not(.chat-bare-input):focus,
+.dark select:focus {
+  border-color: var(--noir-lime);
+  box-shadow: 0 0 0 2px rgba(190, 242, 100, 0.22);
+}
+
+/* 4. Primary Indigo CTA Harmonization -> Solid High-Contrast Bento Lime on Obsidian */
+.dark button.bg-indigo-600:not(.btn-unstyled):not(.noir-keep-color),
+.dark a.bg-indigo-600:not(.btn-unstyled):not(.noir-keep-color) {
+  background-color: var(--noir-lime) !important;
+  color: var(--noir-lime-ink) !important;
+  border: 1.5px solid var(--noir-lime) !important;
+  box-shadow: 0 3px 0 #050504 !important;
+  font-weight: 800;
+}
+
+.dark button.bg-indigo-600:not(.btn-unstyled):not(.noir-keep-color):hover,
+.dark a.bg-indigo-600:not(.btn-unstyled):not(.noir-keep-color):hover {
+  background-color: var(--noir-lime-hover) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 0 #050504 !important;
+}
+
+.dark button.bg-indigo-600:not(.btn-unstyled):not(.noir-keep-color):active,
+.dark a.bg-indigo-600:not(.btn-unstyled):not(.noir-keep-color):active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 0 #050504 !important;
+}
+
+.dark button.bg-indigo-600:not(.btn-unstyled):not(.noir-keep-color) svg,
+.dark a.bg-indigo-600:not(.btn-unstyled):not(.noir-keep-color) svg {
+  color: var(--noir-lime-ink) !important;
+}
+
+/* 5. Dashboard Progression Hero Card (Anodized Micro-Hatch + Flush Lime Rail — NO pinched corner borders) */
+.dark .lg\:col-span-7.glass-card {
+  position: relative;
+  overflow: hidden;
+  background-color: #161411 !important;
+  background-image:
+    var(--noir-grain-svg),
+    var(--noir-hatch-svg) !important;
+  background-repeat: repeat, repeat !important;
+  background-size: 140px 140px, 12px 12px !important;
+  border: 1.5px solid #302b25 !important;
+  box-shadow:
+    inset 0 1px 0 rgba(245, 243, 236, 0.09),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.6),
+    0 5px 0 #050504 !important;
+}
+
+.dark .lg\:col-span-7.glass-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 24px;
+  right: 24px;
+  height: 3px;
+  border-radius: 0 0 3px 3px;
+  background: var(--noir-lime);
+  pointer-events: none;
+}
+
+.dark .lg\:col-span-7.glass-card .bg-indigo-500\/10,
+.dark .lg\:col-span-7.glass-card .dark\:bg-indigo-500\/20 {
+  background-color: var(--noir-yellow) !important;
+  color: #0a0908 !important;
+  border: 1.5px solid var(--noir-yellow) !important;
+  font-weight: 900 !important;
+}
+
+.dark .lg\:col-span-7.glass-card .w-12 {
+  background-color: var(--noir-yellow) !important;
+  border: 1.5px solid #0a0908 !important;
+  color: #0a0908 !important;
+  box-shadow: 0 3px 0 #050504 !important;
+}
+
+.dark .lg\:col-span-7.glass-card .w-full.h-2\.5 {
+  background-color: #0b0a09 !important;
+  border: 1.5px solid #2e2924 !important;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.75) !important;
+}
+
+.dark .lg\:col-span-7.glass-card .w-full.h-2\.5 > div {
+  background: var(--noir-lime) !important;
+  box-shadow: none !important;
+}
+
+/* 6. Dashboard Metric Trio — Machined Perforated-Dot Hardware Plates + Flush Bento Accent Rails */
+.dark .lg\:col-span-5.grid > div {
+  position: relative;
+  overflow: hidden;
+  background-color: #151311 !important;
+  background-image: var(--noir-grain-svg), var(--noir-dot-svg) !important;
+  background-size: 140px 140px, 14px 14px !important;
+  border: 1.5px solid #2e2924 !important;
+  box-shadow:
+    inset 0 1px 0 rgba(245, 243, 236, 0.08),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.55),
+    0 5px 0 #050504 !important;
+}
+
+.dark .lg\:col-span-5.grid > div::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 18px;
+  right: 18px;
+  height: 3px;
+  border-radius: 0 0 3px 3px;
+  pointer-events: none;
+}
+
+.dark .lg\:col-span-5.grid > div:nth-child(1)::after {
+  background: var(--noir-yellow);
+}
+.dark .lg\:col-span-5.grid > div:nth-child(1) .w-9 {
+  background-color: var(--noir-yellow) !important;
+  border: 1.5px solid #0a0908 !important;
+  color: #0a0908 !important;
+  box-shadow: 0 2px 0 #050504 !important;
+}
+.dark .lg\:col-span-5.grid > div:nth-child(1) .font-tabular {
+  color: var(--noir-ink) !important;
+}
+
+.dark .lg\:col-span-5.grid > div:nth-child(2)::after {
+  background: var(--noir-sky);
+}
+.dark .lg\:col-span-5.grid > div:nth-child(2) .w-9 {
+  background-color: var(--noir-sky) !important;
+  border: 1.5px solid #0a0908 !important;
+  color: #0a0908 !important;
+  box-shadow: 0 2px 0 #050504 !important;
+}
+.dark .lg\:col-span-5.grid > div:nth-child(2) .font-tabular {
+  color: var(--noir-ink) !important;
+}
+
+.dark .lg\:col-span-5.grid > div:nth-child(3)::after {
+  background: var(--noir-lime);
+}
+.dark .lg\:col-span-5.grid > div:nth-child(3) .w-9 {
+  background-color: var(--noir-lime) !important;
+  border: 1.5px solid #0a0908 !important;
+  color: #0a0908 !important;
+  box-shadow: 0 2px 0 #050504 !important;
+}
+.dark .lg\:col-span-5.grid > div:nth-child(3) .font-tabular {
+  color: var(--noir-ink) !important;
+}
+
+/* 7. Daily Streak & Live Arena — Horizontal Brushed Carbon Plate + Flush Bento Accent Rails */
+.dark .grid.md\:grid-cols-2 > div.glass-card {
+  position: relative;
+  overflow: hidden;
+  background-color: #151311 !important;
+  background-image: var(--noir-grain-svg), var(--noir-groove-svg) !important;
+  background-size: 140px 140px, 8px 5px !important;
+  border: 1.5px solid #2e2924 !important;
+  box-shadow:
+    inset 0 1px 0 rgba(245, 243, 236, 0.08),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.55),
+    0 5px 0 #050504 !important;
+}
+
+.dark .grid.md\:grid-cols-2 > div.glass-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 22px;
+  right: 22px;
+  height: 3px;
+  border-radius: 0 0 3px 3px;
+  pointer-events: none;
+}
+
+.dark .grid.md\:grid-cols-2 > div:nth-child(1).glass-card::after {
+  background: var(--noir-yellow);
+}
+.dark .grid.md\:grid-cols-2 > div:nth-child(1).glass-card:hover {
+  border-color: rgba(253, 224, 71, 0.55) !important;
+}
+.dark .grid.md\:grid-cols-2 > div:nth-child(1).glass-card .w-11 {
+  background-color: var(--noir-yellow) !important;
+  border: 1.5px solid #0a0908 !important;
+  color: #0a0908 !important;
+  box-shadow: 0 2px 0 #050504 !important;
+}
+.dark .grid.md\:grid-cols-2 > div:nth-child(1).glass-card button.bg-teal-600 {
+  background-color: var(--noir-yellow) !important;
+  color: #0a0908 !important;
+  font-weight: 900 !important;
+}
+
+.dark .grid.md\:grid-cols-2 > div:nth-child(2).glass-card::after {
+  background: var(--noir-sky);
+}
+.dark .grid.md\:grid-cols-2 > div:nth-child(2).glass-card:hover {
+  border-color: rgba(186, 230, 253, 0.55) !important;
+}
+.dark .grid.md\:grid-cols-2 > div:nth-child(2).glass-card .w-11 {
+  background-color: var(--noir-sky) !important;
+  border: 1.5px solid #0a0908 !important;
+  color: #0a0908 !important;
+  box-shadow: 0 2px 0 #050504 !important;
+}
+
+/* 8. Modular 4-Color Flush Bento Accent Rail on Module Grids */
+.dark .bento-container > .glass-card::after,
+.dark .dashboard-container > .glass-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 20px;
+  right: 20px;
+  height: 3px;
+  border-radius: 0 0 3px 3px;
+  pointer-events: none;
+}
+.dark .bento-container > .glass-card:nth-child(4n+1)::after,
+.dark .dashboard-container > .glass-card:nth-child(4n+1)::after {
+  background: var(--noir-lime);
+}
+.dark .bento-container > .glass-card:nth-child(4n+2)::after,
+.dark .dashboard-container > .glass-card:nth-child(4n+2)::after {
+  background: var(--noir-yellow);
+}
+.dark .bento-container > .glass-card:nth-child(4n+3)::after,
+.dark .dashboard-container > .glass-card:nth-child(4n+3)::after {
+  background: var(--noir-sky);
+}
+.dark .bento-container > .glass-card:nth-child(4n+4)::after,
+.dark .dashboard-container > .glass-card:nth-child(4n+4)::after {
+  background: var(--noir-ink);
+}
+
+/* 9. Solid Matte Textured Profile Cards & Stat Modules */
+.dark .profile-hero-card,
+.dark .profile-section-card {
+  position: relative;
+  overflow: hidden;
+  background-color: #151311 !important;
+  background-image: var(--noir-grain-svg), var(--noir-hatch-svg) !important;
+  background-size: 140px 140px, 12px 12px !important;
+  border: 1.5px solid #2e2924 !important;
+  box-shadow:
+    inset 0 1px 0 rgba(245, 243, 236, 0.08),
+    0 5px 0 #050504 !important;
+}
+
+.dark .profile-stat-card-yellow,
+.dark .profile-stat-card-blue,
+.dark .profile-stat-card-purple,
+.dark .profile-stat-card-green {
+  position: relative;
+  overflow: hidden;
+  background-color: #151311 !important;
+  background-image: var(--noir-grain-svg), var(--noir-dot-svg) !important;
+  background-size: 140px 140px, 14px 14px !important;
+  border: 1.5px solid #2e2924 !important;
+  box-shadow:
+    inset 0 1px 0 rgba(245, 243, 236, 0.08),
+    0 4px 0 #050504 !important;
+}
+
+.dark .profile-stat-card-yellow::after,
+.dark .profile-stat-card-blue::after,
+.dark .profile-stat-card-purple::after,
+.dark .profile-stat-card-green::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 16px;
+  right: 16px;
+  height: 3px;
+  border-radius: 0 0 3px 3px;
+  pointer-events: none;
+}
+
+.dark .profile-stat-card-yellow::after { background: var(--noir-yellow); }
+.dark .profile-stat-card-blue::after { background: var(--noir-sky); }
+.dark .profile-stat-card-purple::after { background: var(--noir-violet); }
+.dark .profile-stat-card-green::after { background: var(--noir-lime); }
+
+/* 10. Admin Dashboard Tables in Noir Studio */
+.dark .bento-highlight {
+  color: var(--noir-lime);
+  text-decoration: underline;
+  text-decoration-color: var(--noir-yellow);
+  text-decoration-thickness: 3px;
+  text-underline-offset: 6px;
+}
+
+.dark .admin-dashboard thead th {
+  background-color: #1c1917;
+  color: var(--noir-yellow);
+  border-bottom: 1.5px solid #2f2a24;
+}
+
+.dark .admin-dashboard tbody tr {
+  border-bottom: 1px solid #231f1b;
+}
+
+.dark .admin-dashboard tbody tr:hover {
+  background-color: #1a1714;
+}
+
 /* --- 3D Paper Flip Utilities --- */
 .perspective-1000 {
   perspective: 1000px;
@@ -1770,6 +2242,99 @@ button:active {
 
 .paper-flip-spring {
   transition: transform 0.65s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+/* 11. Noir Studio Grounded Matte Footer Surface */
+.dark footer.noir-footer {
+  background-color: #0e0d0b !important;
+  background-image: var(--noir-grain-svg), var(--noir-dot-svg) !important;
+  background-size: 140px 140px, 18px 18px !important;
+  border-top: 1.5px solid #2b2722 !important;
+}
+
+/* 12. Noir Studio Mobile Responsiveness & Overflow Discipline */
+.dark body {
+  overflow-x: clip;
+}
+
+@media (max-width: 639px) {
+  .dark .glass-card,
+  .dark .lg\:col-span-7.glass-card,
+  .dark .lg\:col-span-5.grid > div,
+  .dark .grid.md\:grid-cols-2 > div.glass-card,
+  .dark .profile-hero-card,
+  .dark .profile-section-card {
+    box-shadow:
+      inset 0 1px 0 rgba(245, 243, 236, 0.08),
+      0 3px 0 #050504 !important;
+  }
+
+  .dark .lg\:col-span-5.grid > div::after {
+    left: 12px;
+    right: 12px;
+  }
+
+  .dark .lg\:col-span-7.glass-card::after,
+  .dark .grid.md\:grid-cols-2 > div.glass-card::after,
+  .dark .bento-container > .glass-card::after,
+  .dark .dashboard-container > .glass-card::after {
+    left: 16px;
+    right: 16px;
+  }
+}
+
+/* ==========================================================================
+   SPATIAL GRAB-AND-SWAP PAGE TRANSITION PHYSICS
+   Synchronized directional page + inner component momentum ordered by navbar
+   ========================================================================== */
+
+.spatial-stage {
+  position: relative;
+}
+
+.spatial-stage.is-transitioning {
+  overflow-x: clip;
+  overflow-y: visible;
+}
+
+.spatial-layer-exit {
+  position: absolute;
+  inset: 0 0 auto 0;
+  width: 100%;
+  max-height: 100dvh;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  z-index: 1;
+  transform-origin: center top;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.spatial-layer-enter {
+  position: relative;
+  z-index: 2;
+  transform-origin: center top;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Gliding Active Indicator Pill inside Desktop Navbar (synchronized 560ms spring curve) */
+.nav-glide-indicator {
+  transition:
+    transform 560ms cubic-bezier(0.16, 1, 0.3, 1),
+    width 560ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 180ms ease;
+  will-change: transform, width;
+  backface-visibility: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-glide-indicator {
+    transition: none !important;
+  }
 }
 
 /* --- RTL & Egyptian Arabic (ar-EG) Support --- */

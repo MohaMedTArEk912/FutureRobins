@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, type ReactNode, useMemo, useCallback } from 'react';
 import { api } from '../lib/api';
-import type { Quiz, UserData, AttemptData, BadgeDefinition, ChallengeData, Subject, SkillTrack, StudyCard } from '../lib/api';
+import type { Quiz, UserData, AttemptData, BadgeDefinition, ChallengeData, Subject, SkillTrack } from '../lib/api';
 import { useAuth } from './AuthContext';
 
 interface PlatformStatsMeta {
@@ -18,7 +18,6 @@ interface DataContextType {
     challenges: ChallengeData[];
     subjects: Subject[];
     skillTracks: SkillTrack[];
-    studyCards: StudyCard[];
     platformStats: PlatformStatsMeta | null;
     loadingData: boolean;
     loadingQuizzes: boolean;
@@ -49,7 +48,6 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const [challenges, setChallenges] = useState<ChallengeData[]>([]);
     const [subjects, setSubjects] = useState<Subject[]>([]);
     const [skillTracks, setSkillTracks] = useState<SkillTrack[]>([]);
-    const [studyCards, setStudyCards] = useState<StudyCard[]>([]);
     const [platformStats, setPlatformStats] = useState<PlatformStatsMeta | null>(null);
     const [loadingData, setLoadingData] = useState(false);
     const [loadingQuizzes, setLoadingQuizzes] = useState(true);
@@ -60,11 +58,10 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             setLoadingQuizzes(true);
             try {
                 const canSeeHiddenQuizzes = isAdmin || currentUser?.role === 'teacher';
-                const [quizzesRes, subjectsRes, tracksRes, cardsRes, leaderboardRes] = await Promise.allSettled([
+                const [quizzesRes, subjectsRes, tracksRes, leaderboardRes] = await Promise.allSettled([
                     canSeeHiddenQuizzes ? api.getQuizzes(undefined, true) : api.getQuizzes(),
                     api.getSubjects(),
                     api.getSkillTracks(),
-                    api.getStudyCards(),
                     api.getLeaderboard()
                 ]);
 
@@ -77,11 +74,14 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 if (tracksRes.status === 'fulfilled' && Array.isArray(tracksRes.value)) {
                     setSkillTracks(tracksRes.value);
                 }
-                if (cardsRes.status === 'fulfilled' && Array.isArray(cardsRes.value)) {
-                    setStudyCards(cardsRes.value);
-                }
                 if (leaderboardRes.status === 'fulfilled' && Array.isArray(leaderboardRes.value)) {
-                    setAllUsers(prev => (prev.length > 0 ? prev : leaderboardRes.value));
+                    const isDemoViewer = currentUser?.userId === 'demo_student' || currentUser?.userId === 'demo_teacher';
+                    const filteredLb = isDemoViewer
+                        ? leaderboardRes.value
+                        : leaderboardRes.value.filter(
+                              (u: UserData) => u.userId !== 'demo_student' && u.userId !== 'demo_teacher'
+                          );
+                    setAllUsers(prev => (prev.length > 0 ? prev : filteredLb));
                 }
             } catch (error) {
                 console.error('[DataContext] Failed to load foundation data:', error);
@@ -91,7 +91,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         };
 
         loadPublicData();
-    }, [isAdmin]);
+    }, [isAdmin, currentUser?.role, currentUser?.userId]);
 
     // Load User Data (Authenticated)
     const refreshData = useCallback(async () => {
@@ -103,21 +103,23 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 // Admin fetches everything
                 const { users, attempts, badges, subjects: adminSubjects, meta } = await api.getData(uid);
 
-                // Admins also need quizzes, skill tracks and study cards
+                // Admins also need quizzes and skill tracks
                 try {
-                    const [freshQuizzes, sTracks, sCards] = await Promise.all([
+                    const [freshQuizzes, sTracks] = await Promise.all([
                         api.getQuizzes(undefined, true),
-                        api.getSkillTracks(),
-                        api.getStudyCards()
+                        api.getSkillTracks()
                     ]);
                     if (Array.isArray(freshQuizzes)) setAvailableQuizzes(freshQuizzes);
                     setSkillTracks(sTracks || []);
-                    setStudyCards(sCards || []);
                 } catch (e) {
                     console.error('Failed to load admin extra data:', e);
                 }
 
-                setAllUsers(users || []);
+                const isDemoViewer = uid === 'demo_student' || uid === 'demo_teacher';
+                const cleanUsers = (users || []).filter(
+                    (u: UserData) => isDemoViewer || (u.userId !== 'demo_student' && u.userId !== 'demo_teacher')
+                );
+                setAllUsers(cleanUsers);
                 setAllAttempts(attempts || []);
                 setAllBadges(badges || []);
                 setSubjects(adminSubjects || []);
@@ -127,23 +129,25 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 // Regular user fetches optimized set
                 const { attempts, badges, users, challenges: userChallenges } = await api.getUserData(uid);
 
-                // Also fetch quizzes, skill tracks, study cards, and subjects for regular users
+                // Also fetch quizzes, skill tracks, and subjects for regular users
                 try {
-                    const [freshQuizzes, tracksRes, cardsRes, subjectsRes] = await Promise.all([
+                    const [freshQuizzes, tracksRes, subjectsRes] = await Promise.all([
                         api.getQuizzes(undefined, currentUser?.role === 'teacher' ? true : undefined),
                         api.getSkillTracks(),
-                        api.getStudyCards(),
                         api.getSubjects()
                     ]);
                     if (Array.isArray(freshQuizzes)) setAvailableQuizzes(freshQuizzes);
                     setSkillTracks(tracksRes || []);
-                    setStudyCards(cardsRes || []);
                     setSubjects(subjectsRes || []);
                 } catch (e) {
                     console.error('Failed to load user extra data:', e);
                 }
 
-                setAllUsers(users || []);
+                const isDemoViewer = uid === 'demo_student' || uid === 'demo_teacher';
+                const cleanUsers = (users || []).filter(
+                    (u: UserData) => isDemoViewer || (u.userId !== 'demo_student' && u.userId !== 'demo_teacher')
+                );
+                setAllUsers(cleanUsers);
                 setAllAttempts(attempts || []);
                 setAllBadges(badges || []);
                 setChallenges(userChallenges || []);
@@ -187,7 +191,6 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             challenges,
             subjects,
             skillTracks,
-            studyCards,
             platformStats,
             loadingData,
             loadingQuizzes,

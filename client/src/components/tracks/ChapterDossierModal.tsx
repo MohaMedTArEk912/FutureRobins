@@ -99,7 +99,7 @@ export const ChapterDossierModal: React.FC<ChapterDossierModalProps> = ({
                     isBento
                         ? 'bg-white border-2 border-black shadow-[4px_4px_0px_#000] text-black'
                         : lore.isBossTrial
-                            ? 'bg-gradient-to-br from-amber-500/10 via-purple-500/10 to-indigo-500/10 border border-amber-500/30'
+                            ? 'bg-amber-500/10 border border-amber-500/30'
                             : 'bg-indigo-500/5 dark:bg-white/[0.03] border border-slate-200/90 dark:border-white/10'
                 }`}>
                     <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
@@ -267,7 +267,7 @@ export const ChapterDossierModal: React.FC<ChapterDossierModalProps> = ({
                         <h4 className={`text-xs font-black uppercase tracking-wider mb-2.5 flex items-center gap-2 ${
                             isBento ? 'text-black font-mono' : 'text-slate-900 dark:text-white'
                         }`}>
-                            <Award className="w-4 h-4 text-purple-500" />
+                            <Award className="w-4 h-4 text-teal-500" />
                             Associated Credentials & Relics
                         </h4>
                         <div className="flex flex-wrap gap-2.5">
@@ -277,10 +277,10 @@ export const ChapterDossierModal: React.FC<ChapterDossierModalProps> = ({
                                     className={`p-2 rounded-xl flex items-center gap-2 border text-xs font-bold ${
                                         isBento
                                             ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] text-black'
-                                            : 'bg-purple-500/10 border-purple-500/20 text-purple-600 dark:text-purple-300'
+                                            : 'bg-teal-500/10 border-teal-500/20 text-teal-600 dark:text-teal-300'
                                     }`}
                                 >
-                                    <Award className="w-4 h-4 text-purple-500" />
+                                    <Award className="w-4 h-4 text-teal-500" />
                                     <span>{badge.name}</span>
                                 </div>
                             ))}
@@ -334,7 +334,7 @@ export const ChapterDossierModal: React.FC<ChapterDossierModalProps> = ({
                             className={`px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 ${
                                 isBento
                                     ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:translate-x-0.5 hover:translate-y-0.5'
-                                    : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-lg shadow-indigo-600/25 active:scale-[0.98]'
+                                    : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/25 active:scale-[0.98]'
                             }`}
                         >
                             <Sparkles className="w-4 h-4" />

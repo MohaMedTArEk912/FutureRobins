@@ -338,13 +338,13 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
             <div className={`p-4 sm:p-5 rounded-3xl transition-all flex flex-col 2xl:flex-row justify-between items-start 2xl:items-center gap-4 ${
                 isBento
                     ? 'bg-white border-2 border-black shadow-[4px_4px_0px_#000]'
-                    : 'bg-white/60 dark:bg-[#1e1e2d]/60 backdrop-blur-xl border border-white/20 dark:border-white/5 shadow-sm'
+                    : 'bg-white/60 dark:bg-[#1c1917]/60 backdrop-blur-xl border border-white/20 dark:border-white/5 shadow-sm'
             }`}>
                 <div className="flex items-center gap-3 shrink-0">
                     <div className={`p-2.5 rounded-2xl ${
-                        isBento ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000]' : 'bg-purple-500/10'
+                        isBento ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000]' : 'bg-teal-500/10'
                     }`}>
-                        <Zap className={`w-6 h-6 ${isBento ? 'text-black' : 'text-purple-600 dark:text-purple-400'}`} />
+                        <Zap className={`w-6 h-6 ${isBento ? 'text-black' : 'text-teal-600 dark:text-teal-400'}`} />
                     </div>
                     <div>
                         <h2 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Daily Challenges</h2>
@@ -362,8 +362,8 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                         }}
                         className={`flex-1 sm:flex-none px-3.5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                             isBento
-                                ? 'bg-[#c084fc] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 font-mono'
-                                : 'bg-gradient-to-r from-purple-600 via-fuchsia-600 to-indigo-600 text-white shadow-md shadow-purple-500/25 hover:shadow-purple-500/40 hover:-translate-y-0.5 active:scale-95'
+                                ? 'bg-[#fdba74] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 font-mono'
+                                : 'bg-teal-600 text-white shadow-md shadow-teal-500/25 hover:shadow-teal-500/40 hover:-translate-y-0.5 active:scale-95'
                         }`}
                         title="Generate 3-Tier Code Challenge using AI inspired by existing quizzes"
                     >
@@ -378,7 +378,7 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                         className={`flex-1 sm:flex-none px-3.5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${
                             isBento
                                 ? 'bg-[#5eead4] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 font-mono'
-                                : 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-md shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:-translate-y-0.5 active:scale-95'
+                                : 'bg-emerald-500 text-white shadow-md shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:-translate-y-0.5 active:scale-95'
                         }`}
                         title="Auto-Assign Questions for the Week"
                     >
@@ -396,7 +396,7 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                         className={`flex-1 sm:flex-none px-3.5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                             isBento
                                 ? 'bg-[#fdba74] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 font-mono'
-                                : 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md shadow-amber-500/25 hover:shadow-amber-500/40 hover:-translate-y-0.5 active:scale-95'
+                                : 'bg-amber-500 text-white shadow-md shadow-amber-500/25 hover:shadow-amber-500/40 hover:-translate-y-0.5 active:scale-95'
                         }`}
                         title="Broadcast Challenge Drop to Subscribers"
                     >
@@ -424,7 +424,7 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                         className={`flex-1 sm:flex-none px-3.5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                             isBento
                                 ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 font-mono'
-                                : 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md shadow-purple-500/25 hover:shadow-purple-500/40 hover:-translate-y-0.5 active:scale-95'
+                                : 'bg-teal-600 text-white shadow-md shadow-teal-500/25 hover:shadow-teal-500/40 hover:-translate-y-0.5 active:scale-95'
                         }`}
                         title="Schedule a New Daily Challenge"
                     >
@@ -438,7 +438,7 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
             <div className={`rounded-[2rem] border overflow-hidden transition-all ${
                 isBento
                     ? 'bg-white border-2 border-black shadow-[4px_4px_0px_#000]'
-                    : 'bg-white/60 dark:bg-[#1e1e2d]/60 backdrop-blur-xl border-white/20 dark:border-white/5 shadow-sm'
+                    : 'bg-white/60 dark:bg-[#1c1917]/60 backdrop-blur-xl border-white/20 dark:border-white/5 shadow-sm'
             }`}>
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">
@@ -472,7 +472,7 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                                             {challenge.populatedTiers?.easy || challenge.populatedTiers?.medium || challenge.populatedTiers?.hard ? (
                                                 <div className="space-y-1.5 py-1">
                                                     <div className="flex items-center gap-2">
-                                                        <span className="px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-600 dark:text-purple-400 text-[9px] font-black uppercase tracking-wider border border-purple-500/20 flex items-center gap-1">
+                                                        <span className="px-2 py-0.5 rounded-md bg-teal-500/10 text-teal-600 dark:text-teal-400 text-[9px] font-black uppercase tracking-wider border border-teal-500/20 flex items-center gap-1">
                                                             <Layers className="w-3 h-3" /> 3 Tiers Active
                                                         </span>
                                                     </div>
@@ -611,7 +611,7 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                 title="Edit Schedule"
                 description="Configure daily goal parameters"
                 maxWidth="max-w-2xl"
-                icon={<Calendar className="w-6 h-6 text-purple-500" />}
+                icon={<Calendar className="w-6 h-6 text-teal-500" />}
                 footer={
                     <>
                         <button
@@ -622,7 +622,7 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                         </button>
                         <button
                             onClick={handleSaveChallenge}
-                            className="flex-[2] py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-purple-500/30 hover:shadow-purple-500/50 hover:-translate-y-1 transition-all"
+                            className="flex-[2] py-3 bg-teal-600 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-teal-500/30 hover:shadow-teal-500/50 hover:-translate-y-1 transition-all"
                         >
                             Save Challenge
                         </button>
@@ -638,7 +638,7 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                                 type="date"
                                 value={editingChallenge ? new Date(editingChallenge.date).toISOString().split('T')[0] : ''}
                                 onChange={e => editingChallenge && setEditingChallenge({ ...editingChallenge, date: e.target.value })}
-                                className="w-full bg-gray-50 dark:bg-[#1a1b26] border border-gray-200 dark:border-gray-800 focus:ring-2 focus:ring-purple-500/50 rounded-xl px-5 py-3.5 text-gray-900 dark:text-white font-bold outline-none transition-all"
+                                className="w-full bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/10 focus:ring-2 focus:ring-teal-500/50 rounded-xl px-5 py-3.5 text-gray-900 dark:text-white font-bold outline-none transition-all"
                             />
                         </div>
                     </div>
@@ -650,7 +650,7 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                             <select
                                 value={editingChallenge?.compilerQuestionId || ''}
                                 onChange={e => editingChallenge && setEditingChallenge({ ...editingChallenge, compilerQuestionId: e.target.value })}
-                                className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-gray-800 focus:ring-2 focus:ring-indigo-500/50 rounded-xl px-4 py-3 text-gray-900 dark:text-white font-bold outline-none transition-all cursor-pointer"
+                                className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-[#f5f3ec]/10 focus:ring-2 focus:ring-indigo-500/50 rounded-xl px-4 py-3 text-gray-900 dark:text-white font-bold outline-none transition-all cursor-pointer"
                             >
                                 <option value="">Select a Question...</option>
                                 {compilerQuestions.filter(q => q.isActive).map(q => (
@@ -675,7 +675,7 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                                         placeholder="Coins"
                                         value={editingChallenge?.rewardCoins || 0}
                                         onChange={e => editingChallenge && setEditingChallenge({ ...editingChallenge, rewardCoins: parseInt(e.target.value) })}
-                                        className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-gray-800 focus:ring-2 focus:ring-amber-500/50 rounded-xl px-4 py-3 pl-10 text-gray-900 dark:text-white font-black outline-none transition-all"
+                                        className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-[#f5f3ec]/10 focus:ring-2 focus:ring-amber-500/50 rounded-xl px-4 py-3 pl-10 text-gray-900 dark:text-white font-black outline-none transition-all"
                                     />
                                 </div>
                                 <div className="relative flex-1">
@@ -685,7 +685,7 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                                         placeholder="XP"
                                         value={editingChallenge?.rewardXP || 0}
                                         onChange={e => editingChallenge && setEditingChallenge({ ...editingChallenge, rewardXP: parseInt(e.target.value) })}
-                                        className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-gray-800 focus:ring-2 focus:ring-blue-500/50 rounded-xl px-4 py-3 pl-10 text-gray-900 dark:text-white font-black outline-none transition-all"
+                                        className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-[#f5f3ec]/10 focus:ring-2 focus:ring-blue-500/50 rounded-xl px-4 py-3 pl-10 text-gray-900 dark:text-white font-black outline-none transition-all"
                                     />
                                 </div>
                             </div>
@@ -693,7 +693,7 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                             <select
                                 value={editingChallenge?.rewardItemId || ''}
                                 onChange={e => editingChallenge && setEditingChallenge({ ...editingChallenge, rewardItemId: e.target.value || undefined, rewardBadgeId: undefined })}
-                                className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-gray-800 focus:ring-2 focus:ring-purple-500/50 rounded-xl px-4 py-3 text-gray-900 dark:text-white font-bold outline-none transition-all cursor-pointer"
+                                className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-[#f5f3ec]/10 focus:ring-2 focus:ring-teal-500/50 rounded-xl px-4 py-3 text-gray-900 dark:text-white font-bold outline-none transition-all cursor-pointer"
                             >
                                 <option value="">No Shop Item Bonus</option>
                                 {shopItems.map(item => (
@@ -724,7 +724,7 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                         <button
                             onClick={handleSendBroadcast}
                             disabled={isBroadcasting || !broadcastData.title.trim()}
-                            className="px-6 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold rounded-xl shadow-lg shadow-orange-500/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 disabled:opacity-50"
+                            className="px-6 py-2 bg-amber-500 text-white font-bold rounded-xl shadow-lg shadow-orange-500/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 disabled:opacity-50"
                         >
                             {isBroadcasting ? (
                                 <RefreshCw className="w-4 h-4 animate-spin" />
@@ -744,7 +744,7 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                             value={broadcastData.title}
                             onChange={e => setBroadcastData({ ...broadcastData, title: e.target.value })}
                             placeholder="e.g. Dijkstra's Shortest Path Algorithm"
-                            className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white font-bold outline-none"
+                            className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-[#f5f3ec]/10 rounded-xl px-4 py-3 text-gray-900 dark:text-white font-bold outline-none"
                         />
                     </div>
                     <div>
@@ -754,7 +754,7 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                             value={broadcastData.category}
                             onChange={e => setBroadcastData({ ...broadcastData, category: e.target.value })}
                             placeholder="e.g. Graphs & Trees / Algorithmic Challenge"
-                            className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white font-bold outline-none"
+                            className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-[#f5f3ec]/10 rounded-xl px-4 py-3 text-gray-900 dark:text-white font-bold outline-none"
                         />
                     </div>
                     <div>
@@ -764,7 +764,7 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                             value={broadcastData.description}
                             onChange={e => setBroadcastData({ ...broadcastData, description: e.target.value })}
                             placeholder="Explain the challenge, rewards, and key concepts..."
-                            className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white font-bold outline-none resize-none"
+                            className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-[#f5f3ec]/10 rounded-xl px-4 py-3 text-gray-900 dark:text-white font-bold outline-none resize-none"
                         />
                     </div>
                     <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-xs text-amber-700 dark:text-amber-400 font-medium">
@@ -796,7 +796,7 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                             <button
                                 onClick={handleConfirmSchedulePreview}
                                 disabled={isGeneratingAi}
-                                className="px-7 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:-translate-y-0.5 active:scale-95 transition-all flex items-center gap-2"
+                                className="px-7 py-3 bg-emerald-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:-translate-y-0.5 active:scale-95 transition-all flex items-center gap-2"
                             >
                                 {isGeneratingAi ? (
                                     <RefreshCw className="w-4 h-4 animate-spin" />
@@ -827,7 +827,7 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                                 <button
                                     onClick={() => handleGenerateAi(true)}
                                     disabled={isGeneratingAi}
-                                    className="px-6 py-3 bg-gradient-to-r from-purple-600 via-fuchsia-600 to-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-purple-500/30 hover:shadow-purple-500/50 hover:-translate-y-0.5 active:scale-95 transition-all flex items-center gap-2 disabled:opacity-50"
+                                    className="px-6 py-3 bg-teal-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-teal-500/30 hover:shadow-teal-500/50 hover:-translate-y-0.5 active:scale-95 transition-all flex items-center gap-2 disabled:opacity-50"
                                 >
                                     {isGeneratingAi ? (
                                         <><RefreshCw className="w-4 h-4 animate-spin" /> Generating with AI...</>
@@ -975,13 +975,13 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-xs font-black uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2 flex items-center gap-1.5">
-                                    <Calendar className="w-3.5 h-3.5 text-purple-500" /> Challenge Date
+                                    <Calendar className="w-3.5 h-3.5 text-teal-500" /> Challenge Date
                                 </label>
                                 <input
                                     type="date"
                                     value={aiDate}
                                     onChange={e => setAiDate(e.target.value)}
-                                    className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-purple-500/50"
+                                    className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-[#f5f3ec]/10 rounded-2xl px-4 py-3 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-teal-500/50"
                                 />
                             </div>
                             <div>
@@ -991,7 +991,7 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                                 <select
                                     value={selectedLanguage}
                                     onChange={e => setSelectedLanguage(e.target.value)}
-                                    className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500/50 cursor-pointer"
+                                    className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-[#f5f3ec]/10 rounded-2xl px-4 py-3 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500/50 cursor-pointer"
                                 >
                                     <option value="javascript">JavaScript (ES6+)</option>
                                     <option value="python">Python 3</option>
@@ -1011,7 +1011,7 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                             <select
                                 value={selectedQuizId}
                                 onChange={e => setSelectedQuizId(e.target.value)}
-                                className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-500/50 cursor-pointer"
+                                className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-[#f5f3ec]/10 rounded-2xl px-4 py-3 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-500/50 cursor-pointer"
                             >
                                 <option value="random">🎲 Randomly Sample Existing Quizzes (Recommended)</option>
                                 {quizzes.map(q => (
@@ -1025,14 +1025,14 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                         {/* Custom Topic / Admin Instructions */}
                         <div>
                             <label className="block text-xs font-black uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2 flex items-center gap-1.5">
-                                <Bot className="w-3.5 h-3.5 text-fuchsia-500" /> Custom Concept or Focus (Optional)
+                                <Bot className="w-3.5 h-3.5 text-rose-500" /> Custom Concept or Focus (Optional)
                             </label>
                             <input
                                 type="text"
                                 value={customTopic}
                                 onChange={e => setCustomTopic(e.target.value)}
                                 placeholder="e.g. Array manipulation, anagram detection, string reversal, recursion..."
-                                className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-gray-800 rounded-2xl px-4 py-3 text-sm font-medium text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-fuchsia-500/50"
+                                className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-[#f5f3ec]/10 rounded-2xl px-4 py-3 text-sm font-medium text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-rose-500/50"
                             />
                         </div>
 
@@ -1060,7 +1060,7 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                                             type="text"
                                             value={tierRewards.easy.giftLabel}
                                             onChange={e => setTierRewards({ ...tierRewards, easy: { ...tierRewards.easy, giftLabel: e.target.value } })}
-                                            className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-gray-800 rounded-xl px-3 py-2 text-xs font-bold text-gray-900 dark:text-white outline-none"
+                                            className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-[#f5f3ec]/10 rounded-xl px-3 py-2 text-xs font-bold text-gray-900 dark:text-white outline-none"
                                         />
                                     </div>
                                     <div className="flex gap-2">
@@ -1070,7 +1070,7 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                                                 type="number"
                                                 value={tierRewards.easy.coins}
                                                 onChange={e => setTierRewards({ ...tierRewards, easy: { ...tierRewards.easy, coins: parseInt(e.target.value) || 0 } })}
-                                                className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-gray-800 rounded-xl px-3 py-2 text-xs font-black text-gray-900 dark:text-white outline-none"
+                                                className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-[#f5f3ec]/10 rounded-xl px-3 py-2 text-xs font-black text-gray-900 dark:text-white outline-none"
                                             />
                                         </div>
                                         <div className="flex-1">
@@ -1079,7 +1079,7 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                                                 type="number"
                                                 value={tierRewards.easy.xp}
                                                 onChange={e => setTierRewards({ ...tierRewards, easy: { ...tierRewards.easy, xp: parseInt(e.target.value) || 0 } })}
-                                                className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-gray-800 rounded-xl px-3 py-2 text-xs font-black text-gray-900 dark:text-white outline-none"
+                                                className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-[#f5f3ec]/10 rounded-xl px-3 py-2 text-xs font-black text-gray-900 dark:text-white outline-none"
                                             />
                                         </div>
                                     </div>
@@ -1099,7 +1099,7 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                                             type="text"
                                             value={tierRewards.medium.giftLabel}
                                             onChange={e => setTierRewards({ ...tierRewards, medium: { ...tierRewards.medium, giftLabel: e.target.value } })}
-                                            className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-gray-800 rounded-xl px-3 py-2 text-xs font-bold text-gray-900 dark:text-white outline-none"
+                                            className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-[#f5f3ec]/10 rounded-xl px-3 py-2 text-xs font-bold text-gray-900 dark:text-white outline-none"
                                         />
                                     </div>
                                     <div className="flex gap-2">
@@ -1109,7 +1109,7 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                                                 type="number"
                                                 value={tierRewards.medium.coins}
                                                 onChange={e => setTierRewards({ ...tierRewards, medium: { ...tierRewards.medium, coins: parseInt(e.target.value) || 0 } })}
-                                                className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-gray-800 rounded-xl px-3 py-2 text-xs font-black text-gray-900 dark:text-white outline-none"
+                                                className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-[#f5f3ec]/10 rounded-xl px-3 py-2 text-xs font-black text-gray-900 dark:text-white outline-none"
                                             />
                                         </div>
                                         <div className="flex-1">
@@ -1118,7 +1118,7 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                                                 type="number"
                                                 value={tierRewards.medium.xp}
                                                 onChange={e => setTierRewards({ ...tierRewards, medium: { ...tierRewards.medium, xp: parseInt(e.target.value) || 0 } })}
-                                                className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-gray-800 rounded-xl px-3 py-2 text-xs font-black text-gray-900 dark:text-white outline-none"
+                                                className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-[#f5f3ec]/10 rounded-xl px-3 py-2 text-xs font-black text-gray-900 dark:text-white outline-none"
                                             />
                                         </div>
                                     </div>
@@ -1138,7 +1138,7 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                                             type="text"
                                             value={tierRewards.hard.giftLabel}
                                             onChange={e => setTierRewards({ ...tierRewards, hard: { ...tierRewards.hard, giftLabel: e.target.value } })}
-                                            className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-gray-800 rounded-xl px-3 py-2 text-xs font-bold text-gray-900 dark:text-white outline-none"
+                                            className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-[#f5f3ec]/10 rounded-xl px-3 py-2 text-xs font-bold text-gray-900 dark:text-white outline-none"
                                         />
                                     </div>
                                     <div className="flex gap-2">
@@ -1148,7 +1148,7 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                                                 type="number"
                                                 value={tierRewards.hard.coins}
                                                 onChange={e => setTierRewards({ ...tierRewards, hard: { ...tierRewards.hard, coins: parseInt(e.target.value) || 0 } })}
-                                                className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-gray-800 rounded-xl px-3 py-2 text-xs font-black text-gray-900 dark:text-white outline-none"
+                                                className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-[#f5f3ec]/10 rounded-xl px-3 py-2 text-xs font-black text-gray-900 dark:text-white outline-none"
                                             />
                                         </div>
                                         <div className="flex-1">
@@ -1157,7 +1157,7 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                                                 type="number"
                                                 value={tierRewards.hard.xp}
                                                 onChange={e => setTierRewards({ ...tierRewards, hard: { ...tierRewards.hard, xp: parseInt(e.target.value) || 0 } })}
-                                                className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-gray-800 rounded-xl px-3 py-2 text-xs font-black text-gray-900 dark:text-white outline-none"
+                                                className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-[#f5f3ec]/10 rounded-xl px-3 py-2 text-xs font-black text-gray-900 dark:text-white outline-none"
                                             />
                                         </div>
                                     </div>

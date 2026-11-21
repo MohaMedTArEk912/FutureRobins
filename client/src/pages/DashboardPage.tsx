@@ -11,7 +11,7 @@ import type { Quiz } from '../types';
 
 const DashboardPage: React.FC = () => {
     const { logout, refreshUser, currentUser } = useAuth();
-    const { availableQuizzes, userWithRank, allAttempts, subjects, skillTracks, studyCards, refreshData } = useData();
+    const { availableQuizzes, userWithRank, allAttempts, subjects, skillTracks, refreshData } = useData();
     const navigate = useNavigate();
     const location = useLocation();
     const { showNotification } = useNotification();
@@ -23,7 +23,6 @@ const DashboardPage: React.FC = () => {
     const safeQuizzes = Array.isArray(availableQuizzes) ? availableQuizzes : [];
     const safeSubjects = Array.isArray(subjects) ? subjects : [];
     const safeSkillTracks = Array.isArray(skillTracks) ? skillTracks : [];
-    const safeStudyCards = Array.isArray(studyCards) ? studyCards : [];
     const safeAttempts = Array.isArray(allAttempts) ? allAttempts : [];
 
     const activeUser = userWithRank || currentUser || GUEST_USER;
@@ -80,7 +79,6 @@ const DashboardPage: React.FC = () => {
                 quizzes={safeQuizzes}
                 subjects={safeSubjects}
                 skillTracks={safeSkillTracks}
-                studyCards={safeStudyCards}
                 user={activeUser}
                 attempts={userAttempts}
                 onRefreshData={async () => {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AmbientBackground } from './AmbientBackground';
-import type { Quiz, UserData, AttemptData, Subject, SkillTrack, StudyCard, SkillModule, TrackRequest } from '../types/index.ts';
+import type { Quiz, UserData, AttemptData, Subject, SkillTrack, SkillModule, TrackRequest } from '../types/index.ts';
 import { DIFFICULTY_COLORS } from '../constants/quizDefaults.ts';
 import {
     Search,
@@ -52,6 +52,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
+import { usePersistentShell } from '../context/PersistentShellContext';
 import { api } from '../lib/api';
 import { getQuizIconOption } from '../utils/quizIcons';
 import { getQuizPoolStatus, calculateSubjectProgress } from '../utils/poolUtils';
@@ -80,7 +81,7 @@ const ICON_MAP: Record<string, React.ReactNode> = {
 const SubjectIcon: React.FC<{ icon: string }> = ({ icon }) => {
     const { isBento } = useTheme();
     if (ICON_MAP[icon]) {
-        return <div className={isBento ? "text-black" : "text-indigo-500"}>{ICON_MAP[icon]}</div>;
+        return <div className={isBento ? "text-black" : "text-indigo-500 dark:text-[#bef264]"}>{ICON_MAP[icon]}</div>;
     }
     // Return as emoji if not in map
     return <>{icon || '📚'}</>;
@@ -92,7 +93,6 @@ interface UserRoadsProps {
     user: UserData;
     attempts: AttemptData[];
     skillTracks: SkillTrack[];
-    studyCards: StudyCard[];
     onSelectQuiz: (quiz: Quiz) => void;
     onViewProfile: () => void;
     onViewLeaderboard: () => void;
@@ -100,7 +100,7 @@ interface UserRoadsProps {
     onRefreshData?: () => Promise<void>;
 }
 
-type SubjectTab = 'overview' | 'roadmap' | 'quizzes' | 'exams' | 'study-cards';
+type SubjectTab = 'overview' | 'roadmap' | 'quizzes' | 'exams';
 
 /**
  * Represents a progress milestone in a learning road.
@@ -114,12 +114,13 @@ interface Milestone {
     index: number;
 }
 
-const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: subjectsProp, user, attempts: attemptsProp, skillTracks: skillTracksProp, studyCards: studyCardsProp, onSelectQuiz, onViewProfile, onViewLeaderboard, onLogout, onRefreshData }) => {
+const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: subjectsProp, user, attempts: attemptsProp, skillTracks: skillTracksProp, onSelectQuiz, onViewProfile, onViewLeaderboard, onLogout, onRefreshData }) => {
     const navigate = useNavigate();
     const { showNotification } = useNotification();
     const { updateUser } = useAuth();
     const { isBento } = useTheme();
     const { tx } = useLanguage();
+    const { inPersistentShell } = usePersistentShell();
     const [searchParams, setSearchParams] = useSearchParams();
 
     // Track requests and access states
@@ -277,7 +278,6 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
     const subjects = useMemo(() => Array.isArray(subjectsProp) ? subjectsProp : [], [subjectsProp]);
     const attempts = useMemo(() => Array.isArray(attemptsProp) ? attemptsProp : [], [attemptsProp]);
     const skillTracks = useMemo(() => Array.isArray(skillTracksProp) ? skillTracksProp : [], [skillTracksProp]);
-    const studyCards = useMemo(() => Array.isArray(studyCardsProp) ? studyCardsProp : [], [studyCardsProp]);
 
     const activeSubject = subjects.find(s => s._id === selectedSubjectId);
     const filteredQuizzes = useMemo(() => {
@@ -556,13 +556,13 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
         }
         if (titleLower.includes('senior') || titleLower.includes('advanced')) {
             return {
-                accentColor: '#ddd6fe',
+                accentColor: '#fed7aa',
                 badgeText: 'FULLSTACK • SENIOR',
                 category: 'ADVANCED PRO',
-                iconBg: 'bg-[#ddd6fe] dark:bg-purple-500/20 text-black dark:text-purple-400',
-                borderAccent: 'border-purple-400 dark:border-purple-500/30',
+                iconBg: 'bg-[#fed7aa] dark:bg-orange-500/20 text-black dark:text-orange-400',
+                borderAccent: 'border-orange-400 dark:border-orange-500/30',
                 tag: 'CAREER ACCREDITED 🎓',
-                progressFill: 'bg-[#9333ea]',
+                progressFill: 'bg-[#f97316]',
                 highlights: ['React & Node', 'System Architecture', 'Portfolio Cert'],
             };
         }
@@ -610,13 +610,13 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                 highlights: ['Real-world Scenarios', 'Milestone Exams', 'Accreditation'],
             },
             {
-                accentColor: '#ddd6fe',
+                accentColor: '#fed7aa',
                 badgeText: 'MASTERY LEVEL',
                 category: 'ADVANCED STUDY',
-                iconBg: 'bg-[#ddd6fe] dark:bg-purple-500/20 text-black dark:text-purple-400',
-                borderAccent: 'border-purple-400',
+                iconBg: 'bg-[#fed7aa] dark:bg-orange-500/20 text-black dark:text-orange-400',
+                borderAccent: 'border-orange-400',
                 tag: 'EXECUTIVE TIER',
-                progressFill: 'bg-[#9333ea]',
+                progressFill: 'bg-[#f97316]',
                 highlights: ['Advanced Theory', 'Master Challenges', 'Leaderboard XP'],
             },
         ];
@@ -624,18 +624,19 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
     };
 
     return (
-        <div className="min-h-dvh bg-slate-50 dark:bg-[#090d16] text-slate-900 dark:text-slate-100 selection:bg-indigo-500/25">
-            {/* Ambient Background Effects */}
-            <AmbientBackground />
+        <div className={inPersistentShell ? 'w-full text-slate-900 dark:text-slate-100 selection:bg-indigo-500/25' : 'min-h-dvh bg-slate-50 dark:bg-[#0a0908] text-slate-900 dark:text-slate-100 selection:bg-indigo-500/25'}>
+            {!inPersistentShell && <AmbientBackground />}
 
-            <Navbar
-                user={user}
-                onViewProfile={onViewProfile}
-                onViewLeaderboard={onViewLeaderboard}
-                onLogout={onLogout}
-                title="Quiz Platform"
-                showActions={true}
-            />
+            {!inPersistentShell && (
+                <Navbar
+                    user={user}
+                    onViewProfile={onViewProfile}
+                    onViewLeaderboard={onViewLeaderboard}
+                    onLogout={onLogout}
+                    title="Quiz Platform"
+                    showActions={true}
+                />
+            )}
 
             <main className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 md:py-10">
                 {/* Hero Stats - Asymmetric Bento Layout */}
@@ -648,7 +649,7 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                     <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
                                         Level {Math.floor((user.xp || 0) / 1000) + 1} Scholar
                                     </span>
-                                    <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500">
+                                    <span className="text-[11px] font-medium text-slate-400 dark:text-[#a8a29e]">
                                         {(user.xp || 0) % 1000}/1000 XP to next tier
                                     </span>
                                 </div>
@@ -660,7 +661,7 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                 <div className={`mt-3 max-w-xl rounded-2xl transition-all duration-300 ${
                                     isBento
                                         ? 'bg-[#fef9c3] border-2 border-black p-3 shadow-[2.5px_2.5px_0px_#000]'
-                                        : 'bg-white/65 dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 backdrop-blur-md p-3'
+                                        : 'bg-white/65 dark:bg-[#0d0c0a] border border-slate-200/80 dark:border-[#2c2722] dark:shadow-[inset_0_2px_6px_rgba(0,0,0,0.65)] backdrop-blur-md dark:backdrop-blur-none p-3'
                                 }`}>
                                     <div className="flex items-start justify-between gap-2.5">
                                         <div className="flex items-start gap-2 min-w-0 flex-1">
@@ -722,12 +723,12 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                         {/* XP Progress Bar */}
                         <div className="space-y-2 mt-auto pt-2">
                             <div className="flex items-center justify-between text-xs font-semibold">
-                                <span className="text-slate-500 dark:text-slate-400">{tx('Total Experience', 'إجمالي الخبرة')}</span>
+                                <span className="text-slate-500 dark:text-[#a8a29e]">{tx('Total Experience', 'إجمالي الخبرة')}</span>
                                 <span className="font-tabular text-slate-900 dark:text-white font-bold">{user.xp || 0} XP</span>
                             </div>
                             <div className="w-full h-2.5 bg-slate-200/80 dark:bg-white/[0.06] rounded-full overflow-hidden p-0.5">
                                 <div 
-                                    className="h-full bg-gradient-to-r from-indigo-500 to-violet-600 rounded-full transition-all duration-700 shadow-sm shadow-indigo-500/30"
+                                    className="h-full bg-indigo-600 dark:bg-[#bef264] rounded-full transition-all duration-700"
                                     style={{ width: `${Math.min(100, Math.max(5, ((user.xp || 0) % 1000) / 10))}%` }}
                                 />
                             </div>
@@ -735,47 +736,47 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                     </div>
 
                     {/* Secondary Metrics Trio (5 cols) */}
-                    <div className="lg:col-span-5 grid grid-cols-3 gap-3">
-                        <div className="glass-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between">
-                            <div className="flex items-center justify-between mb-3">
-                                <div className="w-9 h-9 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+                    <div className="lg:col-span-5 grid grid-cols-3 gap-2 sm:gap-3">
+                        <div className="glass-card p-3 sm:p-5 rounded-2xl sm:rounded-3xl flex flex-col justify-between min-w-0">
+                            <div className="flex items-center justify-between mb-2.5 sm:mb-3">
+                                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0">
                                     <Award className="w-4 h-4" />
                                 </div>
-                                <span className="text-xs font-black tracking-wider opacity-60">01</span>
+                                <span className="text-[11px] sm:text-xs font-black tracking-wider opacity-60">01</span>
                             </div>
-                            <div>
-                                <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{tx('Global Rank', 'الترتيب العام')}</div>
-                                <div className="text-lg sm:text-2xl font-extrabold font-tabular text-slate-900 dark:text-white mt-0.5">
+                            <div className="min-w-0">
+                                <div className="text-[9px] sm:text-[10px] font-bold text-slate-400 dark:text-[#a8a29e] uppercase tracking-wider truncate">{tx('Global Rank', 'الترتيب العام')}</div>
+                                <div className="text-base sm:text-2xl font-extrabold font-tabular text-slate-900 dark:text-white mt-0.5 truncate">
                                     #{user.rank || '-'}
                                 </div>
                             </div>
                         </div>
 
-                        <div className="glass-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between">
-                            <div className="flex items-center justify-between mb-3">
-                                <div className="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                        <div className="glass-card p-3 sm:p-5 rounded-2xl sm:rounded-3xl flex flex-col justify-between min-w-0">
+                            <div className="flex items-center justify-between mb-2.5 sm:mb-3">
+                                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
                                     <BarChart3 className="w-4 h-4" />
                                 </div>
-                                <span className="text-xs font-black tracking-wider opacity-60">02</span>
+                                <span className="text-[11px] sm:text-xs font-black tracking-wider opacity-60">02</span>
                             </div>
-                            <div>
-                                <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{tx('Total Score', 'مجموع النقط')}</div>
-                                <div className="text-lg sm:text-2xl font-extrabold font-tabular text-slate-900 dark:text-white mt-0.5">
+                            <div className="min-w-0">
+                                <div className="text-[9px] sm:text-[10px] font-bold text-slate-400 dark:text-[#a8a29e] uppercase tracking-wider truncate">{tx('Total Score', 'مجموع النقط')}</div>
+                                <div className="text-base sm:text-2xl font-extrabold font-tabular text-slate-900 dark:text-white mt-0.5 truncate">
                                     {user.totalScore || 0}
                                 </div>
                             </div>
                         </div>
 
-                        <div className="glass-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between">
-                            <div className="flex items-center justify-between mb-3">
-                                <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                        <div className="glass-card p-3 sm:p-5 rounded-2xl sm:rounded-3xl flex flex-col justify-between min-w-0">
+                            <div className="flex items-center justify-between mb-2.5 sm:mb-3">
+                                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
                                     <Clock className="w-4 h-4" />
                                 </div>
-                                <span className="text-xs font-black tracking-wider opacity-60">03</span>
+                                <span className="text-[11px] sm:text-xs font-black tracking-wider opacity-60">03</span>
                             </div>
-                            <div>
-                                <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{tx('Quizzes', 'الكويزات')}</div>
-                                <div className="text-lg sm:text-2xl font-extrabold font-tabular text-slate-900 dark:text-white mt-0.5">
+                            <div className="min-w-0">
+                                <div className="text-[9px] sm:text-[10px] font-bold text-slate-400 dark:text-[#a8a29e] uppercase tracking-wider truncate">{tx('Quizzes', 'الكويزات')}</div>
+                                <div className="text-base sm:text-2xl font-extrabold font-tabular text-slate-900 dark:text-white mt-0.5 truncate">
                                     {user.totalAttempts || 0}
                                 </div>
                             </div>
@@ -826,7 +827,7 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                         <div className={`px-3.5 py-1.5 rounded-xl font-bold text-xs shrink-0 transition-all ${
                             isStreakClaimedToday
                                 ? 'bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-white/5'
-                                : 'bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/20'
+                                : 'bg-amber-500 hover:bg-amber-600 dark:bg-[#fde047] dark:hover:bg-[#fef08a] text-white dark:text-[#0a0908] dark:font-black shadow-sm shadow-amber-500/20 dark:shadow-[0_3px_0_#050504]'
                         }`}>
                             {isStreakClaimedToday ? tx('Claimed', 'اتاخد') : tx('Claim', 'استلم')}
                         </div>
@@ -843,10 +844,10 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                             </div>
                             <div className="min-w-0">
                                 <div className="flex items-center gap-1.5">
-                                    <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+                                    <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-indigo-500/10 dark:bg-[#bae6fd]/16 text-indigo-600 dark:text-[#bae6fd] dark:border dark:border-[#bae6fd]/30">
                                         {tx('Live Arena', 'الساحة المباشرة')}
                                     </span>
-                                    <span className="text-[10px] font-medium text-indigo-500">{tx('6-Digit PIN', 'كود 6 أرقام')}</span>
+                                    <span className="text-[10px] font-medium text-indigo-500 dark:text-[#bae6fd]/80">{tx('6-Digit PIN', 'كود 6 أرقام')}</span>
                                 </div>
                                 <h4 className="text-sm font-bold text-slate-900 dark:text-white tracking-tight truncate mt-0.5">
                                     {tx('Enter Live Arena', 'ادخل الساحة المباشرة')}
@@ -856,7 +857,7 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                 </p>
                             </div>
                         </div>
-                        <div className="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-sm shadow-indigo-500/20 shrink-0 transition-all">
+                        <div className="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 dark:bg-[#bae6fd] dark:hover:bg-[#e0f2fe] text-white dark:text-[#0a0908] font-bold dark:font-black text-xs shadow-sm shadow-indigo-500/20 dark:shadow-[0_3px_0_#050504] shrink-0 transition-all">
                             {tx('Open', 'افتح')}
                         </div>
                     </div>
@@ -907,7 +908,7 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                         <span className={`px-3 py-1 rounded-full text-[10px] uppercase tracking-wider select-none inline-flex items-center gap-1.5 ${
                                             isBento
                                                 ? 'font-black bg-[#fde047] text-black border-2 border-black shadow-[2px_2px_0px_#000] -rotate-1'
-                                                : 'font-bold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20'
+                                                : 'font-bold bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20'
                                         }`}>
                                             <Compass className="w-3.5 h-3.5" />
                                             {tx('ACADEMY PATHWAYS', 'مسارات الأكاديمية')}
@@ -939,8 +940,8 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                         className={`px-3 py-1.5 rounded-xl text-xs transition-all cursor-pointer ${
                                             roadFilter === 'all'
                                                 ? (isBento
-                                                    ? 'font-black bg-[#ddd6fe] text-black border-1.5 border-black shadow-[1.5px_1.5px_0px_#000]'
-                                                    : 'font-bold bg-purple-600 text-white shadow-sm')
+                                                    ? 'font-black bg-[#fed7aa] text-black border-1.5 border-black shadow-[1.5px_1.5px_0px_#000]'
+                                                    : 'font-bold bg-teal-600 dark:bg-[#bef264] text-white dark:text-[#0a0908] shadow-sm')
                                                 : 'font-bold text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white'
                                         }`}
                                     >
@@ -997,7 +998,7 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                                 <div>
                                                     <div className="flex items-start justify-between gap-3 mb-4">
                                                         <div className="relative">
-                                                            <div className={`w-13 h-13 rounded-2xl flex items-center justify-center text-2xl shrink-0 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 ${
+                                                            <div className={`w-13 h-13 rounded-2xl flex items-center justify-center text-2xl shrink-0 bg-slate-100 dark:bg-[#1c1917] text-slate-700 dark:text-slate-300 ${
                                                                 isBento
                                                                     ? 'border-2 border-black shadow-[2.5px_2.5px_0px_#000]'
                                                                     : 'border border-slate-200 dark:border-white/10 shadow-sm'
@@ -1007,7 +1008,7 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                                             <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center shadow-xs ${
                                                                 isBento
                                                                     ? 'bg-amber-400 text-black border-1.5 border-black'
-                                                                    : 'bg-amber-500 text-white border border-white dark:border-[#13141f]'
+                                                                    : 'bg-amber-500 dark:bg-[#fde047] text-white dark:text-[#0a0908] border border-white dark:border-[#141210]'
                                                             }`}>
                                                                 <Lock className="w-2.5 h-2.5" />
                                                             </div>
@@ -1112,7 +1113,7 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                                             className={`w-full py-2.5 px-4 rounded-xl text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer ${
                                                                 isBento
                                                                     ? 'bg-[#fecdd3] hover:bg-[#fda4af] text-black font-black border-2 border-black shadow-[3px_3px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-[1px_1px_0px_#000]'
-                                                                    : 'bg-gradient-to-r from-rose-600 to-orange-600 hover:from-rose-700 hover:to-orange-700 text-white font-bold shadow-md shadow-rose-500/20 active:scale-95'
+                                                                    : 'bg-rose-600 hover:bg-rose-700 text-white font-bold shadow-md shadow-rose-500/20 active:scale-95'
                                                             }`}
                                                         >
                                                             <RotateCcw className="w-3.5 h-3.5" />
@@ -1127,8 +1128,8 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                                             }}
                                                             className={`w-full py-2.5 px-4 rounded-xl text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer ${
                                                                 isBento
-                                                                    ? 'bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-black border-2 border-black shadow-[3px_3px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-[1px_1px_0px_#000]'
-                                                                    : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold shadow-md shadow-purple-500/20 active:scale-95'
+                                                                    ? 'bg-[#0d9488] hover:bg-[#0f766e] text-white font-black border-2 border-black shadow-[3px_3px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-[1px_1px_0px_#000]'
+                                                                    : 'bg-teal-600 hover:bg-teal-700 text-white font-bold shadow-md shadow-teal-500/20 active:scale-95'
                                                             }`}
                                                         >
                                                             <Send className="w-3.5 h-3.5" />
@@ -1250,7 +1251,7 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                             className={`px-4 py-2 rounded-xl text-xs cursor-pointer ${
                                                 isBento
                                                     ? 'bg-[#fde047] text-black font-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                                    : 'bg-purple-600 hover:bg-purple-700 text-white font-bold shadow-md shadow-purple-500/20 active:scale-95'
+                                                    : 'bg-teal-600 hover:bg-teal-700 text-white font-bold shadow-md shadow-teal-500/20 active:scale-95'
                                             }`}
                                         >
                                             Show All Tracks
@@ -1302,7 +1303,6 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                 { id: 'roadmap', label: tx('Roadmap', 'الخريطة'), icon: <Brain className="w-4 h-4" /> },
                                 { id: 'quizzes', label: tx('Quizzes', 'الكويزات'), icon: <Award className="w-4 h-4" /> },
                                 { id: 'exams', label: tx('Exams', 'الامتحانات'), icon: <Clipboard className="w-4 h-4" /> },
-                                { id: 'study-cards', label: tx('Study Cards', 'كروت المذاكرة'), icon: <FileText className="w-4 h-4" /> },
                             ].map((tab) => (
                                 <button
                                     key={tab.id}
@@ -1345,7 +1345,7 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                                 <div className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Completion</div>
                                                 <div className="text-4xl font-black text-indigo-500 mb-4">{subjectProgress}%</div>
                                                 <div className="w-full h-2 bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden mb-2">
-                                                    <div className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-700" style={{ width: `${subjectProgress}%` }} />
+                                                    <div className="h-full bg-indigo-500 transition-all duration-700" style={{ width: `${subjectProgress}%` }} />
                                                 </div>
                                                 <div className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-tight">
                                                     {totalAnsweredQuestions} / {totalQuestionsInRoad} Qs ({totalRemainingQuestions} remaining)
@@ -1409,7 +1409,7 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                     </div>
 
                                     <div className="space-y-6">
-                                        <div className="bg-gradient-to-br from-indigo-600 via-purple-600 to-fuchsia-600 rounded-[2.5rem] p-8 text-white shadow-xl shadow-indigo-500/20">
+                                        <div className="bg-indigo-600 rounded-[2.5rem] p-8 text-white shadow-xl shadow-indigo-500/20">
                                             {(() => {
                                                 const nextPoolStatus = nextQuiz ? getQuizPoolStatus(nextQuiz, attempts) : null;
                                                 const isNextInProgress = nextPoolStatus?.isPool && nextPoolStatus.hasStarted && !nextPoolStatus.isFullyCompleted;
@@ -1486,7 +1486,6 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                             <div className="flex flex-wrap gap-2">
                                                 <button onClick={() => setActiveTab('quizzes')} className="px-4 py-2 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-black text-xs uppercase tracking-widest border border-indigo-500/20 hover:bg-indigo-500/15">Quizzes</button>
                                                 <button onClick={() => setActiveTab('roadmap')} className="px-4 py-2 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-black text-xs uppercase tracking-widest border border-emerald-500/20 hover:bg-emerald-500/15">Roadmap</button>
-                                                <button onClick={() => setActiveTab('study-cards')} className="px-4 py-2 rounded-xl bg-orange-500/10 text-orange-600 dark:text-orange-400 font-black text-xs uppercase tracking-widest border border-orange-500/20 hover:bg-orange-500/15">Study Cards</button>
                                             </div>
                                         </div>
                                     </div>
@@ -1529,33 +1528,21 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                         const attempted = hasAttempted(quizId);
                                         const locked = isQuizLocked(quiz);
 
-                                        const glowGradient = poolStatus.isPool
-                                            ? poolStatus.isFullyCompleted
-                                                ? 'from-emerald-500 to-teal-500'
-                                                : poolStatus.hasStarted
-                                                    ? 'from-blue-500 via-indigo-500 to-purple-500'
-                                                    : 'from-indigo-500 to-purple-500'
-                                            : attempted
-                                                ? 'from-emerald-500 to-teal-500'
-                                                : 'from-indigo-500 to-purple-500';
-
                                         return (
                                             <div
                                                 key={quizId}
                                                 onClick={() => !locked && onSelectQuiz(quiz)}
                                                 className={`group relative min-h-[380px] ${!locked ? 'cursor-pointer' : 'cursor-not-allowed'}`}
                                             >
-                                                <div className={`absolute -inset-0.5 bg-gradient-to-br ${glowGradient} rounded-[2.5rem] ${locked ? 'opacity-0' : 'opacity-0 group-hover:opacity-20'} blur-xl transition-all duration-500`} />
-
                                                 <div className={`relative h-full rounded-[2.5rem] p-8 flex flex-col transition-all duration-300 ${
                                                     isBento
                                                         ? 'bg-white text-black border-3 border-black shadow-[5px_5px_0px_#000] hover:shadow-[7px_7px_0px_#000]'
-                                                        : 'bg-white dark:bg-[#11111a] border border-gray-200 dark:border-white/5'
+                                                        : 'bg-white dark:bg-[#141210] border border-gray-200 dark:border-white/5'
                                                 } ${locked ? 'opacity-50 blur-sm' : 'group-hover:-translate-y-2'}`}>
                                                     <div className="flex justify-between items-start mb-6">
                                                         <div className={`transition-transform duration-500 ${
                                                             isBento
-                                                                ? 'w-14 h-14 rounded-2xl bg-[#ddd6fe] text-black border-2.5 border-black shadow-[3px_3px_0px_#000] flex items-center justify-center shrink-0'
+                                                                ? 'w-14 h-14 rounded-2xl bg-[#fed7aa] text-black border-2.5 border-black shadow-[3px_3px_0px_#000] flex items-center justify-center shrink-0'
                                                                 : 'text-5xl text-indigo-500'
                                                         } ${locked ? '' : 'group-hover:scale-110'}`}>
                                                             {(() => {
@@ -1583,7 +1570,7 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                                             ) : poolStatus.hasStarted ? (
                                                                 <div className={`px-2.5 py-1 rounded-xl text-[10px] font-black tracking-wider flex items-center gap-1.5 ${
                                                                     isBento
-                                                                        ? 'bg-[#ddd6fe] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                                                        ? 'bg-[#fed7aa] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
                                                                         : 'bg-blue-500/10 text-blue-500 border border-blue-500/20 shadow-sm'
                                                                 }`}>
                                                                     <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
@@ -1633,8 +1620,8 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                                             {poolStatus.isPool && poolStatus.cycle > 0 && (
                                                                 <span className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${
                                                                     isBento
-                                                                        ? 'bg-purple-100 text-purple-950 border-2 border-black font-black'
-                                                                        : 'bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-500/20'
+                                                                        ? 'bg-teal-100 text-teal-950 border-2 border-black font-black'
+                                                                        : 'bg-teal-500/15 text-teal-600 dark:text-teal-400 border border-teal-500/20'
                                                                 }`}>
                                                                     Cycle {poolStatus.cycle + 1}
                                                                 </span>
@@ -1685,10 +1672,10 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                                                     <div
                                                                         className={`h-full transition-all duration-700 rounded-full ${
                                                                             isBento
-                                                                                ? poolStatus.isFullyCompleted ? 'bg-[#22c55e]' : 'bg-[#8b5cf6]'
+                                                                                ? poolStatus.isFullyCompleted ? 'bg-[#22c55e]' : 'bg-[#0d9488]'
                                                                                 : poolStatus.isFullyCompleted
-                                                                                    ? 'bg-gradient-to-r from-emerald-500 to-teal-400'
-                                                                                    : 'bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500'
+                                                                                    ? 'bg-emerald-500'
+                                                                                    : 'bg-blue-500'
                                                                         }`}
                                                                         style={{ width: `${poolStatus.percentage}%` }}
                                                                     />
@@ -1753,10 +1740,10 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                                                     : isBento
                                                                         ? poolStatus.isFullyCompleted
                                                                             ? 'bg-[#22c55e] text-black hover:bg-[#16a34a] border-2 border-black shadow-[3px_3px_0px_#000] hover:shadow-[4px_4px_0px_#000] active:translate-y-0.5 active:shadow-[1px_1px_0px_#000]'
-                                                                            : 'bg-[#8b5cf6] text-white hover:bg-[#7c3aed] border-2 border-black shadow-[3px_3px_0px_#000] hover:shadow-[4px_4px_0px_#000] active:translate-y-0.5 active:shadow-[1px_1px_0px_#000]'
+                                                                            : 'bg-[#0d9488] text-white hover:bg-[#0f766e] border-2 border-black shadow-[3px_3px_0px_#000] hover:shadow-[4px_4px_0px_#000] active:translate-y-0.5 active:shadow-[1px_1px_0px_#000]'
                                                                         : poolStatus.isPool
                                                                             ? poolStatus.hasStarted && !poolStatus.isFullyCompleted
-                                                                                ? 'bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white shadow-lg shadow-indigo-500/25'
+                                                                                ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-indigo-500/25'
                                                                                 : poolStatus.isFullyCompleted
                                                                                     ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/20 hover:bg-emerald-500'
                                                                                     : 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20 hover:bg-indigo-500'
@@ -1792,7 +1779,7 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                                                     }}
                                                                     className={`px-3.5 py-4 rounded-2xl font-black text-xs transition-all shrink-0 cursor-pointer ${
                                                                         isBento
-                                                                            ? 'bg-white hover:bg-purple-50 text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000] active:translate-y-0.5 active:shadow-[1px_1px_0px_#000]'
+                                                                            ? 'bg-white hover:bg-teal-50 text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000] active:translate-y-0.5 active:shadow-[1px_1px_0px_#000]'
                                                                             : 'bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 hover:scale-105 active:scale-95 shadow-sm'
                                                                     }`}
                                                                     title="Host a Live Classroom Arena game for this quiz"
@@ -1810,7 +1797,7 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                                                     }}
                                                                     className={`p-3.5 rounded-2xl transition-all cursor-pointer flex items-center justify-center shrink-0 ${
                                                                         isBento
-                                                                            ? 'bg-white hover:bg-purple-50 text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000] active:translate-y-0.5 active:shadow-[1px_1px_0px_#000]'
+                                                                            ? 'bg-white hover:bg-teal-50 text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000] active:translate-y-0.5 active:shadow-[1px_1px_0px_#000]'
                                                                             : 'bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20 text-gray-700 dark:text-gray-200 shadow-sm'
                                                                     }`}
                                                                     title="Export PDF Study Sheet"
@@ -1843,28 +1830,16 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                         const attempted = hasAttempted(quizId);
                                         const locked = isQuizLocked(quiz);
 
-                                        const glowGradient = poolStatus.isPool
-                                            ? poolStatus.isFullyCompleted
-                                                ? 'from-emerald-500 to-teal-500'
-                                                : poolStatus.hasStarted
-                                                    ? 'from-orange-500 via-red-500 to-pink-500'
-                                                    : 'from-red-500 to-pink-500'
-                                            : attempted
-                                                ? 'from-orange-500 to-red-500'
-                                                : 'from-red-500 to-pink-500';
-
                                         return (
                                             <div
                                                 key={quizId}
                                                 onClick={() => !locked && onSelectQuiz(quiz)}
                                                 className={`group relative min-h-[380px] ${!locked ? 'cursor-pointer' : 'cursor-not-allowed'}`}
                                             >
-                                                <div className={`absolute -inset-0.5 bg-gradient-to-br ${glowGradient} rounded-[2.5rem] ${locked ? 'opacity-0' : 'opacity-0 group-hover:opacity-20'} blur-xl transition-all duration-500`} />
-
                                                 <div className={`relative h-full rounded-[2.5rem] p-8 flex flex-col transition-all duration-300 ${
                                                      isBento
                                                          ? 'bg-white text-black border-3 border-black shadow-[5px_5px_0px_#000] hover:shadow-[7px_7px_0px_#000]'
-                                                         : 'bg-white dark:bg-[#11111a] border border-gray-200 dark:border-white/5'
+                                                         : 'bg-white dark:bg-[#141210] border border-gray-200 dark:border-white/5'
                                                  } ${locked ? 'opacity-50 blur-sm' : 'group-hover:-translate-y-2'}`}>
                                                      <div className="flex justify-between items-start mb-6">
                                                          <div className={`transition-transform duration-500 ${
@@ -1947,8 +1922,8 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                                              {poolStatus.isPool && poolStatus.cycle > 0 && (
                                                                  <span className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${
                                                                      isBento
-                                                                         ? 'bg-purple-100 text-purple-950 border-2 border-black font-black'
-                                                                         : 'bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-500/20'
+                                                                         ? 'bg-teal-100 text-teal-950 border-2 border-black font-black'
+                                                                         : 'bg-teal-500/15 text-teal-600 dark:text-teal-400 border border-teal-500/20'
                                                                  }`}>
                                                                      Cycle {poolStatus.cycle + 1}
                                                                  </span>
@@ -2001,8 +1976,8 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                                                              isBento
                                                                                  ? poolStatus.isFullyCompleted ? 'bg-[#22c55e]' : 'bg-[#f97316]'
                                                                                  : poolStatus.isFullyCompleted
-                                                                                     ? 'bg-gradient-to-r from-emerald-500 to-teal-400'
-                                                                                     : 'bg-gradient-to-r from-orange-500 via-red-500 to-pink-500'
+                                                                                     ? 'bg-emerald-500'
+                                                                                     : 'bg-orange-500'
                                                                          }`}
                                                                          style={{ width: `${poolStatus.percentage}%` }}
                                                                      />
@@ -2070,7 +2045,7 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                                                              : 'bg-[#f97316] text-white hover:bg-[#ea580c] border-2 border-black shadow-[3px_3px_0px_#000] hover:shadow-[4px_4px_0px_#000] active:translate-y-0.5 active:shadow-[1px_1px_0px_#000]'
                                                                          : poolStatus.isPool
                                                                              ? poolStatus.hasStarted && !poolStatus.isFullyCompleted
-                                                                                 ? 'bg-gradient-to-r from-orange-600 via-red-600 to-pink-600 hover:from-orange-500 hover:to-pink-500 text-white shadow-lg shadow-orange-500/25'
+                                                                                 ? 'bg-orange-600 hover:bg-orange-500 text-white shadow-lg shadow-orange-500/25'
                                                                                  : poolStatus.isFullyCompleted
                                                                                      ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/20 hover:bg-emerald-500'
                                                                                      : 'bg-orange-600 text-white shadow-lg shadow-orange-500/20 hover:bg-orange-500'
@@ -2148,76 +2123,6 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                 </div>
                             )}
 
-                            {activeTab === 'study-cards' && (
-                                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-8">
-                                    {(() => {
-                                        const cardsForRoad = (studyCards || []).filter(c => c.subjectId === selectedSubjectId);
-                                        const moduleMap: Record<string, StudyCard[]> = {};
-                                        for (const c of cardsForRoad) {
-                                            const key = c.moduleId || 'general';
-                                            if (!moduleMap[key]) moduleMap[key] = [];
-                                            moduleMap[key].push(c);
-                                        }
-
-                                        const renderStacks = (cards: StudyCard[]) => {
-                                            const stacks = Array.from(new Set(cards.map(c => c.category || 'Uncategorized')));
-                                            return (
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                    {stacks.map(stack => {
-                                                        const stackCards = cards.filter(c => (c.category || 'Uncategorized') === stack);
-                                                        return (
-                                                            <div key={stack} className="bg-white/40 dark:bg-white/5 backdrop-blur-xl rounded-[2.5rem] p-6 border border-white/20 dark:border-white/5">
-                                                                <div className="flex items-center justify-between mb-4">
-                                                                    <h4 className="text-lg font-black text-gray-900 dark:text-white">{stack}</h4>
-                                                                    <span className="text-xs font-black text-gray-500 dark:text-gray-400">{stackCards.length} cards</span>
-                                                                </div>
-                                                                <div className="space-y-4">
-                                                                    {stackCards.map(card => (
-                                                                        <div key={card.id} className="p-4 rounded-xl bg-white/60 dark:bg-white/10 border border-white/20 dark:border-white/5">
-                                                                            <h5 className="text-base font-bold text-gray-900 dark:text-white">{card.title}</h5>
-                                                                            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-3">{card.content}</p>
-                                                                        </div>
-                                                                    ))}
-                                                                </div>
-                                                            </div>
-                                                        );
-                                                    })}
-                                                </div>
-                                            );
-                                        };
-
-                                        const moduleOrder = Object.keys(moduleMap);
-                                        return moduleOrder.length === 0 ? (
-                                            <div className="py-20 text-center bg-white/40 dark:bg-white/5 rounded-[2.5rem] border-2 border-dashed border-gray-200 dark:border-white/10">
-                                                <FileText className="w-12 h-12 mx-auto mb-4 opacity-20" />
-                                                <h3 className="text-xl font-black text-gray-400 uppercase">No study cards</h3>
-                                                <p className="text-gray-500 font-medium">Coming soon! Quick-review cards for this subject.</p>
-                                            </div>
-                                        ) : (
-                                            moduleOrder.map(moduleId => {
-                                                const isGeneral = moduleId === 'general';
-                                                const moduleTitle = isGeneral ? 'General' : (() => {
-                                                    const allTracks = (skillTracks || []).filter(t => t.subjectId === selectedSubjectId);
-                                                    for (const t of allTracks) {
-                                                        const m = (t.modules || []).find(mm => mm.moduleId === moduleId);
-                                                        if (m) return m.title;
-                                                    }
-                                                    return 'Module';
-                                                })();
-                                                return (
-                                                    <div key={moduleId} className="space-y-4">
-                                                        <div className="flex items-center gap-3">
-                                                            <FileText className="w-4 h-4 text-indigo-500" />
-                                                            <h3 className="text-xl font-black text-gray-900 dark:text-white">{moduleTitle}</h3>
-                                                        </div>
-                                                        {renderStacks(moduleMap[moduleId])}
-                                                    </div>
-                                                );
-                                            })
-                                        );
-                                    })()}
-                                </div>
-                            )}
                         </div>
                     </div>
                 )}
@@ -2280,7 +2185,7 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
             )}
 
             {/* Global Footer */}
-            <Footer />
+            {!inPersistentShell && <Footer />}
         </div>
     );
 };

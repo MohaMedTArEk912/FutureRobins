@@ -108,7 +108,7 @@
       }
     },
     {
-      "src": "/(tracks|study|leaderboard|tournaments|live-arena|dashboard|quizzes|study-cards|classroom)/?$",
+      "src": "/(tracks|leaderboard|tournaments|live-arena|dashboard|quizzes|classroom)/?$",
       "dest": "/pages/$1.html",
       "headers": {
         "X-Content-Type-Options": "nosniff",

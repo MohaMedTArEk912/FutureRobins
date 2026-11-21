@@ -256,8 +256,7 @@ const VSGame: React.FC<VSGameProps> = ({ quiz, currentUser, opponent, roomId, on
 
     if (gameState === 'waiting') {
         return (
-            <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center p-8 text-white relative overflow-hidden p-safe">
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-900/40 via-gray-900 to-black pointer-events-none"></div>
+            <div className="min-h-screen bg-transparent flex flex-col items-center justify-center p-8 text-white relative overflow-hidden p-safe">
 
                 <div className="z-10 bg-slate-800/50 p-12 rounded-3xl border border-white/10 backdrop-blur-xl shadow-2xl text-center max-w-md w-full animate-in zoom-in duration-500">
                     <div className="w-24 h-24 mx-auto mb-6 relative">
@@ -288,7 +287,6 @@ const VSGame: React.FC<VSGameProps> = ({ quiz, currentUser, opponent, roomId, on
     if (gameState === 'countdown') {
         return (
             <div className="min-h-screen bg-indigo-600 flex items-center justify-center relative overflow-hidden p-safe">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/20 to-transparent animate-pulse"></div>
                 <div key={countdown} className="text-[15rem] md:text-[20rem] font-black text-white drop-shadow-2xl animate-in zoom-in duration-300">
                     {countdown > 0 ? countdown : "GO!"}
                 </div>
@@ -301,7 +299,7 @@ const VSGame: React.FC<VSGameProps> = ({ quiz, currentUser, opponent, roomId, on
         const isDraw = gameResult?.isDraw;
 
         return (
-            <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center text-white relative overflow-hidden p-safe">
+            <div className="min-h-screen bg-transparent flex flex-col items-center justify-center text-white relative overflow-hidden p-safe">
                 <div className={`absolute inset-0 opacity-40 ${iWon ? 'bg-green-900' : isDraw ? 'bg-yellow-900' : 'bg-red-900'}`}></div>
 
                 <div className="z-10 text-center max-w-lg w-full p-8 bg-black/40 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl animate-in fade-in zoom-in duration-500">
@@ -350,7 +348,7 @@ const VSGame: React.FC<VSGameProps> = ({ quiz, currentUser, opponent, roomId, on
     return (
         <div className="h-screen w-full bg-gray-900 border-x border-gray-800 flex flex-col md:flex-row overflow-hidden pt-safe pb-safe">
             {/* LEFT SIDE: MY GAME */}
-            <div className="flex-1 h-1/2 md:h-full overflow-y-auto border-r border-gray-800 bg-gray-50 dark:bg-slate-900/50 relative">
+            <div className="flex-1 h-1/2 md:h-full overflow-y-auto border-r border-gray-800 bg-gray-50 dark:bg-[#141210]/50 relative">
                 {/* Badge for Mobile */}
                 <div className="md:hidden absolute top-2 left-2 z-20 bg-indigo-600 text-white px-2 py-0.5 rounded text-xs font-bold shadow-sm mt-safe ml-safe">
                     YOU
@@ -399,7 +397,6 @@ const VSGame: React.FC<VSGameProps> = ({ quiz, currentUser, opponent, roomId, on
             {/* RIGHT SIDE: COMPACT OPPONENT & LIVE STATUS */}
             <div className="w-full md:w-80 lg:w-96 h-1/2 md:h-full bg-slate-900 text-white p-4 flex flex-col relative overflow-hidden">
                 {/* Background Decor */}
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-900/40 via-slate-900 to-slate-900 pointer-events-none"></div>
 
                 {/* Compact Header */}
                 <div className="z-10 flex items-center justify-between mb-4">
@@ -428,7 +425,7 @@ const VSGame: React.FC<VSGameProps> = ({ quiz, currentUser, opponent, roomId, on
                     title={`View ${opponent.name}'s profile`}
                 >
                     <div className="relative group-hover:scale-105 transition-transform">
-                        <div className="w-14 h-14 rounded-full p-0.5 bg-gradient-to-tr from-orange-500 to-pink-500">
+                        <div className="w-14 h-14 rounded-full p-0.5 bg-orange-500">
                             <div className="w-full h-full rounded-full overflow-hidden bg-slate-800 border-2 border-slate-900">
                                 {opponent.avatar ? (
                                     <Avatar config={opponent.avatar} size="md" className="w-full h-full" />
@@ -547,7 +544,7 @@ const VSGame: React.FC<VSGameProps> = ({ quiz, currentUser, opponent, roomId, on
                             </div>
                             <div className="h-4 bg-slate-800/50 rounded-full w-full relative border border-slate-700/50 overflow-hidden">
                                 <div
-                                    className="absolute top-0 left-0 h-full bg-gradient-to-r from-indigo-500 via-indigo-400 to-indigo-500 transition-all duration-500 ease-out shadow-lg shadow-indigo-500/50"
+                                    className="absolute top-0 left-0 h-full bg-indigo-500 transition-all duration-500 ease-out shadow-lg shadow-indigo-500/50"
                                     style={{ width: `${getProgressPercent(myProgress)}%` }}
                                 />
                                 {myProgress > 0 && (
@@ -564,7 +561,7 @@ const VSGame: React.FC<VSGameProps> = ({ quiz, currentUser, opponent, roomId, on
                             </div>
                             <div className="h-4 bg-slate-800/50 rounded-full w-full relative border border-slate-700/50 overflow-hidden">
                                 <div
-                                    className="absolute top-0 left-0 h-full bg-gradient-to-r from-red-500 via-red-400 to-red-500 transition-all duration-700 ease-out shadow-lg shadow-red-500/50"
+                                    className="absolute top-0 left-0 h-full bg-red-500 transition-all duration-700 ease-out shadow-lg shadow-red-500/50"
                                     style={{ width: `${getProgressPercent(opponentState.currentQuestion)}%` }}
                                 />
                                 {opponentState.currentQuestion > 0 && (

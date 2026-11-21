@@ -37,14 +37,14 @@ const RoadHeader: React.FC<RoadHeaderProps> = ({
             <div className={`p-4 sm:p-5 rounded-3xl mb-2 flex flex-col sm:flex-row justify-between items-center gap-4 transition-all ${
                 isBento
                     ? 'bg-white text-black border-[2.5px] border-black shadow-[4px_4px_0px_#000]'
-                    : 'bg-white/60 dark:bg-[#1e1e2d]/60 backdrop-blur-xl border border-white/20 dark:border-white/5 shadow-sm'
+                    : 'bg-white/60 dark:bg-[#1c1917]/60 backdrop-blur-xl border border-white/20 dark:border-white/5 shadow-sm'
             }`}>
                 <div>
                     <h2 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white flex items-center gap-3">
                         <div className={`p-2 rounded-xl ${isBento ? 'bg-[#fef08a] border-2 border-black text-black' : 'bg-indigo-500/10 text-indigo-500'}`}>
                             <Layout className="w-7 h-7" />
                         </div>
-                        <span className={isBento ? 'text-black' : 'text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400'}>
+                        <span className={isBento ? 'text-black' : 'text-indigo-600 dark:text-[#bef264]'}>
                             Learning Roads
                         </span>
                     </h2>
@@ -76,12 +76,12 @@ const RoadHeader: React.FC<RoadHeaderProps> = ({
                             onClick={onOpenImport}
                             className={`px-4 py-2.5 rounded-xl font-bold transition-all flex items-center gap-2 text-xs sm:text-sm cursor-pointer ${
                                 isBento
-                                    ? 'bg-[#ddd6fe] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#c4b5fd] active:translate-x-0.5 active:translate-y-0.5'
+                                    ? 'bg-[#fed7aa] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#fdba74] active:translate-x-0.5 active:translate-y-0.5'
                                     : 'bg-white dark:bg-[#252538] hover:bg-gray-50 dark:hover:bg-[#2c2c42] text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-white/10 shadow-sm'
                             }`}
                             title="Import roadmaps and quizzes from a ZIP package or JSON file"
                         >
-                            <Upload className="w-4 h-4 text-purple-500" />
+                            <Upload className="w-4 h-4 text-teal-500" />
                             <span>Import (ZIP)</span>
                         </button>
                     )}
@@ -92,7 +92,7 @@ const RoadHeader: React.FC<RoadHeaderProps> = ({
                         className={`px-5 py-2.5 rounded-xl font-bold transition-all flex items-center gap-2 text-xs sm:text-sm cursor-pointer ${
                             isBento
                                 ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:shadow-[4px_4px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5'
-                                : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg shadow-indigo-500/30'
+                                : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/30'
                         }`}
                     >
                         <Plus className="w-4 h-4" /> New Road
@@ -106,7 +106,7 @@ const RoadHeader: React.FC<RoadHeaderProps> = ({
         <div className={`p-3 rounded-2xl mb-4 flex items-center gap-4 transition-all ${
             isBento
                 ? 'bg-white text-black border-2 border-black shadow-[3px_3px_0px_#000]'
-                : 'bg-white/60 dark:bg-[#1e1e2d]/60 backdrop-blur-xl border border-white/20 dark:border-white/5 shadow-sm'
+                : 'bg-white/60 dark:bg-[#1c1917]/60 backdrop-blur-xl border border-white/20 dark:border-white/5 shadow-sm'
         }`}>
             <button
                 onClick={onBack}
@@ -127,7 +127,7 @@ const RoadHeader: React.FC<RoadHeaderProps> = ({
                     <span className="truncate text-gray-700 dark:text-gray-300 font-bold">{selectedRoad?.title || 'Selected'}</span>
                 </div>
                 <h2 className="text-lg sm:text-xl font-black text-gray-900 dark:text-white truncate">
-                    <span className={isBento ? 'text-black' : 'text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400'}>
+                    <span className={isBento ? 'text-black' : 'text-indigo-600 dark:text-[#bef264]'}>
                         {selectedRoad?.title || 'Untitled Road'}
                     </span>
                 </h2>

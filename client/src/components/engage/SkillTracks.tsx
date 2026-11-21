@@ -3,6 +3,7 @@ import type { SkillModule, SkillTrack, UserData, BadgeTree, BadgeNode, Badge, Ba
 import { api } from '../../lib/api';
 import { useTheme } from '../../context/ThemeContext';
 import { useLanguage } from '../../context/LanguageContext';
+import { useData } from '../../context/DataContext';
 import {
   Target,
   Lock,
@@ -39,11 +40,20 @@ interface ModuleNode {
 const SkillTracks: React.FC<SkillTracksProps> = ({ user, onUserUpdate }) => {
   const { isBento } = useTheme();
   const { tx } = useLanguage();
+  const { skillTracks: preloadedTracks } = useData();
   const navigate = useNavigate();
 
-  const [tracks, setTracks] = useState<SkillTrack[]>([]);
+  const [tracks, setTracks] = useState<SkillTrack[]>(() =>
+    Array.isArray(preloadedTracks) && preloadedTracks.length > 0 ? preloadedTracks : []
+  );
   const [badgeTrees, setBadgeTrees] = useState<Record<string, BadgeTree>>({});
-  const [selectedTrackId, setSelectedTrackId] = useState<string | null>(null);
+  const [selectedTrackId, setSelectedTrackId] = useState<string | null>(() => {
+    if (Array.isArray(preloadedTracks) && preloadedTracks.length > 0) {
+      const primary = preloadedTracks.find(t => user?.primaryTrackId && t.subjectId === user.primaryTrackId);
+      return primary ? primary.trackId : preloadedTracks[0].trackId;
+    }
+    return null;
+  });
   const [viewMode, setViewMode] = useState<'odyssey' | 'grid' | 'tree'>('odyssey');
   const [isSoundMuted, setIsSoundMuted] = useState<boolean>(sounds.getIsMuted());
 
@@ -123,7 +133,7 @@ const SkillTracks: React.FC<SkillTracksProps> = ({ user, onUserUpdate }) => {
           particleCount: 150,
           spread: 80,
           origin: { y: 0.6 },
-          colors: ['#A855F7', '#EC4899', '#F59E0B', '#10B981']
+          colors: ['#14b8a6', '#EC4899', '#F59E0B', '#10B981']
         });
       } else {
         setMessage(`${moduleName} conquered! 🎉`);
@@ -235,11 +245,11 @@ const SkillTracks: React.FC<SkillTracksProps> = ({ user, onUserUpdate }) => {
       <div className={`p-6 sm:p-8 rounded-[2.5rem] relative overflow-hidden transition-all ${
         isBento
           ? 'bg-white text-black border-[3px] border-black shadow-[6px_6px_0px_#000]'
-          : 'bg-white/70 dark:bg-[#0c101c]/80 text-slate-900 dark:text-white border border-slate-200/80 dark:border-white/10 shadow-xl backdrop-blur-xl'
+          : 'bg-white/70 dark:bg-[#141210]/80 text-slate-900 dark:text-white border border-slate-200/80 dark:border-white/10 shadow-xl backdrop-blur-xl'
       }`}>
         {/* Subtle Decorative Ambient Orb */}
         {!isBento && (
-          <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-indigo-500/10 via-purple-500/10 to-transparent rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
         )}
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -454,7 +464,7 @@ const SkillTracks: React.FC<SkillTracksProps> = ({ user, onUserUpdate }) => {
             }`}
           >
             {categories.map(c => (
-              <option key={c} value={c} className="bg-white text-black dark:bg-[#0f1422] dark:text-white">{c}</option>
+              <option key={c} value={c} className="bg-white text-black dark:bg-[#141210] dark:text-white">{c}</option>
             ))}
           </select>
           <ChevronDown className={`pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 ${
@@ -523,7 +533,7 @@ const SkillTracks: React.FC<SkillTracksProps> = ({ user, onUserUpdate }) => {
               <div className={`p-8 sm:p-12 rounded-[2.5rem] text-center transition-all relative overflow-hidden ${
                 isBento
                   ? 'bg-white text-black border-[3px] border-black shadow-[6px_6px_0px_#000]'
-                  : 'bg-white/80 dark:bg-[#0c101c]/80 text-slate-900 dark:text-white border border-amber-500/30 shadow-2xl backdrop-blur-xl'
+                  : 'bg-white/80 dark:bg-[#141210]/80 text-slate-900 dark:text-white border border-amber-500/30 shadow-2xl backdrop-blur-xl'
               }`}>
                 <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 ${
                   isBento
@@ -595,7 +605,7 @@ const SkillTracks: React.FC<SkillTracksProps> = ({ user, onUserUpdate }) => {
                             ? 'bg-white text-black border-[3px] border-black shadow-[5px_5px_0px_#000]'
                             : isCompleted
                               ? 'bg-emerald-500/5 dark:bg-[#0c141d] border border-emerald-500/30 shadow-md'
-                              : 'bg-white dark:bg-[#0c101c] border border-slate-200/80 dark:border-white/10 shadow-lg'
+                              : 'bg-white dark:bg-[#141210] border border-slate-200/80 dark:border-white/10 shadow-lg'
                         }`}
                       >
                         <div>
@@ -661,7 +671,7 @@ const SkillTracks: React.FC<SkillTracksProps> = ({ user, onUserUpdate }) => {
             <div className={`p-6 sm:p-8 rounded-[2.5rem] transition-all ${
               isBento
                 ? 'bg-white text-black border-[3px] border-black shadow-[6px_6px_0px_#000]'
-                : 'bg-white/80 dark:bg-[#0c101c]/80 border border-slate-200/80 dark:border-white/10 shadow-lg'
+                : 'bg-white/80 dark:bg-[#141210]/80 border border-slate-200/80 dark:border-white/10 shadow-lg'
             }`}>
               <SkillTreeVisualization
                 trackTitle={activeTrack.title}
@@ -678,7 +688,7 @@ const SkillTracks: React.FC<SkillTracksProps> = ({ user, onUserUpdate }) => {
         <div className={`text-center py-20 rounded-[2.5rem] ${
           isBento
             ? 'bg-white text-black border-[3px] border-black shadow-[6px_6px_0px_#000]'
-            : 'bg-white/80 dark:bg-[#0c101c]/80 border border-dashed border-slate-300 dark:border-white/10'
+            : 'bg-white/80 dark:bg-[#141210]/80 border border-dashed border-slate-300 dark:border-white/10'
         }`}>
           <Target className="w-12 h-12 text-slate-400 mx-auto mb-3 opacity-50" />
           <p className="font-black text-base">No tracks match your current filter</p>

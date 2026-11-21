@@ -115,7 +115,7 @@ const ManageUserTracksModal: React.FC<{
                         className={`flex-[2] py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 ${
                             isBento
                                 ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:shadow-[4px_4px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 font-mono'
-                                : 'bg-purple-600 hover:bg-purple-700 text-white shadow-xl shadow-purple-600/30 hover:scale-105 active:scale-95'
+                                : 'bg-teal-600 hover:bg-teal-700 text-white shadow-xl shadow-teal-600/30 hover:scale-105 active:scale-95'
                         }`}
                     >
                         {saving ? 'Saving...' : 'Save Permissions'}
@@ -619,7 +619,7 @@ const RoadmapEditorModal: React.FC<{
                             className={`px-7 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all cursor-pointer active:scale-95 ${
                                 isBento
                                     ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:shadow-[4px_4px_0px_#000] hover:-translate-y-0.5'
-                                    : 'bg-purple-600 hover:bg-purple-700 text-white shadow-lg hover:shadow-purple-500/25 hover:-translate-y-0.5'
+                                    : 'bg-teal-600 hover:bg-teal-700 text-white shadow-lg hover:shadow-teal-500/25 hover:-translate-y-0.5'
                             }`}
                         >
                             Save Changes
@@ -639,7 +639,7 @@ const RoadmapEditorModal: React.FC<{
                             className={`w-full p-3.5 rounded-xl appearance-none focus:outline-none cursor-pointer font-bold text-sm ${
                                 isBento
                                     ? 'bg-white text-black border-2 border-black shadow-[3px_3px_0px_#000]'
-                                    : 'bg-gray-50 dark:bg-[#1a1b26] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500/50'
+                                    : 'bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/10 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500/50'
                             }`}
                             value={selectedTrack}
                             onChange={e => setSelectedTrack(e.target.value)}
@@ -670,7 +670,7 @@ const RoadmapEditorModal: React.FC<{
                             {/* Stat Chips */}
                             <div className="flex items-center gap-2 flex-wrap">
                                 <span className={`px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 ${
-                                    isBento ? 'bg-[#ddd6fe] text-black border border-black' : 'bg-indigo-500/10 text-indigo-500'
+                                    isBento ? 'bg-[#fed7aa] text-black border border-black' : 'bg-indigo-500/10 text-indigo-500'
                                 }`}>
                                     <Layers className="w-3.5 h-3.5" />
                                     <span>{totalStats.total} Total Modules</span>
@@ -743,7 +743,7 @@ const RoadmapEditorModal: React.FC<{
                         <div className={`p-4 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-3 ${
                             isBento
                                 ? 'bg-[#fef9c3] text-black border-2 border-black shadow-[3px_3px_0px_#000]'
-                                : 'bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 border border-indigo-500/20 text-gray-900 dark:text-white'
+                                : 'bg-indigo-500/10 border border-indigo-500/20 text-gray-900 dark:text-white'
                         }`}>
                             <div className="flex items-center gap-2">
                                 <Sparkles className="w-4 h-4 text-amber-500" />
@@ -756,7 +756,7 @@ const RoadmapEditorModal: React.FC<{
                                     className={`px-3 py-1.5 rounded-xl text-xs font-black cursor-pointer ${
                                         isBento
                                             ? 'bg-white text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]'
-                                            : 'bg-white dark:bg-[#1a1b26] border border-gray-300 dark:border-white/20 text-gray-900 dark:text-white'
+                                            : 'bg-white dark:bg-[#1c1917] border border-gray-300 dark:border-white/20 text-gray-900 dark:text-white'
                                     }`}
                                 >
                                     {sortedLevels.map(lvl => (
@@ -866,7 +866,7 @@ const RoadmapEditorModal: React.FC<{
                         {selectedModuleIds.size > 0 && (
                             <div className={`p-3 rounded-2xl flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2 duration-150 ${
                                 isBento
-                                    ? 'bg-[#ddd6fe] text-black border-2 border-black shadow-[3px_3px_0px_#000]'
+                                    ? 'bg-[#fed7aa] text-black border-2 border-black shadow-[3px_3px_0px_#000]'
                                     : 'bg-indigo-600 text-white shadow-lg'
                             }`}>
                                 <div className="flex items-center gap-2 text-xs font-black">
@@ -942,7 +942,7 @@ const RoadmapEditorModal: React.FC<{
                                             className={`rounded-2xl overflow-hidden transition-all ${
                                                 isBento
                                                     ? 'bg-white border-2 border-black shadow-[3px_3px_0px_#000]'
-                                                    : 'bg-white dark:bg-[#13141f] border border-gray-200 dark:border-white/10 shadow-sm'
+                                                    : 'bg-white dark:bg-[#141210] border border-gray-200 dark:border-white/10 shadow-sm'
                                             }`}
                                         >
                                             {/* Level Header Bar with Direct Level Controls */}
@@ -1066,7 +1066,7 @@ const RoadmapEditorModal: React.FC<{
                                                             statusColor = 'text-indigo-500 font-bold';
                                                             icon = <Unlock size={15} />;
                                                             borderBgClass = isBento
-                                                                ? 'bg-[#f5f3ff] border-2 border-indigo-600'
+                                                                ? 'bg-[#fff7ed] border-2 border-indigo-600'
                                                                 : 'bg-indigo-500/10 border-indigo-500/30';
                                                         }
 
@@ -1256,7 +1256,7 @@ const CreateUserModal: React.FC<{
                         className={`flex-[2] py-3 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all transform cursor-pointer disabled:opacity-50 ${
                             isBento
                                 ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:shadow-[4px_4px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 font-mono'
-                                : 'bg-purple-600 hover:bg-purple-700 text-white shadow-xl shadow-purple-600/30 hover:shadow-purple-600/50 hover:-translate-y-1'
+                                : 'bg-teal-600 hover:bg-teal-700 text-white shadow-xl shadow-teal-600/30 hover:shadow-teal-600/50 hover:-translate-y-1'
                         }`}
                     >
                         {isLoading ? 'Processing...' : 'Create Identity'}
@@ -1271,7 +1271,7 @@ const CreateUserModal: React.FC<{
                         placeholder="e.g. Neo Anderson"
                         value={name}
                         onChange={e => setName(e.target.value)}
-                        className="w-full bg-gray-50 dark:bg-[#1a1b26] border border-gray-200 dark:border-gray-800 focus:ring-2 focus:ring-indigo-500/50 rounded-xl px-5 py-4 text-gray-900 dark:text-white font-bold outline-none transition-all placeholder:text-gray-400"
+                        className="w-full bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/10 focus:ring-2 focus:ring-indigo-500/50 rounded-xl px-5 py-4 text-gray-900 dark:text-white font-bold outline-none transition-all placeholder:text-gray-400"
                     />
                 </div>
 
@@ -1282,7 +1282,7 @@ const CreateUserModal: React.FC<{
                         placeholder="e.g. neo@matrix.com"
                         value={email}
                         onChange={e => setEmail(e.target.value)}
-                        className="w-full bg-gray-50 dark:bg-[#1a1b26] border border-gray-200 dark:border-gray-800 focus:ring-2 focus:ring-indigo-500/50 rounded-xl px-5 py-4 text-gray-900 dark:text-white font-bold outline-none transition-all placeholder:text-gray-400"
+                        className="w-full bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/10 focus:ring-2 focus:ring-indigo-500/50 rounded-xl px-5 py-4 text-gray-900 dark:text-white font-bold outline-none transition-all placeholder:text-gray-400"
                     />
                 </div>
 
@@ -1294,7 +1294,7 @@ const CreateUserModal: React.FC<{
                             placeholder="Secure code (min. 6 chars)"
                             value={password}
                             onChange={e => setPassword(e.target.value)}
-                            className="w-full bg-gray-50 dark:bg-[#1a1b26] border border-gray-200 dark:border-gray-800 focus:ring-2 focus:ring-indigo-500/50 rounded-xl px-5 py-4 text-gray-900 dark:text-white font-bold outline-none transition-all pr-14 placeholder:text-gray-400"
+                            className="w-full bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/10 focus:ring-2 focus:ring-indigo-500/50 rounded-xl px-5 py-4 text-gray-900 dark:text-white font-bold outline-none transition-all pr-14 placeholder:text-gray-400"
                         />
                         <button
                             type="button"
@@ -1547,7 +1547,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
             {/* Role Split Tabs: Students vs Teachers */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className={`inline-flex p-1.5 rounded-2xl gap-1.5 ${
-                    isBento ? 'bg-white border-2 border-black shadow-[3px_3px_0px_#000]' : 'bg-white/70 dark:bg-[#1e1e2d]/80 border border-gray-200/80 dark:border-white/10'
+                    isBento ? 'bg-white border-2 border-black shadow-[3px_3px_0px_#000]' : 'bg-white/70 dark:bg-[#1c1917]/80 border border-gray-200/80 dark:border-white/10'
                 }`}>
                     <button
                         type="button"
@@ -1609,9 +1609,9 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
                 <div className={`flex-1 p-3 px-5 rounded-2xl sm:rounded-3xl transition-all flex items-center gap-3 sm:gap-4 ${
                     isBento
                         ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                        : 'bg-white/60 dark:bg-[#1e1e2d]/60 backdrop-blur-xl border border-gray-200/80 dark:border-white/5 shadow-sm focus-within:border-purple-500/50'
+                        : 'bg-white/60 dark:bg-[#1c1917]/60 backdrop-blur-xl border border-gray-200/80 dark:border-white/5 shadow-sm focus-within:border-teal-500/50'
                 }`}>
-                    <Search className={`w-5 h-5 shrink-0 ${isBento ? 'text-black' : 'text-purple-600 dark:text-purple-400'}`} />
+                    <Search className={`w-5 h-5 shrink-0 ${isBento ? 'text-black' : 'text-teal-600 dark:text-teal-400'}`} />
                     <input
                         type="text"
                         placeholder="Search identities by name or email..."
@@ -1627,7 +1627,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
                     className={`flex items-center justify-center gap-2.5 px-6 sm:px-8 py-3 rounded-2xl sm:rounded-3xl transition-all cursor-pointer ${
                         isBento
                             ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:shadow-[4px_4px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 font-mono'
-                            : 'bg-purple-600 hover:bg-purple-700 dark:bg-purple-600 dark:hover:bg-purple-500 text-white shadow-lg shadow-purple-600/25 hover:shadow-purple-600/40 hover:-translate-y-0.5 active:scale-95'
+                            : 'bg-teal-600 hover:bg-teal-700 dark:bg-teal-600 dark:hover:bg-teal-500 text-white shadow-lg shadow-teal-600/25 hover:shadow-teal-600/40 hover:-translate-y-0.5 active:scale-95'
                     }`}
                 >
                     <Users className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform group-hover:scale-110 ${isBento ? 'text-black' : 'text-white'}`} />
@@ -1638,10 +1638,10 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
                 <div className={`hidden lg:flex items-center gap-3 px-6 py-3 rounded-2xl sm:rounded-3xl ${
                     isBento
                         ? 'bg-[#bae6fd] text-black border-2 border-black shadow-[2px_2px_0px_#000] font-mono'
-                        : 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20'
+                        : 'bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20'
                 }`}>
-                    <Users className={`w-5 h-5 ${isBento ? 'text-black' : 'text-purple-600 dark:text-purple-400'}`} />
-                    <span className={`text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap ${isBento ? 'text-black font-mono' : 'text-purple-600 dark:text-purple-400'}`}>
+                    <Users className={`w-5 h-5 ${isBento ? 'text-black' : 'text-teal-600 dark:text-teal-400'}`} />
+                    <span className={`text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap ${isBento ? 'text-black font-mono' : 'text-teal-600 dark:text-teal-400'}`}>
                         Showing: {filteredUsers.length} {activeRoleTab === 'teacher' ? 'Teachers' : 'Students'}
                     </span>
                 </div>
@@ -1678,11 +1678,11 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
                             className={`rounded-2xl sm:rounded-3xl p-5 sm:p-6 transition-all relative overflow-hidden flex flex-col ${
                                 isBento
                                     ? 'bg-white text-black border-2 border-black shadow-[4px_4px_0px_#000] hover:shadow-[6px_6px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 font-mono'
-                                    : 'bg-white/60 dark:bg-[#1e1e2d]/60 backdrop-blur-xl border border-gray-200/80 dark:border-white/5 hover:border-purple-500/30 shadow-sm hover:shadow-xl group'
+                                    : 'bg-white/60 dark:bg-[#1c1917]/60 backdrop-blur-xl border border-gray-200/80 dark:border-white/5 hover:border-teal-500/30 shadow-sm hover:shadow-xl group'
                             }`}
                         >
                             {!isBento && (
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 rounded-bl-full -mr-16 -mt-16 pointer-events-none group-hover:bg-purple-500/10 transition-colors" />
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-teal-500/5 rounded-bl-full -mr-16 -mt-16 pointer-events-none group-hover:bg-teal-500/10 transition-colors" />
                             )}
 
                             {/* Card Header: Avatar & Info */}
@@ -1690,19 +1690,19 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
                                 <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl overflow-hidden shrink-0 transition-transform ${
                                     isBento
                                         ? 'bg-[#fde047] border-2 border-black shadow-[2px_2px_0px_#000]'
-                                        : 'bg-gradient-to-br from-purple-500 to-indigo-600 p-0.5 shadow-lg group-hover:scale-105'
+                                        : 'bg-teal-500 p-0.5 shadow-lg group-hover:scale-105'
                                 }`}>
                                     <div
                                         onClick={() => openUserProfile(userId)}
                                         className={`w-full h-full rounded-[10px] sm:rounded-[14px] overflow-hidden flex items-center justify-center cursor-pointer hover:scale-105 transition-transform ${
-                                            isBento ? 'bg-[#fde047]' : 'bg-white dark:bg-[#1e1e2d]'
+                                            isBento ? 'bg-[#fde047]' : 'bg-white dark:bg-[#1c1917]'
                                         }`}
                                         title="View Public Profile"
                                     >
                                         {user.avatar ? (
                                             <Avatar config={user.avatar} size="md" className="w-full h-full" />
                                         ) : (
-                                            <span className={`font-black text-xl ${isBento ? 'text-black font-mono' : 'text-purple-600 dark:text-purple-400'}`}>
+                                            <span className={`font-black text-xl ${isBento ? 'text-black font-mono' : 'text-teal-600 dark:text-teal-400'}`}>
                                                 {(user.name || userId || 'U').charAt(0)}
                                             </span>
                                         )}
@@ -1712,7 +1712,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
                                     <h3
                                         onClick={() => openUserProfile(userId)}
                                         className={`font-black uppercase tracking-tight text-base sm:text-lg leading-tight truncate cursor-pointer ${
-                                            isBento ? 'text-black font-mono hover:underline' : 'text-gray-900 dark:text-white group-hover:text-purple-600 hover:underline transition-colors'
+                                            isBento ? 'text-black font-mono hover:underline' : 'text-gray-900 dark:text-white group-hover:text-teal-600 hover:underline transition-colors'
                                         }`}
                                         title="View Public Profile"
                                     >
@@ -1768,7 +1768,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
                                     <button
                                         onClick={() => setManagingTrackAccess({ ...user, userId })}
                                         className={`p-2 rounded-xl transition-all cursor-pointer ${
-                                            isBento ? 'bg-white hover:bg-[#fde047] text-black border border-black shadow-[1.5px_1.5px_0px_#000]' : 'text-purple-400 hover:bg-purple-500/10 hover:scale-110'
+                                            isBento ? 'bg-white hover:bg-[#fde047] text-black border border-black shadow-[1.5px_1.5px_0px_#000]' : 'text-teal-400 hover:bg-teal-500/10 hover:scale-110'
                                         }`}
                                         title="Manage Track Permissions"
                                     >
@@ -1815,7 +1815,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
                                     isBento ? 'bg-[#f8fafc] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]' : 'bg-gray-50/50 dark:bg-black/20 border border-white/5'
                                 }`}>
                                     <div className="flex items-center gap-2 mb-1">
-                                        <BarChart3 className={`w-3.5 h-3.5 ${isBento ? 'text-black' : 'text-purple-500'}`} />
+                                        <BarChart3 className={`w-3.5 h-3.5 ${isBento ? 'text-black' : 'text-teal-500'}`} />
                                         <span className={`text-[9px] font-black uppercase tracking-widest ${isBento ? 'text-black/60 font-mono' : 'text-gray-400'}`}>Avg Score</span>
                                     </div>
                                     <div className={`text-sm font-black ${isBento ? 'text-black font-mono' : 'text-gray-900 dark:text-white'}`}>{avgScore}%</div>
@@ -1828,7 +1828,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
                                 className={`w-full py-3 rounded-xl sm:rounded-2xl transition-all font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 mt-auto cursor-pointer ${
                                     isBento
                                         ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 font-mono'
-                                        : 'bg-white/40 dark:bg-white/5 hover:bg-purple-500/10 text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 border border-gray-200/80 dark:border-white/10'
+                                        : 'bg-white/40 dark:bg-white/5 hover:bg-teal-500/10 text-gray-600 dark:text-gray-400 hover:text-teal-600 dark:hover:text-teal-400 border border-gray-200/80 dark:border-white/10'
                                 }`}
                             >
                                 <BarChart3 className="w-4 h-4" />
@@ -1943,7 +1943,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
                             className={`flex-[2] py-3 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all transform cursor-pointer ${
                                 isBento
                                     ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:shadow-[4px_4px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 font-mono'
-                                    : 'bg-purple-600 hover:bg-purple-700 text-white shadow-xl shadow-purple-600/30 hover:shadow-purple-600/50 hover:-translate-y-1'
+                                    : 'bg-teal-600 hover:bg-teal-700 text-white shadow-xl shadow-teal-600/30 hover:shadow-teal-600/50 hover:-translate-y-1'
                             }`}
                         >
                             Update Identity
@@ -1958,7 +1958,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
                             placeholder="e.g. John Wick"
                             value={editingUser?.name || ''}
                             onChange={e => editingUser && setEditingUser({ ...editingUser, name: e.target.value })}
-                            className="w-full bg-gray-50 dark:bg-[#1a1b26] border border-gray-200 dark:border-gray-800 focus:ring-2 focus:ring-indigo-500/50 rounded-xl px-5 py-4 text-gray-900 dark:text-white font-bold outline-none transition-all placeholder:text-gray-400"
+                            className="w-full bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/10 focus:ring-2 focus:ring-indigo-500/50 rounded-xl px-5 py-4 text-gray-900 dark:text-white font-bold outline-none transition-all placeholder:text-gray-400"
                         />
                     </div>
 
@@ -1968,7 +1968,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
                             placeholder="e.g. wick@continental.com"
                             value={editingUser?.email || ''}
                             onChange={e => editingUser && setEditingUser({ ...editingUser, email: e.target.value })}
-                            className="w-full bg-gray-50 dark:bg-[#1a1b26] border border-gray-200 dark:border-gray-800 focus:ring-2 focus:ring-indigo-500/50 rounded-xl px-5 py-4 text-gray-900 dark:text-white font-bold outline-none transition-all placeholder:text-gray-400"
+                            className="w-full bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/10 focus:ring-2 focus:ring-indigo-500/50 rounded-xl px-5 py-4 text-gray-900 dark:text-white font-bold outline-none transition-all placeholder:text-gray-400"
                         />
                     </div>
 
@@ -2010,7 +2010,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
                                 placeholder="Secure blank for status quo"
                                 value={editingUser?.password || ''}
                                 onChange={e => editingUser && setEditingUser({ ...editingUser, password: e.target.value })}
-                                className="w-full bg-gray-50 dark:bg-[#1a1b26] border border-gray-200 dark:border-gray-800 focus:ring-2 focus:ring-indigo-500/50 rounded-xl px-5 py-4 text-gray-900 dark:text-white font-bold outline-none transition-all pr-14 placeholder:text-gray-400"
+                                className="w-full bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/10 focus:ring-2 focus:ring-indigo-500/50 rounded-xl px-5 py-4 text-gray-900 dark:text-white font-bold outline-none transition-all pr-14 placeholder:text-gray-400"
                             />
                             <button
                                 type="button"
@@ -2072,7 +2072,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
                             className={`flex-[2] py-3 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all transform cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
                                 isBento
                                     ? 'bg-[#fde047] text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:shadow-[4px_4px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 font-mono'
-                                    : 'bg-gradient-to-r from-amber-500 to-yellow-500 text-white shadow-xl shadow-amber-500/30 hover:shadow-amber-500/50 hover:-translate-y-1'
+                                    : 'bg-amber-500 text-white shadow-xl shadow-amber-500/30 hover:shadow-amber-500/50 hover:-translate-y-1'
                             }`}
                         >
                             Send Gift
@@ -2095,9 +2095,9 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
                                     }}
                                     className={`py-3 px-4 rounded-xl font-bold text-xs uppercase tracking-widest transition-all ${giftType === type
                                         ? type === 'coins' ? 'bg-yellow-500/10 border border-yellow-500 text-yellow-600 dark:text-yellow-400'
-                                            : type === 'xp' ? 'bg-purple-500/10 border border-purple-500 text-purple-600 dark:text-purple-400'
+                                            : type === 'xp' ? 'bg-teal-500/10 border border-teal-500 text-teal-600 dark:text-teal-400'
                                                 : 'bg-blue-500/10 border border-blue-500 text-blue-600 dark:text-blue-400'
-                                        : 'bg-gray-100 dark:bg-[#1a1b26] border border-transparent text-gray-600 dark:text-gray-400'
+                                        : 'bg-gray-100 dark:bg-[#1c1917] border border-transparent text-gray-600 dark:text-gray-400'
                                         }`}
                                 >
                                     {type === 'coins' ? '🪙 Coins' : type === 'xp' ? '⭐ XP' : '🛍️ Item'}
@@ -2117,7 +2117,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
                                 onChange={(e) => setGiftAmount(e.target.value)}
                                 placeholder="Enter coins amount"
                                 min="0"
-                                className="w-full px-4 py-3 bg-gray-50 dark:bg-[#1a1b26] border border-gray-200 dark:border-gray-800 rounded-xl font-bold text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500/20"
+                                className="w-full px-4 py-3 bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/10 rounded-xl font-bold text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500/20"
                             />
                         </div>
                     )}
@@ -2133,7 +2133,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
                                 onChange={(e) => setGiftAmount(e.target.value)}
                                 placeholder="Enter XP amount"
                                 min="0"
-                                className="w-full px-4 py-3 bg-gray-50 dark:bg-[#1a1b26] border border-gray-200 dark:border-gray-800 rounded-xl font-bold text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20"
+                                className="w-full px-4 py-3 bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/10 rounded-xl font-bold text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
                             />
                         </div>
                     )}
@@ -2147,7 +2147,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
                                 <select
                                     value={selectedShopItem}
                                     onChange={(e) => setSelectedShopItem(e.target.value)}
-                                    className="w-full px-4 py-3 bg-gray-900 dark:bg-[#1a1b26] border border-gray-700 dark:border-gray-800 rounded-xl font-bold text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 appearance-none cursor-pointer"
+                                    className="w-full px-4 py-3 bg-gray-900 dark:bg-[#1c1917] border border-gray-700 dark:border-[#f5f3ec]/10 rounded-xl font-bold text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 appearance-none cursor-pointer"
                                 >
                                     <option value="">Choose an item...</option>
                                     {shopItems.length > 0 ? (

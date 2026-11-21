@@ -7,6 +7,7 @@ import { NotificationProvider } from './context/NotificationContext';
 import { ChatProvider } from './context/ChatContext';
 import { NavArrangementProvider } from './context/NavArrangementContext';
 import { UserProfileModalProvider } from './context/UserProfileModalContext';
+import { SecretGameProvider } from './context/SecretGameContext';
 import { ProtectedRoute, AdminRoute } from './components/RouteGuards';
 import MainLayout from './layouts/MainLayout';
 import PageLoader from './components/PageLoader.tsx';
@@ -44,7 +45,6 @@ const AnalyticsPage = lazy(() => import('./pages/AnalyticsPage'));
 const TournamentsPage = lazy(() => import('./pages/TournamentsPage'));
 const SkillTracksPage = lazy(() => import('./pages/SkillTracksPage'));
 const DailyChallengePage = lazy(() => import('./pages/DailyChallengePage'));
-const StudyModePage = lazy(() => import('./pages/StudyCardPage.tsx'));
 const ClassPage = lazy(() => import('./pages/ClassPage'));
 const JoinClassPage = lazy(() => import('./pages/JoinClassPage'));
 
@@ -114,7 +114,8 @@ const App: React.FC = () => {
                 <ChatProvider>
                   <NavArrangementProvider>
                     <UserProfileModalProvider>
-                      <AiJobProvider>
+                      <SecretGameProvider>
+                        <AiJobProvider>
                         <Suspense fallback={<PageLoader />}>
                           <Routes>
                             {/* Public Routes */}
@@ -139,7 +140,8 @@ const App: React.FC = () => {
                               </AdminRoute>
                             } />
 
-                            <Route path="/admin/proctoring/:attemptId" element={<AdminRoute><ProctoringTelemetryPage /></AdminRoute>} />
+                            <Route path="/admin/proctoring/:attemptId" element={<ProtectedRoute><ProctoringTelemetryPage /></ProtectedRoute>} />
+                            <Route path="/attempts/:attemptId/inspect" element={<ProtectedRoute><ProctoringTelemetryPage /></ProtectedRoute>} />
 
                             <Route path="/admin/quiz/:quizId/revision" element={
                               <AdminRoute>
@@ -156,8 +158,6 @@ const App: React.FC = () => {
                               <Route path="/quizzes" element={<DashboardPage />} />
                               <Route path="/leaderboard" element={<LeaderboardPage />} />
                               <Route path="/tracks" element={<SkillTracksPage />} />
-                              <Route path="/study" element={<StudyModePage />} />
-                              <Route path="/study-cards" element={<StudyModePage />} />
                               <Route path="/tournaments" element={<TournamentsPage />} />
                               <Route path="/t/:tournamentId" element={<TournamentInviteRedirect />} />
                               <Route path="/badge-tree/:treeId" element={<BadgeTreeDetailPage />} />
@@ -187,6 +187,7 @@ const App: React.FC = () => {
                           </Routes>
                         </Suspense>
                       </AiJobProvider>
+                      </SecretGameProvider>
                     </UserProfileModalProvider>
                   </NavArrangementProvider>
                 </ChatProvider>

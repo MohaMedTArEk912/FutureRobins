@@ -2,8 +2,9 @@ import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
 /**
- * ScrollToTop component ensures that navigating to any route (including from the footer)
- * smoothly scrolls the viewport to the top of the page or to an anchored section.
+ * ScrollToTop resets scroll cleanly on route transitions (instant on pathname change
+ * so smooth vertical scrolling never conflicts with horizontal spatial page swaps,
+ * while keeping smooth scrolling for in-page #hash anchors).
  */
 const ScrollToTop: React.FC = () => {
     const { pathname, hash } = useLocation();
@@ -21,7 +22,7 @@ const ScrollToTop: React.FC = () => {
         window.scrollTo({
             top: 0,
             left: 0,
-            behavior: 'smooth'
+            behavior: 'instant' as ScrollBehavior
         });
     }, [pathname, hash]);
 

@@ -343,14 +343,14 @@ export const ClanChatSection: React.FC<ClanChatSectionProps> = ({
                             ? 'bg-[#bef264]/50 border-2 border-black shadow-[2px_2px_0px_#000]'
                             : 'hover:bg-white border-2 border-transparent hover:border-black')
                         : (isCurrent
-                            ? 'bg-violet-500/10 text-violet-900 dark:text-white'
+                            ? 'bg-sky-500/10 text-sky-900 dark:text-white'
                             : 'hover:bg-slate-200/70 dark:hover:bg-white/5')
                 }`}
             >
                 <div className={`w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center text-[11px] font-black shrink-0 ${
                     isBento
                         ? 'border-2 border-black bg-[#fde047] text-black'
-                        : 'bg-gradient-to-br from-violet-500 to-indigo-600 text-white'
+                        : 'bg-sky-500 text-white'
                 }`}>
                     {m.avatar ? (
                         <Avatar config={m.avatar} size="sm" className="w-full h-full object-cover" />
@@ -366,7 +366,7 @@ export const ClanChatSection: React.FC<ClanChatSectionProps> = ({
                         </span>
                         {isCurrent && (
                             <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded ${
-                                isBento ? 'bg-black text-[#bef264]' : 'bg-violet-600 text-white'
+                                isBento ? 'bg-black text-[#bef264]' : 'bg-sky-600 text-white'
                             }`}>
                                 You
                             </span>
@@ -401,14 +401,14 @@ export const ClanChatSection: React.FC<ClanChatSectionProps> = ({
         <div className="flex flex-col h-full">
             {/* Class Identity Header */}
             <div className={`p-4 border-b shrink-0 ${
-                isBento ? 'bg-[#ddd6fe] border-b-[2.5px] border-black' : 'border-slate-200 dark:border-white/10'
+                isBento ? 'bg-[#fed7aa] border-b-[2.5px] border-black' : 'border-slate-200 dark:border-white/10'
             }`}>
                 <div className="flex items-center gap-3">
                     <ClassEmblem logo={clan.logo} tag={clan.tag} name={clan.name} size="sm" />
                     <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5">
                             <span className={`text-[10px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded ${
-                                isBento ? 'bg-black text-[#bef264]' : 'bg-violet-500/15 text-violet-600 dark:text-violet-300'
+                                isBento ? 'bg-black text-[#bef264]' : 'bg-sky-500/15 text-sky-600 dark:text-sky-300'
                             }`}>
                                 #{clan.tag}
                             </span>
@@ -519,7 +519,7 @@ export const ClanChatSection: React.FC<ClanChatSectionProps> = ({
                         : 'bg-white text-black border-[3px] border-black shadow-[6px_6px_0px_#000]')
                     : (isFullscreen
                         ? 'bg-white dark:bg-[#11131f] text-slate-900 dark:text-white'
-                        : 'bg-white/95 dark:bg-[#13141f]/95 border border-slate-200 dark:border-white/10 shadow-xl backdrop-blur-xl')
+                        : 'bg-white/95 dark:bg-[#141210]/95 border border-slate-200 dark:border-white/10 shadow-xl backdrop-blur-xl')
             }`}
         >
             {/* Fullscreen Desktop Sidebar */}
@@ -527,7 +527,7 @@ export const ClanChatSection: React.FC<ClanChatSectionProps> = ({
                 <aside className={`hidden lg:flex w-72 xl:w-80 shrink-0 flex-col h-full ${
                     isBento
                         ? 'bg-[#f5f3ec] border-r-[2.5px] border-black'
-                        : 'bg-slate-50 dark:bg-[#0d0e17] border-r border-slate-200 dark:border-white/10'
+                        : 'bg-slate-50 dark:bg-[#141210] border-r border-slate-200 dark:border-white/10'
                 }`}>
                     {renderSidebarBody()}
                 </aside>
@@ -542,7 +542,7 @@ export const ClanChatSection: React.FC<ClanChatSectionProps> = ({
                         aria-hidden="true"
                     />
                     <aside className={`relative z-10 w-72 max-w-[85vw] h-full flex flex-col ${
-                        isBento ? 'bg-[#f5f3ec] border-r-[3px] border-black' : 'bg-white dark:bg-[#0d0e17] border-r border-slate-200 dark:border-white/10'
+                        isBento ? 'bg-[#f5f3ec] border-r-[3px] border-black' : 'bg-white dark:bg-[#141210] border-r border-slate-200 dark:border-white/10'
                     }`}>
                         <div className={`px-4 py-3 flex items-center justify-between border-b ${
                             isBento ? 'bg-white border-b-2 border-black' : 'border-slate-200 dark:border-white/10'
@@ -572,8 +572,8 @@ export const ClanChatSection: React.FC<ClanChatSectionProps> = ({
                 {/* Sleek Single-Bar Header */}
                 <header className={`px-4 sm:px-6 py-3 border-b flex items-center justify-between gap-3 shrink-0 ${
                     isBento
-                        ? (isFullscreen ? 'bg-white border-b-[2.5px] border-black' : 'bg-[#ddd6fe] border-b-[2.5px] border-black')
-                        : 'bg-white/80 dark:bg-[#13141f]/90 border-slate-200 dark:border-white/10'
+                        ? (isFullscreen ? 'bg-white border-b-[2.5px] border-black' : 'bg-[#fed7aa] border-b-[2.5px] border-black')
+                        : 'bg-white/80 dark:bg-[#141210]/90 border-slate-200 dark:border-white/10'
                 }`}>
                     <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
                         {isFullscreen && (
@@ -611,7 +611,7 @@ export const ClanChatSection: React.FC<ClanChatSectionProps> = ({
                             <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
                                 isBento
                                     ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                    : 'bg-violet-600 text-white shadow-md shadow-violet-600/25'
+                                    : 'bg-sky-600 text-white shadow-md shadow-sky-600/25'
                             }`}>
                                 <MessageCircle className="w-5 h-5" />
                             </div>
@@ -623,7 +623,7 @@ export const ClanChatSection: React.FC<ClanChatSectionProps> = ({
                                     <span className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
                                         isBento
                                             ? 'bg-[#bef264] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]'
-                                            : 'bg-violet-600/15 text-violet-600 dark:text-violet-400'
+                                            : 'bg-sky-600/15 text-sky-600 dark:text-sky-400'
                                     }`}>
                                         <Hash className="w-4 h-4" />
                                     </span>
@@ -702,7 +702,7 @@ export const ClanChatSection: React.FC<ClanChatSectionProps> = ({
                             className={`px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl transition-all cursor-pointer flex items-center gap-1.5 text-xs font-black uppercase tracking-wider ${
                                 isBento
                                     ? 'bg-[#fef08a] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#fde047] active:translate-y-0.5'
-                                    : 'bg-violet-600/10 hover:bg-violet-600/20 text-violet-600 dark:text-violet-400 border border-violet-500/20'
+                                    : 'bg-sky-600/10 hover:bg-sky-600/20 text-sky-600 dark:text-sky-400 border border-sky-500/20'
                             }`}
                             title={isFullscreen ? 'Exit Fullscreen (Esc)' : 'Fullscreen Chat'}
                             aria-label={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen Chat'}
@@ -739,7 +739,7 @@ export const ClanChatSection: React.FC<ClanChatSectionProps> = ({
                                 <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-3.5 ${
                                     isBento
                                         ? 'bg-[#fef08a] text-black border-2 border-black shadow-[3px_3px_0px_#000]'
-                                        : 'bg-violet-500/10 text-violet-500'
+                                        : 'bg-sky-500/10 text-sky-500'
                                 }`}>
                                     {searchQuery.trim() ? <Search className="w-6 h-6" /> : <MessageCircle className="w-6 h-6" />}
                                 </div>
@@ -762,8 +762,8 @@ export const ClanChatSection: React.FC<ClanChatSectionProps> = ({
                                         <div className="flex items-center gap-3">
                                             <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 ${
                                                 isBento
-                                                    ? 'bg-[#ddd6fe] text-black border-2 border-black shadow-[2.5px_2.5px_0px_#000]'
-                                                    : 'bg-violet-500/15 text-violet-600 dark:text-violet-400'
+                                                    ? 'bg-[#fed7aa] text-black border-2 border-black shadow-[2.5px_2.5px_0px_#000]'
+                                                    : 'bg-sky-500/15 text-sky-600 dark:text-sky-400'
                                             }`}>
                                                 <Hash className="w-5 h-5" />
                                             </div>
@@ -842,7 +842,7 @@ export const ClanChatSection: React.FC<ClanChatSectionProps> = ({
                                                         : isMe
                                                             ? (isBento
                                                                 ? 'bg-[#bef264]/20 hover:bg-[#bef264]/35'
-                                                                : 'bg-violet-500/[0.05] hover:bg-violet-500/[0.09]')
+                                                                : 'bg-sky-500/[0.05] hover:bg-sky-500/[0.09]')
                                                             : (isBento
                                                                 ? 'hover:bg-black/[0.035]'
                                                                 : 'hover:bg-slate-200/50 dark:hover:bg-white/[0.03]')
@@ -870,7 +870,7 @@ export const ClanChatSection: React.FC<ClanChatSectionProps> = ({
                                                         <div className={`w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center text-xs font-black ${
                                                             isBento
                                                                 ? `border-2 border-black shadow-[1.5px_1.5px_0px_#000] ${isMe ? 'bg-[#bef264] text-black' : 'bg-[#fde047] text-black'}`
-                                                                : `${isMe ? 'bg-violet-600 text-white' : 'bg-gradient-to-br from-violet-500 to-indigo-600 text-white'} shadow-sm`
+                                                                : `${isMe ? 'bg-sky-600 text-white' : 'bg-sky-500 text-white'} shadow-sm`
                                                         }`}>
                                                             {avatar ? (
                                                                 <Avatar config={avatar} size="sm" className="w-full h-full object-cover" />
@@ -896,15 +896,15 @@ export const ClanChatSection: React.FC<ClanChatSectionProps> = ({
                                                                 title={!isMe ? `Message or view ${senderDisplayName}'s profile` : undefined}
                                                                 className={`text-xs sm:text-sm font-black ${
                                                                     isMe
-                                                                        ? (isBento ? 'text-black' : 'text-violet-600 dark:text-violet-400')
-                                                                        : (isBento ? 'text-black hover:underline cursor-pointer' : 'text-slate-900 dark:text-white hover:text-violet-500 cursor-pointer')
+                                                                        ? (isBento ? 'text-black' : 'text-sky-600 dark:text-sky-400')
+                                                                        : (isBento ? 'text-black hover:underline cursor-pointer' : 'text-slate-900 dark:text-white hover:text-sky-500 cursor-pointer')
                                                                 }`}
                                                             >
                                                                 {senderDisplayName}
                                                             </span>
                                                             {isMe && (
                                                                 <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded ${
-                                                                    isBento ? 'bg-black text-[#bef264]' : 'bg-violet-600/15 text-violet-600 dark:text-violet-300'
+                                                                    isBento ? 'bg-black text-[#bef264]' : 'bg-sky-600/15 text-sky-600 dark:text-sky-300'
                                                                 }`}>
                                                                     You
                                                                 </span>
@@ -958,7 +958,7 @@ export const ClanChatSection: React.FC<ClanChatSectionProps> = ({
                                                         <div className={`mt-1 p-3 rounded-xl border-2 ${
                                                             isBento
                                                                 ? 'bg-white border-black shadow-[3px_3px_0px_#000]'
-                                                                : 'bg-white dark:bg-[#1a1b26] border-violet-500 shadow-lg'
+                                                                : 'bg-white dark:bg-[#1c1917] border-sky-500 shadow-lg'
                                                         }`}>
                                                             <textarea
                                                                 value={editContent}
@@ -985,7 +985,7 @@ export const ClanChatSection: React.FC<ClanChatSectionProps> = ({
                                                                     className={`px-3 py-1 rounded-lg text-xs font-black cursor-pointer ${
                                                                         isBento
                                                                             ? 'bg-[#bef264] text-black border border-black shadow-[1.5px_1.5px_0px_#000]'
-                                                                            : 'bg-violet-600 text-white shadow-md'
+                                                                            : 'bg-sky-600 text-white shadow-md'
                                                                     }`}
                                                                 >
                                                                     Save Changes
@@ -1009,7 +1009,7 @@ export const ClanChatSection: React.FC<ClanChatSectionProps> = ({
                                                     <div className={`absolute right-2.5 top-2 opacity-100 sm:opacity-0 sm:group-hover/row:opacity-100 transition-opacity flex items-center gap-1 p-0.5 rounded-lg ${
                                                         isBento
                                                             ? 'bg-white border border-black shadow-[1.5px_1.5px_0px_#000]'
-                                                            : 'bg-white dark:bg-[#1a1b26] border border-slate-200 dark:border-white/10 shadow-sm'
+                                                            : 'bg-white dark:bg-[#1c1917] border border-slate-200 dark:border-white/10 shadow-sm'
                                                     }`}>
                                                         {canEdit && (
                                                             <button
@@ -1054,7 +1054,7 @@ export const ClanChatSection: React.FC<ClanChatSectionProps> = ({
                 <div className={`px-4 sm:px-6 pt-2 pb-3.5 sm:pb-4 shrink-0 border-t ${
                     isBento
                         ? 'bg-white border-t-[2px] border-black/15'
-                        : 'bg-white dark:bg-[#13141f] border-slate-200 dark:border-white/10'
+                        : 'bg-white dark:bg-[#141210] border-slate-200 dark:border-white/10'
                 }`}>
                     <div className={isFullscreen ? 'max-w-4xl mx-auto w-full' : 'w-full'}>
                         {/* Compact Quick Snippets Row */}
@@ -1074,7 +1074,7 @@ export const ClanChatSection: React.FC<ClanChatSectionProps> = ({
                                         className={`px-2.5 py-1 rounded-lg text-[11px] font-bold shrink-0 transition-all cursor-pointer ${
                                             isBento
                                                 ? 'bg-[#fef9c3] text-black border border-black hover:bg-[#bef264] active:translate-y-0.5'
-                                                : 'bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-slate-300 hover:bg-violet-600 hover:text-white border border-slate-200 dark:border-white/10'
+                                                : 'bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-slate-300 hover:bg-sky-600 hover:text-white border border-slate-200 dark:border-white/10'
                                         }`}
                                     >
                                         {snippet}
@@ -1089,7 +1089,7 @@ export const ClanChatSection: React.FC<ClanChatSectionProps> = ({
                             className={`rounded-2xl transition-all ${
                                 isBento
                                     ? 'bg-white border-2 border-black shadow-[3px_3px_0px_#000] focus-within:shadow-[5px_5px_0px_#000]'
-                                    : 'bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 focus-within:border-violet-500 focus-within:ring-2 focus-within:ring-violet-500/20'
+                                    : 'bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 focus-within:border-sky-500 focus-within:ring-2 focus-within:ring-sky-500/20'
                             }`}
                         >
                             <textarea
@@ -1114,7 +1114,7 @@ export const ClanChatSection: React.FC<ClanChatSectionProps> = ({
                                         onClick={() => setShowQuickComms(prev => !prev)}
                                         className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-colors cursor-pointer ${
                                             showQuickComms
-                                                ? (isBento ? 'bg-[#fef08a] text-black border border-black' : 'bg-violet-500/15 text-violet-600 dark:text-violet-300')
+                                                ? (isBento ? 'bg-[#fef08a] text-black border border-black' : 'bg-sky-500/15 text-sky-600 dark:text-sky-300')
                                                 : (isBento ? 'text-black/60 hover:bg-slate-100' : 'text-slate-400 hover:bg-slate-200/60 dark:hover:bg-white/5')
                                         }`}
                                         title={showQuickComms ? 'Hide quick replies' : 'Show quick replies'}
@@ -1139,7 +1139,7 @@ export const ClanChatSection: React.FC<ClanChatSectionProps> = ({
                                         className={`px-3.5 py-1.5 rounded-xl flex items-center justify-center gap-1.5 font-black uppercase text-[11px] tracking-wider transition-all cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed ${
                                             isBento
                                                 ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000] active:translate-y-0.5'
-                                                : 'bg-violet-600 hover:bg-violet-700 text-white shadow-sm active:scale-95'
+                                                : 'bg-sky-600 hover:bg-sky-700 text-white shadow-sm active:scale-95'
                                         }`}
                                     >
                                         <span>Send</span>
@@ -1188,7 +1188,7 @@ export const ClanChatSection: React.FC<ClanChatSectionProps> = ({
                         className={`absolute rounded-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-100 ${
                             isBento
                                 ? 'bg-white text-black border-2 border-black shadow-[4px_4px_0px_#000]'
-                                : 'bg-white dark:bg-[#13141f] text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 shadow-xl'
+                                : 'bg-white dark:bg-[#141210] text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 shadow-xl'
                         }`}
                     >
                         <div className={`px-3 py-2.5 flex items-center gap-2.5 border-b ${
@@ -1196,7 +1196,7 @@ export const ClanChatSection: React.FC<ClanChatSectionProps> = ({
                         }`}>
                             <div className="relative shrink-0">
                                 <div className={`w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center text-[11px] font-black ${
-                                    isBento ? 'bg-[#fde047] border-2 border-black text-black' : 'bg-gradient-to-br from-violet-500 to-indigo-600 text-white'
+                                    isBento ? 'bg-[#fde047] border-2 border-black text-black' : 'bg-sky-500 text-white'
                                 }`}>
                                     {memberActionTarget.avatar ? (
                                         <Avatar config={memberActionTarget.avatar} size="sm" className="w-full h-full object-cover" />
@@ -1220,7 +1220,7 @@ export const ClanChatSection: React.FC<ClanChatSectionProps> = ({
                                 role="menuitem"
                                 onClick={handleStartPrivateChat}
                                 className={`btn-unstyled w-full flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs font-black text-start cursor-pointer transition-colors ${
-                                    isBento ? 'hover:bg-[#bef264]' : 'hover:bg-violet-500/10'
+                                    isBento ? 'hover:bg-[#bef264]' : 'hover:bg-sky-500/10'
                                 }`}
                             >
                                 <MessageCircle className="w-4 h-4 shrink-0" />

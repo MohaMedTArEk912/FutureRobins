@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { AmbientBackground } from '../components/AmbientBackground';
 import { useTheme } from '../context/ThemeContext';
+import { usePersistentShell } from '../context/PersistentShellContext';
 
 interface PageLayoutProps {
     children: React.ReactNode;
@@ -18,18 +19,26 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children, title, showBack, onBa
     const { currentUser, logout } = useAuth();
     const navigate = useNavigate();
     const { isBento } = useTheme();
+    const { inPersistentShell } = usePersistentShell();
+
+    if (inPersistentShell) {
+        return (
+            <main className="flex-1 min-h-[calc(100dvh-64px)] pb-16 xl:pb-0 relative z-10 w-full">
+                {children}
+            </main>
+        );
+    }
 
     const handleLogout = () => {
         logout();
         navigate('/login', { replace: true });
     };
 
-
     return (
-        <div className={`min-h-dvh flex flex-col justify-between transition-colors duration-200 relative selection:bg-indigo-500/25 ${
+        <div className={`min-h-dvh flex flex-col justify-between transition-colors duration-200 relative selection:bg-indigo-500/25 dark:selection:bg-[#bef264]/28 ${
             isBento
                 ? 'bg-transparent text-black'
-                : 'bg-slate-50 dark:bg-[#090d16] text-slate-900 dark:text-slate-100'
+                : 'bg-slate-50 dark:bg-[#0a0908] text-slate-900 dark:text-[#f5f3ec]'
         }`}>
             <AmbientBackground />
             <Navbar

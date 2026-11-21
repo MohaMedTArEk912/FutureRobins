@@ -490,7 +490,7 @@ export async function sendWelcomeEmail({ email, name, userId }) {
         <style>
           body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f8fafc; color: #1e293b; margin: 0; padding: 24px; }
           .card { max-width: 580px; margin: 0 auto; background: #ffffff; border: 2.5px solid #000000; border-radius: 16px; box-shadow: 6px 6px 0px #000000; overflow: hidden; }
-          .header { background: linear-gradient(135deg, #8b5cf6, #6366f1); padding: 28px 24px; border-bottom: 2.5px solid #000000; color: #ffffff; text-align: center; }
+          .header { background: #0d9488; padding: 28px 24px; border-bottom: 2.5px solid #000000; color: #ffffff; text-align: center; }
           .content { padding: 24px; line-height: 1.6; }
           .badge { display: inline-block; background: #bef264; color: #000000; font-weight: 800; font-size: 11px; padding: 4px 12px; border-radius: 9999px; border: 1.5px solid #000; }
           .feature-box { background: #f8fafc; border: 2px solid #000; border-radius: 12px; padding: 14px 18px; margin: 12px 0; font-size: 13px; }
@@ -778,9 +778,9 @@ export async function sendClanInviteEmail({ email, recipientName, inviterName, c
         <style>
           body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f8fafc; color: #1e293b; margin: 0; padding: 24px; }
           .card { max-width: 540px; margin: 0 auto; background: #ffffff; border: 2.5px solid #000000; border-radius: 16px; box-shadow: 6px 6px 0px #000000; overflow: hidden; }
-          .header { background: linear-gradient(135deg, #7c3aed, #4f46e5); padding: 24px; border-bottom: 2.5px solid #000000; color: #ffffff; text-align: center; }
+          .header { background: #0284c7; padding: 24px; border-bottom: 2.5px solid #000000; color: #ffffff; text-align: center; }
           .content { padding: 24px; line-height: 1.6; text-align: center; }
-          .clan-badge { display: inline-block; background: #ddd6fe; border: 2px solid #000; border-radius: 12px; padding: 12px 24px; font-weight: 900; font-size: 18px; margin: 16px 0; box-shadow: 3px 3px 0px #000; }
+          .clan-badge { display: inline-block; background: #bae6fd; border: 2px solid #000; border-radius: 12px; padding: 12px 24px; font-weight: 900; font-size: 18px; margin: 16px 0; box-shadow: 3px 3px 0px #000; }
           .btn { display: inline-block; background: #bef264; color: #000 !important; text-decoration: none; font-weight: 900; font-size: 14px; padding: 12px 28px; border-radius: 12px; border: 2px solid #000; box-shadow: 3px 3px 0px #000; margin-top: 14px; }
           .footer { background: #f1f5f9; padding: 14px 20px; border-top: 2px solid #000; font-size: 12px; color: #64748b; text-align: center; }
         </style>
@@ -1026,7 +1026,7 @@ export async function sendWeeklyChallengeWelcomeEmail({ email, name, unsubscribe
         <style>
           body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f8fafc; color: #1e293b; margin: 0; padding: 24px; }
           .card { max-width: 580px; margin: 0 auto; background: #ffffff; border: 2.5px solid #000000; border-radius: 16px; box-shadow: 6px 6px 0px #000000; overflow: hidden; }
-          .header { background: linear-gradient(135deg, #facc15, #bef264); padding: 28px 24px; border-bottom: 2.5px solid #000000; color: #000000; text-align: center; }
+          .header { background: #bef264; padding: 28px 24px; border-bottom: 2.5px solid #000000; color: #000000; text-align: center; }
           .badge { display: inline-block; background: #000000; color: #bef264; font-weight: 900; font-size: 11px; padding: 4px 12px; border-radius: 9999px; text-transform: uppercase; letter-spacing: 1px; }
           .content { padding: 26px 24px; line-height: 1.6; }
           .feature-box { background: #fdfae7; border: 2px solid #000000; border-radius: 12px; padding: 14px 18px; margin: 12px 0; font-size: 13px; box-shadow: 2px 2px 0px #000; }

@@ -334,7 +334,7 @@ export const LivePlayerController: React.FC<LivePlayerControllerProps> = ({
                     className={`app-dialog-panel app-dialog-panel--padded relative w-full max-w-md p-6 rounded-2xl transition-all animate-in zoom-in-95 duration-200 ${
                         isBento
                             ? 'bg-white text-black border-[3px] border-black shadow-[6px_6px_0_#000]'
-                            : 'bg-white dark:bg-[#111322] text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 shadow-2xl'
+                            : 'bg-white dark:bg-[#141210] text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 shadow-2xl'
                     }`}
                     onClick={(e) => e.stopPropagation()}
                 >
@@ -421,7 +421,7 @@ export const LivePlayerController: React.FC<LivePlayerControllerProps> = ({
                                 className={`btn-unstyled w-full py-3.5 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 cursor-pointer transition ${
                                     isBento
                                         ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[3px_3px_0_#000] disabled:bg-slate-100 disabled:text-slate-400 disabled:border-slate-300 disabled:shadow-none disabled:cursor-not-allowed'
-                                        : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed'
+                                        : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed'
                                 }`}
                             >
                                 <span>{tx('Enter Live Room', 'ادخل الغرفة المباشرة')}</span>
@@ -436,14 +436,14 @@ export const LivePlayerController: React.FC<LivePlayerControllerProps> = ({
 
     // 2. LIVE CONNECTED ARENA PAGE (Full dedicated page with Participants Scoreboard)
     return (
-        <div className={`min-h-screen w-full flex flex-col font-sans overflow-x-hidden ${
-            isBento ? 'bg-[#f5f3ec] text-black' : 'bg-slate-50 dark:bg-[#090d16] text-slate-900 dark:text-white'
+        <div className={`min-h-screen w-full flex flex-col font-sans overflow-x-hidden bg-transparent ${
+            isBento ? 'text-black' : 'text-slate-900 dark:text-white'
         }`}>
             {/* Slim Header Bar */}
             <header className={`px-4 py-2.5 border-b flex items-center justify-between gap-3 shrink-0 ${
                 isBento
                     ? 'bg-white border-b-2 border-black'
-                    : 'bg-white/90 dark:bg-[#111322]/90 border-slate-200 dark:border-white/10 backdrop-blur-md'
+                    : 'bg-white/90 dark:bg-[#141210]/90 border-slate-200 dark:border-white/10 backdrop-blur-md'
             }`}>
                 <div className="flex items-center gap-2 min-w-0">
                     <span className={`px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-wider truncate max-w-[180px] sm:max-w-[260px] ${
@@ -533,7 +533,7 @@ export const LivePlayerController: React.FC<LivePlayerControllerProps> = ({
                         <div className={`max-w-xl mx-auto p-6 rounded-2xl text-center space-y-4 animate-in zoom-in-95 duration-200 ${
                             isBento
                                 ? 'bg-white border-[3px] border-black shadow-[6px_6px_0_#000]'
-                                : 'bg-white dark:bg-[#111322] border border-slate-200 dark:border-white/10 shadow-2xl'
+                                : 'bg-white dark:bg-[#141210] border border-slate-200 dark:border-white/10 shadow-2xl'
                         }`}>
                             <div className="flex items-center justify-center gap-2">
                                 <span className={`px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider ${

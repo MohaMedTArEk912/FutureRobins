@@ -339,7 +339,7 @@ export const RoadmapJsonImporter: React.FC<RoadmapJsonImporterProps> = ({ isOpen
                             className={`group w-full max-w-lg aspect-video rounded-3xl flex flex-col items-center justify-center cursor-pointer transition-all duration-300 p-6 ${
                                 isBento
                                     ? 'bg-white border-[3px] border-dashed border-black hover:bg-[#fef9c3] shadow-[5px_5px_0px_#000]'
-                                    : 'bg-white dark:bg-white/[0.02] border-2 border-dashed border-slate-300 dark:border-gray-700 hover:border-indigo-500 hover:bg-indigo-50/50 dark:hover:bg-indigo-500/5 shadow-sm'
+                                    : 'bg-white dark:bg-white/[0.02] border-2 border-dashed border-slate-300 dark:border-[#f5f3ec]/16 hover:border-indigo-500 hover:bg-indigo-50/50 dark:hover:bg-indigo-500/5 shadow-sm'
                             }`}
                         >
                             <input
@@ -353,7 +353,7 @@ export const RoadmapJsonImporter: React.FC<RoadmapJsonImporterProps> = ({ isOpen
                                 className={`w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mb-5 transition-colors duration-300 ${
                                     isBento
                                         ? 'bg-[#fde047] border-2 border-black text-black shadow-[3px_3px_0px_#000]'
-                                        : 'bg-slate-100 dark:bg-gray-800 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-500/20 text-slate-500 dark:text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400'
+                                        : 'bg-slate-100 dark:bg-[#1c1917] group-hover:bg-indigo-100 dark:group-hover:bg-indigo-500/20 text-slate-500 dark:text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400'
                                 }`}
                             >
                                 <Upload className="w-8 h-8 sm:w-10 sm:h-10" />

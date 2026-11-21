@@ -126,7 +126,7 @@ export const ClassroomParticipantsScoreboard: React.FC<ScoreStripProps> = ({ roo
         <div className={`rounded-2xl p-4 flex flex-col gap-3 ${
             isBento
                 ? 'bg-white text-black border-[3px] border-black shadow-[5px_5px_0_#000]'
-                : 'bg-white dark:bg-[#111322]/90 text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 shadow-xl backdrop-blur-xl'
+                : 'bg-white dark:bg-[#141210]/90 text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 shadow-xl backdrop-blur-xl'
         }`}>
             <div className="flex items-center justify-between gap-2 pb-2 border-b border-black/10 dark:border-white/10">
                 <div className="flex items-center gap-2 min-w-0">
@@ -294,7 +294,7 @@ export const ClassroomWaitingCard: React.FC<WaitingCardProps> = ({
                 }`}>
                     <div
                         className={`h-full transition-all duration-300 ${
-                            isBento ? 'bg-[#bef264]' : 'bg-gradient-to-r from-indigo-500 to-emerald-500'
+                            isBento ? 'bg-[#bef264]' : 'bg-indigo-500'
                         }`}
                         style={{ width: `${pct}%` }}
                     />

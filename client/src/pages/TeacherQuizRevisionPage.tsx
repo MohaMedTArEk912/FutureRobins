@@ -28,6 +28,7 @@ import { useTheme } from '../context/ThemeContext';
 import { api } from '../lib/api';
 import type { Quiz, Question } from '../types';
 import MathRenderer from '../components/common/MathRenderer';
+import { AmbientBackground } from '../components/AmbientBackground';
 
 type RevisionViewMode = 'slideshow' | 'sheet';
 type AnswerVisibilityMode = 'always_visible' | 'ask_class_first';
@@ -478,7 +479,7 @@ const TeacherQuizRevisionPage: React.FC = () => {
                         }
                     } else if (isClassPick) {
                         cardClass = isBento
-                            ? 'bg-[#ddd6fe] text-black border-2.5 border-black shadow-[3px_3px_0px_#000]'
+                            ? 'bg-[#fed7aa] text-black border-2.5 border-black shadow-[3px_3px_0px_#000]'
                             : 'bg-indigo-500/15 border-indigo-500 text-indigo-950 dark:text-indigo-100';
                     }
 
@@ -539,8 +540,9 @@ const TeacherQuizRevisionPage: React.FC = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-[#090a10] text-gray-800 dark:text-white p-6">
-                <div className="text-center space-y-3">
+            <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-[#0a0908] text-gray-800 dark:text-white p-6 relative overflow-hidden">
+                <AmbientBackground />
+                <div className="text-center space-y-3 relative z-10">
                     <Presentation className="w-12 h-12 mx-auto text-indigo-500 animate-bounce" />
                     <h2 className="text-lg font-black uppercase tracking-wider">Loading Teacher Revision Studio...</h2>
                 </div>
@@ -550,8 +552,9 @@ const TeacherQuizRevisionPage: React.FC = () => {
 
     if (error || !quiz) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-[#090a10] p-6">
-                <div className="max-w-md w-full bg-white dark:bg-[#13141f] p-8 rounded-3xl border border-gray-200 dark:border-white/10 text-center space-y-4 shadow-xl">
+            <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-[#0a0908] p-6 relative overflow-hidden">
+                <AmbientBackground />
+                <div className="max-w-md w-full bg-white dark:bg-[#141210] p-8 rounded-3xl border border-gray-200 dark:border-white/10 text-center space-y-4 shadow-xl relative z-10">
                     <HelpCircle className="w-12 h-12 mx-auto text-red-500" />
                     <h2 className="text-xl font-black text-gray-900 dark:text-white">{error || 'Quiz unavailable'}</h2>
                     <button
@@ -566,14 +569,15 @@ const TeacherQuizRevisionPage: React.FC = () => {
     }
 
     return (
-        <div className={`min-h-screen flex flex-col ${
-            isBento ? 'bg-[#fdfbf7] text-black' : 'bg-slate-50 dark:bg-[#0a0b10] text-gray-900 dark:text-white'
+        <div className={`min-h-screen flex flex-col relative ${
+            isBento ? 'bg-[#fdfbf7] text-black' : 'bg-slate-50 dark:bg-[#0a0908] text-gray-900 dark:text-white'
         }`}>
+            <AmbientBackground />
             {/* Top Presentation Control Header (Hidden during print) */}
             <header className={`sticky top-0 z-30 border-b print:hidden transition-colors ${
                 isBento
                     ? 'bg-white border-b-3 border-black shadow-[0_3px_0px_#000]'
-                    : 'bg-white/90 dark:bg-[#13141f]/90 backdrop-blur-xl border-gray-200 dark:border-white/10 shadow-sm'
+                    : 'bg-white/90 dark:bg-[#141210]/90 backdrop-blur-xl border-gray-200 dark:border-white/10 shadow-sm'
             }`}>
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
                     {/* Left: Back + Title */}
@@ -723,8 +727,8 @@ const TeacherQuizRevisionPage: React.FC = () => {
                             onClick={() => navigate(`/quiz/${encodeURIComponent(quiz.id || quiz._id || '')}`)}
                             className={`px-3 py-2 rounded-xl text-[11px] font-black uppercase tracking-wider flex items-center gap-1.5 cursor-pointer transition-all ${
                                 isBento
-                                    ? 'bg-[#ddd6fe] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#c4b5fd]'
-                                    : 'bg-purple-500/10 text-purple-600 dark:text-purple-400 hover:bg-purple-500/20 border border-purple-500/20'
+                                    ? 'bg-[#fed7aa] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#fdba74]'
+                                    : 'bg-teal-500/10 text-teal-600 dark:text-teal-400 hover:bg-teal-500/20 border border-teal-500/20'
                             }`}
                             title="Launch interactive student attempt preview"
                         >
@@ -742,7 +746,7 @@ const TeacherQuizRevisionPage: React.FC = () => {
                     <div className={`p-3.5 rounded-2xl flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 print:hidden ${
                         isBento
                             ? 'bg-white border-2 border-black shadow-[3px_3px_0px_#000]'
-                            : 'bg-white dark:bg-[#13141f] border border-gray-200 dark:border-white/10 shadow-sm'
+                            : 'bg-white dark:bg-[#141210] border border-gray-200 dark:border-white/10 shadow-sm'
                     }`}>
                         {availableParts.length > 0 && (
                             <div className="flex flex-wrap items-center gap-1.5">
@@ -828,7 +832,7 @@ const TeacherQuizRevisionPage: React.FC = () => {
                             <div className={`p-3.5 rounded-2xl flex flex-wrap gap-1.5 print:hidden ${
                                 isBento
                                     ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000]'
-                                    : 'bg-white dark:bg-[#13141f] border border-gray-200 dark:border-white/10'
+                                    : 'bg-white dark:bg-[#141210] border border-gray-200 dark:border-white/10'
                             }`}>
                                 {filteredQuestions.map((qItem, idx) => {
                                     const uid = qItem.id ?? idx;
@@ -842,7 +846,7 @@ const TeacherQuizRevisionPage: React.FC = () => {
                                                 isActive
                                                     ? isBento
                                                         ? 'bg-black text-white border-2 border-black scale-110 shadow-[2px_2px_0px_#fde047]'
-                                                        : 'bg-indigo-600 text-white ring-2 ring-indigo-400 ring-offset-2 dark:ring-offset-[#13141f]'
+                                                        : 'bg-indigo-600 dark:bg-[#bef264] text-white dark:text-[#0a0908] ring-2 ring-indigo-400 dark:ring-[#bef264] ring-offset-2 dark:ring-offset-[#141210]'
                                                     : isRev && answerMode === 'ask_class_first'
                                                         ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/40'
                                                         : isBento
@@ -864,7 +868,7 @@ const TeacherQuizRevisionPage: React.FC = () => {
                                 <div className={`rounded-[2rem] p-6 sm:p-10 space-y-6 transition-all ${
                                     isBento
                                         ? 'bg-white text-black border-3 border-black shadow-[6px_6px_0px_#000]'
-                                        : 'bg-white dark:bg-[#13141f] border border-indigo-500/20 shadow-xl'
+                                        : 'bg-white dark:bg-[#141210] border border-indigo-500/20 shadow-xl'
                                 }`}>
                                     {/* Slide Top Metadata & Controls */}
                                     <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-gray-100 dark:border-white/5">
@@ -884,7 +888,7 @@ const TeacherQuizRevisionPage: React.FC = () => {
                                             <span className="px-2.5 py-1 rounded-lg text-[11px] font-black uppercase bg-amber-500/10 text-amber-600 dark:text-amber-400">
                                                 {currentQuestion.points || 10} Pts
                                             </span>
-                                            <span className="px-2.5 py-1 rounded-lg text-[11px] font-black uppercase bg-purple-500/10 text-purple-600 dark:text-purple-400">
+                                            <span className="px-2.5 py-1 rounded-lg text-[11px] font-black uppercase bg-teal-500/10 text-teal-600 dark:text-teal-400">
                                                 {(currentQuestion.isCompiler ? 'Compiler' : currentQuestion.type || 'Multiple Choice').replace('-', ' ')}
                                             </span>
                                         </div>
@@ -956,7 +960,7 @@ const TeacherQuizRevisionPage: React.FC = () => {
                                         <div className={`p-5 sm:p-6 rounded-2xl border-2 space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-200 ${
                                             isBento
                                                 ? 'bg-[#e0e7ff] text-black border-black shadow-[3px_3px_0px_#000]'
-                                                : 'bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border-indigo-500/25'
+                                                : 'bg-indigo-500/10 border-indigo-500/25'
                                         }`}>
                                             <div className={`flex items-center gap-2 font-black text-xs uppercase tracking-wider ${
                                                 isBento ? 'text-black' : 'text-indigo-600 dark:text-indigo-400'
@@ -1060,7 +1064,7 @@ const TeacherQuizRevisionPage: React.FC = () => {
                                         className={`p-6 rounded-3xl space-y-4 break-inside-avoid ${
                                             isBento
                                                 ? 'bg-white text-black border-2.5 border-black shadow-[4px_4px_0px_#000]'
-                                                : 'bg-white dark:bg-[#13141f] border border-gray-200 dark:border-white/10 shadow-sm'
+                                                : 'bg-white dark:bg-[#141210] border border-gray-200 dark:border-white/10 shadow-sm'
                                         }`}
                                     >
                                         <div className="flex items-center justify-between gap-2">

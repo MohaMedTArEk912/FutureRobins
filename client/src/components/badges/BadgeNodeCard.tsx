@@ -19,11 +19,11 @@ const BadgeNodeCard: React.FC<BadgeNodeCardProps> = ({
 }) => {
     const getRarityColor = (rarity: string) => {
         switch (rarity) {
-            case 'common': return 'from-blue-500 to-blue-600';
-            case 'rare': return 'from-purple-500 to-purple-600';
-            case 'epic': return 'from-orange-500 to-orange-600';
-            case 'legendary': return 'from-yellow-400 to-yellow-500';
-            default: return 'from-gray-500 to-gray-600';
+            case 'common': return 'bg-sky-600';
+            case 'rare': return 'bg-teal-600';
+            case 'epic': return 'bg-orange-600';
+            case 'legendary': return 'bg-amber-500';
+            default: return 'bg-slate-600';
         }
     };
 
@@ -57,22 +57,22 @@ const BadgeNodeCard: React.FC<BadgeNodeCardProps> = ({
             {/* Glow effect for unlocked badges */}
             {isUnlocked && (
                 <div
-                    className={`absolute inset-0 rounded-full bg-gradient-to-br ${getRarityColor(badge.rarity)} opacity-20 blur-xl group-hover:opacity-30 transition-opacity`}
+                    className={`absolute inset-0 rounded-full ${getRarityColor(badge.rarity)} opacity-15 transition-opacity`}
                 />
             )}
 
             {/* Pulse effect for unlockable badges */}
             {canUnlock && !isUnlocked && (
-                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 opacity-20 animate-pulse" />
+                <div className="absolute inset-0 rounded-full bg-green-500 opacity-20 animate-pulse" />
             )}
 
             {/* Main badge circle */}
             <div
                 className={`relative ${sizeClasses[size]} rounded-full border-4 flex items-center justify-center transition-all duration-300 ${isUnlocked
-                    ? `bg-gradient-to-br ${getRarityColor(badge.rarity)} border-white/30 shadow-lg group-hover:scale-105`
+                    ? `${getRarityColor(badge.rarity)} border-white/30 shadow-lg group-hover:scale-105`
                     : canUnlock
-                        ? 'bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 border-green-500/30 dark:border-green-500/50 group-hover:border-green-500'
-                        : 'bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-800 dark:to-gray-900 border-gray-300 dark:border-gray-700 opacity-60'
+                        ? 'bg-gray-100 dark:bg-gray-700 border-green-500/30 dark:border-green-500/50 group-hover:border-green-500'
+                        : 'bg-gray-200 dark:bg-gray-800 border-gray-300 dark:border-[#f5f3ec]/16 opacity-60'
                     }`}
                 style={{ backgroundColor: badge.color }}
             >
@@ -96,7 +96,7 @@ const BadgeNodeCard: React.FC<BadgeNodeCardProps> = ({
                 )}
 
                 {/* Rarity indicator */}
-                <div className={`absolute -bottom-1 -right-1 bg-gradient-to-br ${getRarityColor(badge.rarity)} rounded-full p-1.5 border-2 border-white shadow-lg`}>
+                <div className={`absolute -bottom-1 -right-1 ${getRarityColor(badge.rarity)} rounded-full p-1.5 border-2 border-white shadow-lg`}>
                     {getRarityIcon(badge.rarity)}
                 </div>
             </div>
@@ -114,7 +114,7 @@ const BadgeNodeCard: React.FC<BadgeNodeCardProps> = ({
             {size === 'large' && (isUnlocked || canUnlock) && (
                 <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 flex gap-2 text-xs">
                     {badge.rewards.xp > 0 && (
-                        <span className="bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300 px-2 py-1 rounded">
+                        <span className="bg-teal-100 dark:bg-teal-500/20 text-teal-700 dark:text-teal-300 px-2 py-1 rounded">
                             +{badge.rewards.xp} XP
                         </span>
                     )}

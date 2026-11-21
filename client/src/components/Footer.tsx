@@ -8,9 +8,12 @@ import {
     Loader2,
     AlertCircle,
     CheckCircle2,
-    BellRing
+    BellRing,
+    ArrowUp,
+    X
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
+import { useSecretGame } from '../context/SecretGameContext';
 import { useNotification } from '../context/NotificationContext';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -20,7 +23,8 @@ import Modal from './common/Modal';
 const Footer: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { isBento } = useTheme();
+    const { theme, isBento } = useTheme();
+    const { launchNoirSnake, launchBentoArcade } = useSecretGame();
     const { showNotification } = useNotification();
     const { currentUser } = useAuth();
     const { tx } = useLanguage();
@@ -323,229 +327,229 @@ const Footer: React.FC = () => {
 
     return (
         <>
-            <footer className={`w-full mt-auto border-t transition-colors ${
+            <footer data-snake-wall="bottom" className={`noir-footer relative z-10 w-full mt-auto border-t transition-colors ${
                 isBento
-                    ? 'bg-white text-black border-t-3 border-black shadow-[0_-4px_0px_#000]'
-                    : 'bg-slate-900 text-slate-300 border-slate-800'
+                    ? 'bg-white text-black border-t-[3px] border-black shadow-[0_-4px_0px_#000]'
+                    : 'bg-slate-900 dark:bg-[#0e0d0b] text-slate-300 dark:text-[#b5aea4] border-slate-800 dark:border-[#2a2621]'
             }`}>
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 md:py-16">
-                    {/* Top Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-12 mb-12">
-                        {/* Brand Column (5 cols) */}
-                        <div className="lg:col-span-5 space-y-4">
-                            {/* Clickable Logo with Scroll-Up */}
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-8 pb-24 md:pt-10 xl:pb-7">
+                    {/* Main Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-7 lg:gap-8 pb-7">
+                        {/* Brand Column (4 cols) */}
+                        <div className="sm:col-span-2 lg:col-span-4 space-y-3.5">
                             <button
                                 type="button"
                                 onClick={() => handleFooterNav('/')}
-                                className="flex items-center gap-2.5 group cursor-pointer text-start outline-none focus:outline-none border-0"
+                                className="logo-btn inline-flex items-center gap-2.5 group cursor-pointer text-start outline-none focus:outline-none border-0"
                                 aria-label={tx('Quiz Platform Home', 'الصفحة الرئيسية لمنصة Quiz Platform')}
                             >
-                                <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-black text-base transition-transform group-hover:scale-105 ${
+                                <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-black text-base transition-transform group-hover:-translate-y-0.5 ${
                                     isBento
                                         ? 'bg-[#fde047] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                        : 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
+                                        : 'bg-indigo-600 dark:bg-[#bef264] text-white dark:text-[#0a0908] dark:border dark:border-[#0a0908] shadow-sm dark:shadow-[0_3px_0_#050504]'
                                 }`}>
                                     Q
                                 </div>
-                                <div className="flex flex-col">
-                                    <span className={`text-lg font-black tracking-tight ${
-                                        isBento ? 'text-black font-mono' : 'text-white'
+                                <div className="flex flex-col leading-tight">
+                                    <span className={`text-base font-black tracking-tight ${
+                                        isBento ? 'text-black font-mono' : 'text-white dark:text-[#f5f3ec]'
                                     }`}>
                                         Quiz Platform
                                     </span>
-                                    <span className="text-[10px] uppercase font-bold tracking-widest text-indigo-500">
+                                    <span className={`text-[10px] uppercase font-extrabold tracking-[0.14em] ${
+                                        isBento ? 'text-black/65 font-mono' : 'text-indigo-400 dark:text-[#fde047]'
+                                    }`}>
                                         {tx('CS Learning Engine', 'محرك تعلّم علوم الحاسب')}
                                     </span>
                                 </div>
                             </button>
 
-                            <p className={`text-xs sm:text-sm leading-relaxed max-w-sm ${
-                                isBento ? 'text-slate-800 font-medium' : 'text-slate-400'
+                            <p className={`text-xs leading-relaxed max-w-xs ${
+                                isBento ? 'text-slate-700 font-medium' : 'text-slate-400 dark:text-[#9c958b]'
                             }`}>
                                 {tx(
-                                    'Next-generation gamified learning platform for computer science students, software engineers, and code enthusiasts. Master algorithms, languages, and architecture.',
-                                    'منصة تعليمية تفاعلية حديثة لطلاب علوم الحاسب ومهندسي البرمجيات ومحبي الكود. اتقن الخوارزميات ولغات البرمجة وهندسة الأنظمة.'
+                                    'Gamified computer science arena for mastering algorithms, languages, and systems architecture.',
+                                    'منصة تعليمية تفاعلية لإتقان الخوارزميات ولغات البرمجة وهندسة الأنظمة.'
                                 )}
                             </p>
 
+                            {/* Compact Action Strip */}
+                            <div className="flex flex-wrap items-center gap-2 pt-0.5">
+                                <button
+                                    type="button"
+                                    onClick={() => setActiveModal('support')}
+                                    className={`logo-btn inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold transition-colors cursor-pointer ${
+                                        isBento
+                                            ? 'bg-[#bae6fd] text-black border-[1.5px] border-black shadow-[2px_2px_0px_#000] hover:bg-[#7dd3fc]'
+                                            : 'bg-slate-800 hover:bg-slate-700 dark:bg-[#171512] dark:hover:bg-[#1f1c18] text-slate-200 dark:text-[#f5f3ec] border border-slate-700 dark:border-[#2e2924]'
+                                    }`}
+                                >
+                                    <LifeBuoy className={`w-3 h-3 ${isBento ? 'text-black' : 'text-indigo-400 dark:text-[#bae6fd]'}`} />
+                                    <span>{tx('Need Help?', 'محتاج مساعدة؟')}</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                                    className={`logo-btn inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold transition-colors cursor-pointer ${
+                                        isBento
+                                            ? 'bg-[#f5f3ec] text-black border-[1.5px] border-black shadow-[2px_2px_0px_#000] hover:bg-[#fde047]'
+                                            : 'bg-slate-800/70 hover:bg-slate-700 dark:bg-[#171512] dark:hover:bg-[#1f1c18] text-slate-300 dark:text-[#a8a29e] dark:hover:text-[#f5f3ec] border border-slate-700/80 dark:border-[#2e2924]'
+                                    }`}
+                                    aria-label={tx('Back to top', 'العودة للأعلى')}
+                                >
+                                    <ArrowUp className="w-3 h-3" />
+                                    <span>{tx('Top', 'أعلى')}</span>
+                                </button>
+                            </div>
                         </div>
 
-                        {/* Quick Links (2 cols) */}
-                        <div className="lg:col-span-2 space-y-3">
-                            <h4 className={`text-xs font-black uppercase tracking-wider ${
-                                isBento ? 'text-black font-mono' : 'text-white'
+                        {/* Explore Links (2 cols) */}
+                        <div className="lg:col-span-2 space-y-2.5">
+                            <h4 className={`text-[11px] font-black uppercase tracking-[0.14em] flex items-center gap-2 ${
+                                isBento ? 'text-black font-mono' : 'text-white dark:text-[#f5f3ec]'
                             }`}>
+                                <span className={`w-1.5 h-1.5 rounded-[2px] shrink-0 ${
+                                    isBento ? 'bg-black' : 'bg-indigo-400 dark:bg-[#bef264]'
+                                }`} />
                                 {tx('Explore', 'استكشف')}
                             </h4>
-                            <ul className="space-y-2 text-xs">
-                                <li>
-                                    <button
-                                        type="button"
-                                        onClick={() => handleFooterNav('/')}
-                                        className="hover:text-indigo-400 transition-colors text-start cursor-pointer outline-none focus:outline-none border-0"
-                                    >
-                                        {tx('Home Dashboard', 'لوحة التحكم')}
-                                    </button>
-                                </li>
-                                <li>
-                                    <button
-                                        type="button"
-                                        onClick={() => handleFooterNav('/tracks')}
-                                        className="hover:text-indigo-400 transition-colors text-start cursor-pointer outline-none focus:outline-none border-0"
-                                    >
-                                        {tx('Skill Tracks', 'مسارات التعلم')}
-                                    </button>
-                                </li>
-                                <li>
-                                    <button
-                                        type="button"
-                                        onClick={() => handleFooterNav('/study')}
-                                        className="hover:text-indigo-400 transition-colors text-start cursor-pointer outline-none focus:outline-none border-0"
-                                    >
-                                        {tx('Study Flashcards', 'بطاقات المراجعة')}
-                                    </button>
-                                </li>
-                                <li>
-                                    <button
-                                        type="button"
-                                        onClick={() => handleFooterNav('/tournaments')}
-                                        className="hover:text-indigo-400 transition-colors text-start cursor-pointer outline-none focus:outline-none border-0"
-                                    >
-                                        {tx('Tournaments', 'البطولات')}
-                                    </button>
-                                </li>
-                                <li>
-                                    <button
-                                        type="button"
-                                        onClick={() => handleFooterNav('/daily')}
-                                        className="hover:text-indigo-400 transition-colors text-start cursor-pointer outline-none focus:outline-none border-0"
-                                    >
-                                        {tx('Daily Challenge', 'التحدي اليومي')}
-                                    </button>
-                                </li>
+                            <ul className="space-y-1.5 text-xs">
+                                {[
+                                    { path: '/', label: tx('Home Dashboard', 'لوحة التحكم') },
+                                    { path: '/tracks', label: tx('Skill Tracks', 'مسارات التعلم') },
+                                    { path: '/tournaments', label: tx('Tournaments', 'البطولات') },
+                                    { path: '/daily', label: tx('Daily Challenge', 'التحدي اليومي') }
+                                ].map((item) => (
+                                    <li key={item.path}>
+                                        <button
+                                            type="button"
+                                            onClick={() => handleFooterNav(item.path)}
+                                            className={`transition-colors text-start cursor-pointer outline-none focus:outline-none border-0 ${
+                                                isBento
+                                                    ? 'text-slate-700 hover:text-black font-semibold hover:underline'
+                                                    : 'text-slate-400 dark:text-[#a8a29e] hover:text-white dark:hover:text-[#bef264]'
+                                            }`}
+                                        >
+                                            {item.label}
+                                        </button>
+                                    </li>
+                                ))}
                             </ul>
                         </div>
 
-                        {/* Community & Competition (2 cols) */}
-                        <div className="lg:col-span-2 space-y-3">
-                            <h4 className={`text-xs font-black uppercase tracking-wider ${
-                                isBento ? 'text-black font-mono' : 'text-white'
+                        {/* Community Links (2 cols) */}
+                        <div className="lg:col-span-2 space-y-2.5">
+                            <h4 className={`text-[11px] font-black uppercase tracking-[0.14em] flex items-center gap-2 ${
+                                isBento ? 'text-black font-mono' : 'text-white dark:text-[#f5f3ec]'
                             }`}>
+                                <span className={`w-1.5 h-1.5 rounded-[2px] shrink-0 ${
+                                    isBento ? 'bg-black' : 'bg-sky-400 dark:bg-[#bae6fd]'
+                                }`} />
                                 {tx('Community', 'المجتمع')}
                             </h4>
-                            <ul className="space-y-2 text-xs">
-                                <li>
-                                    <button
-                                        type="button"
-                                        onClick={() => handleFooterNav('/leaderboard')}
-                                        className="hover:text-indigo-400 transition-colors text-start cursor-pointer outline-none focus:outline-none border-0"
-                                    >
-                                        {tx('Global Rankings', 'الترتيب العالمي')}
-                                    </button>
-                                </li>
-                                <li>
-                                    <button
-                                        type="button"
-                                        onClick={() => handleFooterNav('/clans')}
-                                        className="hover:text-indigo-400 transition-colors text-start cursor-pointer outline-none focus:outline-none border-0"
-                                    >
-                                        {tx('Clans & Guilds', 'الكلانات والفرق')}
-                                    </button>
-                                </li>
-                                <li>
-                                    <button
-                                        type="button"
-                                        onClick={() => handleFooterNav('/social')}
-                                        className="hover:text-indigo-400 transition-colors text-start cursor-pointer outline-none focus:outline-none border-0"
-                                    >
-                                        {tx('1v1 Live Duels', 'مواجهات 1 ضد 1')}
-                                    </button>
-                                </li>
-                                <li>
-                                    <button
-                                        type="button"
-                                        onClick={() => handleFooterNav('/shop')}
-                                        className="hover:text-indigo-400 transition-colors text-start cursor-pointer outline-none focus:outline-none border-0"
-                                    >
-                                        {tx('Power-Up Shop', 'متجر المساعدات')}
-                                    </button>
-                                </li>
+                            <ul className="space-y-1.5 text-xs">
+                                {[
+                                    { path: '/leaderboard', label: tx('Global Rankings', 'الترتيب العالمي') },
+                                    { path: '/clans', label: tx('Clans & Guilds', 'الكلانات والفرق') },
+                                    { path: '/social', label: tx('1v1 Live Duels', 'مواجهات 1 ضد 1') },
+                                    { path: '/shop', label: tx('Power-Up Shop', 'متجر المساعدات') }
+                                ].map((item) => (
+                                    <li key={item.path}>
+                                        <button
+                                            type="button"
+                                            onClick={() => handleFooterNav(item.path)}
+                                            className={`transition-colors text-start cursor-pointer outline-none focus:outline-none border-0 ${
+                                                isBento
+                                                    ? 'text-slate-700 hover:text-black font-semibold hover:underline'
+                                                    : 'text-slate-400 dark:text-[#a8a29e] hover:text-white dark:hover:text-[#bae6fd]'
+                                            }`}
+                                        >
+                                            {item.label}
+                                        </button>
+                                    </li>
+                                ))}
                             </ul>
                         </div>
 
-                        {/* Newsletter & Updates (3 cols) */}
-                        <div className="lg:col-span-3 space-y-3">
-                            <h4 className={`text-xs font-black uppercase tracking-wider flex items-center gap-1.5 ${
-                                isBento ? 'text-black font-mono' : 'text-white'
+                        {/* Compact Weekly Challenge Alerts (4 cols) */}
+                        <div className="sm:col-span-2 lg:col-span-4 space-y-2.5">
+                            <h4 className={`text-[11px] font-black uppercase tracking-[0.14em] flex items-center gap-1.5 ${
+                                isBento ? 'text-black font-mono' : 'text-white dark:text-[#f5f3ec]'
                             }`}>
-                                <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-                                {tx('Weekly Challenges', 'التحديات الأسبوعية')}
+                                <Sparkles className={`w-3.5 h-3.5 ${isBento ? 'text-black' : 'text-indigo-400 dark:text-[#fde047]'}`} />
+                                {tx('Weekly Alerts', 'تنبيهات التحديات')}
                             </h4>
-                            {isAlreadySubscribed ? (
-                                <div className={`p-4 rounded-2xl border transition-all animate-in fade-in duration-300 ${
-                                    isBento
-                                        ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000]'
-                                        : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
-                                }`}>
-                                    <div className="flex items-start gap-2.5">
-                                        <div className={`p-1.5 rounded-lg shrink-0 ${
-                                            isBento ? 'bg-black text-white' : 'bg-emerald-500/20 text-emerald-400'
-                                        }`}>
-                                            <BellRing className="w-4 h-4" />
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-1.5">
-                                                <span className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-white'}`}>
-                                                    {tx('Notifications Active', 'الإشعارات شغالة')}
-                                                </span>
-                                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                                            </div>
-                                            <p className={`text-[11px] leading-relaxed mt-1 ${
-                                                isBento ? 'text-black/80 font-semibold' : 'text-slate-300'
-                                            }`}>
-                                                {tx(
-                                                    "You're subscribed! You'll be notified automatically anytime new algorithmic challenges and learning tracks drop.",
-                                                    'أنت مشترك! هيوصلك إشعار تلقائي أول ما تنزل تحديات خوارزميات أو مسارات تعلم جديدة.'
-                                                )}
-                                            </p>
-                                            {subscribedEmail && (
-                                                <div className={`mt-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono font-bold truncate max-w-full ${
-                                                    isBento
-                                                        ? 'bg-white text-black border border-black'
-                                                        : 'bg-black/40 text-emerald-300 border border-emerald-500/20'
-                                                }`}>
-                                                    <Mail className="w-3 h-3 shrink-0" />
-                                                    <span className="truncate">{subscribedEmail}</span>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
 
-                                    <div className="mt-3 pt-2.5 border-t border-black/10 dark:border-white/10 flex items-center justify-between text-[10px]">
-                                        <span className={`font-semibold ${isBento ? 'text-black/60' : 'text-slate-400'}`}>
-                                            {tx('VIP Challenge Alert', 'تنبيه التحديات المميز')}
-                                        </span>
+                            {isAlreadySubscribed ? (
+                                <div className={`px-3 py-2.5 rounded-xl border transition-all animate-in fade-in duration-200 max-w-sm ${
+                                    isBento
+                                        ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                        : 'bg-slate-800/80 dark:bg-[#161411] border-slate-700 dark:border-[#2e2924]'
+                                }`}>
+                                    <div className="flex items-center justify-between gap-2">
+                                        <div className="flex items-center gap-2 min-w-0">
+                                            <span className={`w-6 h-6 rounded-lg flex items-center justify-center shrink-0 ${
+                                                isBento
+                                                    ? 'bg-black text-[#bef264]'
+                                                    : 'bg-indigo-500/20 dark:bg-[#bef264] text-indigo-300 dark:text-[#0a0908]'
+                                            }`}>
+                                                <BellRing className="w-3.5 h-3.5" />
+                                            </span>
+                                            <div className="min-w-0">
+                                                <div className="flex items-center gap-1.5">
+                                                    <span className={`text-[11px] font-black uppercase tracking-wider ${
+                                                        isBento ? 'text-black' : 'text-white dark:text-[#f5f3ec]'
+                                                    }`}>
+                                                        {tx('Alerts On', 'الإشعارات مفعّلة')}
+                                                    </span>
+                                                    <CheckCircle2 className={`w-3 h-3 shrink-0 ${
+                                                        isBento ? 'text-black' : 'text-emerald-400 dark:text-[#bef264]'
+                                                    }`} />
+                                                </div>
+                                                {subscribedEmail && (
+                                                    <div className={`flex items-center gap-1 text-[11px] font-mono truncate ${
+                                                        isBento ? 'text-black/75 font-bold' : 'text-slate-400 dark:text-[#a8a29e]'
+                                                    }`}>
+                                                        <Mail className="w-2.5 h-2.5 shrink-0 opacity-75" />
+                                                        <span className="truncate">{subscribedEmail}</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+
                                         <button
                                             type="button"
                                             onClick={handleUnsubscribe}
                                             disabled={isUnsubscribing}
-                                            className={`font-bold hover:underline transition-colors cursor-pointer ${
-                                                isBento ? 'text-red-700' : 'text-rose-400'
+                                            title={tx('Unsubscribe or change email', 'إلغاء الاشتراك أو تغيير الإيميل')}
+                                            className={`logo-btn inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider shrink-0 transition-colors cursor-pointer disabled:opacity-50 ${
+                                                isBento
+                                                    ? 'bg-white text-black border-[1.5px] border-black hover:bg-[#fecdd3]'
+                                                    : 'bg-slate-900/80 dark:bg-[#0e0d0b] text-slate-300 dark:text-[#a8a29e] hover:text-rose-400 dark:hover:text-[#fb7185] border border-slate-700 dark:border-[#2e2924]'
                                             }`}
                                         >
-                                            {isUnsubscribing ? tx('Updating...', 'جاري التحديث...') : tx('Unsubscribe / Change', 'إلغاء الاشتراك / تغيير')}
+                                            {isUnsubscribing ? (
+                                                <Loader2 className="w-3 h-3 animate-spin" />
+                                            ) : (
+                                                <>
+                                                    <X className="w-3 h-3" />
+                                                    <span>{tx('Off', 'إيقاف')}</span>
+                                                </>
+                                            )}
                                         </button>
                                     </div>
                                 </div>
                             ) : (
-                                <>
-                                    <p className={`text-xs ${isBento ? 'text-slate-700 font-medium' : 'text-slate-400'}`}>
+                                <div className="space-y-2 max-w-sm">
+                                    <p className={`text-xs leading-snug ${
+                                        isBento ? 'text-slate-700 font-medium' : 'text-slate-400 dark:text-[#9c958b]'
+                                    }`}>
                                         {tx(
-                                            'Get notified when new algorithmic challenges and learning tracks drop.',
-                                            'استلم إشعار أول ما تنزل تحديات خوارزميات ومسارات تعلم جديدة.'
+                                            'Get notified when new challenges & tracks drop.',
+                                            'استلم إشعار أول ما تنزل تحديات ومسارات جديدة.'
                                         )}
                                     </p>
-                                    <form onSubmit={handleNewsletterSubmit} className="space-y-2">
+                                    <form onSubmit={handleNewsletterSubmit}>
                                         <div className="relative">
                                             <input
                                                 type="email"
@@ -553,83 +557,142 @@ const Footer: React.FC = () => {
                                                 onChange={(e) => setEmailInput(e.target.value)}
                                                 placeholder={tx('Enter your email', 'اكتب بريدك الإلكتروني')}
                                                 disabled={isSubscribing}
-                                                className={`w-full py-2 ps-3 pe-9 rounded-xl text-xs outline-none transition-all ${
+                                                className={`w-full h-9 ps-3 pe-10 rounded-xl text-xs outline-none transition-all ${
                                                     isBento
                                                         ? 'bg-white border-2 border-black text-black font-bold focus:ring-2 focus:ring-black placeholder:text-slate-400 disabled:opacity-50'
-                                                        : 'bg-white/5 border border-white/10 text-white placeholder:text-slate-500 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 disabled:opacity-50'
+                                                        : 'bg-slate-800/80 dark:bg-[#161411] border border-slate-700 dark:border-[#2e2924] text-white dark:text-[#f5f3ec] placeholder:text-slate-500 dark:placeholder:text-[#78716c] focus:border-indigo-500 dark:focus:border-[#bef264] disabled:opacity-50'
                                                 }`}
                                             />
                                             <button
                                                 type="submit"
                                                 disabled={isSubscribing || !emailInput.trim()}
-                                                className={`absolute end-1 top-1 bottom-1 px-2.5 rounded-lg flex items-center justify-center transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
+                                                className={`absolute end-1 top-1 bottom-1 px-2.5 rounded-lg flex items-center justify-center transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
                                                     isBento
                                                         ? 'bg-[#bef264] text-black border border-black hover:bg-[#a3e635]'
-                                                        : 'bg-indigo-600 hover:bg-indigo-500 text-white'
+                                                        : 'bg-indigo-600 hover:bg-indigo-500 dark:bg-[#bef264] dark:hover:bg-[#d2fa8a] text-white dark:text-[#0a0908]'
                                                 }`}
                                                 aria-label={tx('Subscribe', 'اشتراك')}
                                             >
                                                 {isSubscribing ? (
-                                                    <Loader2 className="w-3 h-3 animate-spin" />
+                                                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
                                                 ) : (
-                                                    <Send className="w-3 h-3" />
+                                                    <Send className="w-3.5 h-3.5" />
                                                 )}
                                             </button>
                                         </div>
                                     </form>
-                                </>
+                                </div>
                             )}
                         </div>
                     </div>
 
-                    {/* Bottom Row */}
-                    <div className={`pt-8 border-t flex flex-col sm:flex-row items-center justify-between gap-4 text-xs ${
+                    {/* Bottom Bar */}
+                    <div className={`pt-5 border-t flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] ${
                         isBento
-                            ? 'border-t-2 border-black text-slate-800'
-                            : 'border-slate-800/80 text-slate-500'
+                            ? 'border-t-2 border-black text-slate-800 font-semibold'
+                            : 'border-slate-800 dark:border-[#23201c] text-slate-400 dark:text-[#888177]'
                     }`}>
-                        {/* Dynamic Copyright Year & Creator Credit */}
-                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs">
-                            <span>&copy; {currentYear} Quiz Platform.</span>
-                            <span className="hidden sm:inline text-slate-500 dark:text-slate-600">•</span>
-                            <span className="inline-flex items-center gap-1">
-                                {tx('Made by', 'تطوير')} <span className={`font-bold ${isBento ? 'text-black font-black underline decoration-2' : 'text-indigo-400 font-semibold'}`}>Mohamed Tarek</span>
+                        <div className="flex flex-wrap items-center justify-center sm:justify-start gap-1.5 sm:gap-2">
+                            <span>&copy; {currentYear} Quiz Platform</span>
+                            <span className="opacity-40">·</span>
+                            <span>
+                                {tx('Made by', 'تطوير')}{' '}
+                                <span className={`font-bold ${
+                                    isBento ? 'text-black font-black underline decoration-2' : 'text-indigo-400 dark:text-[#fde047]'
+                                }`}>
+                                    Mohamed Tarek
+                                </span>
                             </span>
-                            <span className="hidden sm:inline text-slate-500 dark:text-slate-600">•</span>
-                            <span>{tx('All rights reserved.', 'جميع الحقوق محفوظة.')}</span>
+                            <span className="hidden sm:inline opacity-40">·</span>
+                            <span className="hidden sm:inline">{tx('All rights reserved.', 'جميع الحقوق محفوظة.')}</span>
                         </div>
 
-                        {/* Legal & Help Modal Triggers */}
-                        <div className="flex flex-wrap items-center gap-4 sm:gap-6 font-medium">
+                        <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-5 font-semibold">
                             <button
                                 type="button"
                                 onClick={() => setActiveModal('privacy')}
-                                className="hover:text-indigo-400 transition-colors cursor-pointer outline-none focus:outline-none border-0"
+                                className={`transition-colors cursor-pointer outline-none focus:outline-none border-0 ${
+                                    isBento ? 'hover:text-black hover:underline' : 'hover:text-white dark:hover:text-[#bef264]'
+                                }`}
                             >
-                                {tx('Privacy Policy', 'سياسة الخصوصية')}
+                                {tx('Privacy', 'الخصوصية')}
                             </button>
                             <button
                                 type="button"
                                 onClick={() => setActiveModal('terms')}
-                                className="hover:text-indigo-400 transition-colors cursor-pointer outline-none focus:outline-none border-0"
+                                className={`transition-colors cursor-pointer outline-none focus:outline-none border-0 ${
+                                    isBento ? 'hover:text-black hover:underline' : 'hover:text-white dark:hover:text-[#bef264]'
+                                }`}
                             >
-                                {tx('Terms of Service', 'شروط الاستخدام')}
+                                {tx('Terms', 'الشروط')}
                             </button>
                             <button
                                 type="button"
                                 onClick={() => setActiveModal('support')}
-                                className="btn-unstyled hover:text-indigo-400 transition-colors cursor-pointer flex items-center gap-1 outline-none focus:outline-none !border-0 !shadow-none"
+                                className={`btn-unstyled transition-colors cursor-pointer inline-flex items-center gap-1 outline-none focus:outline-none !border-0 !shadow-none ${
+                                    isBento ? 'hover:text-black hover:underline' : 'hover:text-white dark:hover:text-[#bae6fd]'
+                                }`}
                             >
-                                <LifeBuoy className="w-3.5 h-3.5 text-indigo-400" />
+                                <LifeBuoy className={`w-3 h-3 ${isBento ? 'text-black' : 'text-indigo-400 dark:text-[#bae6fd]'}`} />
                                 {tx('Support', 'الدعم الفني')}
                             </button>
                             <button
                                 type="button"
                                 onClick={() => setActiveModal('faq')}
-                                className="hover:text-indigo-400 transition-colors cursor-pointer outline-none focus:outline-none border-0"
+                                className={`transition-colors cursor-pointer outline-none focus:outline-none border-0 ${
+                                    isBento ? 'hover:text-black hover:underline' : 'hover:text-white dark:hover:text-[#bef264]'
+                                }`}
                             >
-                                {tx('FAQ & Help', 'الأسئلة الشائعة')}
+                                {tx('FAQ', 'الأسئلة الشائعة')}
                             </button>
+                            {theme === 'dark' && !isBento && (
+                                <button
+                                    type="button"
+                                    onClick={launchNoirSnake}
+                                    title="// 0xSNAKE"
+                                    aria-label={tx('Launch secret Noir Snake Arcade', 'تشغيل لعبة الثعبان السرية')}
+                                    className="btn-unstyled group inline-flex items-center justify-center w-6 h-6 rounded-md border border-[#2e2924] bg-[#141210]/80 text-[#78716c] hover:border-[#bef264] hover:text-[#bef264] hover:bg-[#192211] transition-all cursor-pointer opacity-60 hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-1 focus-visible:outline-[#bef264]"
+                                >
+                                    <svg
+                                        viewBox="0 0 16 16"
+                                        className="w-3.5 h-3.5"
+                                        fill="none"
+                                        aria-hidden="true"
+                                    >
+                                        <rect x="2" y="10" width="3" height="3" stroke="currentColor" strokeWidth="1.2" />
+                                        <rect x="6.5" y="10" width="3" height="3" stroke="currentColor" strokeWidth="1.2" />
+                                        <rect x="6.5" y="5.5" width="3" height="3" stroke="currentColor" strokeWidth="1.2" />
+                                        <rect
+                                            x="11"
+                                            y="5.5"
+                                            width="3.2"
+                                            height="3.2"
+                                            fill="currentColor"
+                                            className="group-hover:fill-[#bef264]"
+                                        />
+                                    </svg>
+                                </button>
+                            )}
+                            {isBento && (
+                                <button
+                                    type="button"
+                                    onClick={launchBentoArcade}
+                                    title="BENTO // ARCADE"
+                                    aria-label={tx('Launch secret Bento Arcade', 'تشغيل أركيد بينتو السري')}
+                                    className="btn-unstyled group inline-flex items-center justify-center w-6 h-6 rounded-md border-2 border-black bg-white/80 hover:bg-[#fde047] shadow-[1.5px_1.5px_0px_#000] hover:shadow-[2.5px_2.5px_0px_#000] hover:-translate-y-0.5 transition-all cursor-pointer opacity-75 hover:opacity-100"
+                                >
+                                    <svg
+                                        viewBox="0 0 16 16"
+                                        className="w-3.5 h-3.5"
+                                        fill="none"
+                                        aria-hidden="true"
+                                    >
+                                        <rect x="2" y="2" width="5" height="5" rx="1" fill="#bef264" stroke="#000" strokeWidth="1.4" />
+                                        <rect x="9" y="2" width="5" height="5" rx="1" fill="#bae6fd" stroke="#000" strokeWidth="1.4" />
+                                        <rect x="2" y="9" width="12" height="5" rx="1" fill="#fde047" stroke="#000" strokeWidth="1.4" />
+                                    </svg>
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -733,7 +796,7 @@ const Footer: React.FC = () => {
                             disabled={isSubmittingSupport}
                             className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer active:scale-95 disabled:opacity-50 flex items-center gap-2 ${
                                 isBento
-                                    ? 'bg-[#8b5cf6] !text-white border-2 border-black shadow-[3.5px_3.5px_0px_#000] hover:shadow-[5px_5px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5'
+                                    ? 'bg-[#0d9488] !text-white border-2 border-black shadow-[3.5px_3.5px_0px_#000] hover:shadow-[5px_5px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5'
                                     : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/25'
                             }`}
                         >

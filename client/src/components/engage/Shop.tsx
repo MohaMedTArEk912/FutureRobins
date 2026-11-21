@@ -12,12 +12,14 @@ interface ShopProps {
   onUserUpdate: (updates: Partial<UserData>) => void;
 }
 
+let cachedShopItemsList: ShopItem[] | null = null;
+
 const Shop: React.FC<ShopProps> = ({ user, onUserUpdate }) => {
   const { isBento } = useTheme();
   const { tx } = useLanguage();
-  const [items, setItems] = useState<ShopItem[]>([]);
+  const [items, setItems] = useState<ShopItem[]>(() => cachedShopItemsList || []);
   const [activeTab, setActiveTab] = useState<'powerups' | 'style'>('powerups');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => !cachedShopItemsList);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [purchasingId, setPurchasingId] = useState<string | null>(null);
@@ -26,9 +28,14 @@ const Shop: React.FC<ShopProps> = ({ user, onUserUpdate }) => {
     const fetchItems = async () => {
       try {
         const shopItems = await api.getShopItems();
-        setItems(shopItems);
+        if (Array.isArray(shopItems)) {
+          cachedShopItemsList = shopItems;
+          setItems(shopItems);
+        }
       } catch (err) {
-        setError("Failed to load shop items. Please try again later.");
+        if (!cachedShopItemsList) {
+          setError("Failed to load shop items. Please try again later.");
+        }
         console.error(err);
       } finally {
         setLoading(false);
@@ -133,7 +140,7 @@ const Shop: React.FC<ShopProps> = ({ user, onUserUpdate }) => {
     return (
       <div className="p-6 flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-purple-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-16 h-16 border-4 border-teal-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-white text-xl font-semibold">{DEFAULT_SHOP_LOADING_MESSAGE}</p>
         </div>
       </div>
@@ -275,8 +282,8 @@ const Shop: React.FC<ShopProps> = ({ user, onUserUpdate }) => {
                   <div className="mb-4 text-center">
                     <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto group-hover:scale-105 transition-transform duration-300 ${
                       isBento
-                        ? 'bg-[#ddd6fe] text-black border-2 border-black shadow-[3px_3px_0px_#000]'
-                        : `bg-gradient-to-br ${gradient} shadow-md`
+                        ? 'bg-[#fed7aa] text-black border-2 border-black shadow-[3px_3px_0px_#000]'
+                        : `${gradient} shadow-md`
                     }`}>
                       {getItemIcon(item.name)}
                     </div>
@@ -328,7 +335,7 @@ const Shop: React.FC<ShopProps> = ({ user, onUserUpdate }) => {
                             ? 'bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400'
                             : canAfford
                               ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-600/20'
-                              : 'bg-slate-200 dark:bg-slate-800 text-slate-500'
+                              : 'bg-slate-200 dark:bg-[#1c1917] text-slate-500'
                       }`}
                     >
                       {isPurchasing ? (

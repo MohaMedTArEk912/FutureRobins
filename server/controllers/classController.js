@@ -10,6 +10,7 @@ import { sendClanInviteEmail, sendHomeworkAlertEmail, isDeliverableEmail } from 
 import { evaluateAndAwardBadges } from '../services/badgeService.js';
 import { createAndSendNotification } from './notificationController.js';
 import { runInBackground } from '../utils/vercelUtils.js';
+import { isDemoReq, isDemoUserId, NON_DEMO_CLAN_FILTER, isDemoClanDoc } from '../utils/demoFilter.js';
 
 const dispatchClassAlertEmails = async ({
   targetIds,
@@ -288,11 +289,24 @@ export const createClan = async (req, res) => {
 export const getMyClasses = async (req, res) => {
   try {
     const userId = req.user.userId;
-    const classes = await Clan.find({
+    const isDemoCaller = isDemoUserId(userId);
+    const rawClasses = await Clan.find({
       $or: [{ leaderId: userId }, { 'members.userId': userId }]
     })
       .sort({ createdAt: -1 })
       .lean();
+
+    const classes = isDemoCaller
+      ? rawClasses
+      : rawClasses.filter(c => {
+          if (isDemoClanDoc(c)) {
+            // Auto-clean accidental demo class membership for real users
+            Clan.updateOne({ clanId: c.clanId }, { $pull: { members: { userId } } }).catch(() => {});
+            User.updateOne({ userId, clanId: c.clanId }, { $set: { clanId: null } }).catch(() => {});
+            return false;
+          }
+          return true;
+        });
 
     if (!classes.length) {
       return res.json([]);
@@ -347,14 +361,24 @@ export const getMyClasses = async (req, res) => {
 export const getClan = async (req, res) => {
   try {
     const { clanId } = req.params;
+    const isDemoCaller = isDemoReq(req);
     const cacheKey = `clan_detail_${clanId}`;
     const cached = clanCache.get(cacheKey);
     if (cached) {
+      if (!isDemoCaller && isDemoClanDoc(cached)) {
+        return res.status(404).json({ message: 'Clan not found' });
+      }
       return res.json(cached);
     }
 
     const clan = await Clan.findOne({ clanId }).lean();
     if (!clan) return res.status(404).json({ message: 'Clan not found' });
+    if (!isDemoCaller && isDemoClanDoc(clan)) {
+      if (req.user?.userId) {
+        User.updateOne({ userId: req.user.userId, clanId }, { $set: { clanId: null } }).catch(() => {});
+      }
+      return res.status(404).json({ message: 'Clan not found' });
+    }
 
     // Self-heal inviteCode if missing on legacy classes
     if (!clan.inviteCode) {
@@ -434,13 +458,14 @@ export const searchClans = async (req, res) => {
   try {
     const { query = '' } = req.query;
     const safeQuery = escapeRegex(query, 40);
-    const cacheKey = `clan_search_${safeQuery.toLowerCase()}`;
+    const isDemoCaller = isDemoReq(req);
+    const cacheKey = `clan_search_${isDemoCaller ? 'demo' : 'prod'}_${safeQuery.toLowerCase()}`;
     const cached = clanCache.get(cacheKey);
     if (cached) {
       return res.json(cached);
     }
 
-    const queryFilter = safeQuery
+    const searchClause = safeQuery
       ? {
           $or: [
             { name: { $regex: safeQuery, $options: 'i' } },
@@ -448,6 +473,9 @@ export const searchClans = async (req, res) => {
           ]
         }
       : {};
+    const queryFilter = isDemoCaller
+      ? searchClause
+      : { ...searchClause, ...NON_DEMO_CLAN_FILTER };
 
     const clans = await Clan.find(queryFilter)
       .limit(20)
@@ -474,7 +502,9 @@ export const joinClan = async (req, res) => {
     if (!user) return res.status(404).json({ message: 'User not found' });
 
     const clan = await Clan.findOne({ clanId });
-    if (!clan) return res.status(404).json({ message: 'Class not found' });
+    if (!clan || (!isDemoUserId(userId) && isDemoClanDoc(clan))) {
+      return res.status(404).json({ message: 'Class not found' });
+    }
 
     if (clan.members?.some(m => m.userId === userId)) {
       return res.status(400).json({ message: 'You are already in this class' });
@@ -570,14 +600,15 @@ export const leaveClan = async (req, res) => {
 
 export const getClanLeaderboard = async (req, res) => {
   try {
-    const cacheKey = 'clan_leaderboard';
+    const isDemoCaller = isDemoReq(req);
+    const cacheKey = `clan_leaderboard_${isDemoCaller ? 'demo' : 'prod'}`;
     const cached = clanCache.get(cacheKey);
     if (cached) {
       return res.json(cached);
     }
 
     // Fetch all clans sorted by totalXP (limit to top 100 for performance)
-    const clans = await Clan.find({})
+    const clans = await Clan.find(isDemoCaller ? {} : NON_DEMO_CLAN_FILTER)
       .sort({ totalXP: -1, level: -1 })
       .limit(100)
       .select('clanId name tag description level totalXP members leaderId isPublic logo')
@@ -676,7 +707,9 @@ export const inviteToClan = async (req, res) => {
     const userId = req.user.userId;
 
     const clan = await Clan.findOne({ clanId });
-    if (!clan) return res.status(404).json({ message: 'Class not found' });
+    if (!clan || (!isDemoUserId(userId) && isDemoClanDoc(clan))) {
+      return res.status(404).json({ message: 'Class not found' });
+    }
 
     // Check permissions (Teacher/Leader or Elder or Admin)
     const member = clan.members.find(m => m.userId === userId);
@@ -1232,7 +1265,9 @@ export const getClassByInviteCode = async (req, res) => {
     if (!rawCode) return res.status(400).json({ message: 'Invite code is required' });
 
     const clan = await Clan.findOne({ inviteCode: rawCode }).lean();
-    if (!clan) return res.status(404).json({ message: 'Invalid or expired class invite link' });
+    if (!clan || (!isDemoReq(req) && isDemoClanDoc(clan))) {
+      return res.status(404).json({ message: 'Invalid or expired class invite link' });
+    }
 
     const [leader, track] = await Promise.all([
       User.findOne({ userId: clan.leaderId }).select('userId name avatar').lean(),
@@ -1274,7 +1309,9 @@ export const joinClassByInvite = async (req, res) => {
     if (!user) return res.status(404).json({ message: 'User not found' });
 
     const clan = await Clan.findOne({ inviteCode: rawCode });
-    if (!clan) return res.status(404).json({ message: 'Invalid or expired class invite link' });
+    if (!clan || (!isDemoUserId(userId) && isDemoClanDoc(clan))) {
+      return res.status(404).json({ message: 'Invalid or expired class invite link' });
+    }
 
     if (clan.leaderId === userId || clan.members.some(m => m.userId === userId)) {
       return res.json({ message: 'You are already in this class', clan, alreadyMember: true });
@@ -1324,7 +1361,9 @@ export const regenerateInviteCode = async (req, res) => {
     const userId = req.user.userId;
 
     const clan = await Clan.findOne({ clanId });
-    if (!clan) return res.status(404).json({ message: 'Class not found' });
+    if (!clan || (!isDemoUserId(userId) && isDemoClanDoc(clan))) {
+      return res.status(404).json({ message: 'Class not found' });
+    }
 
     const isTeacherOwner = clan.leaderId === userId || req.user?.role === 'admin';
     if (!isTeacherOwner) {
@@ -1348,7 +1387,9 @@ export const setClassTrack = async (req, res) => {
     const userId = req.user.userId;
 
     const clan = await Clan.findOne({ clanId });
-    if (!clan) return res.status(404).json({ message: 'Class not found' });
+    if (!clan || (!isDemoUserId(userId) && isDemoClanDoc(clan))) {
+      return res.status(404).json({ message: 'Class not found' });
+    }
 
     const isAdmin = req.user?.role === 'admin' || req.user?.isAdmin === true;
     if (!isAdmin) {
@@ -1402,7 +1443,9 @@ export const toggleClassSession = async (req, res) => {
     const userId = req.user.userId;
 
     const clan = await Clan.findOne({ clanId });
-    if (!clan) return res.status(404).json({ message: 'Class not found' });
+    if (!clan || (!isDemoUserId(userId) && isDemoClanDoc(clan))) {
+      return res.status(404).json({ message: 'Class not found' });
+    }
 
     const isTeacherOwner = clan.leaderId === userId || req.user?.role === 'admin';
     if (!isTeacherOwner) {
@@ -1737,7 +1780,9 @@ export const sendHomeworkAlert = async (req, res) => {
     const userId = req.user.userId;
 
     const clan = await Clan.findOne({ clanId });
-    if (!clan) return res.status(404).json({ message: 'Class not found' });
+    if (!clan || (!isDemoUserId(userId) && isDemoClanDoc(clan))) {
+      return res.status(404).json({ message: 'Class not found' });
+    }
 
     const isTeacherOwner = clan.leaderId === userId || req.user?.role === 'admin';
     if (!isTeacherOwner) {
@@ -1891,7 +1936,7 @@ export const sendHomeworkAlert = async (req, res) => {
 // ==========================================
 export const adminGetAllClasses = async (_req, res) => {
   try {
-    const classes = await Clan.find().sort({ createdAt: -1 }).lean();
+    const classes = await Clan.find(NON_DEMO_CLAN_FILTER).sort({ createdAt: -1 }).lean();
     if (!classes.length) return res.json([]);
 
     const allMemberIds = [...new Set(classes.flatMap(c => [c.leaderId, ...(c.members || []).map(m => m.userId)]).filter(Boolean))];

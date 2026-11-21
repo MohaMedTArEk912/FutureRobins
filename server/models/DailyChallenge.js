@@ -47,7 +47,7 @@ const dailyChallengeSchema = new mongoose.Schema({
 });
 
 // Middleware: ensure compilerQuestionId defaults to medium or easy question if tiers exist
-dailyChallengeSchema.pre('save', function (next) {
+dailyChallengeSchema.pre('save', function () {
   if (!this.compilerQuestionId) {
     if (this.tiers?.medium?.compilerQuestionId) {
       this.compilerQuestionId = this.tiers.medium.compilerQuestionId;
@@ -56,9 +56,6 @@ dailyChallengeSchema.pre('save', function (next) {
     } else if (this.tiers?.hard?.compilerQuestionId) {
       this.compilerQuestionId = this.tiers.hard.compilerQuestionId;
     }
-  }
-  if (typeof next === 'function') {
-    next();
   }
 });
 

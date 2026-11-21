@@ -179,7 +179,7 @@ export const TournamentInviteModal: React.FC<TournamentInviteModalProps> = ({
         className={`app-dialog-panel app-dialog-panel--padded relative z-10 w-full max-w-lg rounded-3xl p-6 space-y-5 animate-in zoom-in-95 duration-150 ${
           isBento
             ? 'bg-white text-black border-[3px] border-black shadow-[8px_8px_0px_#000]'
-            : 'bg-white dark:bg-[#111827] text-gray-900 dark:text-white border border-gray-200 dark:border-white/10 shadow-2xl'
+            : 'bg-white dark:bg-[#141210] text-gray-900 dark:text-white border border-gray-200 dark:border-white/10 shadow-2xl'
         }`}
       >
         {/* Header */}
@@ -306,7 +306,7 @@ export const TournamentInviteModal: React.FC<TournamentInviteModalProps> = ({
                       key={u.userId}
                       className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold ${
                         isBento
-                          ? 'bg-[#ddd6fe] text-black border border-black'
+                          ? 'bg-[#fed7aa] text-black border border-black'
                           : 'bg-indigo-500/15 text-indigo-600 dark:text-indigo-300 border border-indigo-500/20'
                       }`}
                     >

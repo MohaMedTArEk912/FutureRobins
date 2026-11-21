@@ -94,7 +94,7 @@ export const ClassroomPage: React.FC = () => {
 
     const cardClass = isBento
         ? 'bg-white text-black border-[3px] border-black shadow-[5px_5px_0_#000]'
-        : 'bg-white dark:bg-[#111322]/90 text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 shadow-xl backdrop-blur-xl';
+        : 'bg-white dark:bg-[#141210]/90 text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 shadow-xl backdrop-blur-xl';
 
     const modeSelectorBlock = (compactMode = false) => (
         <div className="space-y-2.5">
@@ -213,7 +213,7 @@ export const ClassroomPage: React.FC = () => {
                         className={`btn-unstyled w-full py-2.5 rounded-xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 cursor-pointer transition ${
                             isBento
                                 ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[3px_3px_0_#000] active:translate-y-0.5 disabled:bg-slate-100 disabled:text-slate-400 disabled:border-slate-300 disabled:shadow-none disabled:cursor-not-allowed'
-                                : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed'
+                                : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed'
                         }`}
                     >
                         <span>{tx('Join Room', 'دخول الغرفة')}</span>

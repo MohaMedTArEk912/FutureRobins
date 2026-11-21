@@ -69,7 +69,10 @@ export const TeacherWorkspaceProvider: React.FC<{ children: ReactNode }> = ({ ch
         setLoadingClasses(true);
         try {
             const list = await api.getMyClasses(userId);
-            const classes = Array.isArray(list) ? list : [];
+            const isDemoViewer = userId === 'demo_student' || userId === 'demo_teacher';
+            const classes = (Array.isArray(list) ? list : []).filter(
+                (c) => isDemoViewer || (c.tag !== 'DEMO' && c.name !== 'Live Demo Cohort' && c.leaderId !== 'demo_teacher')
+            );
             setMyClasses(classes);
             setSelectedClassId(prev => {
                 const targetId = preferredId || prev || userClanId || classes[0]?.clanId || '';

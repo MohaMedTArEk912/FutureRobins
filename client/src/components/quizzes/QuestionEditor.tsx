@@ -38,7 +38,7 @@ const QUESTION_TYPES = [
     { id: 'multiple-choice', label: 'Multiple Choice', icon: '📋', color: 'bg-[#bae6fd]' },
     { id: 'ordering', label: 'Ordering', icon: '🔢', color: 'bg-[#fed7aa]' },
     { id: 'matching', label: 'Matching Pairs', icon: '🔗', color: 'bg-[#fbcfe8]' },
-    { id: 'code-output', label: 'Code Output', icon: '💻', color: 'bg-[#ddd6fe]' },
+    { id: 'code-output', label: 'Code Output', icon: '💻', color: 'bg-[#fed7aa]' },
     { id: 'text', label: 'Short Answer', icon: '✍️', color: 'bg-[#bef264]' },
     { id: 'compiler', label: 'Compiler', icon: '⚡', color: 'bg-[#fef08a]' },
 ] as const;
@@ -177,14 +177,14 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
                     <span className={`px-3 py-1 rounded-lg text-xs font-black uppercase tracking-wider ${
                         isBento
                             ? 'bg-[#bef264] border-2 border-black text-black shadow-[2px_2px_0px_#000]'
-                            : 'bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300'
+                            : 'bg-teal-100 dark:bg-teal-900/40 text-teal-700 dark:text-teal-300'
                     }`}>
                         {question.id === 0 ? '✨ New Question' : `Editing Question ${index !== undefined ? `#${index + 1}` : ''}`}
                     </span>
                     <span className={`px-2.5 py-1 rounded-lg text-xs font-black uppercase tracking-wider ${
                         isBento
                             ? 'bg-[#fef08a] border-2 border-black text-black shadow-[2px_2px_0px_#000]'
-                            : 'bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+                            : 'bg-gray-200 dark:bg-[#1c1917] text-gray-700 dark:text-gray-300'
                     }`}>
                         {QUESTION_TYPES.find(t => t.id === currentType)?.label || 'Multiple Choice'}
                     </span>
@@ -203,10 +203,10 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
                                     isSelected
                                         ? isBento
                                             ? `${t.color} text-black border-2 border-black shadow-[2px_2px_0px_#000] scale-105`
-                                            : 'bg-purple-600 text-white shadow-sm'
+                                            : 'bg-teal-600 text-white shadow-sm'
                                         : isBento
                                             ? 'bg-white text-gray-700 border-2 border-black hover:bg-gray-100'
-                                            : 'bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+                                            : 'bg-gray-200 dark:bg-[#1c1917] text-gray-600 dark:text-gray-400'
                                 }`}
                             >
                                 <span>{t.icon}</span>
@@ -241,7 +241,7 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
                     className={`w-full rounded-xl p-3.5 font-semibold text-sm transition-all min-h-[95px] resize-y ${
                         isBento
                             ? 'bg-white border-2 border-black text-black placeholder-gray-400 focus:outline-none focus:shadow-[4px_4px_0px_#000]'
-                            : 'bg-white dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50'
+                            : 'bg-white dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500/50'
                     }`}
                     rows={3}
                 />
@@ -274,8 +274,8 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
                         </label>
                         <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase ${
                             isBento
-                                ? 'bg-[#ddd6fe] border border-black text-black shadow-[1px_1px_0px_#000]'
-                                : 'bg-gray-100 dark:bg-gray-800 text-gray-500'
+                                ? 'bg-[#fed7aa] border border-black text-black shadow-[1px_1px_0px_#000]'
+                                : 'bg-gray-100 dark:bg-[#1c1917] text-gray-500'
                         }`}>
                             Monospace
                         </span>
@@ -319,7 +319,7 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
                         className={`w-full rounded-xl px-3.5 py-2.5 font-semibold text-sm transition-all ${
                             isBento
                                 ? 'bg-white border-2 border-black text-black placeholder-gray-400 focus:outline-none focus:shadow-[4px_4px_0px_#000]'
-                                : 'bg-white dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50'
+                                : 'bg-white dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500/50'
                         }`}
                     />
                     {question.imageUrl && (
@@ -332,7 +332,7 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
                                 src={question.imageUrl}
                                 alt="Question preview"
                                 className={`max-h-24 max-w-xs rounded-lg object-contain bg-gray-50 ${
-                                    isBento ? 'border-2 border-black' : 'border border-gray-200 dark:border-gray-700'
+                                    isBento ? 'border-2 border-black' : 'border border-gray-200 dark:border-[#f5f3ec]/16'
                                 }`}
                                 onError={(e) => {
                                     (e.target as HTMLImageElement).style.display = 'none';
@@ -395,7 +395,7 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
                         {(question.options || ['', '', '', '']).map((opt, idx) => {
                             const isCorrect = question.correctAnswer === idx;
                             const letter = String.fromCharCode(65 + idx);
-                            const letterPillColors = ['bg-[#bae6fd]', 'bg-[#bef264]', 'bg-[#fef08a]', 'bg-[#ddd6fe]'];
+                            const letterPillColors = ['bg-[#bae6fd]', 'bg-[#bef264]', 'bg-[#fef08a]', 'bg-[#fed7aa]'];
                             const pillColor = letterPillColors[idx % letterPillColors.length];
 
                             return (
@@ -623,12 +623,12 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
             {currentType === 'code-output' && (
                 <div className={`space-y-3 p-4 rounded-xl ${
                     isBento
-                        ? 'bg-[#f5f3ff] border-2 border-black shadow-[3px_3px_0px_#000]'
-                        : 'bg-purple-50/50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-900/30'
+                        ? 'bg-[#fff7ed] border-2 border-black shadow-[3px_3px_0px_#000]'
+                        : 'bg-teal-50/50 dark:bg-teal-950/20 border border-teal-200 dark:border-teal-900/30'
                 }`}>
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                            <Terminal className="w-4 h-4 text-purple-600" />
+                            <Terminal className="w-4 h-4 text-teal-600" />
                             <span className="text-xs font-black uppercase tracking-wider text-black dark:text-white">
                                 Predicted Output Options (or exact output)
                             </span>
@@ -847,7 +847,7 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
                         className={`w-full rounded-xl px-3.5 py-2.5 font-semibold text-sm placeholder-gray-400 focus:outline-none ${
                             isBento
                                 ? 'bg-white border-2 border-black text-black focus:shadow-[3px_3px_0px_#000]'
-                                : 'bg-white dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500/50'
+                                : 'bg-white dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white focus:ring-2 focus:ring-teal-500/50'
                         }`}
                     />
                 </div>

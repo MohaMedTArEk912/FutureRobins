@@ -38,15 +38,15 @@ const BG_COLORS = [
     { id: '#fde047', label: 'Yellow', value: '#fde047' },
     { id: '#bef264', label: 'Lime', value: '#bef264' },
     { id: '#bae6fd', label: 'Sky', value: '#bae6fd' },
-    { id: '#ddd6fe', label: 'Purple', value: '#ddd6fe' },
+    { id: '#99f6e4', label: 'Teal', value: '#99f6e4' },
     { id: '#fed7aa', label: 'Orange', value: '#fed7aa' },
     { id: '#fecdd3', label: 'Rose', value: '#fecdd3' },
     { id: '#a7f3d0', label: 'Emerald', value: '#a7f3d0' },
     { id: '#18181b', label: 'Obsidian', value: '#18181b' },
     { id: '#ffffff', label: 'White', value: '#ffffff' },
-    { id: 'linear-gradient(135deg, #f97316, #ec4899)', label: 'Sunset', value: 'linear-gradient(135deg, #f97316, #ec4899)' },
-    { id: 'linear-gradient(135deg, #06b6d4, #8b5cf6)', label: 'Cyber', value: 'linear-gradient(135deg, #06b6d4, #8b5cf6)' },
-    { id: 'linear-gradient(135deg, #facc15, #f59e0b)', label: 'Gold', value: 'linear-gradient(135deg, #facc15, #f59e0b)' }
+    { id: '#f97316', label: 'Coral', value: '#f97316' },
+    { id: '#06b6d4', label: 'Cyan', value: '#06b6d4' },
+    { id: '#f59e0b', label: 'Gold', value: '#f59e0b' }
 ];
 
 const ICON_COLORS = [
@@ -133,13 +133,13 @@ function ClassEmblemStudio({
     const panel = isBento ? 'bg-[#f8fafc]' : 'bg-slate-50 dark:bg-white/[0.04]';
     const primary = isBento
         ? 'border-2 border-black bg-[#bef264] text-black shadow-[2px_2px_0px_#000] hover:bg-lime-300'
-        : 'border border-violet-600 bg-violet-600 text-white hover:bg-violet-700';
+        : 'border border-sky-600 bg-sky-600 text-white hover:bg-sky-700';
     const secondary = isBento
         ? 'border-2 border-black bg-white text-black hover:bg-slate-100'
         : 'border border-slate-300 bg-white text-slate-800 hover:bg-slate-100 dark:border-white/15 dark:bg-white/5 dark:text-white dark:hover:bg-white/10';
     const selected = isBento
         ? 'border-black bg-[#bef264] text-black ring-1 ring-black'
-        : 'border-violet-500 bg-violet-100 text-violet-950 dark:bg-violet-500/20 dark:text-violet-100';
+        : 'border-sky-500 bg-sky-100 text-sky-950 dark:bg-sky-500/20 dark:text-sky-100';
     const optionButton = 'min-h-11 min-w-0 rounded-lg border cursor-pointer transition-colors';
     const actionButton = 'inline-flex min-h-10 min-w-0 items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-black cursor-pointer disabled:opacity-50';
 
@@ -273,7 +273,7 @@ function ClassEmblemStudio({
                                         ? mutedText
                                         : isBento
                                             ? 'bg-black text-white'
-                                            : 'bg-violet-600 text-white'
+                                            : 'bg-sky-600 text-white'
                                 }`}
                             >
                                 <Icon aria-hidden="true" className="h-4 w-4 shrink-0" />
@@ -391,7 +391,7 @@ function ClassEmblemStudio({
                     {activeTab === 'upload' && (
                         <div className="space-y-3">
                             <label
-                                className={`flex min-w-0 cursor-pointer flex-col items-center gap-1.5 rounded-xl border-2 border-dashed p-4 text-center focus-within:ring-2 focus-within:ring-violet-500 ${border} ${panel}`}
+                                className={`flex min-w-0 cursor-pointer flex-col items-center gap-1.5 rounded-xl border-2 border-dashed p-4 text-center focus-within:ring-2 focus-within:ring-sky-500 ${border} ${panel}`}
                                 onDragOver={event => event.preventDefault()}
                                 onDrop={event => {
                                     event.preventDefault();

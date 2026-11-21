@@ -133,7 +133,7 @@ export const DemoRoleSwitchButton: React.FC<DemoRoleSwitchButtonProps> = ({
                 className={`btn-unstyled w-full py-2 rounded-xl flex items-center justify-center cursor-pointer transition-all disabled:opacity-60 ${
                     isBento
                         ? 'bg-[#fde047] hover:bg-[#facc15] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                        : 'bg-indigo-600 hover:bg-indigo-500 text-white'
+                        : 'bg-indigo-600 hover:bg-indigo-500 dark:bg-[#fde047] dark:hover:bg-[#fef08a] text-white dark:text-[#0a0908] dark:border dark:border-[#0a0908] dark:shadow-[0_3px_0_#050504]'
                 }`}
             >
                 <Icon className={`w-4 h-4 shrink-0 ${iconAnim}`} />
@@ -155,7 +155,7 @@ export const DemoRoleSwitchButton: React.FC<DemoRoleSwitchButtonProps> = ({
                 className={`btn-unstyled w-full py-2.5 px-3 rounded-xl text-xs font-black flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-[0.98] disabled:opacity-60 ${
                     isBento
                         ? 'bg-[#fde047] hover:bg-[#facc15] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                        : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm'
+                        : 'bg-indigo-600 hover:bg-indigo-700 dark:bg-[#fde047] dark:hover:bg-[#fef08a] text-white dark:text-[#0a0908] dark:border dark:border-[#0a0908] shadow-sm dark:shadow-[0_3px_0_#050504]'
                 }`}
             >
                 <Icon className={`w-4 h-4 shrink-0 ${iconAnim} ${isBento ? 'stroke-[2.5]' : ''}`} />

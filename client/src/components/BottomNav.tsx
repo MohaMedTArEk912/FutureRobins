@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useNavArrangement } from '../context/NavArrangementContext';
+import { prefetchRoute } from '../lib/routePrefetch';
 
 export const BottomNav: React.FC = () => {
     const navigate = useNavigate();
@@ -46,11 +47,12 @@ export const BottomNav: React.FC = () => {
 
     return (
         <nav
+            data-snake-wall="bottom"
             aria-label={tx('Mobile Bottom Navigation', 'شريط التنقل السفلي')}
             className={`fixed bottom-0 left-0 right-0 z-40 xl:hidden pb-safe border-t transition-colors ${
                 isBento
                     ? 'bg-white border-t-2 border-black shadow-[0_-2px_0px_#000]'
-                    : 'bg-white/90 dark:bg-[#0c101d]/90 backdrop-blur-xl border-slate-200/80 dark:border-white/10 shadow-lg'
+                    : 'bg-white/90 dark:bg-[#11100e] backdrop-blur-xl dark:backdrop-blur-none border-slate-200/80 dark:border-[#2b2722] shadow-lg'
             }`}
         >
             <div className="max-w-md mx-auto px-2 py-1 flex items-center justify-around">
@@ -63,6 +65,8 @@ export const BottomNav: React.FC = () => {
                             key={item.path}
                             type="button"
                             onClick={() => navigate(item.path)}
+                            onMouseEnter={() => prefetchRoute(item.path)}
+                            onTouchStart={() => prefetchRoute(item.path)}
                             aria-label={tx(`Navigate to ${item.label}`, `الانتقال إلى ${item.label}`)}
                             className={`flex flex-col items-center justify-center min-h-[44px] min-w-[54px] py-1 px-2 rounded-xl transition-all cursor-pointer relative touch-target active:scale-95 ${
                                 isBento
@@ -70,8 +74,8 @@ export const BottomNav: React.FC = () => {
                                         ? 'bg-[#bef264] text-black border-2 border-black font-black shadow-[1.5px_1.5px_0px_#000]'
                                         : 'text-black hover:bg-[#fef9c3] font-bold')
                                     : (active
-                                        ? 'text-indigo-600 dark:text-indigo-400 font-bold'
-                                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 font-medium')
+                                        ? 'text-indigo-600 dark:text-[#bef264] font-bold'
+                                        : 'text-slate-500 dark:text-[#a8a29e] hover:text-slate-800 dark:hover:text-[#f5f3ec] font-medium')
                             }`}
                         >
                             <Icon
@@ -83,7 +87,7 @@ export const BottomNav: React.FC = () => {
                                 {item.label}
                             </span>
                             {!isBento && active && (
-                                <span className="absolute -top-1 w-1 h-1 rounded-full bg-indigo-600 dark:bg-indigo-400" />
+                                <span className="absolute -top-1 w-1.5 h-1.5 rounded-full bg-indigo-600 dark:bg-[#bef264]" />
                             )}
                         </button>
                     );

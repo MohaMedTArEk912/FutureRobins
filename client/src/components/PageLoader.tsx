@@ -1,12 +1,32 @@
 import React from 'react';
-// Force refresh
-
-// PageLoader component
+import { useTheme } from '../context/ThemeContext';
+import { AmbientBackground } from './AmbientBackground';
 
 const PageLoader: React.FC = () => {
+    const { isBento, isDark } = useTheme();
+
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+        <div
+            role="status"
+            aria-label="Loading"
+            className={`flex items-center justify-center min-h-dvh transition-colors relative overflow-hidden ${
+                isBento
+                    ? 'bg-transparent'
+                    : isDark
+                        ? 'bg-[#0a0908]'
+                        : 'bg-[#f8fafc]'
+            }`}
+        >
+            <AmbientBackground />
+            <div
+                className={`relative z-10 h-9 w-9 rounded-full animate-spin ${
+                    isBento
+                        ? 'border-[3px] border-black/15 border-t-black'
+                        : isDark
+                            ? 'border-[2.5px] border-[#f5f3ec]/15 border-t-[#bef264]'
+                            : 'border-[2.5px] border-slate-900/12 border-t-slate-900'
+                }`}
+            />
         </div>
     );
 };

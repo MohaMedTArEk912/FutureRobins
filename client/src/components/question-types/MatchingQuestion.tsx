@@ -21,7 +21,7 @@ const shuffleLeftSide = (pairsList: MatchingPair[]) => shuffleArray(pairsList.ma
 
 const PAIR_COLORS = [
     'border-indigo-500 bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 ring-2 ring-indigo-500/40',
-    'border-purple-500 bg-purple-500/10 text-purple-700 dark:text-purple-300 ring-2 ring-purple-500/40',
+    'border-teal-500 bg-teal-500/10 text-teal-700 dark:text-teal-300 ring-2 ring-teal-500/40',
     'border-emerald-500 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 ring-2 ring-emerald-500/40',
     'border-amber-500 bg-amber-500/10 text-amber-700 dark:text-amber-300 ring-2 ring-amber-500/40',
     'border-pink-500 bg-pink-500/10 text-pink-700 dark:text-pink-300 ring-2 ring-pink-500/40',
@@ -32,7 +32,7 @@ const BENTO_PAIR_COLORS = [
     'border-2 border-black bg-[#fde047] text-black shadow-[3px_3px_0px_#000]',
     'border-2 border-black bg-[#bef264] text-black shadow-[3px_3px_0px_#000]',
     'border-2 border-black bg-[#bae6fd] text-black shadow-[3px_3px_0px_#000]',
-    'border-2 border-black bg-[#ddd6fe] text-black shadow-[3px_3px_0px_#000]',
+    'border-2 border-black bg-[#fed7aa] text-black shadow-[3px_3px_0px_#000]',
     'border-2 border-black bg-[#fed7aa] text-black shadow-[3px_3px_0px_#000]',
     'border-2 border-black bg-[#fbcfe8] text-black shadow-[3px_3px_0px_#000]'
 ];
@@ -124,7 +124,7 @@ export const MatchingQuestion: React.FC<MatchingQuestionProps> = ({
                                 : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300'
                             : isBento
                                 ? 'bg-[#fef08a] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]'
-                                : 'bg-purple-100 text-purple-700 dark:bg-purple-950/40 dark:text-purple-300'
+                                : 'bg-teal-100 text-teal-700 dark:bg-teal-950/40 dark:text-teal-300'
                     }`}>
                         Linked {Object.keys(matches).length} / {pairs.length} {Object.keys(matches).length === pairs.length && '✓'}
                     </span>
@@ -148,7 +148,7 @@ export const MatchingQuestion: React.FC<MatchingQuestionProps> = ({
                         const rowHeight = 72;
                         const y1 = 52 + leftIndex * rowHeight;
                         const y2 = 52 + rightIndex * rowHeight;
-                        const color = isBento ? ['#854d0e', '#3f6212', '#0369a1', '#6d28d9', '#9d174d', '#0e7490'][colorIndex % 6] : ['#6366f1', '#a855f7', '#10b981', '#f59e0b', '#ec4899', '#06b6d4'][colorIndex % 6];
+                        const color = isBento ? ['#854d0e', '#3f6212', '#0369a1', '#0f766e', '#9d174d', '#0e7490'][colorIndex % 6] : ['#0284c7', '#14b8a6', '#10b981', '#f59e0b', '#fb7185', '#06b6d4'][colorIndex % 6];
                         return <path key={`${leftIndex}-${rightIndex}`} d={`M 48% ${y1} C 50% ${y1}, 50% ${y2}, 52% ${y2}`} fill="none" stroke={color} strokeWidth="4" strokeLinecap="round" />;
                     })}
                 </svg>
@@ -222,7 +222,7 @@ export const MatchingQuestion: React.FC<MatchingQuestionProps> = ({
 
                 {/* RIGHT COLUMN: DEFINITIONS */}
                 <div className="relative z-10 space-y-2">
-                    <div className={`text-[10px] font-black uppercase tracking-widest mb-1 ${isBento ? 'text-black' : 'text-purple-500'}`}>
+                    <div className={`text-[10px] font-black uppercase tracking-widest mb-1 ${isBento ? 'text-black' : 'text-teal-500'}`}>
                         Column B (Select to connect)
                     </div>
                     {shuffledRightItems.map((right, idx) => {
@@ -239,8 +239,8 @@ export const MatchingQuestion: React.FC<MatchingQuestionProps> = ({
                                 : selectedLeft
                                     ? 'bg-indigo-50/70 dark:bg-indigo-950/40 border-2 border-dashed border-indigo-500/70 text-indigo-950 dark:text-indigo-200 hover:bg-indigo-100/70'
                                     : theme === 'dark'
-                                        ? 'bg-[#0e1424] border border-white/10 hover:border-purple-400/50 hover:bg-[#131b31] text-slate-100 shadow-sm'
-                                        : 'bg-white border border-slate-200/90 hover:border-purple-400 hover:bg-slate-50 text-slate-800 shadow-sm';
+                                        ? 'bg-[#0e1424] border border-white/10 hover:border-teal-400/50 hover:bg-[#131b31] text-slate-100 shadow-sm'
+                                        : 'bg-white border border-slate-200/90 hover:border-teal-400 hover:bg-slate-50 text-slate-800 shadow-sm';
 
                         return (
                             <div

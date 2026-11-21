@@ -51,7 +51,6 @@ export interface TeacherThemeStyles {
 
 export function getTeacherThemeStyles(theme: AppTheme): TeacherThemeStyles {
     const isBento = theme === 'bento';
-    const isDark = theme === 'dark';
 
     if (isBento) {
         return {
@@ -90,7 +89,7 @@ export function getTeacherThemeStyles(theme: AppTheme): TeacherThemeStyles {
                     indigo: 'bg-[#e0f2fe]',
                     emerald: 'bg-[#bef264]',
                     amber: 'bg-[#fef9c3]',
-                    violet: 'bg-[#f3e8ff]'
+                    violet: 'bg-[#ffedd5]'
                 };
                 return `${bgMap[accent]} text-black border-2 border-black shadow-[3px_3px_0px_#000]`;
             },
@@ -101,80 +100,49 @@ export function getTeacherThemeStyles(theme: AppTheme): TeacherThemeStyles {
         };
     }
 
-    if (isDark) {
-        return {
-            theme,
-            isBento: false,
-            isDark: true,
-            pageShell: 'bg-[#090d16] text-white',
-            sidebarShell: 'bg-[#111626]/95 text-white border border-white/10 shadow-2xl backdrop-blur-xl',
-            sidebarHeaderBorder: 'border-b border-white/10',
-            sidebarSwitcherBox: 'bg-white/[0.04] border border-white/10',
-            sidebarSectionLabel: 'text-slate-400 font-extrabold',
-            navItemActive: 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/25 border border-indigo-400/40 font-bold',
-            navItemIdle: 'text-slate-300 hover:text-white hover:bg-white/[0.06] border border-transparent font-semibold',
-            navBadgeActive: 'bg-white/20 text-white',
-            navBadgeIdle: 'bg-white/10 text-slate-300',
-            surfaceCard: 'bg-[#131829]/95 text-white border border-white/10 shadow-2xl backdrop-blur-md',
-            subtleBox: 'bg-white/[0.04] text-white border border-white/10',
-            heroBanner: 'bg-gradient-to-br from-indigo-600/20 via-[#151b30] to-violet-600/15 text-white border border-indigo-400/25 shadow-2xl',
-            sectionHeaderCard: 'bg-[#131829]/90 text-white border border-white/10 shadow-lg',
-            input: 'bg-[#0b0f1b] text-white placeholder:text-slate-500 border border-white/15 focus:outline-none focus:border-indigo-400',
-            select: 'bg-[#0b0f1b] text-white border border-white/15 focus:outline-none focus:border-indigo-400',
-            primaryBtn: 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/25 border border-indigo-400/20 font-bold',
-            secondaryBtn: 'bg-white/[0.06] hover:bg-white/[0.12] text-slate-100 border border-white/10 font-semibold',
-            dangerBtn: 'bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 font-bold',
-            successBtn: 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/20 font-bold',
-            mutedText: 'text-slate-300',
-            divider: 'border-white/10',
-            pillPrimary: 'bg-indigo-500/15 text-indigo-300 border border-indigo-400/25',
-            pillSuccess: 'bg-emerald-500/15 text-emerald-300 border border-emerald-400/25',
-            pillWarning: 'bg-amber-500/15 text-amber-300 border border-amber-400/25',
-            pillDanger: 'bg-rose-500/15 text-rose-300 border border-rose-400/25',
-            pillNeutral: 'bg-white/10 text-slate-300 border border-white/10',
-            kpiTile: () => 'bg-[#0c1120]/80 text-white border border-white/10',
-            themeSwitcherBox: 'bg-[#0b0f1b] border border-white/10',
-            themeOptionActive: 'bg-indigo-600 text-white shadow-sm font-bold',
-            themeOptionIdle: 'text-slate-400 hover:text-white font-semibold',
-            mobileTopBar: 'bg-[#111626]/95 text-white border border-white/10 shadow-lg backdrop-blur-md'
-        };
-    }
-
-    // Light Theme (Clean Crisp Studio)
     return {
         theme,
         isBento: false,
-        isDark: false,
-        pageShell: 'bg-slate-50 text-slate-900',
-        sidebarShell: 'bg-white text-slate-900 border border-slate-200/90 shadow-xl shadow-slate-200/50',
-        sidebarHeaderBorder: 'border-b border-slate-200/80',
-        sidebarSwitcherBox: 'bg-slate-50 border border-slate-200',
-        sidebarSectionLabel: 'text-slate-400 font-extrabold',
-        navItemActive: 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20 border border-indigo-600 font-bold',
-        navItemIdle: 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-transparent font-semibold',
-        navBadgeActive: 'bg-white/20 text-white',
-        navBadgeIdle: 'bg-slate-200/80 text-slate-700',
-        surfaceCard: 'bg-white text-slate-900 border border-slate-200/90 shadow-sm',
-        subtleBox: 'bg-slate-50 text-slate-900 border border-slate-200/80',
-        heroBanner: 'bg-gradient-to-br from-indigo-50 via-white to-violet-50 text-slate-900 border border-indigo-200/80 shadow-lg shadow-indigo-500/5',
-        sectionHeaderCard: 'bg-white text-slate-900 border border-slate-200/90 shadow-sm',
-        input: 'bg-slate-50 text-slate-900 placeholder:text-slate-400 border border-slate-200 focus:outline-none focus:border-indigo-500 focus:bg-white',
-        select: 'bg-slate-50 text-slate-900 border border-slate-200 focus:outline-none focus:border-indigo-500 focus:bg-white',
-        primaryBtn: 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-600/20 font-bold',
-        secondaryBtn: 'bg-slate-100 hover:bg-slate-200/80 text-slate-800 border border-slate-200 font-semibold',
-        dangerBtn: 'bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold',
-        successBtn: 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-600/15 font-bold',
-        mutedText: 'text-slate-600',
-        divider: 'border-slate-200/80',
-        pillPrimary: 'bg-indigo-50 text-indigo-700 border border-indigo-200',
-        pillSuccess: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
-        pillWarning: 'bg-amber-50 text-amber-700 border border-amber-200',
-        pillDanger: 'bg-rose-50 text-rose-700 border border-rose-200',
-        pillNeutral: 'bg-slate-100 text-slate-700 border border-slate-200',
-        kpiTile: () => 'bg-white/90 text-slate-900 border border-slate-200/80 shadow-xs',
-        themeSwitcherBox: 'bg-slate-100 border border-slate-200',
-        themeOptionActive: 'bg-white text-indigo-600 shadow-sm border border-slate-200 font-bold',
-        themeOptionIdle: 'text-slate-500 hover:text-slate-900 font-semibold border border-transparent',
-        mobileTopBar: 'bg-white text-slate-900 border border-slate-200/90 shadow-sm'
+        isDark: true,
+        pageShell: 'bg-[#0a0908] text-[#f5f3ec]',
+        sidebarShell: 'bg-[#141210] text-[#f5f3ec] border-[1.5px] border-[#2b2722] shadow-[0_5px_0_#050504]',
+        sidebarHeaderBorder: 'border-b border-[#2b2722]',
+        sidebarSwitcherBox: 'bg-[#1c1917] border border-[#2f2a24]',
+        sidebarSectionLabel: 'text-[#a8a29e] font-extrabold',
+        navItemActive: 'bg-[#bef264] text-[#0a0908] shadow-[0_3px_0_#050504] border border-[#bef264] font-black',
+        navItemIdle: 'text-[#b5aea4] hover:text-[#f5f3ec] hover:bg-[#1c1917] border border-transparent font-semibold',
+        navBadgeActive: 'bg-[#0a0908]/15 text-[#0a0908] font-black',
+        navBadgeIdle: 'bg-[#1c1917] text-[#d6d0c7] border border-[#2f2a24]',
+        surfaceCard: 'bg-[#141210] text-[#f5f3ec] border-[1.5px] border-[#2b2722] shadow-[0_4px_0_#050504]',
+        subtleBox: 'bg-[#1c1917] text-[#f5f3ec] border border-[#2f2a24]',
+        heroBanner: 'bg-[#141210] text-[#f5f3ec] border-[1.5px] border-[#2b2722] border-t-[3px] border-t-[#fde047] shadow-[0_5px_0_#050504]',
+        sectionHeaderCard: 'bg-[#141210] text-[#f5f3ec] border-[1.5px] border-[#2b2722] shadow-[0_4px_0_#050504]',
+        input: 'bg-[#0e0d0b] text-[#f5f3ec] placeholder:text-[#78716c] border border-[#2f2a24] focus:outline-none focus:border-[#bef264]',
+        select: 'bg-[#0e0d0b] text-[#f5f3ec] border border-[#2f2a24] focus:outline-none focus:border-[#bef264]',
+        primaryBtn: 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908] shadow-[0_3px_0_#050504] border border-[#bef264] font-black',
+        secondaryBtn: 'bg-[#1c1917] hover:bg-[#24201c] text-[#f5f3ec] border border-[#2f2a24] font-semibold',
+        dangerBtn: 'bg-[#2a1418] hover:bg-[#381920] text-[#fda4af] border border-[#fb7185]/45 font-bold',
+        successBtn: 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908] shadow-[0_3px_0_#050504] font-black',
+        mutedText: 'text-[#b5aea4]',
+        divider: 'border-[#2b2722]',
+        pillPrimary: 'bg-[#111c22] text-[#bae6fd] border border-[#bae6fd]/40',
+        pillSuccess: 'bg-[#192211] text-[#bef264] border border-[#bef264]/40',
+        pillWarning: 'bg-[#231e0f] text-[#fde047] border border-[#fde047]/40',
+        pillDanger: 'bg-[#2a1418] text-[#fda4af] border border-[#fb7185]/40',
+        pillNeutral: 'bg-[#1c1917] text-[#d6d0c7] border border-[#2f2a24]',
+        kpiTile: (accent) => {
+            const accentMap: Record<typeof accent, string> = {
+                neutral: 'bg-[#141210] border-[#2b2722]',
+                indigo: 'bg-[#141210] border-[#2b2722] border-t-[3px] border-t-[#bae6fd]',
+                emerald: 'bg-[#141210] border-[#2b2722] border-t-[3px] border-t-[#bef264]',
+                amber: 'bg-[#141210] border-[#2b2722] border-t-[3px] border-t-[#fde047]',
+                violet: 'bg-[#141210] border-[#2b2722] border-t-[3px] border-t-[#fdba74]'
+            };
+            return `${accentMap[accent]} text-[#f5f3ec] border-[1.5px] shadow-[0_4px_0_#050504]`;
+        },
+        themeSwitcherBox: 'bg-[#0e0d0b] border border-[#2b2722]',
+        themeOptionActive: 'bg-[#bef264] text-[#0a0908] font-black',
+        themeOptionIdle: 'text-[#a8a29e] hover:text-[#f5f3ec] font-semibold',
+        mobileTopBar: 'bg-[#11100e] text-[#f5f3ec] border-[1.5px] border-[#2b2722] shadow-[0_4px_0_#050504]'
     };
 }

@@ -73,13 +73,13 @@ const CompilerQuestion: React.FC<CompilerQuestionProps> = ({ language: defaultLa
         <div className={`flex flex-col rounded-xl overflow-hidden shadow-sm ${className || 'h-[600px]'} ${
             isBento
                 ? 'border-[2.5px] border-black bg-white shadow-[6px_6px_0px_#000]'
-                : 'border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900'
+                : 'border-2 border-gray-200 dark:border-[#f5f3ec]/16 bg-white dark:bg-[#141210]'
         }`}>
             {/* Toolbar */}
             <div className={`flex items-center justify-between p-2.5 border-b ${
                 isBento
                     ? 'bg-[#f5f3ec] border-b-[2.5px] border-black'
-                    : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
+                    : 'bg-gray-50 dark:bg-[#1c1917] border-gray-200 dark:border-[#f5f3ec]/16'
             }`}>
                 <div className="flex items-center gap-2">
                     {allowedLanguages.length > 1 ? (

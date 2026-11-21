@@ -66,7 +66,7 @@ const ReviewManagement: React.FC<ReviewManagementProps> = ({ currentUser, users,
                     className={`py-20 px-6 text-center ${
                         isBento
                             ? 'bg-white rounded-2xl border-[2.5px] border-black shadow-[5px_5px_0px_#000]'
-                            : 'bg-white/60 dark:bg-[#1e1e2d]/60 backdrop-blur-xl rounded-[2.5rem] border border-white/20 dark:border-white/5 shadow-sm'
+                            : 'bg-white/60 dark:bg-[#1c1917]/60 backdrop-blur-xl rounded-[2.5rem] border border-white/20 dark:border-white/5 shadow-sm'
                     }`}
                 >
                     <div
@@ -93,24 +93,24 @@ const ReviewManagement: React.FC<ReviewManagementProps> = ({ currentUser, users,
                         className={`flex flex-col sm:flex-row justify-between items-center p-5 sm:p-6 sticky top-2 z-20 ${
                             isBento
                                 ? 'bg-white rounded-2xl border-[3px] border-black shadow-[6px_6px_0px_#000]'
-                                : 'bg-white/70 dark:bg-[#1e1e2d]/70 backdrop-blur-3xl rounded-3xl border border-white/20 dark:border-white/5 shadow-2xl'
+                                : 'bg-white/70 dark:bg-[#1c1917]/70 backdrop-blur-3xl rounded-3xl border border-white/20 dark:border-white/5 shadow-2xl'
                         }`}
                     >
                         <div className="flex items-center gap-4 mb-4 sm:mb-0">
                             <div
                                 className={`w-14 h-14 rounded-2xl flex items-center justify-center overflow-hidden ${
                                     isBento
-                                        ? 'bg-[#ddd6fe] border-2 border-black shadow-[2px_2px_0px_#000]'
-                                        : 'bg-gradient-to-br from-purple-600 to-indigo-600 p-0.5 shadow-xl'
+                                        ? 'bg-[#fed7aa] border-2 border-black shadow-[2px_2px_0px_#000]'
+                                        : 'bg-teal-600 p-0.5 shadow-xl'
                                 }`}
                             >
-                                <div className={`w-full h-full flex items-center justify-center overflow-hidden ${isBento ? '' : 'bg-white dark:bg-[#1e1e2d] rounded-[14px]'}`}>
+                                <div className={`w-full h-full flex items-center justify-center overflow-hidden ${isBento ? '' : 'bg-white dark:bg-[#1c1917] rounded-[14px]'}`}>
                                     {(() => {
                                         const student = users?.find((u) => u.userId === reviewingAttempt.userId);
                                         return student?.avatar ? (
                                             <Avatar config={student.avatar} size="md" className="w-full h-full" />
                                         ) : (
-                                            <span className={`font-black text-lg ${isBento ? 'text-black' : 'text-purple-600'}`}>
+                                            <span className={`font-black text-lg ${isBento ? 'text-black' : 'text-teal-600'}`}>
                                                 {(reviewingAttempt.userName || 'S').charAt(0)}
                                             </span>
                                         );
@@ -120,7 +120,7 @@ const ReviewManagement: React.FC<ReviewManagementProps> = ({ currentUser, users,
                             <div>
                                 <h3 className={`text-xl font-black uppercase tracking-tight ${isBento ? 'text-black' : 'text-gray-900 dark:text-white'}`}>
                                     {tx('Grading', 'تصحيح')}{' '}
-                                    <span className={isBento ? 'underline decoration-2' : 'text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-500'}>
+                                    <span className={isBento ? 'underline decoration-2' : 'text-indigo-600 dark:text-[#bef264]'}>
                                         {reviewingAttempt.userName || 'Student'}
                                     </span>
                                 </h3>
@@ -161,7 +161,7 @@ const ReviewManagement: React.FC<ReviewManagementProps> = ({ currentUser, users,
                                 className={`btn-unstyled flex-1 sm:flex-none px-7 py-3 font-black text-xs uppercase tracking-[0.1em] transition-all cursor-pointer ${
                                     isBento
                                         ? 'bg-[#bef264] hover:bg-[#a3e635] text-black rounded-xl border-2 border-black shadow-[3px_3px_0px_#000]'
-                                        : 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-2xl shadow-lg shadow-purple-500/30 hover:-translate-y-0.5'
+                                        : 'bg-teal-600 text-white rounded-2xl shadow-lg shadow-teal-500/30 hover:-translate-y-0.5'
                                 }`}
                             >
                                 {tx('Submit Review', 'اعتماد المراجعة')}
@@ -180,7 +180,7 @@ const ReviewManagement: React.FC<ReviewManagementProps> = ({ currentUser, users,
                                     className={`p-6 space-y-5 group transition-all ${
                                         isBento
                                             ? 'bg-white rounded-2xl border-[2.5px] border-black shadow-[5px_5px_0px_#000]'
-                                            : 'bg-white/60 dark:bg-[#1e1e2d]/60 backdrop-blur-xl rounded-[2.5rem] border border-white/20 dark:border-white/5 shadow-sm hover:shadow-xl'
+                                            : 'bg-white/60 dark:bg-[#1c1917]/60 backdrop-blur-xl rounded-[2.5rem] border border-white/20 dark:border-white/5 shadow-sm hover:shadow-xl'
                                     }`}
                                 >
                                     <div className="flex justify-between items-start gap-3">
@@ -189,8 +189,8 @@ const ReviewManagement: React.FC<ReviewManagementProps> = ({ currentUser, users,
                                                 <span
                                                     className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${
                                                         isBento
-                                                            ? 'bg-[#ddd6fe] text-black border border-black'
-                                                            : 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20'
+                                                            ? 'bg-[#fed7aa] text-black border border-black'
+                                                            : 'bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20'
                                                     }`}
                                                 >
                                                     Quest {idx + 1}
@@ -225,7 +225,7 @@ const ReviewManagement: React.FC<ReviewManagementProps> = ({ currentUser, users,
                                             className={`p-5 rounded-2xl font-bold text-sm leading-relaxed ${
                                                 isBento
                                                     ? 'bg-[#f5f3ec] border-2 border-black text-black'
-                                                    : 'bg-gray-50/50 dark:bg-[#050505]/50 text-gray-900 dark:text-gray-100 border-2 border-indigo-500/5 shadow-inner'
+                                                    : 'bg-gray-50/50 dark:bg-[#0a0908]/50 text-gray-900 dark:text-gray-100 border-2 border-indigo-500/5 shadow-inner'
                                             }`}
                                         >
                                             {(() => {
@@ -288,18 +288,18 @@ const ReviewManagement: React.FC<ReviewManagementProps> = ({ currentUser, users,
                             className={`p-5 transition-all group flex items-center justify-between gap-3 ${
                                 isBento
                                     ? 'bg-white rounded-2xl border-[2.5px] border-black shadow-[5px_5px_0px_#000] hover:-translate-y-0.5'
-                                    : 'bg-white/60 dark:bg-[#1e1e2d]/60 backdrop-blur-xl rounded-3xl border border-white/20 dark:border-white/5 hover:border-indigo-500/30 shadow-sm'
+                                    : 'bg-white/60 dark:bg-[#1c1917]/60 backdrop-blur-xl rounded-3xl border border-white/20 dark:border-white/5 hover:border-indigo-500/30 shadow-sm'
                             }`}
                         >
                             <div className="flex items-center gap-4 min-w-0">
                                 <div
                                     className={`w-12 h-12 rounded-2xl flex items-center justify-center overflow-hidden font-black shrink-0 ${
                                         isBento
-                                            ? 'bg-[#ddd6fe] border-2 border-black text-black shadow-[2px_2px_0px_#000]'
-                                            : 'bg-gradient-to-br from-indigo-500 to-purple-600 p-0.5 shadow-lg group-hover:scale-110 transition-transform text-indigo-600'
+                                            ? 'bg-[#fed7aa] border-2 border-black text-black shadow-[2px_2px_0px_#000]'
+                                            : 'bg-indigo-500 p-0.5 shadow-lg group-hover:scale-110 transition-transform text-indigo-600'
                                     }`}
                                 >
-                                    <div className={`w-full h-full flex items-center justify-center overflow-hidden ${isBento ? '' : 'bg-white dark:bg-[#1e1e2d] rounded-[14px]'}`}>
+                                    <div className={`w-full h-full flex items-center justify-center overflow-hidden ${isBento ? '' : 'bg-white dark:bg-[#1c1917] rounded-[14px]'}`}>
                                         {(() => {
                                             const student = users?.find((u) => u.userId === attempt.userId);
                                             return student?.avatar ? (

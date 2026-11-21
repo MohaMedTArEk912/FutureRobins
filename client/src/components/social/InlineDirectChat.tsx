@@ -42,7 +42,7 @@ export const InlineDirectChat: React.FC<InlineDirectChatProps> = ({
     return (
         <div className="flex-1 min-w-0 flex flex-col h-full min-h-0">
             <header className={`px-4 sm:px-6 py-3 border-b flex items-center justify-between gap-3 shrink-0 ${
-                isBento ? 'bg-[#bae6fd] border-b-[2.5px] border-black' : 'bg-white/80 dark:bg-[#13141f]/90 border-slate-200 dark:border-white/10'
+                isBento ? 'bg-[#bae6fd] border-b-[2.5px] border-black' : 'bg-white/80 dark:bg-[#141210]/90 border-slate-200 dark:border-white/10'
             }`}>
                 <div className="flex items-center gap-3 min-w-0">
                     <button
@@ -51,7 +51,7 @@ export const InlineDirectChat: React.FC<InlineDirectChatProps> = ({
                         className={`btn-unstyled inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[11px] font-black uppercase tracking-wider cursor-pointer shrink-0 ${
                             isBento
                                 ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                : 'bg-violet-600/10 text-violet-600 dark:text-violet-300 border border-violet-500/20'
+                                : 'bg-sky-600/10 text-sky-600 dark:text-sky-300 border border-sky-500/20'
                         }`}
                     >
                         <ArrowLeft className="w-3.5 h-3.5" />
@@ -60,7 +60,7 @@ export const InlineDirectChat: React.FC<InlineDirectChatProps> = ({
                     <div className="flex items-center gap-2 min-w-0">
                         <div className="relative shrink-0">
                             <div className={`w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center text-[11px] font-black ${
-                                isBento ? 'border-2 border-black bg-[#fde047] text-black' : 'bg-gradient-to-br from-violet-500 to-indigo-600 text-white'
+                                isBento ? 'border-2 border-black bg-[#fde047] text-black' : 'bg-sky-500 text-white'
                             }`}>
                                 {friend.avatar ? (
                                     <Avatar config={friend.avatar} size="sm" className="w-full h-full object-cover" />
@@ -119,7 +119,7 @@ export const InlineDirectChat: React.FC<InlineDirectChatProps> = ({
             </div>
 
             <form onSubmit={handleSend} className={`p-3 border-t shrink-0 flex items-center gap-2 ${
-                isBento ? 'bg-white border-t-2 border-black' : 'bg-white dark:bg-[#13141f] border-slate-200 dark:border-white/10'
+                isBento ? 'bg-white border-t-2 border-black' : 'bg-white dark:bg-[#141210] border-slate-200 dark:border-white/10'
             }`}>
                 <input
                     value={input}
@@ -133,7 +133,7 @@ export const InlineDirectChat: React.FC<InlineDirectChatProps> = ({
                     type="submit"
                     disabled={!input.trim()}
                     className={`px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-black uppercase text-[11px] tracking-wider cursor-pointer disabled:opacity-45 ${
-                        isBento ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000]' : 'bg-violet-600 text-white'
+                        isBento ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000]' : 'bg-sky-600 text-white'
                     }`}
                 >
                     <span>Send</span>

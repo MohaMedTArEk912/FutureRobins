@@ -282,20 +282,20 @@ export const DirectChat: React.FC<DirectChatProps> = ({ currentUser, friend, onC
             title={`View ${friend.name}'s profile`}
         >
             <div className={`relative p-0.5 rounded-full group-hover/header:scale-105 transition-transform ${friendOnline
-                ? 'bg-gradient-to-br from-emerald-400 via-green-400 to-teal-400 shadow-lg shadow-emerald-500/30'
+                ? 'bg-emerald-400 shadow-lg shadow-emerald-500/30'
                 : 'bg-white/20'}`}>
-                <div className="bg-gradient-to-br from-violet-600 to-indigo-600 p-0.5 rounded-full">
+                <div className="bg-sky-600 p-0.5 rounded-full">
                     {friend.avatar ? (
                         <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-white/10">
                             <Avatar config={friend.avatar} size="sm" className="w-full h-full" />
                         </div>
                     ) : (
-                        <div className="w-10 h-10 bg-white/90 text-violet-600 rounded-full flex items-center justify-center font-bold text-lg ring-2 ring-white/10">
+                        <div className="w-10 h-10 bg-white/90 text-sky-600 rounded-full flex items-center justify-center font-bold text-lg ring-2 ring-white/10">
                             {friend.name.charAt(0).toUpperCase()}
                         </div>
                     )}
                 </div>
-                <span className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-violet-600 ${statusDisplay.dotClass} ${statusDisplay.animate ? 'animate-pulse' : ''}`} />
+                <span className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-sky-600 ${statusDisplay.dotClass} ${statusDisplay.animate ? 'animate-pulse' : ''}`} />
             </div>
             <div className="flex flex-col">
                 <h3 className="text-white font-bold text-lg leading-tight drop-shadow-sm group-hover/header:underline">{friend.name}</h3>
@@ -313,7 +313,7 @@ export const DirectChat: React.FC<DirectChatProps> = ({ currentUser, friend, onC
         <div className="flex items-center gap-1">
             <button
                 onClick={() => onStartChallenge((quizId, quizTitle) => handleChallengeQuizSelected(quizId, quizTitle, false))}
-                className="p-2.5 text-violet-500 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/30 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95"
+                className="p-2.5 text-sky-500 hover:text-sky-600 hover:bg-sky-50 dark:hover:bg-sky-900/30 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95"
                 title="Live Challenge"
                 aria-label="Start Live Challenge"
             >

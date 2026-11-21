@@ -354,8 +354,8 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
             : deckTheme === 'editorial'
                 ? 'bg-[#f8f6f1] text-slate-900 border border-slate-200'
                 : deckTheme === 'neon'
-                    ? 'bg-gradient-to-br from-[#0b0417] via-[#170933] to-[#0a192f] text-white border border-fuchsia-500/30'
-                    : 'bg-gradient-to-br from-[#070913] via-[#0e1326] to-[#140d26] text-white border border-white/10';
+                    ? 'bg-[#0b0417] text-white border border-rose-500/30'
+                    : 'bg-[#070913] text-white border border-white/10';
 
     if (typeof document === 'undefined') return null;
 
@@ -475,7 +475,7 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                 onClick={() => setShowFullPlayerPreview(true)}
                                 className={`px-3 py-2 rounded-xl text-xs font-black uppercase flex items-center gap-1.5 cursor-pointer ${
                                     isBento
-                                        ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#ddd6fe]'
+                                        ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#fed7aa]'
                                         : 'bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/15'
                                 }`}
                                 title="Open interactive whiteboard preview before saving"

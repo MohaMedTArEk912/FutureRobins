@@ -116,15 +116,15 @@ const BadgeTreeDetailPage: React.FC = () => {
 
                     {/* Progress Stats */}
                     <div className="grid grid-cols-3 gap-4 mt-6">
-                        <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-xl p-4">
-                            <div className="flex items-center gap-2 text-purple-600 dark:text-purple-400 mb-2">
+                        <div className="bg-teal-500/10 border border-teal-500/20 rounded-xl p-4">
+                            <div className="flex items-center gap-2 text-teal-600 dark:text-teal-400 mb-2">
                                 <Award className="w-5 h-5" />
                                 <span className="text-sm font-semibold">Total Badges</span>
                             </div>
                             <p className="text-3xl font-bold text-gray-900 dark:text-white">{tree.nodes.length}</p>
                         </div>
 
-                        <div className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-xl p-4">
+                        <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-4">
                             <div className="flex items-center gap-2 text-green-600 dark:text-green-400 mb-2">
                                 <Check className="w-5 h-5" />
                                 <span className="text-sm font-semibold">Earned</span>
@@ -134,7 +134,7 @@ const BadgeTreeDetailPage: React.FC = () => {
                             </p>
                         </div>
 
-                        <div className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20 rounded-xl p-4">
+                        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
                             <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400 mb-2">
                                 <Sparkles className="w-5 h-5" />
                                 <span className="text-sm font-semibold">Available</span>
@@ -147,9 +147,9 @@ const BadgeTreeDetailPage: React.FC = () => {
                 </div>
 
                 {/* Badge Tree Visualization */}
-                <div className="bg-white dark:bg-gray-800/50 rounded-2xl p-8 border border-gray-200 dark:border-gray-700 shadow-xl dark:shadow-none">
+                <div className="bg-white dark:bg-[#1c1917]/50 rounded-2xl p-8 border border-gray-200 dark:border-[#f5f3ec]/16 shadow-xl dark:shadow-none">
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-                        <Award className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                        <Award className="w-6 h-6 text-teal-600 dark:text-teal-400" />
                         Badge Progression Tree
                     </h2>
 
@@ -162,7 +162,7 @@ const BadgeTreeDetailPage: React.FC = () => {
                                 <div key={tier} className="relative">
                                     {/* Tier Label */}
                                     <div className="text-center mb-6">
-                                        <span className="inline-block bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30 rounded-full px-4 py-2 text-purple-300 font-bold">
+                                        <span className="inline-block bg-teal-500/20 border border-teal-500/30 rounded-full px-4 py-2 text-teal-300 font-bold">
                                             {tier === 0 ? 'Foundation' : tier === maxTier ? 'Mastery' : `Level ${tier}`}
                                         </span>
                                     </div>
@@ -181,7 +181,7 @@ const BadgeTreeDetailPage: React.FC = () => {
                                                     {/* Connection lines to prerequisites */}
                                                     {node.prerequisites && node.prerequisites.length > 0 && tier > 0 && (
                                                         <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-4">
-                                                            <div className="w-0.5 h-8 bg-gradient-to-b from-purple-500/50 to-transparent" />
+                                                            <div className="w-0.5 h-8 bg-teal-500/50" />
                                                         </div>
                                                     )}
 
@@ -194,14 +194,14 @@ const BadgeTreeDetailPage: React.FC = () => {
 
                                                     {/* Badge Info on Hover */}
                                                     <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-4 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                                                        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-xl min-w-[250px]">
+                                                        <div className="bg-white dark:bg-[#141210] border border-gray-200 dark:border-[#f5f3ec]/16 rounded-xl p-4 shadow-xl min-w-[250px]">
                                                             <h3 className="font-bold text-gray-900 dark:text-white mb-2">{badge.name}</h3>
                                                             <p className="text-gray-500 dark:text-gray-400 text-sm mb-3">{badge.description}</p>
 
                                                             {badge.rewards.xp > 0 || badge.rewards.coins > 0 ? (
                                                                 <div className="flex gap-2 text-xs">
                                                                     {badge.rewards.xp > 0 && (
-                                                                        <span className="bg-purple-500/20 text-purple-300 px-2 py-1 rounded">
+                                                                        <span className="bg-teal-500/20 text-teal-300 px-2 py-1 rounded">
                                                                             +{badge.rewards.xp} XP
                                                                         </span>
                                                                     )}
@@ -214,7 +214,7 @@ const BadgeTreeDetailPage: React.FC = () => {
                                                             ) : null}
 
                                                             {!isEarned && node.prerequisites && node.prerequisites.length > 0 && (
-                                                                <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+                                                                <div className="mt-3 pt-3 border-t border-gray-100 dark:border-[#f5f3ec]/16">
                                                                     <p className="text-xs text-gray-500 mb-1">Requires:</p>
                                                                     <div className="flex flex-wrap gap-1">
                                                                         {node.prerequisites.map((prereqId: string) => {
@@ -245,7 +245,7 @@ const BadgeTreeDetailPage: React.FC = () => {
                                     {/* Connection line to next tier */}
                                     {tier < maxTier && (
                                         <div className="flex justify-center mt-8">
-                                            <div className="w-0.5 h-8 bg-gradient-to-b from-purple-500/50 to-transparent" />
+                                            <div className="w-0.5 h-8 bg-teal-500/50" />
                                         </div>
                                     )}
                                 </div>

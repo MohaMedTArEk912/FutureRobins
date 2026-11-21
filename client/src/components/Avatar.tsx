@@ -68,7 +68,7 @@ const Avatar: React.FC<AvatarProps> = ({ config, size = 'md', className = '' }) 
             case 'diamond':
                 return 'border-4 border-cyan-300 shadow-[0_0_26px_rgba(103,232,249,0.65)] ring-4 ring-cyan-200/40';
             case 'cyberpunk':
-                return 'border-4 border-fuchsia-500 shadow-[0_0_24px_rgba(217,70,239,0.65)] ring-2 ring-indigo-500/60';
+                return 'border-4 border-teal-400 shadow-[0_0_20px_rgba(45,212,191,0.5)] ring-2 ring-sky-400/60';
             default:
                 return 'border-2 border-slate-900/15 dark:border-white/15';
         }
@@ -346,9 +346,9 @@ const renderClothing = (type: string, gender: string, skinColor: string) => {
         case 'sweater':
             return (
                 <g stroke="none">
-                    {torsoShape('#7c3aed')}
+                    {torsoShape('#0d9488')}
                     <path d="M76,152 Q100,172 124,152 Z" fill={skinColor} />
-                    <path d="M75,153 Q100,174 125,153" fill="none" stroke="#5b21b6" strokeWidth="4" strokeLinecap="round" />
+                    <path d="M75,153 Q100,174 125,153" fill="none" stroke="#115e59" strokeWidth="4" strokeLinecap="round" />
                 </g>
             );
         case 'tank':
@@ -663,7 +663,7 @@ const renderAccessory = (type: string) => {
             return (
                 <g transform="translate(0, -30)" stroke="none">
                     <ellipse cx="100" cy="84" rx="62" ry="10" fill="#3b0764" />
-                    <path d="M56,84 L144,84 L104,6 Z" fill="#581c87" />
+                    <path d="M56,84 L144,84 L104,6 Z" fill="#134e4a" />
                     <circle cx="98" cy="44" r="2.5" fill="#fde047" />
                     <circle cx="114" cy="66" r="2" fill="#fde047" />
                     <circle cx="84" cy="64" r="2" fill="#fde047" />

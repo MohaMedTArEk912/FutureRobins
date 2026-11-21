@@ -45,7 +45,6 @@ import analyticsRoutes from './routes/analytics.js';
 import badgeRoutes from './routes/badges.js';
 import badgeNodesRoutes from './routes/badgeNodes.js';
 import badgeTreesRoutes from './routes/badgeTrees.js';
-import studyCardsRoutes from './routes/studyCards.js';
 import classRoutes from './routes/classRoutes.js';
 import compilerRoutes from './routes/compiler.js';
 import aiRoutes from './routes/ai.js';
@@ -339,7 +338,6 @@ app.use('/api/challenges', challengeRoutes);
 app.use('/api/shop', shopRoutes);
 app.use('/api', engagementRoutes); // mounts /daily-challenge, /skill-tracks, /tournaments
 app.use('/api', analyticsRoutes); // mounts /analytics/summary, /data
-app.use('/api/study-cards', studyCardsRoutes);
 app.use('/api/clans', classRoutes);
 app.use('/api/classes', classRoutes);
 app.use('/api/compiler', compilerRoutes);

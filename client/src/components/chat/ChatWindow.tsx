@@ -140,13 +140,13 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         <div className={`flex flex-col h-full w-full ${isFullscreen ? 'max-w-none rounded-none' : 'max-w-md mx-auto rounded-2xl'} overflow-hidden animate-in fade-in duration-200 ${
             isBento
                 ? (isFullscreen ? 'bg-white text-black' : 'bg-white text-black border-[3px] border-black shadow-[6px_6px_0px_#000]')
-                : (isFullscreen ? 'bg-white dark:bg-[#11131f] text-gray-900 dark:text-gray-100' : 'bg-white dark:bg-gray-800 shadow-2xl border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100')
+                : (isFullscreen ? 'bg-white dark:bg-[#11131f] text-gray-900 dark:text-gray-100' : 'bg-white dark:bg-[#1c1917] shadow-2xl border border-gray-200 dark:border-[#f5f3ec]/16 text-gray-900 dark:text-gray-100')
         }`}>
             {/* Header */}
             <div className={`p-3 sm:p-4 flex items-center justify-between shrink-0 ${
                 isBento
                     ? 'bg-[#fde047] text-black border-b-2 border-black font-mono'
-                    : 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white'
+                    : 'bg-sky-600 text-white'
             }`}>
                 <div className={`flex items-center gap-2 sm:gap-3 ${isBento ? 'text-black' : 'text-white'} font-bold min-w-0`}>
                     {headerContent ? headerContent : (
@@ -189,7 +189,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
                 <div className={`w-full ${isFullscreen ? 'max-w-4xl mx-auto' : ''} space-y-4`}>
                 {loading ? (
                     <div className="flex justify-center py-10">
-                        <div className="w-8 h-8 border-4 border-violet-500 border-t-transparent rounded-full animate-spin" />
+                        <div className="w-8 h-8 border-4 border-sky-500 border-t-transparent rounded-full animate-spin" />
                     </div>
                 ) : messages.length === 0 ? (
                     <div className="text-center py-20 opacity-50">
@@ -204,8 +204,8 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
                         return (
                             <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'} group/message relative`}>
                                 <div className={`max-w-[85%] rounded-2xl p-3 relative shadow-sm transition-all ${isMe
-                                    ? 'bg-violet-600 text-white rounded-br-none'
-                                    : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-bl-none border border-gray-100 dark:border-gray-700'
+                                    ? 'bg-sky-600 text-white rounded-br-none'
+                                    : 'bg-white dark:bg-[#1c1917] text-gray-800 dark:text-gray-200 rounded-bl-none border border-gray-100 dark:border-[#f5f3ec]/16'
                                     }`}>
 
                                     {!isMe && (
@@ -248,7 +248,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
                                             </div>
                                         </div>
                                     ) : isChallenge && msg.challengeData ? (
-                                        <div className="bg-gradient-to-br from-yellow-500/10 to-orange-500/10 dark:from-yellow-500/20 dark:to-orange-500/20 rounded-xl p-4 border border-yellow-500/20">
+                                        <div className="bg-yellow-500/10 dark:bg-yellow-500/20 rounded-xl p-4 border border-yellow-500/20">
                                             <div className="flex items-center gap-2 mb-2">
                                                 <div className="p-1.5 bg-yellow-500/20 rounded-lg">
                                                     <Swords className="w-4 h-4 text-yellow-400" />
@@ -291,7 +291,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
                                                             senderId: msg.senderId,
                                                             senderName: msg.senderName
                                                         })}
-                                                        className="w-full py-2.5 bg-gradient-to-r from-yellow-400 to-orange-400 hover:from-yellow-500 hover:to-orange-500 text-black font-bold rounded-lg text-sm transition-all shadow-lg shadow-yellow-500/20 hover:shadow-yellow-500/40 active:scale-[0.98]"
+                                                        className="w-full py-2.5 bg-yellow-400 hover:bg-yellow-500 text-black font-bold rounded-lg text-sm transition-all shadow-lg shadow-yellow-500/20 hover:shadow-yellow-500/40 active:scale-[0.98]"
                                                     >
                                                         ⚔️ Accept Duel
                                                     </button>
@@ -328,7 +328,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
 
                                     {/* Context Menu */}
                                     {activeMenuId === msg.id && (
-                                        <div className="absolute top-0 right-full mr-2 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-100 dark:border-gray-700 py-1 z-20 w-32 overflow-hidden animate-in fade-in zoom-in-95">
+                                        <div className="absolute top-0 right-full mr-2 bg-white dark:bg-[#1c1917] rounded-lg shadow-xl border border-gray-100 dark:border-[#f5f3ec]/16 py-1 z-20 w-32 overflow-hidden animate-in fade-in zoom-in-95">
                                             {onEditMessage && (
                                                 <button
                                                     onClick={() => {
@@ -363,7 +363,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
             </div>
 
             {/* Input Area */}
-            <div className="p-2.5 sm:p-3 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shrink-0">
+            <div className="p-2.5 sm:p-3 bg-white dark:bg-[#1c1917] border-t border-gray-200 dark:border-[#f5f3ec]/16 shrink-0">
                 <div className={`flex items-end gap-1.5 sm:gap-2 w-full ${isFullscreen ? 'max-w-4xl mx-auto' : ''}`}>
                     {inputActions}
 
@@ -372,7 +372,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={handleKeyDown}
                         placeholder={placeholder}
-                        className="flex-1 bg-gray-100 dark:bg-gray-900 border-0 rounded-xl p-2.5 sm:p-3 max-h-28 sm:max-h-32 min-h-[40px] sm:min-h-[44px] text-xs sm:text-sm focus:ring-2 focus:ring-violet-500 text-gray-900 dark:text-gray-100 resize-none custom-scrollbar"
+                        className="flex-1 bg-gray-100 dark:bg-[#141210] border-0 rounded-xl p-2.5 sm:p-3 max-h-28 sm:max-h-32 min-h-[40px] sm:min-h-[44px] text-xs sm:text-sm focus:ring-2 focus:ring-sky-500 text-gray-900 dark:text-gray-100 resize-none custom-scrollbar"
                     />
                     <button
                         onClick={handleSend}
@@ -380,7 +380,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
                         className={`p-2.5 sm:p-3 rounded-xl transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shrink-0 ${
                             isBento
                                 ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000]'
-                                : 'bg-violet-600 text-white hover:bg-violet-700 shadow-lg shadow-violet-500/20'
+                                : 'bg-sky-600 text-white hover:bg-sky-700 shadow-lg shadow-sky-500/20'
                         }`}
                     >
                         <Send className={`w-4 h-4 sm:w-5 sm:h-5 ${isBento ? 'text-black' : 'text-white'}`} />
@@ -397,11 +397,11 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
                     background: transparent;
                 }
                 .custom-scrollbar::-webkit-scrollbar-thumb {
-                    background: rgba(139, 92, 246, 0.3);
+                    background: rgba(13, 148, 136, 0.3);
                     border-radius: 10px;
                 }
                 .dark .custom-scrollbar::-webkit-scrollbar-thumb {
-                    background: rgba(139, 92, 246, 0.5);
+                    background: rgba(13, 148, 136, 0.5);
                 }
             `}} />
         </div>

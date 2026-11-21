@@ -18,7 +18,8 @@ export const Certificate = forwardRef<HTMLDivElement, CertificateProps>(({
     totalQuestions,
     date
 }, ref) => {
-    const percentage = Math.round((score / totalQuestions) * 100);
+    const rawPct = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 100;
+    const percentage = Math.min(100, Math.max(0, rawPct));
 
     return (
         <div>
@@ -96,7 +97,7 @@ export const Certificate = forwardRef<HTMLDivElement, CertificateProps>(({
                         position: 'absolute',
                         inset: 0,
                         zIndex: 0,
-                        background: 'linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%)',
+                        backgroundColor: '#f8fafc',
                         opacity: 0.5
                     }}
                 ></div>

@@ -290,20 +290,20 @@ const QuizResults: React.FC<QuizResultsProps> = ({ result, quiz, user, onBackToQ
     };
 
     return (
-        <div className="min-h-screen lg:h-screen lg:max-h-screen overflow-y-auto lg:overflow-hidden bg-slate-100/90 dark:bg-[#070b14] p-2 sm:p-3 lg:p-4 text-slate-900 dark:text-slate-100 selection:bg-indigo-500/25 relative flex flex-col justify-start lg:justify-center font-sans">
+        <div className="min-h-screen lg:h-screen lg:max-h-screen overflow-y-auto lg:overflow-hidden bg-slate-100/90 dark:bg-[#0a0908] p-2 sm:p-3 lg:p-4 text-slate-900 dark:text-slate-100 selection:bg-indigo-500/25 relative flex flex-col justify-start lg:justify-center font-sans">
             {/* Ambient Background */}
             <AmbientBackground />
 
             {/* --- ELEVATED RESULTS CARD BOARD (Responsive: full scroll on mobile, zero-scroll desktop view) --- */}
             <div className={`w-full max-w-7xl 2xl:max-w-[1536px] mx-auto rounded-2xl sm:rounded-3xl overflow-hidden flex flex-col relative z-10 transition-all min-h-0 lg:h-full lg:max-h-[calc(100vh-2rem)] ${
                 isBento
-                    ? 'border-[3px] border-black bg-white dark:bg-[#0b0f19] shadow-[8px_8px_0px_#000] dark:shadow-[8px_8px_0px_rgba(255,255,255,0.08)]'
-                    : 'border border-slate-200/90 dark:border-white/10 bg-white dark:bg-[#0c101c] shadow-xl dark:shadow-2xl'
+                    ? 'border-[3px] border-black bg-white dark:bg-[#0a0908] shadow-[8px_8px_0px_#000] dark:shadow-[8px_8px_0px_rgba(255,255,255,0.08)]'
+                    : 'border border-slate-200/90 dark:border-white/10 bg-white dark:bg-[#141210] shadow-xl dark:shadow-2xl'
             }`}>
                 {/* Header inside Card */}
                 <header className={`flex-none h-12 sm:h-14 flex items-center justify-between px-3 sm:px-6 z-20 transition-all ${
                     isBento
-                        ? 'bg-white dark:bg-[#0f172a] border-b-2 border-black dark:border-white/20'
+                        ? 'bg-white dark:bg-[#141210] border-b-2 border-black dark:border-white/20'
                         : 'glass-panel border-b border-slate-200/80 dark:border-white/10'
                 }`}>
                     <button
@@ -336,7 +336,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ result, quiz, user, onBackToQ
                             onClick={() => setShowReview(prev => !prev)}
                             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black border transition-all cursor-pointer ${
                                 isBento
-                                    ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-purple-100'
+                                    ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-teal-100'
                                     : 'glass-card border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200'
                             }`}
                         >
@@ -352,11 +352,11 @@ const QuizResults: React.FC<QuizResultsProps> = ({ result, quiz, user, onBackToQ
                     {/* LEFT SIDE: Big Score Gauge Hero (Compact & Centered) */}
                     <div className={`w-full lg:w-[38%] xl:w-[36%] flex-none flex flex-col items-center justify-center p-4 sm:p-5 lg:p-5 shrink-0 ${
                         isBento
-                            ? 'bg-[#f8fafc] dark:bg-[#080d19] border-b-2 lg:border-b-0 lg:border-r-2 border-black dark:border-white/20'
+                            ? 'bg-[#f8fafc] dark:bg-[#0a0908] border-b-2 lg:border-b-0 lg:border-r-2 border-black dark:border-white/20'
                             : 'bg-slate-50/70 dark:bg-white/[0.02] backdrop-blur-xl border-b lg:border-b-0 lg:border-r border-slate-200/80 dark:border-white/[0.08]'
                     }`}>
                         <div className={`relative z-10 flex flex-col items-center max-w-sm w-full animate-in zoom-in-95 duration-500 ${
-                            isBento ? 'bg-white dark:bg-[#111827] border-2 border-black dark:border-white/20 shadow-[4px_4px_0px_#000] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.08)] rounded-2xl sm:rounded-3xl p-4 sm:p-5' : 'glass-card p-4 sm:p-5 rounded-2xl sm:rounded-3xl'
+                            isBento ? 'bg-white dark:bg-[#141210] border-2 border-black dark:border-white/20 shadow-[4px_4px_0px_#000] dark:shadow-[4px_4px_0px_rgba(255,255,255,0.08)] rounded-2xl sm:rounded-3xl p-4 sm:p-5' : 'glass-card p-4 sm:p-5 rounded-2xl sm:rounded-3xl'
                         }`}>
                             
                             {/* Status Icon Badge */}
@@ -437,7 +437,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ result, quiz, user, onBackToQ
                         className={`w-full lg:w-[62%] xl:w-[64%] flex-1 flex flex-col p-4 sm:p-5 lg:p-6 overflow-visible lg:overflow-y-auto transition-all ${
                             showReview ? 'justify-start custom-scrollbar' : 'justify-center no-scrollbar'
                         } ${
-                            isBento ? 'bg-white dark:bg-[#030712]' : 'bg-transparent lg:bg-white dark:bg-[#0c101c]'
+                            isBento ? 'bg-white dark:bg-[#0a0908]' : 'bg-transparent lg:bg-white dark:bg-[#141210]'
                         }`}
                     >
                         
@@ -450,11 +450,11 @@ const QuizResults: React.FC<QuizResultsProps> = ({ result, quiz, user, onBackToQ
                                 <div className={`w-full p-4 rounded-2xl text-center animate-in zoom-in-95 duration-500 ${
                                     isBento
                                         ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000]'
-                                        : 'bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-amber-500/20 border-2 border-purple-400 dark:border-purple-500/40 shadow-xl'
+                                        : 'bg-teal-500/20 border-2 border-teal-400 dark:border-teal-500/40 shadow-xl'
                                 }`}>
                                     <div className="flex items-center justify-center gap-2 mb-1.5">
                                         <Sparkles className="w-4 h-4 text-amber-500 animate-bounce" />
-                                        <h3 className={`text-xs sm:text-sm font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-purple-700 dark:text-purple-300'}`}>
+                                        <h3 className={`text-xs sm:text-sm font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-teal-700 dark:text-teal-300'}`}>
                                             New Achievement{result.newBadges.length > 1 ? 's' : ''} Unlocked!
                                         </h3>
                                         <Sparkles className="w-4 h-4 text-amber-500 animate-bounce" />
@@ -491,7 +491,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ result, quiz, user, onBackToQ
                                 <div className={`w-full p-3.5 rounded-xl text-center animate-in zoom-in-95 duration-500 ${
                                     isBento
                                         ? 'bg-[#fde047] text-black border-2 border-black shadow-[3px_3px_0px_#000]'
-                                        : 'bg-gradient-to-r from-amber-500/20 via-yellow-500/20 to-orange-500/20 border-2 border-yellow-400 dark:border-yellow-500/40 shadow-xl'
+                                        : 'bg-amber-500/20 border-2 border-yellow-400 dark:border-yellow-500/40 shadow-xl'
                                 }`}>
                                     <div className="text-2xl mb-0.5">🏆 🎉</div>
                                     <h3 className={`text-sm uppercase tracking-wider ${isBento ? 'text-black font-black' : 'font-black text-amber-800 dark:text-amber-300'}`}>
@@ -507,8 +507,8 @@ const QuizResults: React.FC<QuizResultsProps> = ({ result, quiz, user, onBackToQ
                             {hasValidPoolProgress && (
                                 <div className={`rounded-xl p-3 ${
                                     isBento
-                                        ? 'bg-[#f8fafc] dark:bg-[#111827] text-black dark:text-white border-2 border-black dark:border-white/20 shadow-[2px_2px_0px_#000]'
-                                        : 'bg-gradient-to-br from-blue-500/10 to-indigo-500/10 border border-blue-200 dark:border-blue-500/20 shadow-sm'
+                                        ? 'bg-[#f8fafc] dark:bg-[#141210] text-black dark:text-white border-2 border-black dark:border-white/20 shadow-[2px_2px_0px_#000]'
+                                        : 'bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 shadow-sm'
                                 }`}>
                                     <div className="flex items-center justify-between mb-1.5">
                                         <span className={`text-[10px] sm:text-xs font-black uppercase tracking-widest ${isBento ? 'text-black dark:text-white' : 'text-blue-700 dark:text-blue-300'}`}>
@@ -530,7 +530,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ result, quiz, user, onBackToQ
                                     </div>
                                     <div className={`w-full h-2 rounded-full overflow-hidden ${isBento ? 'bg-slate-200 dark:bg-white/10 border border-black' : 'bg-blue-100 dark:bg-white/10'}`}>
                                         <div
-                                            className={`h-full transition-all duration-1000 ${isBento ? 'bg-[#bef264]' : 'bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600'}`}
+                                            className={`h-full transition-all duration-1000 ${isBento ? 'bg-[#bef264]' : 'bg-blue-500'}`}
                                             style={{ width: `${poolPercentage}%` }}
                                         />
                                     </div>
@@ -539,7 +539,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ result, quiz, user, onBackToQ
 
                             <div>
                                 <div className={`flex items-center justify-between pb-1.5 mb-2 ${
-                                    isBento ? 'text-black dark:text-white border-b-2 border-black dark:border-white/20' : 'text-gray-800 dark:text-gray-200 border-b border-gray-200 dark:border-gray-800'
+                                    isBento ? 'text-black dark:text-white border-b-2 border-black dark:border-white/20' : 'text-gray-800 dark:text-gray-200 border-b border-gray-200 dark:border-[#f5f3ec]/10'
                                 }`}>
                                     <h3 className="text-xs sm:text-sm font-black uppercase tracking-tight flex items-center gap-1.5">
                                         <Flag className="w-3.5 h-3.5" /> {tx('Performance Summary', 'ملخص الأداء')}
@@ -554,7 +554,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ result, quiz, user, onBackToQ
                                     
                                     {/* Time Card */}
                                     <div className={`rounded-xl p-2.5 sm:p-3 flex items-center gap-2.5 ${
-                                        isBento ? 'bg-white dark:bg-[#111827] text-black dark:text-white border-2 border-black dark:border-white/20 shadow-[2px_2px_0px_#000]' : 'glass-card'
+                                        isBento ? 'bg-white dark:bg-[#141210] text-black dark:text-white border-2 border-black dark:border-white/20 shadow-[2px_2px_0px_#000]' : 'glass-card'
                                     }`}>
                                         <div className={`p-2 rounded-lg ${isBento ? 'bg-[#93c5fd] text-black border-1.5 border-black shadow-[1px_1px_0px_#000]' : 'bg-blue-500/10 text-blue-600 dark:text-blue-400'}`}>
                                             <Clock className="w-4 h-4" />
@@ -567,7 +567,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ result, quiz, user, onBackToQ
 
                                     {/* Total Points */}
                                     <div className={`rounded-xl p-2.5 sm:p-3 flex items-center gap-2.5 ${
-                                        isBento ? 'bg-white dark:bg-[#111827] text-black dark:text-white border-2 border-black dark:border-white/20 shadow-[2px_2px_0px_#000]' : 'glass-card'
+                                        isBento ? 'bg-white dark:bg-[#141210] text-black dark:text-white border-2 border-black dark:border-white/20 shadow-[2px_2px_0px_#000]' : 'glass-card'
                                     }`}>
                                         <div className={`p-2 rounded-lg ${isBento ? 'bg-[#fde047] text-black border-1.5 border-black shadow-[1px_1px_0px_#000]' : 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'}`}>
                                             <Target className="w-4 h-4" />
@@ -720,13 +720,13 @@ const QuizResults: React.FC<QuizResultsProps> = ({ result, quiz, user, onBackToQ
                             onClick={() => setShowReview(!showReview)}
                             className={`w-full flex items-center justify-between p-2.5 sm:p-3 rounded-xl sm:rounded-2xl transition-all group cursor-pointer ${
                                 isBento
-                                    ? 'bg-white dark:bg-[#111827] text-black dark:text-white border-2 border-black dark:border-white/20 shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000]'
+                                    ? 'bg-white dark:bg-[#141210] text-black dark:text-white border-2 border-black dark:border-white/20 shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000]'
                                     : 'glass-card hover:bg-slate-100/40 dark:hover:bg-white/[0.03]'
                             }`}
                         >
                             <div className="flex items-center gap-2.5">
                                 <div className={`p-1.5 rounded-lg transition-colors ${
-                                    isBento ? 'bg-[#e9d5ff] text-black border-1.5 border-black shadow-[1px_1px_0px_#000]' : 'bg-indigo-500/10 text-indigo-600'
+                                    isBento ? 'bg-[#fed7aa] text-black border-1.5 border-black shadow-[1px_1px_0px_#000]' : 'bg-indigo-500/10 text-indigo-600'
                                 }`}>
                                     <List className="w-3.5 h-3.5 text-black" />
                                 </div>
@@ -886,7 +886,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ result, quiz, user, onBackToQ
                                                     
                                                     {q.codeSnippet && (
                                                         <pre dir="ltr" className={`p-3.5 mb-3 rounded-2xl font-mono text-xs overflow-x-auto ${
-                                                            isBento ? 'bg-black text-[#bef264] border-2 border-black shadow-[3px_3px_0px_#000]' : 'bg-slate-900 dark:bg-[#080c16] text-emerald-400 border border-slate-800 dark:border-white/10 shadow-inner'
+                                                            isBento ? 'bg-black text-[#bef264] border-2 border-black shadow-[3px_3px_0px_#000]' : 'bg-slate-900 dark:bg-[#0a0908] text-emerald-400 border border-slate-800 dark:border-white/10 shadow-inner'
                                                         }`}>
                                                             {q.codeSnippet}
                                                         </pre>
@@ -895,7 +895,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ result, quiz, user, onBackToQ
                                                     <div className={`flex flex-col gap-2 p-3.5 rounded-2xl transition-all ${
                                                         isBento
                                                             ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000]'
-                                                            : 'bg-white dark:bg-[#121829] border border-slate-200/90 dark:border-white/10 shadow-sm'
+                                                            : 'bg-white dark:bg-[#141210] border border-slate-200/90 dark:border-white/10 shadow-sm'
                                                     }`}>
                                                         <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
                                                             <span className={`text-[10px] uppercase tracking-wider w-24 shrink-0 ${isBento ? 'font-black text-slate-600' : 'font-extrabold text-slate-400'}`}>Your Answer</span>

@@ -310,9 +310,9 @@ const QuizTakingPage: React.FC = () => {
 
     if (isLoadingSession || !activeQuiz || !currentUser) {
         return (
-            <div className="h-screen bg-gray-50 dark:bg-[#080812] flex items-center justify-center text-gray-500">
+            <div className="h-screen bg-transparent flex items-center justify-center text-gray-500">
                 <div className="flex flex-col items-center gap-3">
-                    <div className="w-8 h-8 border-4 border-purple-500/30 border-t-purple-600 rounded-full animate-spin" />
+                    <div className="w-8 h-8 border-4 border-teal-500/30 border-t-teal-600 rounded-full animate-spin" />
                     <span className="text-sm font-bold">Preparing Questions...</span>
                 </div>
             </div>

@@ -128,8 +128,8 @@ const RequestTrackAccessModal: React.FC<RequestTrackAccessModalProps> = ({
                             disabled={isSubmitting}
                             className={`flex-[2] py-3.5 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl transition-all hover:scale-105 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer ${
                                 isRejected
-                                    ? 'bg-gradient-to-r from-purple-600 to-indigo-600 shadow-purple-500/30 hover:shadow-purple-500/50'
-                                    : 'bg-gradient-to-r from-indigo-600 to-purple-600 shadow-indigo-500/30 hover:shadow-indigo-500/50'
+                                    ? 'bg-teal-600 shadow-teal-500/30 hover:shadow-teal-500/50'
+                                    : 'bg-indigo-600 shadow-indigo-500/30 hover:shadow-indigo-500/50'
                             }`}
                         >
                             {isSubmitting ? (
@@ -157,7 +157,7 @@ const RequestTrackAccessModal: React.FC<RequestTrackAccessModalProps> = ({
         >
             <div className="space-y-5">
                 {/* Track Card Preview */}
-                <div className="relative p-6 rounded-3xl bg-gradient-to-br from-gray-50 to-indigo-50/30 dark:from-white/5 dark:to-indigo-950/20 border border-gray-200 dark:border-white/10 flex items-start gap-4">
+                <div className="relative p-6 rounded-3xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 flex items-start gap-4">
                     <div className="w-16 h-16 rounded-2xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center shrink-0 shadow-inner">
                         <SubjectIcon icon={subject.icon} />
                     </div>
@@ -230,7 +230,7 @@ const RequestTrackAccessModal: React.FC<RequestTrackAccessModalProps> = ({
                 {/* Form Fields if Re-Requesting or Initial Request */}
                 {isRejected && (
                     <div className="space-y-2">
-                        <label className="text-[10px] font-black text-purple-600 dark:text-purple-400 uppercase tracking-widest ml-1 flex items-center gap-1">
+                        <label className="text-[10px] font-black text-teal-600 dark:text-teal-400 uppercase tracking-widest ml-1 flex items-center gap-1">
                             <RotateCcw className="w-3 h-3" /> Re-Request Follow-Up Note (Required)
                         </label>
                         <textarea
@@ -238,7 +238,7 @@ const RequestTrackAccessModal: React.FC<RequestTrackAccessModalProps> = ({
                             placeholder="Address the admin's note above (e.g. I have completed the prerequisites / I need this for my upcoming exams)..."
                             value={reRequestNote}
                             onChange={(e) => setReRequestNote(e.target.value)}
-                            className="w-full bg-purple-500/5 dark:bg-purple-950/20 border border-purple-300 dark:border-purple-500/30 focus:ring-2 focus:ring-purple-500/50 rounded-2xl p-4 text-xs font-medium text-gray-900 dark:text-white placeholder:text-gray-400 outline-none transition-all resize-none"
+                            className="w-full bg-teal-500/5 dark:bg-teal-950/20 border border-teal-300 dark:border-teal-500/30 focus:ring-2 focus:ring-teal-500/50 rounded-2xl p-4 text-xs font-medium text-gray-900 dark:text-white placeholder:text-gray-400 outline-none transition-all resize-none"
                         />
                     </div>
                 )}
@@ -253,7 +253,7 @@ const RequestTrackAccessModal: React.FC<RequestTrackAccessModalProps> = ({
                             placeholder="e.g., I have completed my primary track / I am preparing for frontend certifications..."
                             value={reason}
                             onChange={(e) => setReason(e.target.value)}
-                            className="w-full bg-gray-50 dark:bg-[#1a1b26] border border-gray-200 dark:border-gray-800 focus:ring-2 focus:ring-indigo-500/50 rounded-2xl p-4 text-xs font-medium text-gray-900 dark:text-white placeholder:text-gray-400 outline-none transition-all resize-none"
+                            className="w-full bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/10 focus:ring-2 focus:ring-indigo-500/50 rounded-2xl p-4 text-xs font-medium text-gray-900 dark:text-white placeholder:text-gray-400 outline-none transition-all resize-none"
                         />
                     </div>
                 )}

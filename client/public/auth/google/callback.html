@@ -3,170 +3,298 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Sign In - Processing...</title>
+    <title>Google Sign In - Quiz Platform</title>
     <style>
+        :root {
+            --bg-stage: #0a0908;
+            --bg-card: #141210;
+            --border-card: #2e2924;
+            --text-primary: #f5f3ec;
+            --text-secondary: #a8a29e;
+            --accent: #bef264;
+            --accent-text: #0a0908;
+            --spinner-track: rgba(245, 243, 236, 0.14);
+            --card-shadow: 0 6px 0 #050504;
+            --grid-line: rgba(245, 243, 236, 0.045);
+        }
+
+        html[data-theme="bento"] {
+            --bg-stage: #f5f3ec;
+            --bg-card: #ffffff;
+            --border-card: #000000;
+            --text-primary: #000000;
+            --text-secondary: #475569;
+            --accent: #bef264;
+            --accent-text: #000000;
+            --spinner-track: rgba(0, 0, 0, 0.15);
+            --card-shadow: 6px 6px 0 #000000;
+            --grid-line: rgba(0, 0, 0, 0.06);
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+
         body {
             display: flex;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            padding: 20px;
+            background-color: var(--bg-stage);
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 44 44'%3E%3Cpath d='M44 0H0V44' fill='none' stroke='%23888177' stroke-opacity='0.11' stroke-width='1'/%3E%3C/svg%3E");
+            background-size: 44px 44px;
+            color: var(--text-primary);
+            font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
-        .loader {
+
+        .card {
+            width: 100%;
+            max-width: 380px;
+            background-color: var(--bg-card);
+            border: 2px solid var(--border-card);
+            border-radius: 24px;
+            padding: 32px 28px;
             text-align: center;
-            color: white;
-            padding: 2rem;
+            box-shadow: var(--card-shadow);
         }
+
+        .brand-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 12px;
+            border-radius: 999px;
+            background-color: var(--accent);
+            color: var(--accent-text);
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 22px;
+            border: 1.5px solid var(--border-card);
+        }
+
         .spinner {
-            border: 4px solid rgba(255, 255, 255, 0.3);
+            border: 3.5px solid var(--spinner-track);
             border-radius: 50%;
-            border-top: 4px solid white;
-            width: 60px;
-            height: 60px;
-            animation: spin 1s linear infinite;
+            border-top-color: var(--accent);
+            width: 46px;
+            height: 46px;
+            animation: spin 0.8s linear infinite;
             margin: 0 auto 20px;
         }
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
         h2 {
-            margin: 0;
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 10px;
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 8px;
+            color: var(--text-primary);
         }
+
         p {
-            margin: 0;
-            opacity: 0.9;
-            font-size: 14px;
+            font-size: 13px;
+            line-height: 1.5;
+            color: var(--text-secondary);
+            font-weight: 500;
         }
+
         .error-container {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 1rem;
-            border-radius: 8px;
-            margin-top: 1rem;
-            max-width: 400px;
+            background-color: rgba(244, 63, 94, 0.12);
+            border: 1.5px solid rgba(244, 63, 94, 0.35);
+            padding: 12px 14px;
+            border-radius: 14px;
+            margin-top: 16px;
         }
+
         .error-text {
-            color: #ffdddd;
-            font-size: 14px;
+            color: #fb7185;
+            font-size: 12px;
+            font-weight: 700;
         }
     </style>
+    <script>
+        try {
+            var rawTheme = localStorage.getItem('theme') || sessionStorage.getItem('theme');
+            var savedTheme = rawTheme === 'bento' ? 'bento' : 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        } catch (e) {}
+    </script>
 </head>
 <body>
-    <div class="loader">
-        <div class="spinner"></div>
+    <div class="card">
+        <div class="brand-pill">Q • Quiz Platform</div>
+        <div class="spinner" id="spinner"></div>
         <h2 id="status-title">Signing you in...</h2>
-        <p id="status-message">Please wait while we complete your Google sign-in</p>
+        <p id="status-message">Completing your Google authentication</p>
         <div id="error-container" class="error-container" style="display: none;">
             <p class="error-text" id="error-message"></p>
         </div>
     </div>
 
     <script>
+        function notifyParentWindow(payload) {
+            var delivered = false;
+
+            // 1. BroadcastChannel (works across same-origin windows even when COOP severs window.opener)
+            try {
+                if (typeof BroadcastChannel !== 'undefined') {
+                    var bc = new BroadcastChannel('quiz_google_auth');
+                    bc.postMessage(payload);
+                    setTimeout(function () {
+                        try { bc.close(); } catch (e) {}
+                    }, 400);
+                    delivered = true;
+                }
+            } catch (e) {}
+
+            // 2. localStorage storage event (fires in parent tab immediately across same origin)
+            try {
+                localStorage.setItem(
+                    'quiz_google_auth_event',
+                    JSON.stringify(Object.assign({}, payload, { ts: Date.now() }))
+                );
+                delivered = true;
+            } catch (e) {}
+
+            // 3. Direct window.opener.postMessage when opener is intact
+            try {
+                if (window.opener && !window.opener.closed) {
+                    window.opener.postMessage(payload, window.location.origin);
+                    delivered = true;
+                }
+            } catch (e) {}
+
+            return delivered;
+        }
+
         function showError(message) {
             document.getElementById('status-title').textContent = 'Authentication Failed';
             document.getElementById('status-message').textContent = 'There was a problem signing you in.';
             document.getElementById('error-message').textContent = message;
             document.getElementById('error-container').style.display = 'block';
-            document.querySelector('.spinner').style.display = 'none';
-            
-            // Auto-close after showing error for 3 seconds
-            setTimeout(() => {
-                if (window.opener) {
-                    window.close();
-                } else {
+            document.getElementById('spinner').style.display = 'none';
+
+            notifyParentWindow({
+                type: 'GOOGLE_AUTH_ERROR',
+                error: message
+            });
+
+            setTimeout(function () {
+                try { window.close(); } catch (e) {}
+                setTimeout(function () {
                     window.location.href = '/login';
-                }
-            }, 3000);
+                }, 400);
+            }, 2200);
+        }
+
+        function finishWithProfile(profile) {
+            var normalizedProfile = {
+                email: profile.email,
+                name: profile.name || profile.email.split('@')[0],
+                sub: profile.id || profile.sub,
+                picture: profile.picture || null
+            };
+
+            document.getElementById('status-title').textContent = 'Signed In!';
+            document.getElementById('status-message').textContent = 'Redirecting to your workspace...';
+
+            try {
+                sessionStorage.setItem('googleAuthData', JSON.stringify(normalizedProfile));
+                localStorage.setItem('googleAuthData', JSON.stringify(normalizedProfile));
+            } catch (e) {}
+
+            notifyParentWindow({
+                type: 'GOOGLE_AUTH_SUCCESS',
+                profile: normalizedProfile
+            });
+
+            setTimeout(function () {
+                try { window.close(); } catch (e) {}
+                // If window did not close (e.g. same-tab flow), redirect to login to consume googleAuthData
+                setTimeout(function () {
+                    if (!document.hidden) {
+                        window.location.replace('/login');
+                    }
+                }, 350);
+            }, 250);
         }
 
         function processGoogleAuth() {
             try {
-                // Extract the access token from the URL hash
-                const hash = window.location.hash.substring(1);
-                if (!hash) {
+                var hash = window.location.hash ? window.location.hash.substring(1) : '';
+                var search = window.location.search ? window.location.search.substring(1) : '';
+                var rawParams = hash || search;
+
+                if (!rawParams) {
                     showError('No authentication data received from Google');
                     return;
                 }
 
-                const params = new URLSearchParams(hash);
-                const accessToken = params.get('access_token');
+                var params = new URLSearchParams(rawParams);
+                var errorParam = params.get('error');
+                if (errorParam) {
+                    showError('Google Sign-In was cancelled or denied (' + errorParam + ')');
+                    return;
+                }
 
+                var accessToken = params.get('access_token');
                 if (!accessToken) {
                     showError('No access token received from Google');
                     return;
                 }
 
-                // Fetch user info from Google
-                fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
-                    headers: {
-                        'Authorization': `Bearer ${accessToken}`
-                    }
+                var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+                var timeoutId = controller
+                    ? setTimeout(function () { controller.abort(); }, 8000)
+                    : null;
+
+                fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+                    headers: { 'Authorization': 'Bearer ' + accessToken },
+                    signal: controller ? controller.signal : undefined
                 })
-                .then(response => {
+                .then(function (response) {
+                    if (!response.ok) {
+                        return fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+                            headers: { 'Authorization': 'Bearer ' + accessToken }
+                        });
+                    }
+                    return response;
+                })
+                .then(function (response) {
+                    if (timeoutId) clearTimeout(timeoutId);
                     if (!response.ok) {
                         throw new Error('Failed to fetch user information from Google');
                     }
                     return response.json();
                 })
-                .then(profile => {
-                    if (!profile.email || !profile.name || !profile.id) {
+                .then(function (profile) {
+                    var userId = profile && (profile.sub || profile.id);
+                    if (!profile || !profile.email || !userId) {
                         throw new Error('Incomplete profile data received from Google');
                     }
-
-                    // Send the profile data to the parent window
-                    if (window.opener && !window.opener.closed) {
-                        window.opener.postMessage({
-                            type: 'GOOGLE_AUTH_SUCCESS',
-                            profile: {
-                                email: profile.email,
-                                name: profile.name,
-                                sub: profile.id,
-                                picture: profile.picture || null
-                            }
-                        }, window.location.origin);
-                        
-                        // Close this popup window
-                        setTimeout(() => {
-                            window.close();
-                        }, 500);
-                    } else {
-                        // If no opener, store the data and redirect
-                        sessionStorage.setItem('googleAuthData', JSON.stringify({
-                            email: profile.email,
-                            name: profile.name,
-                            sub: profile.id,
-                            picture: profile.picture || null
-                        }));
-                        window.location.href = '/login';
-                    }
+                    finishWithProfile(profile);
                 })
-                .catch(error => {
+                .catch(function (error) {
+                    if (timeoutId) clearTimeout(timeoutId);
                     console.error('Error fetching user info:', error);
-                    showError(error.message || 'Failed to authenticate with Google');
-                    
-                    if (window.opener && !window.opener.closed) {
-                        window.opener.postMessage({
-                            type: 'GOOGLE_AUTH_ERROR',
-                            error: error.message
-                        }, window.location.origin);
-                    }
+                    showError(error && error.message ? error.message : 'Failed to authenticate with Google');
                 });
             } catch (error) {
                 console.error('Error processing Google auth:', error);
-                showError(error.message || 'An unexpected error occurred');
+                showError(error && error.message ? error.message : 'An unexpected error occurred');
             }
         }
 
-        // Start processing when the page loads
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', processGoogleAuth);
         } else {

@@ -78,7 +78,18 @@ const userSchema = new mongoose.Schema({
   preferredLanguage: { type: String, enum: ['en', 'ar-EG'], default: null },
   emailVerified: { type: Boolean, default: false },
   resetPasswordCode: { type: String },
-  resetPasswordExpires: { type: Date }
+  resetPasswordExpires: { type: Date },
+  // Secret Noir Arcade XP anti-abuse tracking & records
+  arcadeXpDailyDate: { type: String, default: null },
+  arcadeXpDailyEarned: { type: Number, default: 0 },
+  arcadeStats: {
+    bestHuntSeconds: { type: Number, default: 0 },
+    bestHuntScore: { type: Number, default: 0 },
+    bestHarvestScore: { type: Number, default: 0 },
+    bestSmashScore: { type: Number, default: 0 },
+    bestDashDistance: { type: Number, default: 0 },
+    totalArcadeXp: { type: Number, default: 0 }
+  }
 });
 
 // Indexes to speed up lookups, authentication, and leaderboards

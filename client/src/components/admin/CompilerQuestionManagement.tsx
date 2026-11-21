@@ -255,7 +255,7 @@ const CompilerQuestionManagement: React.FC<CompilerQuestionManagementProps> = ({
     };
 
     return (
-        <div className="p-6 bg-gray-50 dark:bg-[#0a0a0b] min-h-screen">
+        <div className="p-6 bg-transparent min-h-screen">
             <div className="max-w-6xl mx-auto">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6">
@@ -276,18 +276,18 @@ const CompilerQuestionManagement: React.FC<CompilerQuestionManagementProps> = ({
                                 Import/Export <ChevronDown className="w-4 h-4" />
                             </button>
                             {showMenu && (
-                                <div className="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-[#13141f] border border-gray-200 dark:border-gray-800 rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+                                <div className="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-[#141210] border border-gray-200 dark:border-[#f5f3ec]/10 rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
                                     <button onClick={handleDownloadSampleJson} className="w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-white/5 text-gray-700 dark:text-gray-300 font-medium text-sm flex items-center gap-3">
-                                        <Download className="w-4 h-4 text-purple-500" /> Download Sample JSON
+                                        <Download className="w-4 h-4 text-teal-500" /> Download Sample JSON
                                     </button>
-                                    <button onClick={() => fileInputRef.current?.click()} className="w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-white/5 text-gray-700 dark:text-gray-300 font-medium text-sm flex items-center gap-3 border-t border-gray-100 dark:border-gray-800">
+                                    <button onClick={() => fileInputRef.current?.click()} className="w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-white/5 text-gray-700 dark:text-gray-300 font-medium text-sm flex items-center gap-3 border-t border-gray-100 dark:border-[#f5f3ec]/10">
                                         <Upload className="w-4 h-4 text-indigo-500" /> Import from JSON
                                     </button>
                                 </div>
                             )}
                             <input type="file" ref={fileInputRef} accept=".json" onChange={handleFileUpload} className="hidden" />
                         </div>
-                        <button onClick={() => { setShowCreate(true); setForm(initialForm); }} className="px-4 py-2 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold flex items-center gap-2 hover:from-orange-600 hover:to-red-700 transition-all">
+                        <button onClick={() => { setShowCreate(true); setForm(initialForm); }} className="px-4 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold flex items-center gap-2 transition-all">
                             <Plus className="w-4 h-4" /> Add Question
                         </button>
                     </div>
@@ -322,7 +322,7 @@ const CompilerQuestionManagement: React.FC<CompilerQuestionManagementProps> = ({
                             <button onClick={handleImportSubmit} disabled={importPreview.length === 0} className={`flex-1 py-3 rounded-xl font-bold transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
     isBento
         ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:shadow-[4px_4px_0px_#000] font-mono'
-        : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700'
+        : 'bg-indigo-600 hover:bg-indigo-700 text-white'
 }`}>Import {importPreview.length} Question(s)</button>
                         </>
                     }
@@ -368,7 +368,7 @@ const CompilerQuestionManagement: React.FC<CompilerQuestionManagementProps> = ({
                             </button>
                             <button
                                 onClick={() => editingId ? handleUpdate(editingId) : handleCreate()}
-                                className="px-8 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold flex items-center gap-2 hover:from-orange-600 hover:to-red-700 shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 active:scale-95 transition-all"
+                                className="px-8 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold flex items-center gap-2 shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 active:scale-95 transition-all"
                             >
                                 <Save className="w-4 h-4" />
                                 {editingId ? 'Save Changes' : 'Create Challenge'}
@@ -386,7 +386,7 @@ const CompilerQuestionManagement: React.FC<CompilerQuestionManagementProps> = ({
                                     type="text"
                                     value={form.title}
                                     onChange={(e) => setForm(prev => ({ ...prev, title: e.target.value }))}
-                                    className="w-full p-4 rounded-xl bg-gray-50 dark:bg-[#1a1b26] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-transparent transition-all font-medium text-lg"
+                                    className="w-full p-4 rounded-xl bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/10 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-transparent transition-all font-medium text-lg"
                                     placeholder="e.g., Reverse a Linked List"
                                 />
                             </div>
@@ -399,7 +399,7 @@ const CompilerQuestionManagement: React.FC<CompilerQuestionManagementProps> = ({
                                     value={form.description}
                                     onChange={(e) => setForm(prev => ({ ...prev, description: e.target.value }))}
                                     rows={5}
-                                    className="w-full p-4 rounded-xl bg-gray-50 dark:bg-[#1a1b26] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-transparent transition-all resize-y min-h-[120px]"
+                                    className="w-full p-4 rounded-xl bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/10 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-transparent transition-all resize-y min-h-[120px]"
                                     placeholder="Describe the problem, input/output format, and constraints..."
                                 />
                             </div>
@@ -416,7 +416,7 @@ const CompilerQuestionManagement: React.FC<CompilerQuestionManagementProps> = ({
                                         value={form.referenceCode}
                                         onChange={(e) => setForm(prev => ({ ...prev, referenceCode: e.target.value }))}
                                         rows={8}
-                                        className="w-full p-4 rounded-xl bg-gray-900 dark:bg-[#0a0a0b] border border-gray-200 dark:border-gray-800 text-gray-100 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-transparent transition-all resize-y min-h-[200px]"
+                                        className="w-full p-4 rounded-xl bg-gray-900 dark:bg-[#0a0908] border border-gray-200 dark:border-[#f5f3ec]/10 text-gray-100 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-transparent transition-all resize-y min-h-[200px]"
                                         placeholder="// Paste the complete working solution here..."
                                         spellCheck={false}
                                     />
@@ -429,7 +429,7 @@ const CompilerQuestionManagement: React.FC<CompilerQuestionManagementProps> = ({
                                     <select
                                         value={form.language}
                                         onChange={(e) => setForm(prev => ({ ...prev, language: e.target.value }))}
-                                        className="w-full p-3 pl-4 pr-10 rounded-xl bg-gray-50 dark:bg-[#1a1b26] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white appearance-none focus:outline-none focus:ring-2 focus:ring-orange-500/50 cursor-pointer font-medium"
+                                        className="w-full p-3 pl-4 pr-10 rounded-xl bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/10 text-gray-900 dark:text-white appearance-none focus:outline-none focus:ring-2 focus:ring-orange-500/50 cursor-pointer font-medium"
                                     >
                                         <option value="javascript">JavaScript (Node.js)</option>
                                         <option value="typescript">TypeScript</option>
@@ -448,7 +448,7 @@ const CompilerQuestionManagement: React.FC<CompilerQuestionManagementProps> = ({
                                     <select
                                         value={form.difficulty}
                                         onChange={(e) => setForm(prev => ({ ...prev, difficulty: e.target.value }))}
-                                        className="w-full p-3 pl-4 pr-10 rounded-xl bg-gray-50 dark:bg-[#1a1b26] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white appearance-none focus:outline-none focus:ring-2 focus:ring-orange-500/50 cursor-pointer font-medium"
+                                        className="w-full p-3 pl-4 pr-10 rounded-xl bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/10 text-gray-900 dark:text-white appearance-none focus:outline-none focus:ring-2 focus:ring-orange-500/50 cursor-pointer font-medium"
                                     >
                                         <option value="easy">Easy</option>
                                         <option value="medium">Medium</option>
@@ -464,7 +464,7 @@ const CompilerQuestionManagement: React.FC<CompilerQuestionManagementProps> = ({
                                     type="text"
                                     value={form.category}
                                     onChange={(e) => setForm(prev => ({ ...prev, category: e.target.value }))}
-                                    className="w-full p-3 rounded-xl bg-gray-50 dark:bg-[#1a1b26] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 font-medium"
+                                    className="w-full p-3 rounded-xl bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/10 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 font-medium"
                                     placeholder="e.g., Arrays, DP"
                                 />
                             </div>
@@ -476,7 +476,7 @@ const CompilerQuestionManagement: React.FC<CompilerQuestionManagementProps> = ({
                                         type="number"
                                         value={form.rewardCoins}
                                         onChange={(e) => setForm(prev => ({ ...prev, rewardCoins: parseInt(e.target.value) || 0 }))}
-                                        className="w-full p-3 rounded-xl bg-gray-50 dark:bg-[#1a1b26] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 font-bold"
+                                        className="w-full p-3 rounded-xl bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/10 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 font-bold"
                                     />
                                 </div>
                                 <div>
@@ -485,7 +485,7 @@ const CompilerQuestionManagement: React.FC<CompilerQuestionManagementProps> = ({
                                         type="number"
                                         value={form.rewardXP}
                                         onChange={(e) => setForm(prev => ({ ...prev, rewardXP: parseInt(e.target.value) || 0 }))}
-                                        className="w-full p-3 rounded-xl bg-gray-50 dark:bg-[#1a1b26] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 font-bold"
+                                        className="w-full p-3 rounded-xl bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/10 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 font-bold"
                                     />
                                 </div>
                             </div>
@@ -499,7 +499,7 @@ const CompilerQuestionManagement: React.FC<CompilerQuestionManagementProps> = ({
                                         value={hintInput}
                                         onChange={(e) => setHintInput(e.target.value)}
                                         onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addHint())}
-                                        className="flex-1 p-3 rounded-xl bg-gray-50 dark:bg-[#1a1b26] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50"
+                                        className="flex-1 p-3 rounded-xl bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/10 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50"
                                         placeholder="Type a hint and press Enter..."
                                     />
                                     <button
@@ -536,13 +536,13 @@ const CompilerQuestionManagement: React.FC<CompilerQuestionManagementProps> = ({
                         <p className="text-gray-500 dark:text-gray-400">Loading questions...</p>
                     </div>
                 ) : questions.length === 0 ? (
-                    <div className="bg-white dark:bg-[#13141f] rounded-2xl border border-gray-200 dark:border-white/10 p-12 text-center">
+                    <div className="bg-white dark:bg-[#141210] rounded-2xl border border-gray-200 dark:border-white/10 p-12 text-center">
                         <Code2 className="w-16 h-16 text-gray-300 dark:text-gray-700 mx-auto mb-4" />
                         <h3 className="text-xl font-bold text-gray-500 dark:text-gray-400 mb-2">No Questions Yet</h3>
                         <p className="text-gray-400 dark:text-gray-500 mb-4">Create your first compiler question to get started.</p>
                         <button
                             onClick={() => { setShowCreate(true); setForm(initialForm); }}
-                            className="px-6 py-2 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold inline-flex items-center gap-2"
+                            className="px-6 py-2 rounded-xl bg-orange-500 text-white font-bold inline-flex items-center gap-2"
                         >
                             <Plus className="w-4 h-4" />
                             Add First Question
@@ -553,10 +553,10 @@ const CompilerQuestionManagement: React.FC<CompilerQuestionManagementProps> = ({
                         {questions.map((q) => (
                             <div
                                 key={q.questionId}
-                                className="bg-white dark:bg-[#13141f] rounded-2xl border border-gray-200 dark:border-white/10 overflow-hidden"
+                                className="bg-white dark:bg-[#141210] rounded-2xl border border-gray-200 dark:border-white/10 overflow-hidden"
                             >
                                 <div className="p-5 flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-white font-black text-lg flex-shrink-0">
+                                    <div className="w-12 h-12 rounded-xl bg-orange-500 flex items-center justify-center text-white font-black text-lg flex-shrink-0">
                                         {q.difficulty.charAt(0).toUpperCase()}
                                     </div>
 
@@ -646,7 +646,7 @@ const CompilerQuestionManagement: React.FC<CompilerQuestionManagementProps> = ({
                                         )}
                                         <div className="mt-3">
                                             <span className="font-bold text-gray-500 dark:text-gray-400 text-sm">Reference Code:</span>
-                                            <pre className="mt-1 p-3 rounded-xl bg-gray-50 dark:bg-[#0a0a0b] border border-gray-200 dark:border-white/10 text-sm font-mono text-gray-700 dark:text-gray-300 overflow-x-auto">
+                                            <pre className="mt-1 p-3 rounded-xl bg-gray-50 dark:bg-[#0a0908] border border-gray-200 dark:border-white/10 text-sm font-mono text-gray-700 dark:text-gray-300 overflow-x-auto">
                                                 {q.referenceCode}
                                             </pre>
                                         </div>

@@ -63,9 +63,8 @@ const badgeNodeSchema = new mongoose.Schema({
 });
 
 // Update timestamp on save
-badgeNodeSchema.pre('save', function(next) {
+badgeNodeSchema.pre('save', function() {
   this.updatedAt = new Date();
-  next();
 });
 
 badgeNodeSchema.index({ trees: 1 });

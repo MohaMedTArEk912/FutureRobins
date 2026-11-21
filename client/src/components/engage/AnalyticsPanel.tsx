@@ -241,7 +241,7 @@ const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({ user }) => {
     { bg: 'bg-[#fde047]', bar: 'bg-[#ca8a04]', text: 'text-amber-950', lightBg: 'bg-amber-500/10' },
     { bg: 'bg-[#a3e635]', bar: 'bg-[#4d7c0f]', text: 'text-lime-950', lightBg: 'bg-lime-500/10' },
     { bg: 'bg-[#38bdf8]', bar: 'bg-[#0369a1]', text: 'text-sky-950', lightBg: 'bg-sky-500/10' },
-    { bg: 'bg-[#c084fc]', bar: 'bg-[#7e22ce]', text: 'text-purple-950', lightBg: 'bg-purple-500/10' },
+    { bg: 'bg-[#fdba74]', bar: 'bg-[#0f766e]', text: 'text-teal-950', lightBg: 'bg-teal-500/10' },
     { bg: 'bg-[#fb7185]', bar: 'bg-[#be123c]', text: 'text-rose-950', lightBg: 'bg-rose-500/10' },
     { bg: 'bg-[#fb923c]', bar: 'bg-[#c2410c]', text: 'text-orange-950', lightBg: 'bg-orange-500/10' }
   ];
@@ -260,8 +260,8 @@ const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({ user }) => {
           <div
             className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${
               isBento
-                ? 'bg-[#c4b5fd] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                : 'bg-gradient-to-br from-purple-500/20 to-indigo-500/20 border border-purple-500/30 text-purple-600 dark:text-purple-400'
+                ? 'bg-[#fdba74] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                : 'bg-teal-500/20 border border-teal-500/30 text-teal-600 dark:text-teal-400'
             }`}
           >
             <BarChart2 className="w-6 h-6" />
@@ -433,8 +433,8 @@ const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({ user }) => {
       <div
         className={`p-6 sm:p-8 rounded-3xl transition-all ${
           isBento
-            ? 'bg-[#faf5ff] text-black border-[2.5px] border-black shadow-[5px_5px_0px_#000]'
-            : 'glass-panel border-2 border-purple-500/30'
+            ? 'bg-[#fff7ed] text-black border-[2.5px] border-black shadow-[5px_5px_0px_#000]'
+            : 'glass-panel border-2 border-teal-500/30'
         }`}
       >
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-black/15 dark:border-white/10">
@@ -442,8 +442,8 @@ const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({ user }) => {
             <div
               className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 ${
                 isBento
-                  ? 'bg-[#c084fc] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                  : 'bg-purple-500/20 text-purple-600 dark:text-purple-400'
+                  ? 'bg-[#fdba74] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                  : 'bg-teal-500/20 text-teal-600 dark:text-teal-400'
               }`}
             >
               <Brain className="w-6 h-6" />
@@ -457,7 +457,7 @@ const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({ user }) => {
                   className={`px-2.5 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider ${
                     isBento
                       ? 'bg-[#fde047] text-black border border-black shadow-[1px_1px_0px_#000]'
-                      : 'bg-purple-500/20 text-purple-600 dark:text-purple-300'
+                      : 'bg-teal-500/20 text-teal-600 dark:text-teal-300'
                   }`}
                 >
                   {aiAnalysis?.generatedByAi ? '✨ Groq AI Powered' : 'Smart Diagnostics'}
@@ -476,7 +476,7 @@ const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({ user }) => {
             className={`self-start sm:self-center shrink-0 px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer disabled:opacity-50 ${
               isBento
                 ? 'bg-white hover:bg-[#fef08a] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:-translate-y-0.5 active:translate-y-0'
-                : 'bg-purple-600 hover:bg-purple-500 text-white shadow-sm'
+                : 'bg-teal-600 hover:bg-teal-500 text-white shadow-sm'
             }`}
           >
             <Sparkles className={`w-3.5 h-3.5 ${isAiLoading ? 'animate-spin' : ''}`} />
@@ -538,7 +538,7 @@ const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({ user }) => {
                     className={`p-5 rounded-2xl flex flex-col justify-between transition-all ${
                       isBento
                         ? 'bg-white text-black border-2 border-black shadow-[3.5px_3.5px_0px_#000]'
-                        : 'bg-white/80 dark:bg-[#131624] border border-slate-200 dark:border-white/10 shadow-sm'
+                        : 'bg-white/80 dark:bg-[#141210] border border-slate-200 dark:border-white/10 shadow-sm'
                     }`}
                   >
                     <div>
@@ -606,17 +606,6 @@ const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({ user }) => {
                         <span>Practice This Topic</span>
                         <ArrowRight className="w-3.5 h-3.5" />
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => navigate('/study')}
-                        className={`py-2.5 px-3.5 rounded-xl text-xs font-black uppercase tracking-wider cursor-pointer transition-all ${
-                          isBento
-                            ? 'bg-white hover:bg-slate-100 text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:-translate-y-0.5 active:translate-y-0'
-                            : 'bg-slate-100 dark:bg-white/10 hover:bg-slate-200 text-slate-700 dark:text-slate-200'
-                        }`}
-                      >
-                        Study Cards
-                      </button>
                     </div>
                   </div>
                 );
@@ -664,7 +653,7 @@ const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({ user }) => {
                   className={`p-5 rounded-2xl flex flex-col justify-between transition-all ${
                     isBento
                       ? 'bg-white text-black border-2 border-black shadow-[3.5px_3.5px_0px_#000]'
-                      : 'bg-white/90 dark:bg-[#131624] border border-slate-200 dark:border-white/10 shadow-sm'
+                      : 'bg-white/90 dark:bg-[#141210] border border-slate-200 dark:border-white/10 shadow-sm'
                   }`}
                 >
                   <div>
@@ -726,7 +715,7 @@ const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({ user }) => {
                           : 'bg-slate-100/80 dark:bg-white/[0.04] text-slate-700 dark:text-slate-300'
                       }`}
                     >
-                      <span className="font-black uppercase text-[10px] tracking-wider block mb-1 text-purple-700 dark:text-purple-400">
+                      <span className="font-black uppercase text-[10px] tracking-wider block mb-1 text-teal-700 dark:text-teal-400">
                         🧠 AI Analysis — Why It Was Wrong:
                       </span>
                       {item.whyWrong}
@@ -790,12 +779,12 @@ const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({ user }) => {
                     className={`p-5 rounded-2xl flex flex-col justify-between ${
                       isBento
                         ? 'bg-white text-black border-2 border-black shadow-[3.5px_3.5px_0px_#000]'
-                        : 'bg-white/90 dark:bg-[#131624] border border-slate-200 dark:border-white/10'
+                        : 'bg-white/90 dark:bg-[#141210] border border-slate-200 dark:border-white/10'
                     }`}
                   >
                     <div>
                       <div className="flex items-center justify-between gap-2 mb-2.5">
-                        <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-purple-500/15 text-purple-700 dark:text-purple-300">
+                        <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-teal-500/15 text-teal-700 dark:text-teal-300">
                           Drill #{qIdx + 1} • {pq.category}
                         </span>
                       </div>
@@ -967,8 +956,8 @@ const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({ user }) => {
                 onClick={() => navigate('/social')}
                 className={`mt-4 px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer ${
                   isBento
-                    ? 'bg-[#c4b5fd] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#a78bfa] hover:-translate-y-0.5 active:translate-y-0'
-                    : 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm'
+                    ? 'bg-[#fdba74] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#a78bfa] hover:-translate-y-0.5 active:translate-y-0'
+                    : 'bg-teal-600 hover:bg-teal-700 text-white shadow-sm'
                 }`}
               >
                 <Swords className="w-3.5 h-3.5" />
@@ -990,11 +979,11 @@ const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({ user }) => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 items-stretch">
             {[
               {
-                icon: BookOpen,
-                title: '1. Study Decks',
-                desc: 'Review flashcards before taking high-stakes quizzes.',
-                action: 'Cards',
-                path: '/study'
+                icon: Trophy,
+                title: '1. Live Arena',
+                desc: 'Test your speed in real-time duels and live classroom battles.',
+                action: 'Arena',
+                path: '/live-arena'
               },
               {
                 icon: RotateCcw,
@@ -1045,7 +1034,7 @@ const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({ user }) => {
                   </div>
                   <span
                     className={`text-[10px] font-black uppercase tracking-wider flex items-center gap-1 ${
-                      isBento ? 'text-purple-700' : 'text-indigo-600 dark:text-indigo-400'
+                      isBento ? 'text-teal-700' : 'text-indigo-600 dark:text-indigo-400'
                     }`}
                   >
                     Open {step.action} →
@@ -1130,7 +1119,7 @@ const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({ user }) => {
                     >
                       <div
                         className={`h-full rounded-full transition-all duration-700 ${
-                          isBento ? themeStyle.bar : 'bg-gradient-to-r from-purple-500 to-indigo-500'
+                          isBento ? themeStyle.bar : 'bg-teal-500'
                         }`}
                         style={{ width: `${Math.max(6, c.average)}%` }}
                       />

@@ -443,7 +443,7 @@ export const MotionSlideStudioPanel: React.FC<MotionSlideStudioPanelProps> = ({
                             className={`w-full py-3.5 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 ${
                                 isBento
                                     ? 'bg-[#bef264] text-black border-2 border-black shadow-[4px_4px_0px_#000]'
-                                    : 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg'
+                                    : 'bg-indigo-600 text-white shadow-lg'
                             }`}
                         >
                             <Sparkles className="w-4 h-4" />
@@ -807,7 +807,7 @@ export const MotionSlideStudioPanel: React.FC<MotionSlideStudioPanelProps> = ({
                         className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 cursor-pointer disabled:opacity-50 ${
                             isBento
                                 ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000]'
-                                : 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg'
+                                : 'bg-emerald-500 text-white shadow-lg'
                         }`}
                     >
                         <Play className="w-3.5 h-3.5 fill-current" />

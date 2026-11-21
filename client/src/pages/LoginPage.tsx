@@ -21,14 +21,18 @@ const LoginPage: React.FC = () => {
         }
     }, [currentUser, authIsAdmin, navigate]);
 
-    // Check for Google auth data in session storage (in case popup closed)
+    // Check for Google auth data in session or local storage (in case popup closed or redirected)
     useEffect(() => {
         const checkGoogleAuth = async () => {
-            const googleAuthData = sessionStorage.getItem('googleAuthData');
+            const googleAuthData =
+                sessionStorage.getItem('googleAuthData') ||
+                localStorage.getItem('googleAuthData');
             if (googleAuthData) {
                 try {
                     const { email, name, sub } = JSON.parse(googleAuthData);
                     sessionStorage.removeItem('googleAuthData');
+                    localStorage.removeItem('googleAuthData');
+                    localStorage.removeItem('quiz_google_auth_event');
                     const result = await googleLogin({ email, name, googleId: sub });
                     sessionStorage.removeItem('suppressRedirectAfterLogin');
 
@@ -116,22 +120,42 @@ const LoginPage: React.FC = () => {
             return;
         }
 
-        const handleMessage = async (event: MessageEvent) => {
-            // Verify the origin for security
-            if (event.origin !== window.location.origin) {
-                console.warn('Received message from untrusted origin:', event.origin);
-                return;
-            }
+        let authHandled = false;
+        let bc: BroadcastChannel | null = null;
 
-            if (event.data.type === 'GOOGLE_AUTH_SUCCESS') {
+        const cleanupListeners = () => {
+            window.removeEventListener('message', handleMessage);
+            window.removeEventListener('storage', handleStorage);
+            try {
+                bc?.close();
+            } catch {
+                // ignore
+            }
+            try {
+                googleWindow?.close();
+            } catch {
+                // Silently handle COOP policy errors - popup will close itself
+            }
+        };
+
+        const processPayload = async (data: {
+            type?: string;
+            profile?: { email: string; name: string; sub: string };
+            error?: string;
+        }) => {
+            if (!data || authHandled) return;
+            if (data.type === 'GOOGLE_AUTH_SUCCESS' && data.profile) {
+                authHandled = true;
+                sessionStorage.removeItem('googleAuthData');
+                localStorage.removeItem('googleAuthData');
+                localStorage.removeItem('quiz_google_auth_event');
+                cleanupListeners();
                 try {
-                    const { email, name, sub } = event.data.profile;
+                    const { email, name, sub } = data.profile;
                     const result = await googleLogin({ email, name, googleId: sub });
                     sessionStorage.removeItem('suppressRedirectAfterLogin');
 
                     const isAdminUser = Boolean(result?.isAdmin || result?.user?.role === 'admin');
-
-                    // Admin MUST open directly to the Admin Console (/admin), NOT student view
                     if (isAdminUser) {
                         sessionStorage.removeItem('redirectAfterLogin');
                         navigate('/admin', { replace: true });
@@ -154,39 +178,63 @@ const LoginPage: React.FC = () => {
                         type: 'danger',
                         cancelText: 'Close'
                     });
-                } finally {
-                    window.removeEventListener('message', handleMessage);
-                    try {
-                        googleWindow?.close();
-                    } catch {
-                        // Silently handle COOP policy errors - popup will close itself
-                    }
                 }
-            } else if (event.data.type === 'GOOGLE_AUTH_ERROR') {
-                console.error('Google auth error:', event.data.error);
+            } else if (data.type === 'GOOGLE_AUTH_ERROR') {
+                authHandled = true;
+                localStorage.removeItem('quiz_google_auth_event');
+                cleanupListeners();
+                console.error('Google auth error:', data.error);
                 confirm({
                     title: 'Login Error',
-                    message: `Google Sign-In failed: ${event.data.error}`,
+                    message: `Google Sign-In failed: ${data.error}`,
                     confirmText: 'OK',
                     type: 'danger',
                     cancelText: 'Close'
                 });
-                window.removeEventListener('message', handleMessage);
+            }
+        };
+
+        const handleMessage = (event: MessageEvent) => {
+            if (event.origin !== window.location.origin) return;
+            void processPayload(event.data);
+        };
+
+        const handleStorage = (event: StorageEvent) => {
+            if (event.key === 'quiz_google_auth_event' && event.newValue) {
                 try {
-                    googleWindow?.close();
+                    const parsed = JSON.parse(event.newValue);
+                    void processPayload(parsed);
                 } catch {
-                    // Silently handle COOP policy errors - popup will close itself
+                    // ignore malformed storage payload
                 }
             }
         };
 
-        window.addEventListener('message', handleMessage);
+        try {
+            if (typeof BroadcastChannel !== 'undefined') {
+                bc = new BroadcastChannel('quiz_google_auth');
+                bc.onmessage = (event) => {
+                    void processPayload(event.data);
+                };
+            }
+        } catch {
+            // ignore if BroadcastChannel is unsupported
+        }
 
-        // Cleanup listener if window is closed manually
-        // Use try-catch to handle Cross-Origin-Opener-Policy restrictions
+        window.addEventListener('message', handleMessage);
+        window.addEventListener('storage', handleStorage);
+
         // Fallback cleanup after 5 minutes
         setTimeout(() => {
-            window.removeEventListener('message', handleMessage);
+            if (!authHandled) {
+                window.removeEventListener('message', handleMessage);
+                window.removeEventListener('storage', handleStorage);
+                try {
+                    bc?.close();
+                } catch {
+                    // ignore
+                }
+            }
         }, 300000);
     };
 

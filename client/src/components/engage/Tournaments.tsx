@@ -48,6 +48,8 @@ import {
 
 type TournamentTab = 'arenas' | 'leaderboards' | 'history';
 
+let cachedTournamentsList: Tournament[] | null = null;
+
 const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
   const { isBento } = useTheme();
   const { showNotification } = useNotification();
@@ -59,9 +61,9 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
   // Navigation tab
   const [activeTab, setActiveTab] = useState<TournamentTab>('arenas');
 
-  // Tournaments list
-  const [items, setItems] = useState<Tournament[]>([]);
-  const [loading, setLoading] = useState(true);
+  // Tournaments list (seeded from memory cache so route transitions render cards on Frame 0)
+  const [items, setItems] = useState<Tournament[]>(() => cachedTournamentsList || []);
+  const [loading, setLoading] = useState(() => !cachedTournamentsList);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [joiningId, setJoiningId] = useState<string | null>(null);
@@ -125,9 +127,10 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
   // --- Load Tournaments ---
   const loadTournaments = useCallback(async (silent = false) => {
     try {
-      if (!silent) setLoading(true);
+      if (!silent && !cachedTournamentsList) setLoading(true);
       const data = await api.getTournaments(userId);
       const safeList = Array.isArray(data) ? data : [];
+      cachedTournamentsList = safeList;
       setItems(safeList);
       setLastRefreshedAt(new Date());
 
@@ -248,7 +251,7 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
           particleCount: 150,
           spread: 80,
           origin: { y: 0.6 },
-          colors: ['#FFD700', '#FFA500', '#10B981', '#6366F1']
+          colors: ['#FFD700', '#FFA500', '#10B981', '#38BDF8']
         });
         showNotification('success', 'The Tournament Master has revealed the official results!');
       }
@@ -506,14 +509,14 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
       <div className={`rounded-[2.5rem] p-6 sm:p-8 md:p-10 relative overflow-hidden transition-all ${
         isBento
           ? 'bg-white text-black border-3 border-black shadow-[6px_6px_0px_#000]'
-          : 'bg-white dark:bg-[#13141f] border border-gray-200 dark:border-white/10 shadow-xl backdrop-blur-xl'
+          : 'bg-white dark:bg-[#141210] border border-gray-200 dark:border-white/10 shadow-xl backdrop-blur-xl'
       }`}>
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
             <div className={`w-20 h-20 sm:w-24 sm:h-24 rounded-2xl flex items-center justify-center flex-shrink-0 transition-transform duration-300 hover:rotate-3 ${
               isBento
                 ? 'bg-[#fde047] text-black border-3 border-black shadow-[4px_4px_0px_#000]'
-                : 'bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-lg shadow-orange-500/30'
+                : 'bg-amber-400 text-white shadow-lg shadow-orange-500/30'
             }`}>
               <Trophy className="w-10 h-10 sm:w-12 sm:h-12" />
             </div>
@@ -563,8 +566,8 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
           <div className="flex flex-wrap lg:flex-col gap-2.5 self-start lg:self-center">
             <div className={`px-3.5 py-2 rounded-xl text-xs flex items-center gap-2 ${
               isBento
-                ? 'bg-[#ddd6fe] text-black font-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                : 'bg-violet-500/10 text-violet-600 dark:text-violet-400 border border-violet-500/20 font-bold'
+                ? 'bg-[#fed7aa] text-black font-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                : 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20 font-bold'
             }`}>
               <Crown className="w-4 h-4 text-amber-500" />
               <span>Gated Results Arena</span>
@@ -778,7 +781,7 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
                               ? 'bg-white border-t-[8px] border-t-[#22c55e]'
                               : 'bg-white border-t-[8px] border-t-[#3b82f6]'
                         } ${isInvitedHighlight ? 'ring-4 ring-[#fde047] ring-offset-2' : ''}`
-                      : `bg-white dark:bg-[#13141f] border shadow-xl ${
+                      : `bg-white dark:bg-[#141210] border shadow-xl ${
                           isCompleted
                             ? 'border-gray-200/80 dark:border-white/5 opacity-85'
                             : isLive
@@ -795,8 +798,8 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
                           isBento
                             ? 'bg-[#fde047] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
                             : isLive
-                              ? 'bg-gradient-to-br from-emerald-400 to-green-600 text-white'
-                              : 'bg-gradient-to-br from-amber-400 to-orange-500 text-white'
+                              ? 'bg-emerald-400 text-white'
+                              : 'bg-amber-400 text-white'
                         }`}>
                           <Crown className="w-7 h-7" />
                         </div>
@@ -824,7 +827,7 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
                             </span>
 
                             {tournament.requiresApproval && (
-                              <span className="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
+                              <span className="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20">
                                 Approval Gated
                               </span>
                             )}
@@ -901,7 +904,7 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
                     <div className={`p-3.5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs ${
                       isBento
                         ? 'bg-slate-100 text-black border-2 border-black'
-                        : 'bg-gradient-to-r from-blue-500/5 via-indigo-500/5 to-purple-500/5 border border-blue-500/15'
+                        : 'bg-blue-500/5 border border-blue-500/15'
                     }`}>
                       <div className="flex items-center gap-2 flex-wrap">
                         <Calendar className="w-4 h-4 text-blue-500 flex-shrink-0" />
@@ -995,8 +998,8 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
                             ? 'bg-[#99f6e4] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
                             : 'bg-teal-500/15 border border-teal-500/40 text-teal-700 dark:text-teal-300'
                           : isBento
-                            ? 'bg-[#ddd6fe] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                            : 'bg-purple-500/15 border border-purple-500/40 text-purple-700 dark:text-purple-300'
+                            ? 'bg-[#fed7aa] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                            : 'bg-teal-500/15 border border-teal-500/40 text-teal-700 dark:text-teal-300'
                       }`}>
                         <div className="flex items-center gap-2">
                           <Sparkles className="w-4 h-4 flex-shrink-0" />
@@ -1015,7 +1018,7 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
                           setAwaitingTournament(tournament);
                           setSearchParams({ awaiting: tournament.tournamentId });
                         }}
-                        className="w-full py-4 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg shadow-amber-500/25 cursor-pointer hover:scale-[1.01] transition-all"
+                        className="w-full py-4 bg-amber-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg shadow-amber-500/25 cursor-pointer hover:scale-[1.01] transition-all"
                       >
                         <Radio className="w-4 h-4 animate-pulse" /> View Submission & Awaiting Holding Screen
                       </button>
@@ -1028,7 +1031,7 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
                           setSelectedLeaderboardId(tournament.tournamentId);
                           setActiveTab('leaderboards');
                         }}
-                        className="w-full py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg shadow-purple-600/25 cursor-pointer hover:scale-[1.01] transition-all"
+                        className="w-full py-4 bg-teal-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg shadow-teal-600/25 cursor-pointer hover:scale-[1.01] transition-all"
                       >
                         <Trophy className="w-4 h-4" /> View My Rank & Official Leaderboard
                       </button>
@@ -1038,7 +1041,7 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
                     {!hasSubmitted && myStatus === 'approved' && isLive && (
                       <button
                         onClick={() => handleStartTournamentQuiz(tournament)}
-                        className="w-full py-4 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white rounded-2xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/30 cursor-pointer animate-pulse transition-all active:scale-95"
+                        className="w-full py-4 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/30 cursor-pointer animate-pulse transition-all active:scale-95"
                       >
                         <Swords className="w-5 h-5" /> 🔥 ENTER ARENA / START QUIZ NOW
                       </button>
@@ -1137,10 +1140,10 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
       {activeTab === 'leaderboards' && (
         <div className="space-y-6">
           {/* Tournament Picker Bar */}
-          <div className="bg-white/70 dark:bg-[#1a1b26]/70 backdrop-blur-xl p-5 rounded-3xl border border-gray-200/80 dark:border-white/10 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="bg-white/70 dark:bg-[#1c1917]/70 backdrop-blur-xl p-5 rounded-3xl border border-gray-200/80 dark:border-white/10 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
               <h3 className="text-sm font-black uppercase tracking-tight text-gray-900 dark:text-white flex items-center gap-2">
-                <FileSpreadsheet className="w-4 h-4 text-purple-500" />
+                <FileSpreadsheet className="w-4 h-4 text-teal-500" />
                 Tournament Standings & Rankings
               </h3>
               <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">
@@ -1154,7 +1157,7 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
                 setSelectedLeaderboardId(e.target.value);
                 loadLeaderboardData(e.target.value);
               }}
-              className="w-full sm:w-72 px-4 py-2.5 bg-gray-50 dark:bg-[#13141f] border border-gray-200 dark:border-white/10 rounded-xl text-xs font-black uppercase text-gray-900 dark:text-white outline-none cursor-pointer"
+              className="w-full sm:w-72 px-4 py-2.5 bg-gray-50 dark:bg-[#141210] border border-gray-200 dark:border-white/10 rounded-xl text-xs font-black uppercase text-gray-900 dark:text-white outline-none cursor-pointer"
             >
               {items.map(t => (
                 <option key={t.tournamentId} value={t.tournamentId}>
@@ -1180,7 +1183,7 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
           {/* Podium Top 3 */}
           {leaderboardEntries.length >= 3 && !isLoadingLeaderboard && (
             <div className="grid grid-cols-3 gap-4 pt-4 max-w-2xl mx-auto items-end">
-              <div className="bg-white/70 dark:bg-[#1a1b26]/70 backdrop-blur-xl p-5 rounded-3xl border border-gray-200 dark:border-white/10 text-center space-y-2">
+              <div className="bg-white/70 dark:bg-[#1c1917]/70 backdrop-blur-xl p-5 rounded-3xl border border-gray-200 dark:border-white/10 text-center space-y-2">
                 <div className="w-12 h-12 mx-auto rounded-2xl bg-slate-300 text-black font-black flex items-center justify-center text-lg shadow-sm">
                   🥈 2
                 </div>
@@ -1188,7 +1191,7 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
                 <div className="text-sm font-black text-amber-500">{leaderboardEntries[1].score} Pts</div>
               </div>
 
-              <div className="bg-gradient-to-b from-amber-500/20 to-white/70 dark:to-[#1a1b26]/70 backdrop-blur-xl p-6 rounded-3xl border-2 border-amber-500 text-center space-y-2 transform -translate-y-2 shadow-lg">
+              <div className="bg-amber-500/20 dark:bg-[#1a1b26]/70 backdrop-blur-xl p-6 rounded-3xl border-2 border-amber-500 text-center space-y-2 transform -translate-y-2 shadow-lg">
                 <div className="w-14 h-14 mx-auto rounded-2xl bg-amber-400 text-black font-black flex items-center justify-center text-2xl shadow-md shadow-amber-400/30">
                   👑 1
                 </div>
@@ -1199,7 +1202,7 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
                 </span>
               </div>
 
-              <div className="bg-white/70 dark:bg-[#1a1b26]/70 backdrop-blur-xl p-5 rounded-3xl border border-gray-200 dark:border-white/10 text-center space-y-2">
+              <div className="bg-white/70 dark:bg-[#1c1917]/70 backdrop-blur-xl p-5 rounded-3xl border border-gray-200 dark:border-white/10 text-center space-y-2">
                 <div className="w-12 h-12 mx-auto rounded-2xl bg-amber-700/60 text-white font-black flex items-center justify-center text-lg shadow-sm">
                   🥉 3
                 </div>
@@ -1211,7 +1214,7 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
 
           {/* Full Table */}
           {leaderboardEntries.length > 0 && !isLoadingLeaderboard && (
-            <div className="bg-white/70 dark:bg-[#1a1b26]/70 backdrop-blur-xl rounded-3xl border border-gray-200/80 dark:border-white/10 overflow-hidden shadow-sm">
+            <div className="bg-white/70 dark:bg-[#1c1917]/70 backdrop-blur-xl rounded-3xl border border-gray-200/80 dark:border-white/10 overflow-hidden shadow-sm">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs font-bold">
                   <thead className="bg-gray-50/50 dark:bg-black/20 text-gray-400 uppercase text-[10px] tracking-wider border-b border-gray-100 dark:border-white/5">
@@ -1270,7 +1273,7 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
             {historyItems.map(item => (
               <div
                 key={item.tournamentId}
-                className="bg-white/70 dark:bg-[#1a1b26]/70 backdrop-blur-xl p-6 rounded-3xl border border-gray-200/80 dark:border-white/10 shadow-sm space-y-4 flex flex-col justify-between"
+                className="bg-white/70 dark:bg-[#1c1917]/70 backdrop-blur-xl p-6 rounded-3xl border border-gray-200/80 dark:border-white/10 shadow-sm space-y-4 flex flex-col justify-between"
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
@@ -1335,7 +1338,7 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
       {/* ============================================================== */}
       {awaitingTournament && (
         <div className="app-dialog-overlay fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="app-dialog-panel app-dialog-panel--padded bg-white dark:bg-[#1a1b26] rounded-3xl border border-gray-200 dark:border-white/10 max-w-lg w-full p-8 shadow-2xl relative space-y-6 text-center">
+          <div className="app-dialog-panel app-dialog-panel--padded bg-white dark:bg-[#1c1917] rounded-3xl border border-gray-200 dark:border-white/10 max-w-lg w-full p-8 shadow-2xl relative space-y-6 text-center">
             <button
               onClick={() => {
                 setAwaitingTournament(null);
@@ -1349,12 +1352,12 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
             {/* Radar / Celebration Graphic */}
             <div className="relative w-24 h-24 mx-auto flex items-center justify-center">
               <div className={`absolute inset-0 rounded-full animate-ping opacity-25 ${
-                isRevealedUnlock ? 'bg-purple-500' : 'bg-amber-500'
+                isRevealedUnlock ? 'bg-teal-500' : 'bg-amber-500'
               }`} />
               <div className={`w-20 h-20 rounded-2xl flex items-center justify-center text-white shadow-xl relative z-10 ${
                 isRevealedUnlock
-                  ? 'bg-gradient-to-br from-purple-500 to-indigo-600 shadow-purple-500/30'
-                  : 'bg-gradient-to-br from-amber-400 to-orange-500 shadow-orange-500/30'
+                  ? 'bg-teal-500 shadow-teal-500/30'
+                  : 'bg-amber-400 shadow-orange-500/30'
               }`}>
                 {isRevealedUnlock ? <Unlock className="w-10 h-10" /> : <Trophy className="w-10 h-10" />}
               </div>
@@ -1375,7 +1378,7 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
             <div className="flex items-center gap-2">
               <div className={`flex-1 p-4 rounded-2xl flex items-center justify-center gap-3 text-xs font-black uppercase tracking-wider ${
                 isRevealedUnlock
-                  ? 'bg-purple-500/10 text-purple-600 dark:text-purple-300 border border-purple-500/20'
+                  ? 'bg-teal-500/10 text-teal-600 dark:text-teal-300 border border-teal-500/20'
                   : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'
               }`}>
                 <Radio className={`w-4 h-4 ${isRevealedUnlock ? '' : 'animate-spin'}`} />
@@ -1423,7 +1426,7 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
                     setAwaitingTournament(null);
                     setSearchParams({});
                   }}
-                  className="w-full py-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-2xl font-black text-xs uppercase tracking-widest cursor-pointer shadow-lg shadow-purple-600/30 transition-all flex items-center justify-center gap-2"
+                  className="w-full py-4 bg-teal-600 hover:bg-teal-700 text-white rounded-2xl font-black text-xs uppercase tracking-widest cursor-pointer shadow-lg shadow-teal-600/30 transition-all flex items-center justify-center gap-2"
                 >
                   <Trophy className="w-4 h-4" /> View My Official Rank on Leaderboard
                 </button>

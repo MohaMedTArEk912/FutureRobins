@@ -11,6 +11,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { useUserProfileModal } from '../context/UserProfileModalContext';
 import { useLanguage } from '../context/LanguageContext';
+import { usePersistentShell } from '../context/PersistentShellContext';
 
 
 interface ClanLeaderboardEntry {
@@ -38,9 +39,12 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ users, currentUser, onBack })
     const { isBento } = useTheme();
     const { openUserProfile } = useUserProfileModal();
     const { tx } = useLanguage();
+    const { inPersistentShell } = usePersistentShell();
     const [activeTab, setActiveTab] = useState<'players' | 'clans'>('players');
     const [clanLeaderboard, setClanLeaderboard] = useState<ClanLeaderboardEntry[]>([]);
     const [loadingClans, setLoadingClans] = useState(false);
+
+    const isDemoViewer = currentUser?.userId === 'demo_student' || currentUser?.userId === 'demo_teacher';
 
     // Fetch clan leaderboard
     useEffect(() => {
@@ -48,7 +52,10 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ users, currentUser, onBack })
             setLoadingClans(true);
             try {
                 const data = await api.getClanLeaderboard<ClanLeaderboardEntry[]>();
-                setClanLeaderboard(data);
+                const filtered = (Array.isArray(data) ? data : []).filter(
+                    (c) => isDemoViewer || (c.tag !== 'DEMO' && c.name !== 'Live Demo Cohort')
+                );
+                setClanLeaderboard(filtered);
             } catch (error) {
                 console.error('Failed to load clan leaderboard:', error);
             } finally {
@@ -59,7 +66,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ users, currentUser, onBack })
         if (activeTab === 'clans') {
             fetchClanLeaderboard();
         }
-    }, [activeTab]);
+    }, [activeTab, isDemoViewer]);
 
     // Sort users by total score (descending), excluding admin accounts
     const rankedUsers = [...users]
@@ -88,13 +95,13 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ users, currentUser, onBack })
         const podiumGradient = {
             1: isBento
                 ? 'bg-[#fde047] text-black border-t-3 border-x-3 border-black shadow-[6px_6px_0px_#000]'
-                : 'glass-panel bg-gradient-to-t from-amber-500/20 via-amber-400/10 to-white/[0.02] border-t-2 border-x border-amber-400/40 shadow-lg shadow-amber-500/10',
+                : 'glass-panel bg-amber-500/20 border-t-2 border-x border-amber-400/40 shadow-lg shadow-amber-500/10',
             2: isBento
                 ? 'bg-[#e2e8f0] text-black border-t-3 border-x-3 border-black shadow-[5px_5px_0px_#000]'
-                : 'glass-panel bg-gradient-to-t from-slate-400/20 via-slate-300/10 to-white/[0.02] border-t-2 border-x border-slate-300/40 shadow-lg shadow-slate-300/10',
+                : 'glass-panel bg-slate-400/20 border-t-2 border-x border-slate-300/40 shadow-lg shadow-slate-300/10',
             3: isBento
                 ? 'bg-[#fed7aa] text-black border-t-3 border-x-3 border-black shadow-[5px_5px_0px_#000]'
-                : 'glass-panel bg-gradient-to-t from-amber-700/20 via-amber-600/10 to-white/[0.02] border-t-2 border-x border-amber-600/40 shadow-lg shadow-amber-600/10'
+                : 'glass-panel bg-amber-700/20 border-t-2 border-x border-amber-600/40 shadow-lg shadow-amber-600/10'
         };
 
         const avatarBorder = {
@@ -118,7 +125,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ users, currentUser, onBack })
                 {/* User Info above podium */}
                 <div className="mb-4 flex flex-col items-center transform transition-transform duration-300 group-hover:-translate-y-2">
                     <div className="relative mb-3">
-                        <div className={`w-20 h-20 rounded-full bg-slate-100 dark:bg-[#0f1422] flex items-center justify-center text-3xl font-black text-slate-800 dark:text-white shadow-2xl ${avatarBorder[rank as 1 | 2 | 3]} ring-offset-4 ring-offset-slate-50 dark:ring-offset-[#090d16] overflow-hidden`}>
+                        <div className={`w-20 h-20 rounded-full bg-slate-100 dark:bg-[#141210] flex items-center justify-center text-3xl font-black text-slate-800 dark:text-white shadow-2xl ${avatarBorder[rank as 1 | 2 | 3]} ring-offset-4 ring-offset-slate-50 dark:ring-offset-[#090d16] overflow-hidden`}>
                             {user.avatar ? (
                                 <Avatar config={user.avatar} size="lg" className="w-full h-full" />
                             ) : (
@@ -162,7 +169,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ users, currentUser, onBack })
                 <div className={`w-full relative ${heightMap[rank as 1 | 2 | 3]} rounded-t-3xl flex flex-col items-center justify-start pt-6 ${podiumGradient[rank as 1 | 2 | 3]} transition-all duration-300 group-hover:brightness-105`}>
                     <span className={`font-tabular text-6xl font-black select-none ${isBento ? 'text-black/25' : 'text-slate-900/15 dark:text-white/15'}`}>{rank}</span>
                     {rank === 1 && !isBento && (
-                        <div className="absolute bottom-0 inset-x-0 h-24 bg-gradient-to-t from-amber-400/10 to-transparent" />
+                        <div className="absolute bottom-0 inset-x-0 h-24 bg-amber-400/10" />
                     )}
                 </div>
             </div>
@@ -170,20 +177,21 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ users, currentUser, onBack })
     };
 
     return (
-        <div className="min-h-dvh bg-slate-50 dark:bg-[#090d16] text-slate-900 dark:text-slate-100 selection:bg-indigo-500/25 overflow-x-hidden relative">
-            {/* Ambient Background */}
-            <AmbientBackground />
+        <div data-spatial-content className={inPersistentShell ? 'w-full text-slate-900 dark:text-slate-100 selection:bg-indigo-500/25 relative' : 'min-h-dvh bg-slate-50 dark:bg-[#0a0908] text-slate-900 dark:text-slate-100 selection:bg-indigo-500/25 overflow-x-hidden relative'}>
+            {!inPersistentShell && <AmbientBackground />}
 
-            <Navbar
-                user={currentUser}
-                onBack={onBack}
-                showBack={true}
-                title={tx('Global Leaderboard', 'لوحة المتصدرين')}
-                onViewProfile={() => navigate('/profile')}
-                onViewLeaderboard={() => navigate('/leaderboard')}
-                onLogout={logout}
-                showActions={true}
-            />
+            {!inPersistentShell && (
+                <Navbar
+                    user={currentUser}
+                    onBack={onBack}
+                    showBack={true}
+                    title={tx('Global Leaderboard', 'لوحة المتصدرين')}
+                    onViewProfile={() => navigate('/profile')}
+                    onViewLeaderboard={() => navigate('/leaderboard')}
+                    onLogout={logout}
+                    showActions={true}
+                />
+            )}
 
             {/* Tab Navigation */}
             <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 pt-6 pb-2">
@@ -237,7 +245,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ users, currentUser, onBack })
                             }`}>
                                 <div className={`p-3.5 rounded-2xl ${
                                     isBento
-                                        ? 'bg-[#ddd6fe] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                        ? 'bg-[#fed7aa] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
                                         : 'bg-indigo-500/10 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400'
                                 }`}>
                                     <Users className="w-6 h-6" />
@@ -267,7 +275,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ users, currentUser, onBack })
                             <div className={`p-5 sm:p-6 rounded-3xl flex items-center gap-4 relative overflow-hidden transition-all ${
                                 isBento
                                     ? 'bg-[#93c5fd] text-black border-3 border-black shadow-[5px_5px_0px_#000]'
-                                    : 'glass-panel bg-gradient-to-br from-indigo-600 to-indigo-700 shadow-lg shadow-indigo-600/20 text-white'
+                                    : 'glass-panel bg-indigo-600 shadow-lg shadow-indigo-600/20 text-white'
                             }`}>
                                 <div className={`p-1 rounded-2xl overflow-hidden w-14 h-14 flex items-center justify-center shrink-0 ${
                                     isBento
@@ -308,7 +316,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ users, currentUser, onBack })
                                 {/* Podium */}
                                 {topThree.length >= 1 && (
                                     <div className="relative pt-8 pb-12">
-                                        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-indigo-500/5 to-transparent rounded-full blur-3xl" />
+                                        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-indigo-500/5 rounded-full blur-3xl" />
                                         <div className="flex flex-row items-end justify-center gap-4 md:gap-8 min-h-[400px]">
                                             {topThree.map((user) => (
                                                 <PodiumUser key={user.userId} user={user} rank={user.rank} />
@@ -361,7 +369,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ users, currentUser, onBack })
                                                 className={`group p-4 sm:p-5 flex items-center gap-4 sm:gap-5 transition-colors cursor-pointer ${
                                                     isBento
                                                         ? user.userId === currentUser.userId
-                                                            ? 'bg-[#ddd6fe]/60 border-l-6 border-black'
+                                                            ? 'bg-[#fed7aa]/60 border-l-6 border-black'
                                                             : 'hover:bg-amber-50/60'
                                                         : user.userId === currentUser.userId
                                                             ? 'bg-indigo-50/60 dark:bg-indigo-500/10 border-l-4 border-indigo-500'
@@ -456,7 +464,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ users, currentUser, onBack })
                                     }`}>
                                         <div className={`p-3.5 rounded-2xl ${
                                             isBento
-                                                ? 'bg-[#ddd6fe] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                                ? 'bg-[#fed7aa] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
                                                 : 'bg-indigo-500/10 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400'
                                         }`}>
                                             <Shield className="w-6 h-6" />
@@ -488,7 +496,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ users, currentUser, onBack })
                                     <div className={`p-5 sm:p-6 rounded-3xl flex items-center gap-4 relative overflow-hidden transition-all ${
                                         isBento
                                             ? 'bg-[#fdba74] text-black border-3 border-black shadow-[5px_5px_0px_#000]'
-                                            : 'glass-panel bg-gradient-to-br from-indigo-600 to-purple-600 shadow-lg shadow-indigo-600/20 text-white'
+                                            : 'glass-panel bg-indigo-600 shadow-lg shadow-indigo-600/20 text-white'
                                     }`}>
                                         <div className={`p-3 rounded-2xl shrink-0 ${
                                             isBento
@@ -549,7 +557,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ users, currentUser, onBack })
                                                     className={`group p-4 sm:p-5 flex items-center gap-4 sm:gap-5 transition-colors ${
                                                         isBento
                                                             ? isUserClan
-                                                                ? 'bg-[#ddd6fe]/60 border-l-6 border-black'
+                                                                ? 'bg-[#fed7aa]/60 border-l-6 border-black'
                                                                 : 'hover:bg-lime-50/60'
                                                             : isUserClan
                                                                 ? 'bg-indigo-50/60 dark:bg-indigo-500/10 border-l-4 border-indigo-500'
@@ -570,7 +578,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ users, currentUser, onBack })
                                                     {/* Clan Icon */}
                                                     <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 ${
                                                         isBento
-                                                            ? 'bg-[#ddd6fe] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                                            ? 'bg-[#fed7aa] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
                                                             : 'bg-indigo-500/10 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20'
                                                     }`}>
                                                         <Shield className="w-5 h-5" />
@@ -619,7 +627,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ users, currentUser, onBack })
                     </div>
                 )}
             </main>
-            <Footer />
+            {!inPersistentShell && <Footer />}
         </div>
     );
 };

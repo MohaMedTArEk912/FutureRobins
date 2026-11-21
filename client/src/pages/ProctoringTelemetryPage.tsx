@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
     ShieldAlert,
     EyeOff,
@@ -97,8 +97,10 @@ const describeTelemetryEvent = (type: string, details?: string) => {
 const ProctoringTelemetryPage: React.FC = () => {
     const { attemptId } = useParams<{ attemptId: string }>();
     const navigate = useNavigate();
+    const location = useLocation();
     const { isBento } = useTheme();
     const { tx } = useLanguage();
+    const isAdminRoute = location.pathname.startsWith('/admin');
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -243,17 +245,17 @@ const ProctoringTelemetryPage: React.FC = () => {
 
     const shellCardClass = isBento
         ? 'bg-white border-[2.5px] border-black shadow-[4px_4px_0px_#000] rounded-2xl text-black'
-        : 'bg-white/90 dark:bg-[#13141f]/90 border border-slate-200 dark:border-white/10 shadow-sm rounded-2xl';
+        : 'bg-white/90 dark:bg-[#141210]/90 border border-slate-200 dark:border-white/10 shadow-sm rounded-2xl';
 
     return (
         <div
             className={`min-h-dvh relative pb-8 transition-colors ${
                 isBento
                     ? 'bg-[#f5f3ec] text-black'
-                    : 'bg-slate-50 dark:bg-[#090d16] text-slate-900 dark:text-slate-100'
+                    : 'bg-slate-50 dark:bg-[#0a0908] text-slate-900 dark:text-slate-100'
             }`}
         >
-            {!isBento && <AmbientBackground />}
+            <AmbientBackground />
 
             <div className="relative z-10 max-w-7xl mx-auto px-3 sm:px-5 pt-4 space-y-4">
                 {/* Compact Header Strip */}
@@ -265,7 +267,8 @@ const ProctoringTelemetryPage: React.FC = () => {
                                 if (window.history.length > 1) {
                                     navigate(-1);
                                 } else {
-                                    navigate('/admin');
+                                    window.close();
+                                    navigate(isAdminRoute ? '/admin' : '/profile');
                                 }
                             }}
                             className={`btn-unstyled inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black cursor-pointer transition-all shrink-0 ${
@@ -275,7 +278,7 @@ const ProctoringTelemetryPage: React.FC = () => {
                             }`}
                         >
                             <ArrowLeft className="w-3.5 h-3.5" />
-                            <span>{tx('Admin', 'لوحة التحكم')}</span>
+                            <span>{isAdminRoute ? tx('Admin', 'لوحة التحكم') : tx('Back to Profile', 'رجوع للبروفايل')}</span>
                         </button>
 
                         <div className="min-w-0">
@@ -346,7 +349,7 @@ const ProctoringTelemetryPage: React.FC = () => {
                             disabled={loading || isExportingCSV || !attempt}
                             className={`btn-unstyled inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black cursor-pointer transition-all disabled:opacity-50 ${
                                 isBento
-                                    ? 'bg-[#ddd6fe] hover:bg-[#c4b5fd] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                    ? 'bg-[#fed7aa] hover:bg-[#fdba74] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
                                     : 'bg-emerald-600 hover:bg-emerald-700 text-white'
                             }`}
                         >
@@ -464,7 +467,7 @@ const ProctoringTelemetryPage: React.FC = () => {
                                     <div className="text-[9px] font-bold opacity-75">{fullscreenExits} fs exits</div>
                                 </div>
 
-                                <div className={`p-2.5 rounded-xl ${isBento ? 'bg-[#ede9fe] border-2 border-black shadow-[2px_2px_0px_#000]' : 'bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/5'}`}>
+                                <div className={`p-2.5 rounded-xl ${isBento ? 'bg-[#ffedd5] border-2 border-black shadow-[2px_2px_0px_#000]' : 'bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/5'}`}>
                                     <div className="text-[9px] font-black uppercase opacity-75 flex items-center gap-1"><Zap className="w-3 h-3" /> {tx('Rushed', 'متسرع')}</div>
                                     <div className="text-lg font-black leading-tight">{rapidGuesses}</div>
                                     <div className="text-[9px] font-bold opacity-75">&lt; 2s ans</div>

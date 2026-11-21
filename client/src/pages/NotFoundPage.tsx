@@ -7,32 +7,36 @@ import { AmbientBackground } from '../components/AmbientBackground';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
+import { usePersistentShell } from '../context/PersistentShellContext';
 
 const NotFoundPage: React.FC = () => {
     const navigate = useNavigate();
     const { currentUser, logout } = useAuth();
     const { isBento } = useTheme();
     const { tx } = useLanguage();
+    const { inPersistentShell } = usePersistentShell();
 
     return (
-        <div className={`min-h-screen flex flex-col justify-between transition-colors ${
+        <div className={inPersistentShell ? 'w-full flex-1 flex flex-col justify-center' : `min-h-screen flex flex-col justify-between transition-colors ${
             isBento
                 ? 'bg-white text-black'
-                : 'bg-slate-50 dark:bg-[#090d16] text-slate-900 dark:text-slate-100'
+                : 'bg-slate-50 dark:bg-[#0a0908] text-slate-900 dark:text-slate-100'
         }`}>
-            <AmbientBackground />
+            {!inPersistentShell && <AmbientBackground />}
 
             {/* Navbar */}
-            <Navbar
-                user={currentUser}
-                title={tx('Page Not Found', 'الصفحة مش موجودة')}
-                onViewProfile={() => navigate('/profile')}
-                onViewLeaderboard={() => navigate('/leaderboard')}
-                onLogout={logout}
-                showActions={true}
-                showBack={true}
-                onBack={() => navigate('/')}
-            />
+            {!inPersistentShell && (
+                <Navbar
+                    user={currentUser}
+                    title={tx('Page Not Found', 'الصفحة مش موجودة')}
+                    onViewProfile={() => navigate('/profile')}
+                    onViewLeaderboard={() => navigate('/leaderboard')}
+                    onLogout={logout}
+                    showActions={true}
+                    showBack={true}
+                    onBack={() => navigate('/')}
+                />
+            )}
 
             {/* Main 404 Hero */}
             <main className="flex-1 flex items-center justify-center px-4 sm:px-6 py-12 relative z-10">
@@ -52,7 +56,7 @@ const NotFoundPage: React.FC = () => {
                         <h1 className={`text-7xl sm:text-9xl font-black tracking-tighter select-none ${
                             isBento
                                 ? 'text-black font-mono'
-                                : 'bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent'
+                                : 'text-indigo-600 dark:text-[#bef264]'
                         }`}>
                             404
                         </h1>
@@ -128,7 +132,7 @@ const NotFoundPage: React.FC = () => {
             </main>
 
             {/* Footer */}
-            <Footer />
+            {!inPersistentShell && <Footer />}
         </div>
     );
 };

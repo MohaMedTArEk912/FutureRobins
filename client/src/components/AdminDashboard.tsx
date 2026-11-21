@@ -24,6 +24,7 @@ import {
     AlertTriangle,
     Layers,
     Sliders,
+    Palette,
     ChevronDown,
     type LucideIcon
 } from 'lucide-react';
@@ -33,6 +34,7 @@ import type { UserData, Quiz, AttemptData } from '../types/index.ts';
 import { api } from '../lib/api.ts';
 import NotificationCenter from './NotificationCenter.tsx';
 import Avatar from './Avatar.tsx';
+import { AmbientBackground } from './AmbientBackground.tsx';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useData } from '../context/DataContext.tsx';
 
@@ -47,7 +49,6 @@ import QuestionAnalyticsManagement from './admin/QuestionAnalyticsManagement.tsx
 import CohortAnalyticsManagement from './admin/CohortAnalyticsManagement.tsx';
 import LiveProctoringManagement from './admin/LiveProctoringManagement.tsx';
 import BadgeManagement from './admin/BadgeManagement.tsx';
-import AttemptDetailsModal from './admin/AttemptDetailsModal.tsx';
 
 import RoadManager from './admin/RoadManager';
 import QuizManager from '../pages/QuizManager';
@@ -87,7 +88,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
     onLogout
 }) => {
     const navigate = useNavigate();
-    const { isBento } = useTheme();
+    const { isBento, theme, openThemeModal } = useTheme();
+    const currentThemeLabel = theme === 'bento' ? 'Neo-Brutalist' : 'Noir Studio';
     const { skillTracks, platformStats } = useData();
 
     // --- State ---
@@ -96,7 +98,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
     const [selectedTab, setSelectedTab] = useState<AdminTab>('main');
     const [pendingReviews, setPendingReviews] = useState<AttemptData[]>([]);
     const [pendingTrackRequests, setPendingTrackRequests] = useState<number>(0);
-    const [selectedAttemptForInspection, setSelectedAttemptForInspection] = useState<AttemptData | null>(null);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
@@ -226,22 +227,17 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
     }, [selectedTab]);
 
     return (
-        <div className={`admin-dashboard flex flex-col h-screen font-sans overflow-hidden relative selection:bg-purple-500/30 pt-safe pb-safe pl-safe pr-safe ${
-            isBento ? 'bg-transparent text-black' : 'bg-gray-50 dark:bg-[#050505]'
+        <div className={`admin-dashboard flex flex-col h-screen font-sans overflow-hidden relative selection:bg-teal-500/30 pt-safe pb-safe pl-safe pr-safe ${
+            isBento ? 'bg-transparent text-black' : 'bg-gray-50 dark:bg-[#0a0908]'
         }`}>
-            {/* Ambient Background Glows */}
-            {!isBento && (
-                <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-                    <div className="absolute top-[-20%] left-[-10%] w-[50vw] h-[50vw] bg-purple-500/15 dark:bg-purple-900/20 rounded-full blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-pulse-slow" />
-                    <div className="absolute bottom-[-20%] right-[-10%] w-[50vw] h-[50vw] bg-indigo-500/15 dark:bg-indigo-900/20 rounded-full blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-pulse-slow delay-1000" />
-                </div>
-            )}
+            {/* Ambient Background (Noir interactive geometric snake in Dark Mode, Light grid in Light Mode, Bento shapes in Bento Mode) */}
+            <AmbientBackground />
 
             {/* Custom Admin Header - Responsive for all screen sizes */}
-            <div className={`z-40 sticky top-0 transition-colors ${
+            <div data-snake-wall="top" className={`z-40 sticky top-0 transition-colors ${
                 isBento
                     ? 'bg-white border-b-2 border-black shadow-[0_2px_0px_#000]'
-                    : 'bg-white/95 dark:bg-[#0a0a0b]/95 backdrop-blur-2xl border-b border-gray-200/80 dark:border-white/10 shadow-sm dark:shadow-purple-900/10'
+                    : 'bg-white/95 dark:bg-[#11100e] backdrop-blur-2xl dark:backdrop-blur-none border-b border-gray-200/80 dark:border-[#2b2722] shadow-sm dark:shadow-[0_4px_0_#050504]'
             }`}>
                 <div className="w-full px-3.5 sm:px-6 py-3 flex items-center justify-between gap-2">
                     {/* Left: Mobile Menu + Branding */}
@@ -266,15 +262,15 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         >
                             <div className={`p-2 sm:p-2.5 rounded-xl text-white transition-all shrink-0 ${
                                 isBento
-                                    ? 'bg-[#8b5cf6] border-2 border-black shadow-[2px_2px_0px_#000] group-hover:translate-x-[-1px] group-hover:translate-y-[-1px]'
-                                    : 'bg-gradient-to-br from-purple-600 to-indigo-600 shadow-lg shadow-purple-500/30 ring-1 ring-white/20 group-hover:scale-105'
+                                    ? 'bg-[#0d9488] border-2 border-black shadow-[2px_2px_0px_#000] group-hover:translate-x-[-1px] group-hover:translate-y-[-1px]'
+                                    : 'bg-indigo-600 dark:bg-[#bef264] dark:text-[#0a0908] shadow-md group-hover:scale-105'
                             }`}>
                                 <Trophy className="w-4 h-4 sm:w-5 sm:h-5" />
                             </div>
                             <div className="min-w-0">
                                 <h1 className="text-base sm:text-lg font-black tracking-tight truncate">
                                     <span className="hidden sm:inline text-gray-900 dark:text-white">Admin </span>
-                                    <span className={isBento ? 'text-black font-mono' : 'text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-500 dark:from-purple-400 dark:to-indigo-400'}>
+                                    <span className={isBento ? 'text-black font-mono' : 'text-indigo-600 dark:text-[#bef264]'}>
                                         Dashboard
                                     </span>
                                 </h1>
@@ -308,7 +304,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                 <div className={`text-[10px] font-black tracking-wider uppercase ${
                                     isBento
                                         ? 'text-black/60 font-mono'
-                                        : 'text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600 dark:from-purple-400 dark:to-indigo-400'
+                                        : 'text-indigo-600 dark:text-[#fde047]'
                                 }`}>
                                     Administrator
                                 </div>
@@ -324,17 +320,17 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             className={`hidden sm:block w-8 h-8 sm:w-9 sm:h-9 rounded-xl transition-all cursor-pointer overflow-hidden ${
                                 isBento
                                     ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000]'
-                                    : 'bg-gradient-to-br from-purple-500 to-indigo-600 p-0.5 shadow-md shadow-purple-500/20 hover:scale-105'
+                                    : 'bg-teal-500 p-0.5 shadow-md shadow-teal-500/20 hover:scale-105'
                             }`}
                         >
                             <div className={`w-full h-full rounded-[9px] flex items-center justify-center overflow-hidden ${
-                                isBento ? 'bg-[#fde047]' : 'bg-white dark:bg-[#0a0a0b]'
+                                isBento ? 'bg-[#fde047]' : 'bg-white dark:bg-[#0a0908]'
                             }`}>
                                 {currentUser?.avatar ? (
                                     <Avatar config={currentUser.avatar} size="sm" className="w-full h-full" />
                                 ) : (
                                     <span className={`font-bold text-xs ${
-                                        isBento ? 'text-black font-mono' : 'text-purple-600 dark:text-purple-400'
+                                        isBento ? 'text-black font-mono' : 'text-teal-600 dark:text-teal-400'
                                     }`}>
                                         {(currentUser?.name || currentUser?.userId || 'A').charAt(0)}
                                     </span>
@@ -355,13 +351,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                             ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000] translate-x-0.5 translate-y-0.5'
                                             : 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5'
                                         : isSettingsDropdownOpen
-                                            ? 'bg-purple-500/20 text-purple-600 dark:text-purple-400 border border-purple-500/30 shadow-sm'
-                                            : 'text-gray-400 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-500/10 hover:scale-105 active:scale-95'
+                                            ? 'bg-teal-500/20 text-teal-600 dark:text-teal-400 border border-teal-500/30 shadow-sm'
+                                            : 'text-gray-400 hover:text-teal-600 hover:bg-teal-50 dark:hover:bg-teal-500/10 hover:scale-105 active:scale-95'
                                 }`}
                                 title="Admin Settings & Menu"
                                 aria-label="Admin Settings & Menu"
                             >
-                                <Settings className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-300 ${isSettingsDropdownOpen ? 'rotate-90 text-purple-600 dark:text-purple-400' : ''}`} />
+                                <Settings className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-300 ${isSettingsDropdownOpen ? 'rotate-90 text-teal-600 dark:text-teal-400' : ''}`} />
                                 <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 hidden sm:block ${isSettingsDropdownOpen ? 'rotate-180' : ''}`} />
                             </button>
 
@@ -370,17 +366,17 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                     className={`absolute right-0 mt-2 w-80 sm:w-88 rounded-2xl z-50 p-2.5 shadow-2xl animate-in fade-in zoom-in-95 duration-150 origin-top-right ${
                                         isBento
                                             ? 'bg-white border-[3px] border-black shadow-[6px_6px_0px_#000] text-black'
-                                            : 'bg-white/95 dark:bg-[#0f1117]/95 backdrop-blur-xl border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white shadow-purple-500/10'
+                                            : 'bg-white/95 dark:bg-[#141210]/95 backdrop-blur-xl border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white shadow-teal-500/10'
                                     }`}
                                 >
                                     {/* Header: Admin Info */}
                                     <div className={`p-3 rounded-xl mb-2 flex items-center gap-3 ${
                                         isBento
                                             ? 'bg-[#fde047] border-2 border-black shadow-[2px_2px_0px_#000]'
-                                            : 'bg-gradient-to-r from-purple-500/10 via-indigo-500/10 to-transparent border border-purple-500/15'
+                                            : 'bg-teal-500/10 border border-teal-500/15'
                                     }`}>
                                         <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm shrink-0 overflow-hidden ${
-                                            isBento ? 'bg-white border-2 border-black text-black' : 'bg-purple-600 text-white shadow-md'
+                                            isBento ? 'bg-white border-2 border-black text-black' : 'bg-teal-600 text-white shadow-md'
                                         }`}>
                                             {currentUser?.avatar ? (
                                                 <Avatar config={currentUser.avatar} size="sm" className="w-full h-full" />
@@ -398,7 +394,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                                 <span className={`text-[10px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded ${
                                                     isBento
                                                         ? 'bg-black text-[#bef264] font-mono text-[9px]'
-                                                        : 'bg-purple-500/20 text-purple-600 dark:text-purple-300 font-bold'
+                                                        : 'bg-teal-500/20 text-teal-600 dark:text-teal-300 font-bold'
                                                 }`}>
                                                     Administrator
                                                 </span>
@@ -422,12 +418,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                             className={`w-full flex items-center justify-between gap-3 p-2.5 rounded-xl transition-all cursor-pointer group text-left ${
                                                 isBento
                                                     ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 font-mono'
-                                                    : 'bg-purple-500/10 hover:bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-500/20 hover:scale-[1.01]'
+                                                    : 'bg-teal-500/10 hover:bg-teal-500/20 text-teal-700 dark:text-teal-300 border border-teal-500/20 hover:scale-[1.01]'
                                             }`}
                                         >
                                             <div className="flex items-center gap-2.5 min-w-0">
                                                 <div className={`p-1.5 rounded-lg shrink-0 ${
-                                                    isBento ? 'bg-white border border-black' : 'bg-purple-500/20 text-purple-600 dark:text-purple-400'
+                                                    isBento ? 'bg-white border border-black' : 'bg-teal-500/20 text-teal-600 dark:text-teal-400'
                                                 }`}>
                                                     <Home className="w-4 h-4" />
                                                 </div>
@@ -435,7 +431,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                                     <div className="text-xs font-black tracking-tight flex items-center gap-1">
                                                         Student View
                                                         <span className={`text-[9px] px-1 py-0.2 rounded uppercase tracking-wider font-bold ${
-                                                            isBento ? 'bg-black text-white' : 'bg-purple-200 dark:bg-purple-900/60 text-purple-800 dark:text-purple-200'
+                                                            isBento ? 'bg-black text-white' : 'bg-teal-200 dark:bg-teal-900/60 text-teal-800 dark:text-teal-200'
                                                         }`}>
                                                             Learning Mode
                                                         </span>
@@ -446,7 +442,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                                 </div>
                                             </div>
                                             <ArrowRight className={`w-4 h-4 shrink-0 transition-transform group-hover:translate-x-1 ${
-                                                isBento ? 'text-black' : 'text-purple-600 dark:text-purple-400'
+                                                isBento ? 'text-black' : 'text-teal-600 dark:text-teal-400'
                                             }`} />
                                         </button>
                                     </div>
@@ -475,6 +471,46 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                                     <div className="text-xs font-bold leading-tight">Platform Configuration</div>
                                                     <div className={`text-[10px] truncate ${isBento ? 'text-black/60' : 'text-gray-400'}`}>
                                                         Quiz limits, API, & platform settings
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <ArrowRight className="w-3.5 h-3.5 opacity-40 shrink-0" />
+                                        </button>
+
+                                        {/* Change Theme */}
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setIsSettingsDropdownOpen(false);
+                                                openThemeModal();
+                                            }}
+                                            className={`w-full flex items-center justify-between gap-2.5 p-2 rounded-xl transition-all cursor-pointer text-left ${
+                                                isBento
+                                                    ? 'bg-white hover:bg-[#fde047] text-black border-2 border-black hover:shadow-[2px_2px_0px_#000] font-mono'
+                                                    : 'hover:bg-gray-100 dark:hover:bg-[#f5f3ec]/8 text-gray-700 dark:text-[#f5f3ec]'
+                                            }`}
+                                        >
+                                            <div className="flex items-center gap-2.5 min-w-0">
+                                                <div className={`p-1.5 rounded-lg shrink-0 ${
+                                                    isBento
+                                                        ? 'bg-[#fed7aa] border border-black text-black'
+                                                        : 'bg-indigo-500/10 dark:bg-[#fde047]/14 text-indigo-600 dark:text-[#fde047] dark:border dark:border-[#fde047]/25'
+                                                }`}>
+                                                    <Palette className="w-4 h-4" />
+                                                </div>
+                                                <div className="min-w-0">
+                                                    <div className="text-xs font-bold leading-tight flex items-center gap-1.5">
+                                                        <span>Change Theme</span>
+                                                        <span className={`text-[9px] px-1.5 py-0.5 rounded uppercase tracking-wider font-black ${
+                                                            isBento
+                                                                ? 'bg-[#fde047] text-black border border-black'
+                                                                : 'bg-slate-200/80 dark:bg-[#bef264]/16 text-slate-700 dark:text-[#bef264]'
+                                                        }`}>
+                                                            {currentThemeLabel}
+                                                        </span>
+                                                    </div>
+                                                    <div className={`text-[10px] truncate ${isBento ? 'text-black/60' : 'text-gray-400 dark:text-[#a8a29e]'}`}>
+                                                        Switch between Light, Noir Studio, & Bento
                                                     </div>
                                                 </div>
                                             </div>
@@ -526,10 +562,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 )}
 
                 {/* Sidebar - Desktop */}
-                <div className={`hidden md:flex w-72 shrink-0 flex-col py-4 transition-all duration-200 ${
+                <div data-snake-wall="side" className={`hidden md:flex w-72 shrink-0 flex-col py-4 transition-all duration-200 ${
                     isBento
                         ? 'bg-white border-r-2 border-black'
-                        : 'bg-white/95 dark:bg-[#0c0d14]/95 backdrop-blur-xl border-r border-gray-200/80 dark:border-white/5'
+                        : 'bg-white/95 dark:bg-[#11100e] backdrop-blur-xl dark:backdrop-blur-none border-r border-gray-200/80 dark:border-[#2b2722]'
                 }`}>
                     <div className="flex-1 overflow-y-auto px-3.5 space-y-5 custom-scrollbar">
                         {navItems.map((group, idx) => (
@@ -555,8 +591,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                                 className={`w-full h-11 flex items-center justify-between px-3.5 py-2 rounded-2xl transition-all duration-200 font-bold group relative cursor-pointer ${
                                                     isActive
                                                         ? isBento
-                                                            ? 'bg-[#8b5cf6] text-white border-2 border-black shadow-[2px_2px_0px_#000]'
-                                                            : 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-500/25'
+                                                            ? 'bg-[#0d9488] text-white border-2 border-black shadow-[2px_2px_0px_#000]'
+                                                            : 'bg-teal-600 text-white shadow-lg shadow-teal-500/25'
                                                         : isBento
                                                             ? 'text-black hover:bg-[#fde047] hover:border-black hover:shadow-[2px_2px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 border-2 border-transparent'
                                                             : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100/80 dark:hover:bg-white/5'
@@ -570,7 +606,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                                                 : 'bg-white/20 text-white'
                                                             : isBento
                                                                 ? 'bg-black/5 text-black group-hover:bg-black group-hover:text-white group-hover:border group-hover:border-black group-hover:shadow-[1px_1px_0px_#000]'
-                                                                : 'bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 group-hover:bg-purple-50 group-hover:text-purple-600 dark:group-hover:bg-purple-500/10 dark:group-hover:text-purple-400'
+                                                                : 'bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 group-hover:bg-teal-50 group-hover:text-teal-600 dark:group-hover:bg-teal-500/10 dark:group-hover:text-teal-400'
                                                     }`}>
                                                         <Icon className="w-4 h-4 transition-transform group-hover:scale-110 shrink-0" />
                                                     </div>
@@ -586,8 +622,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                                                 ? 'bg-white text-black border border-black'
                                                                 : 'bg-[#bef264] text-black border border-black shadow-[1px_1px_0px_#000]'
                                                             : isActive
-                                                                ? 'bg-white text-purple-600 shadow-sm'
-                                                                : 'bg-purple-600 text-white'
+                                                                ? 'bg-white text-teal-600 shadow-sm'
+                                                                : 'bg-teal-600 text-white'
                                                     }`}>
                                                         {item.badge}
                                                     </span>
@@ -610,7 +646,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             className={`w-full h-11 flex items-center justify-between px-3.5 py-2.5 rounded-2xl transition-all font-black text-xs uppercase tracking-wider group cursor-pointer ${
                                 isBento
                                     ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[4px_4px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 font-mono'
-                                    : 'bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400 border border-purple-500/20'
+                                    : 'bg-teal-500/10 hover:bg-teal-500/20 text-teal-600 dark:text-teal-400 border border-teal-500/20'
                             }`}
                             title="Switch to Student / Home View"
                         >
@@ -618,7 +654,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                 <div className={`p-1.5 rounded-xl group-hover:scale-110 transition-transform shrink-0 ${
                                     isBento
                                         ? 'bg-black text-white border border-black shadow-[1px_1px_0px_#000]'
-                                        : 'bg-purple-500/20 text-purple-600 dark:text-purple-400'
+                                        : 'bg-teal-500/20 text-teal-600 dark:text-teal-400'
                                 }`}>
                                     <Home className="w-4 h-4" />
                                 </div>
@@ -633,7 +669,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <div className={`md:hidden fixed inset-y-0 left-0 w-80 max-w-[85vw] flex flex-col z-[95] transform transition-transform duration-300 ease-out shadow-2xl pt-safe pb-safe ${
                     isBento
                         ? 'bg-white border-r-2 border-black'
-                        : 'bg-white dark:bg-[#0d0e17] backdrop-blur-2xl border-r border-gray-200 dark:border-white/10'
+                        : 'bg-white dark:bg-[#141210] backdrop-blur-2xl border-r border-gray-200 dark:border-white/10'
                 } ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
                     {/* Drawer Header */}
                     <div className={`p-5 border-b flex items-center justify-between ${
@@ -641,16 +677,16 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     }`}>
                         <div className="flex items-center gap-3">
                             <div className={`w-10 h-10 rounded-2xl p-0.5 shadow-md ${
-                                isBento ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000]' : 'bg-gradient-to-br from-purple-600 to-indigo-600'
+                                isBento ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000]' : 'bg-teal-600'
                             }`}>
                                 <div className={`w-full h-full rounded-[14px] flex items-center justify-center overflow-hidden ${
-                                    isBento ? 'bg-[#fde047]' : 'bg-white dark:bg-[#0a0a0b]'
+                                    isBento ? 'bg-[#fde047]' : 'bg-white dark:bg-[#0a0908]'
                                 }`}>
                                     {currentUser?.avatar ? (
                                         <Avatar config={currentUser.avatar} size="md" className="w-full h-full" />
                                     ) : (
                                         <span className={`font-bold text-sm ${
-                                            isBento ? 'text-black font-mono' : 'text-purple-600 dark:text-purple-400'
+                                            isBento ? 'text-black font-mono' : 'text-teal-600 dark:text-teal-400'
                                         }`}>
                                             {(currentUser?.name || currentUser?.userId || 'A').charAt(0)}
                                         </span>
@@ -664,7 +700,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                     {currentUser?.name || 'Admin'}
                                 </div>
                                 <div className={`text-[10px] font-bold uppercase tracking-widest ${
-                                    isBento ? 'text-black/60 font-mono' : 'text-purple-600 dark:text-purple-400'
+                                    isBento ? 'text-black/60 font-mono' : 'text-teal-600 dark:text-teal-400'
                                 }`}>
                                     Administrator
                                 </div>
@@ -694,8 +730,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             className={`w-full h-11 flex items-center justify-between px-3.5 py-2.5 rounded-2xl transition-all duration-200 font-black uppercase tracking-wider text-xs cursor-pointer ${
                                 selectedTab === 'main'
                                     ? isBento
-                                        ? 'bg-[#8b5cf6] text-white border-2 border-black shadow-[2px_2px_0px_#000]'
-                                        : 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-xl shadow-purple-500/30'
+                                        ? 'bg-[#0d9488] text-white border-2 border-black shadow-[2px_2px_0px_#000]'
+                                        : 'bg-teal-600 text-white shadow-xl shadow-teal-500/30'
                                     : isBento
                                         ? 'text-black hover:bg-[#fde047] hover:border-black hover:shadow-[2px_2px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 border-2 border-transparent'
                                         : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5'
@@ -731,8 +767,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                                 className={`w-full h-11 flex items-center justify-between px-3.5 py-2.5 rounded-2xl transition-all duration-200 font-bold group relative cursor-pointer ${
                                                     isActive
                                                         ? isBento
-                                                            ? 'bg-[#8b5cf6] text-white border-2 border-black shadow-[2px_2px_0px_#000]'
-                                                            : 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-xl shadow-purple-500/30'
+                                                            ? 'bg-[#0d9488] text-white border-2 border-black shadow-[2px_2px_0px_#000]'
+                                                            : 'bg-teal-600 text-white shadow-xl shadow-teal-500/30'
                                                         : isBento
                                                             ? 'text-black hover:bg-[#fde047] hover:border-black hover:shadow-[2px_2px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 border-2 border-transparent'
                                                             : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5'
@@ -762,8 +798,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                                                 ? 'bg-white text-black border border-black'
                                                                 : 'bg-[#bef264] text-black border border-black shadow-[1px_1px_0px_#000]'
                                                             : isActive
-                                                                ? 'bg-white text-purple-600 shadow-sm'
-                                                                : 'bg-purple-600 text-white'
+                                                                ? 'bg-white text-teal-600 shadow-sm'
+                                                                : 'bg-teal-600 text-white'
                                                     }`}>
                                                         {item.badge}
                                                     </span>
@@ -789,7 +825,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             className={`w-full flex items-center justify-between px-4 py-2.5 rounded-2xl transition-all font-black text-xs uppercase tracking-wider group cursor-pointer ${
                                 isBento
                                     ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[4px_4px_0px_#000] font-mono'
-                                    : 'bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400 border border-purple-500/20'
+                                    : 'bg-teal-500/10 hover:bg-teal-500/20 text-teal-600 dark:text-teal-400 border border-teal-500/20'
                             }`}
                         >
                             <div className="flex items-center gap-3">
@@ -817,6 +853,30 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             </div>
                         </button>
 
+                        {/* Change Theme Button in Mobile Drawer */}
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setIsSidebarOpen(false);
+                                openThemeModal();
+                            }}
+                            className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl transition-all font-bold text-xs cursor-pointer ${
+                                isBento
+                                    ? 'bg-[#fed7aa] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[4px_4px_0px_#000] font-mono font-black'
+                                    : 'bg-gray-100 dark:bg-[#1c1917] hover:bg-gray-200 dark:hover:bg-[#24201c] text-gray-700 dark:text-[#f5f3ec] border border-gray-200/50 dark:border-[#f5f3ec]/12'
+                            }`}
+                        >
+                            <div className="flex items-center gap-3">
+                                <Palette className={`w-4 h-4 ${isBento ? 'text-black' : 'text-indigo-500 dark:text-[#fde047]'}`} />
+                                <span>Change Theme</span>
+                            </div>
+                            <span className={`text-[10px] font-black uppercase tracking-wider ${
+                                isBento ? 'text-black/80' : 'text-indigo-600 dark:text-[#bef264]'
+                            }`}>
+                                {currentThemeLabel}
+                            </span>
+                        </button>
+
                         {/* Prominent Big Logout Button in Mobile Drawer */}
                         <button
                             type="button"
@@ -827,7 +887,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl transition-all font-black text-xs uppercase tracking-wider cursor-pointer ${
                                 isBento
                                     ? 'bg-[#fecdd3] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[4px_4px_0px_#000] font-mono'
-                                    : 'bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white shadow-lg shadow-red-500/25'
+                                    : 'bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-500/25'
                             }`}
                         >
                             <div className="flex items-center gap-3">
@@ -841,7 +901,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                 {/* Main Content Area */}
                 <div className={`flex-1 flex flex-col h-full overflow-hidden relative ${
-                    isBento ? 'bg-transparent' : 'bg-gray-50 dark:bg-[#0a0a0b]'
+                    isBento ? 'bg-transparent' : 'bg-gray-50 dark:bg-transparent'
                 }`}>
                     {/* Notification Toast */}
                     {notification && (
@@ -874,7 +934,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             <div className={`flex items-center justify-between gap-3 p-3 sm:p-4 mb-4 sm:mb-6 rounded-2xl animate-in slide-in-from-top-2 ${
                                 isBento
                                     ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000]'
-                                    : 'bg-white/80 dark:bg-[#13141f]/80 backdrop-blur-xl border border-gray-200/50 dark:border-white/10 shadow-sm'
+                                    : 'bg-white/80 dark:bg-[#141210]/80 backdrop-blur-xl border border-gray-200/50 dark:border-white/10 shadow-sm'
                             }`}>
                                 <button
                                     type="button"
@@ -882,7 +942,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                     className={`flex items-center gap-2 px-3 py-1.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all hover:scale-105 active:scale-95 cursor-pointer ${
                                         isBento
                                             ? 'bg-[#bef264] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000] font-mono'
-                                            : 'bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400 border border-purple-500/20 shadow-sm'
+                                            : 'bg-teal-500/10 hover:bg-teal-500/20 text-teal-600 dark:text-teal-400 border border-teal-500/20 shadow-sm'
                                     }`}
                                     title="Return to Admin Overview"
                                 >
@@ -890,7 +950,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                     <span>← Overview</span>
                                 </button>
                                 <div className="flex items-center gap-2 min-w-0">
-                                    <span className={`w-2 h-2 rounded-full shrink-0 ${isBento ? 'bg-black' : 'bg-purple-500 animate-pulse'}`} />
+                                    <span className={`w-2 h-2 rounded-full shrink-0 ${isBento ? 'bg-black' : 'bg-teal-500 animate-pulse'}`} />
                                     <span className={`text-xs sm:text-sm font-black uppercase tracking-wider truncate ${
                                         isBento ? 'text-black font-mono' : 'text-gray-900 dark:text-white'
                                     }`}>
@@ -911,7 +971,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                             shortLabel: 'Users',
                                             value: stats.totalUsers,
                                             icon: Users,
-                                            color: 'from-blue-500 to-violet-500',
+                                            color: 'bg-blue-500',
                                             bg: 'bg-blue-500/10',
                                             iconColor: 'text-blue-600 dark:text-blue-400',
                                             bentoBg: 'bg-[#93c5fd]',
@@ -921,7 +981,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                             shortLabel: 'Quizzes',
                                             value: stats.totalQuizzes,
                                             icon: BookOpen,
-                                            color: 'from-emerald-500 to-teal-500',
+                                            color: 'bg-emerald-500',
                                             bg: 'bg-emerald-500/10',
                                             iconColor: 'text-emerald-600 dark:text-emerald-400',
                                             bentoBg: 'bg-[#86efac]',
@@ -931,7 +991,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                             shortLabel: 'Attempts',
                                             value: stats.totalAttempts,
                                             icon: Activity,
-                                            color: 'from-orange-500 to-red-500',
+                                            color: 'bg-orange-500',
                                             bg: 'bg-orange-500/10',
                                             iconColor: 'text-orange-600 dark:text-orange-400',
                                             bentoBg: 'bg-[#fdba74]',
@@ -941,7 +1001,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                             shortLabel: 'Avg Score',
                                             value: `${stats.avgScore}%`,
                                             icon: Trophy,
-                                            color: 'from-amber-400 to-yellow-500',
+                                            color: 'bg-amber-400',
                                             bg: 'bg-yellow-500/10',
                                             iconColor: 'text-amber-600 dark:text-amber-400',
                                             bentoBg: 'bg-[#fde047]',
@@ -954,11 +1014,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                                 className={`relative overflow-hidden p-3.5 sm:p-6 rounded-2xl sm:rounded-3xl transition-all duration-300 group hover:-translate-y-0.5 ${
                                                     isBento
                                                         ? 'bg-white text-black border-2 border-black shadow-[4px_4px_0px_#000]'
-                                                        : 'bg-white/60 dark:bg-[#13141f]/60 backdrop-blur-xl border border-white/40 dark:border-white/5 shadow-sm hover:shadow-xl hover:shadow-purple-500/10'
+                                                        : 'bg-white/60 dark:bg-[#141210]/60 backdrop-blur-xl border border-white/40 dark:border-white/5 shadow-sm hover:shadow-xl hover:shadow-teal-500/10'
                                                 }`}
                                             >
                                                 {!isBento && (
-                                                    <div className={`absolute top-0 right-0 w-20 h-20 sm:w-32 sm:h-32 bg-gradient-to-br ${stat.color} opacity-[0.03] dark:opacity-[0.08] rounded-bl-full pointer-events-none transition-opacity group-hover:opacity-10`} />
+                                                    <div className={`absolute top-0 right-0 w-20 h-20 sm:w-32 sm:h-32 ${stat.color} opacity-[0.04] dark:opacity-[0.08] rounded-bl-full pointer-events-none transition-opacity group-hover:opacity-10`} />
                                                 )}
 
                                                 <div className="flex items-center justify-between mb-2 sm:mb-4 relative z-10">
@@ -981,7 +1041,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                                     <div className={`text-xl sm:text-4xl font-black transition-all ${
                                                         isBento
                                                             ? 'text-black font-mono'
-                                                            : 'text-gray-900 dark:text-white bg-clip-text group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-gray-900 group-hover:to-gray-600 dark:group-hover:from-white dark:group-hover:to-gray-300'
+                                                            : 'text-gray-900 dark:text-[#f5f3ec]'
                                                     }`}>
                                                         {stat.value}
                                                     </div>
@@ -995,7 +1055,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                 <div className={`backdrop-blur-xl rounded-2xl sm:rounded-3xl p-4 sm:p-6 ${
                                     isBento
                                         ? 'bg-white border-2 border-black shadow-[4px_4px_0px_#000]'
-                                        : 'bg-white/60 dark:bg-[#13141f]/60 border border-white/40 dark:border-white/5 shadow-sm'
+                                        : 'bg-white/60 dark:bg-[#141210]/60 border border-white/40 dark:border-white/5 shadow-sm'
                                 }`}>
                                     <div className="flex items-center justify-between mb-3 sm:mb-4">
                                         <h2 className={`text-base sm:text-xl font-black ${isBento ? 'text-black font-mono' : 'text-gray-900 dark:text-white'}`}>Quick Actions</h2>
@@ -1003,10 +1063,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                     </div>
                                     <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
                                         {([
-                                            { tab: 'road' as AdminTab, label: 'Review Roads', desc: 'Manage content', icon: BookOpen, bentoBg: 'bg-[#c4b5fd]', normalBg: 'from-purple-500/10 to-indigo-500/10 hover:from-purple-500/20 hover:to-indigo-500/20', iconColor: 'text-purple-600 dark:text-purple-400', iconBox: 'bg-purple-500/10' },
-                                            { tab: 'users' as AdminTab, label: 'Manage Users', desc: 'Roles, access, details', icon: Users, bentoBg: 'bg-[#93c5fd]', normalBg: 'from-blue-500/10 to-violet-500/10 hover:from-blue-500/20 hover:to-violet-500/20', iconColor: 'text-blue-600 dark:text-blue-400', iconBox: 'bg-blue-500/10' },
-                                            { tab: 'reviews' as AdminTab, label: 'Review Work', desc: 'Handle submissions', icon: Check, bentoBg: 'bg-[#86efac]', normalBg: 'from-emerald-500/10 to-teal-500/10 hover:from-emerald-500/20 hover:to-teal-500/20', iconColor: 'text-emerald-600 dark:text-emerald-400', iconBox: 'bg-emerald-500/10' },
-                                            { tab: 'quizzes' as AdminTab, label: 'Quiz Bank', desc: 'Manage quizzes', icon: Zap, bentoBg: 'bg-[#fde047]', normalBg: 'from-amber-400/10 to-yellow-500/10 hover:from-amber-400/20 hover:to-yellow-500/20', iconColor: 'text-amber-600 dark:text-amber-400', iconBox: 'bg-amber-400/10' },
+                                            { tab: 'road' as AdminTab, label: 'Review Roads', desc: 'Manage content', icon: BookOpen, bentoBg: 'bg-[#fdba74]', normalBg: 'bg-teal-500/10 hover:bg-teal-500/20', iconColor: 'text-teal-600 dark:text-teal-400', iconBox: 'bg-teal-500/10' },
+                                            { tab: 'users' as AdminTab, label: 'Manage Users', desc: 'Roles, access, details', icon: Users, bentoBg: 'bg-[#93c5fd]', normalBg: 'bg-blue-500/10 hover:bg-blue-500/20', iconColor: 'text-blue-600 dark:text-blue-400', iconBox: 'bg-blue-500/10' },
+                                            { tab: 'reviews' as AdminTab, label: 'Review Work', desc: 'Handle submissions', icon: Check, bentoBg: 'bg-[#86efac]', normalBg: 'bg-emerald-500/10 hover:bg-emerald-500/20', iconColor: 'text-emerald-600 dark:text-emerald-400', iconBox: 'bg-emerald-500/10' },
+                                            { tab: 'quizzes' as AdminTab, label: 'Quiz Bank', desc: 'Manage quizzes', icon: Zap, bentoBg: 'bg-[#fde047]', normalBg: 'bg-amber-400/10 hover:bg-amber-400/20', iconColor: 'text-amber-600 dark:text-amber-400', iconBox: 'bg-amber-400/10' },
                                         ]).map((action, idx) => {
                                             const ActionIcon = action.icon;
                                             return (
@@ -1016,7 +1076,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                                     className={`group flex items-center gap-2.5 sm:gap-3 w-full p-3 sm:p-4 rounded-xl sm:rounded-2xl transition-all text-left cursor-pointer ${
                                                         isBento
                                                             ? 'bg-white hover:bg-[#f8fafc] border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[4px_4px_0px_#000] active:translate-x-0.5 active:translate-y-0.5'
-                                                            : `bg-gradient-to-br ${action.normalBg} border border-white/40 dark:border-white/10 hover:scale-[1.02]`
+                                                            : `${action.normalBg} border border-slate-200 dark:border-[#2e2924] hover:scale-[1.02]`
                                                     }`}
                                                 >
                                                     <div className={`p-2 rounded-lg shrink-0 ${
@@ -1041,7 +1101,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                     <div className={`backdrop-blur-xl rounded-2xl sm:rounded-3xl p-4 sm:p-6 ${
                                         isBento
                                             ? 'bg-white border-2 border-black shadow-[4px_4px_0px_#000]'
-                                            : 'bg-white/60 dark:bg-[#13141f]/60 border border-white/40 dark:border-white/5 shadow-sm'
+                                            : 'bg-white/60 dark:bg-[#141210]/60 border border-white/40 dark:border-white/5 shadow-sm'
                                     }`}>
                                         <h3 className={`text-sm font-bold mb-3 sm:mb-4 ${isBento ? 'text-black font-mono font-black' : 'text-gray-900 dark:text-white'}`}>Engagement Overview</h3>
                                         <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
@@ -1060,10 +1120,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                                     } catch { return false; }
                                                 }).length;
                                                 const items = [
-                                                    { label: 'Pending Reviews', value: pendingReviews.length, color: 'from-orange-500 to-red-500', icon: Check, bentoBg: 'bg-[#fdba74]' },
-                                                    { label: 'Pass Rate', value: `${passRate}%`, color: 'from-emerald-500 to-teal-500', icon: Trophy, bentoBg: 'bg-[#86efac]' },
-                                                    { label: 'Avg Time', value: `${Math.floor(avgTime / 60)}m ${avgTime % 60}s`, color: 'from-blue-500 to-violet-500', icon: Activity, bentoBg: 'bg-[#93c5fd]' },
-                                                    { label: 'Attempts Today', value: attemptsToday, color: 'from-amber-400 to-yellow-500', icon: BarChart3, bentoBg: 'bg-[#fde047]' },
+                                                    { label: 'Pending Reviews', value: pendingReviews.length, color: 'bg-orange-500', icon: Check, bentoBg: 'bg-[#fdba74]' },
+                                                    { label: 'Pass Rate', value: `${passRate}%`, color: 'bg-emerald-500', icon: Trophy, bentoBg: 'bg-[#86efac]' },
+                                                    { label: 'Avg Time', value: `${Math.floor(avgTime / 60)}m ${avgTime % 60}s`, color: 'bg-blue-500', icon: Activity, bentoBg: 'bg-[#93c5fd]' },
+                                                    { label: 'Attempts Today', value: attemptsToday, color: 'bg-amber-400', icon: BarChart3, bentoBg: 'bg-[#fde047]' },
                                                 ];
                                                 return items.map((s, i) => {
                                                     const Icon = s.icon;
@@ -1073,11 +1133,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                                             className={`relative overflow-hidden p-3 sm:p-4 rounded-xl ${
                                                                 isBento
                                                                     ? 'bg-[#f8fafc] border-2 border-black shadow-[2px_2px_0px_#000]'
-                                                                    : 'bg-white/60 dark:bg-[#0f1020]/60 backdrop-blur-xl border border-white/30 dark:border-white/10'
+                                                                    : 'bg-white/60 dark:bg-[#141210]/60 backdrop-blur-xl border border-white/30 dark:border-white/10'
                                                             }`}
                                                         >
                                                             {!isBento && (
-                                                                <div className={`absolute top-0 right-0 w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br ${s.color} opacity-[0.06] dark:opacity-[0.1] rounded-bl-full`} />
+                                                                <div className={`absolute top-0 right-0 w-16 h-16 sm:w-20 sm:h-20 ${s.color} opacity-[0.06] dark:opacity-[0.1] rounded-bl-full`} />
                                                             )}
                                                             <div className="flex items-center justify-between mb-1.5 relative z-10">
                                                                 <div className={`p-1.5 sm:p-2 rounded-lg ${
@@ -1105,14 +1165,14 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                     <div className={`lg:col-span-2 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-4 sm:p-6 ${
                                         isBento
                                             ? 'bg-white border-2 border-black shadow-[4px_4px_0px_#000]'
-                                            : 'bg-white/60 dark:bg-[#13141f]/60 border border-white/40 dark:border-white/5 shadow-sm'
+                                            : 'bg-white/60 dark:bg-[#141210]/60 border border-white/40 dark:border-white/5 shadow-sm'
                                     }`}>
                                         <div className="flex items-center justify-between mb-3 sm:mb-4">
                                             <h3 className={`text-sm font-bold ${isBento ? 'text-black font-mono font-black' : 'text-gray-900 dark:text-white'}`}>Top Quizzes</h3>
                                             <button
                                                 onClick={() => setSelectedTab('quizzes')}
                                                 className={`text-xs font-bold cursor-pointer hover:underline ${
-                                                    isBento ? 'text-black font-mono underline font-black' : 'text-purple-600 dark:text-purple-400'
+                                                    isBento ? 'text-black font-mono underline font-black' : 'text-teal-600 dark:text-teal-400'
                                                 }`}
                                             >
                                                 View all
@@ -1146,7 +1206,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                                             className={`flex items-center justify-between p-3 rounded-xl transition-all ${
                                                                 isBento
                                                                     ? 'bg-[#f8fafc] border-2 border-black shadow-[2px_2px_0px_#000]'
-                                                                    : 'border border-white/40 dark:border-white/10 bg-white/60 dark:bg-[#0f1020]/60'
+                                                                    : 'border border-white/40 dark:border-white/10 bg-white/60 dark:bg-[#141210]/60'
                                                             }`}
                                                         >
                                                             <div className="min-w-0 flex-1 pr-2">
@@ -1166,7 +1226,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                 <div className={`backdrop-blur-xl rounded-2xl sm:rounded-3xl p-4 sm:p-6 ${
                                     isBento
                                         ? 'bg-white border-2 border-black shadow-[4px_4px_0px_#000]'
-                                        : 'bg-white/60 dark:bg-[#13141f]/60 border border-white/40 dark:border-white/5 shadow-sm'
+                                        : 'bg-white/60 dark:bg-[#141210]/60 border border-white/40 dark:border-white/5 shadow-sm'
                                 }`}>
                                     <div className="flex items-center justify-between mb-3 sm:mb-4">
                                         <h3 className={`text-base sm:text-xl font-black ${isBento ? 'text-black font-mono' : 'text-gray-900 dark:text-white'}`}>Recent Attempts</h3>
@@ -1211,7 +1271,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                                             <div className="flex items-center gap-2.5 min-w-0">
                                                                 <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center text-[10px] font-black shrink-0 transition-colors ${
                                                                     isBento
-                                                                        ? 'bg-[#c4b5fd] text-black border border-black'
+                                                                        ? 'bg-[#fdba74] text-black border border-black'
                                                                         : 'bg-indigo-500/10 text-indigo-500 group-hover:bg-indigo-500 group-hover:text-white'
                                                                 }`}>
                                                                     {(a.userName || 'S').charAt(0).toUpperCase()}
@@ -1363,14 +1423,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </div>
             </div>
 
-            {/* Inspect Attempt Questions Modal */}
-            {selectedAttemptForInspection && (
-                <AttemptDetailsModal
-                    attempt={selectedAttemptForInspection}
-                    onClose={() => setSelectedAttemptForInspection(null)}
-                />
-            )}
-
             {/* Admin Settings Modal */}
             {isSettingsOpen && (
                 <AdminSettings
@@ -1389,7 +1441,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         className={`app-dialog-panel app-dialog-panel--padded rounded-3xl p-6 max-w-sm w-full animate-in zoom-in-95 duration-200 ${
                             isBento
                                 ? 'bg-white border-2 border-black shadow-[6px_6px_0px_#000]'
-                                : 'bg-white dark:bg-[#13141f] border border-gray-200 dark:border-white/10 shadow-2xl'
+                                : 'bg-white dark:bg-[#141210] border border-gray-200 dark:border-white/10 shadow-2xl'
                         }`}
                         onClick={(e) => e.stopPropagation()}
                     >
@@ -1432,7 +1484,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                 className={`flex-1 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer ${
                                     isBento
                                         ? 'bg-[#fecdd3] hover:bg-[#fda4af] text-black border-2 border-black shadow-[2px_2px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 font-mono'
-                                        : 'bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white shadow-lg shadow-red-500/30 active:scale-95'
+                                        : 'bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-500/30 active:scale-95'
                                 }`}
                             >
                                 Yes, Log Out

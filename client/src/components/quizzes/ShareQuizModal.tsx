@@ -76,8 +76,8 @@ const ShareQuizModal: React.FC<ShareQuizModalProps> = ({ quiz, isOpen, onClose }
                 {/* Header */}
                 <div className="app-dialog-header flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-white/10">
                     <div className="flex items-center gap-3">
-                        <div className="p-2 bg-violet-100 dark:bg-violet-900/40 rounded-xl">
-                            <Share2 className="w-5 h-5 text-violet-600 dark:text-violet-400" />
+                        <div className="p-2 bg-sky-100 dark:bg-sky-900/40 rounded-xl">
+                            <Share2 className="w-5 h-5 text-sky-600 dark:text-sky-400" />
                         </div>
                         <div>
                             <h2 className="text-base font-bold text-gray-900 dark:text-white">Share Quiz</h2>
@@ -119,7 +119,7 @@ const ShareQuizModal: React.FC<ShareQuizModalProps> = ({ quiz, isOpen, onClose }
                             className={`px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 transition-all duration-200 ${
                                 copied
                                     ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30'
-                                    : 'bg-violet-600 hover:bg-violet-700 text-white shadow-lg shadow-violet-500/30'
+                                    : 'bg-sky-600 hover:bg-sky-700 text-white shadow-lg shadow-sky-500/30'
                             }`}
                         >
                             {copied ? (

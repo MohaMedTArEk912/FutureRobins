@@ -127,7 +127,7 @@ const TrackRequestManagement: React.FC<TrackRequestManagementProps> = ({
                     className={`p-5 relative overflow-hidden ${
                         isBento
                             ? 'bg-[#fef9c3] rounded-2xl border-[2.5px] border-black shadow-[5px_5px_0px_#000]'
-                            : 'bg-white/60 dark:bg-[#13141f]/60 backdrop-blur-xl rounded-3xl border border-white/40 dark:border-white/5 shadow-sm'
+                            : 'bg-white/60 dark:bg-[#141210]/60 backdrop-blur-xl rounded-3xl border border-white/40 dark:border-white/5 shadow-sm'
                     }`}
                 >
                     <div className="flex items-center justify-between mb-3">
@@ -156,7 +156,7 @@ const TrackRequestManagement: React.FC<TrackRequestManagementProps> = ({
                     className={`p-5 relative overflow-hidden ${
                         isBento
                             ? 'bg-[#d9f99d] rounded-2xl border-[2.5px] border-black shadow-[5px_5px_0px_#000]'
-                            : 'bg-white/60 dark:bg-[#13141f]/60 backdrop-blur-xl rounded-3xl border border-white/40 dark:border-white/5 shadow-sm'
+                            : 'bg-white/60 dark:bg-[#141210]/60 backdrop-blur-xl rounded-3xl border border-white/40 dark:border-white/5 shadow-sm'
                     }`}
                 >
                     <div className="flex items-center justify-between mb-3">
@@ -176,7 +176,7 @@ const TrackRequestManagement: React.FC<TrackRequestManagementProps> = ({
                     className={`p-5 relative overflow-hidden ${
                         isBento
                             ? 'bg-[#ffe4e6] rounded-2xl border-[2.5px] border-black shadow-[5px_5px_0px_#000]'
-                            : 'bg-white/60 dark:bg-[#13141f]/60 backdrop-blur-xl rounded-3xl border border-white/40 dark:border-white/5 shadow-sm'
+                            : 'bg-white/60 dark:bg-[#141210]/60 backdrop-blur-xl rounded-3xl border border-white/40 dark:border-white/5 shadow-sm'
                     }`}
                 >
                     <div className="flex items-center justify-between mb-3">
@@ -196,7 +196,7 @@ const TrackRequestManagement: React.FC<TrackRequestManagementProps> = ({
                     className={`p-5 relative overflow-hidden ${
                         isBento
                             ? 'bg-[#e0f2fe] rounded-2xl border-[2.5px] border-black shadow-[5px_5px_0px_#000]'
-                            : 'bg-white/60 dark:bg-[#13141f]/60 backdrop-blur-xl rounded-3xl border border-white/40 dark:border-white/5 shadow-sm'
+                            : 'bg-white/60 dark:bg-[#141210]/60 backdrop-blur-xl rounded-3xl border border-white/40 dark:border-white/5 shadow-sm'
                     }`}
                 >
                     <div className="flex items-center justify-between mb-3">
@@ -220,7 +220,7 @@ const TrackRequestManagement: React.FC<TrackRequestManagementProps> = ({
                     className={`flex-1 px-4 py-2.5 flex items-center gap-3 ${
                         isBento
                             ? 'bg-white rounded-2xl border-[2.5px] border-black shadow-[4px_4px_0px_#000]'
-                            : 'bg-white/60 dark:bg-[#1e1e2d]/60 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-white/5 shadow-sm focus-within:border-indigo-500/50'
+                            : 'bg-white/60 dark:bg-[#1c1917]/60 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-white/5 shadow-sm focus-within:border-indigo-500/50'
                     }`}
                 >
                     <Search className={`w-4 h-4 shrink-0 ${isBento ? 'text-black' : 'text-indigo-500'}`} />
@@ -304,7 +304,7 @@ const TrackRequestManagement: React.FC<TrackRequestManagementProps> = ({
                             className={`p-5 sm:p-6 transition-all flex flex-col md:flex-row md:items-center justify-between gap-5 group ${
                                 isBento
                                     ? 'bg-white rounded-2xl border-[2.5px] border-black shadow-[5px_5px_0px_#000] hover:-translate-y-0.5'
-                                    : 'bg-white/60 dark:bg-[#13141f]/60 backdrop-blur-xl rounded-[2rem] border border-white/40 dark:border-white/5 hover:border-indigo-500/30 shadow-sm'
+                                    : 'bg-white/60 dark:bg-[#141210]/60 backdrop-blur-xl rounded-[2rem] border border-white/40 dark:border-white/5 hover:border-indigo-500/30 shadow-sm'
                             }`}
                         >
                             {/* Left: User & Track details */}
@@ -312,14 +312,14 @@ const TrackRequestManagement: React.FC<TrackRequestManagementProps> = ({
                                 <div
                                     className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-lg uppercase shrink-0 ${
                                         isBento
-                                            ? 'bg-[#ddd6fe] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                            : 'bg-gradient-to-br from-indigo-500 to-purple-600 p-0.5 shadow-md text-white'
+                                            ? 'bg-[#fed7aa] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                            : 'bg-indigo-500 p-0.5 shadow-md text-white'
                                     }`}
                                 >
                                     {isBento ? (
                                         (req.userName || req.userId || 'U').charAt(0)
                                     ) : (
-                                        <div className="w-full h-full bg-white dark:bg-[#1e1e2d] rounded-[14px] flex items-center justify-center font-black text-indigo-600 dark:text-indigo-400">
+                                        <div className="w-full h-full bg-white dark:bg-[#1c1917] rounded-[14px] flex items-center justify-center font-black text-indigo-600 dark:text-indigo-400">
                                             {(req.userName || req.userId || 'U').charAt(0)}
                                         </div>
                                     )}
@@ -353,8 +353,8 @@ const TrackRequestManagement: React.FC<TrackRequestManagementProps> = ({
                                             <span
                                                 className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider flex items-center gap-1 ${
                                                     isBento
-                                                        ? 'bg-[#ddd6fe] text-black border border-black'
-                                                        : 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20'
+                                                        ? 'bg-[#fed7aa] text-black border border-black'
+                                                        : 'bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20'
                                                 }`}
                                             >
                                                 <RotateCcw className="w-2.5 h-2.5" /> Re-Request ({req.reRequestCount})
@@ -393,11 +393,11 @@ const TrackRequestManagement: React.FC<TrackRequestManagementProps> = ({
                                         <div
                                             className={`mt-2 p-3 rounded-xl text-xs font-medium ${
                                                 isBento
-                                                    ? 'bg-[#ede9fe] border-2 border-black text-black'
-                                                    : 'bg-purple-500/10 dark:bg-purple-500/15 border border-purple-500/20 text-purple-900 dark:text-purple-200'
+                                                    ? 'bg-[#ffedd5] border-2 border-black text-black'
+                                                    : 'bg-teal-500/10 dark:bg-teal-500/15 border border-teal-500/20 text-teal-900 dark:text-teal-200'
                                             }`}
                                         >
-                                            <span className={`font-black uppercase text-[10px] block mb-0.5 ${isBento ? 'text-black' : 'text-purple-600 dark:text-purple-400'}`}>
+                                            <span className={`font-black uppercase text-[10px] block mb-0.5 ${isBento ? 'text-black' : 'text-teal-600 dark:text-teal-400'}`}>
                                                 Student Re-Request Follow-Up Note:
                                             </span>
                                             "{req.reRequestNote}"
@@ -432,7 +432,7 @@ const TrackRequestManagement: React.FC<TrackRequestManagementProps> = ({
                                             className={`btn-unstyled px-4 py-2.5 font-black text-xs uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50 ${
                                                 isBento
                                                     ? 'bg-[#bef264] hover:bg-[#a3e635] text-black rounded-xl border-2 border-black shadow-[3px_3px_0px_#000]'
-                                                    : 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl shadow-lg shadow-emerald-500/20 hover:scale-105 active:scale-95'
+                                                    : 'bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-lg shadow-emerald-500/20 hover:scale-105 active:scale-95'
                                             }`}
                                         >
                                             <Check className="w-4 h-4" />
@@ -536,8 +536,8 @@ const TrackRequestManagement: React.FC<TrackRequestManagementProps> = ({
                                             ? 'bg-[#bef264] hover:bg-[#a3e635] text-black rounded-xl border-2 border-black shadow-[3px_3px_0px_#000]'
                                             : 'bg-[#fecdd3] hover:bg-rose-300 text-black rounded-xl border-2 border-black shadow-[3px_3px_0px_#000]'
                                         : actionModal.type === 'approve'
-                                          ? 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-2xl shadow-lg shadow-emerald-500/25'
-                                          : 'bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white rounded-2xl shadow-lg shadow-red-500/25'
+                                          ? 'bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl shadow-lg shadow-emerald-500/25'
+                                          : 'bg-red-600 hover:bg-red-700 text-white rounded-2xl shadow-lg shadow-red-500/25'
                                 }`}
                             >
                                 {processingId ? 'Processing...' : actionModal.type === 'approve' ? 'Confirm Approval' : 'Confirm Rejection'}

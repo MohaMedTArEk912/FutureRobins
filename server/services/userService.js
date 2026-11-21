@@ -1,5 +1,6 @@
 import { User } from '../models/User.js';
 import { SkillTrackProgress } from '../models/SkillTrackProgress.js';
+import { isDemoUserId, NON_DEMO_USER_FILTER } from '../utils/demoFilter.js';
 
 /**
  * Fetches the user document and enriches it with:
@@ -18,13 +19,15 @@ export const getEnrichedUser = async (userId) => {
         // User.skillTracks array is a cache that might be slightly stale or less detailed
         const skillTracks = await SkillTrackProgress.find({ userId }).lean();
 
-        // Calculate rank efficiently (Excluding admin accounts from student rank)
+        // Calculate rank efficiently (Excluding admin accounts & demo accounts from real student rank)
         const isAdmin = user.role === 'admin' || user.isAdmin === true;
+        const isDemo = isDemoUserId(userId);
         const rank = isAdmin
             ? null
             : await User.countDocuments({
                 role: { $ne: 'admin' },
                 isAdmin: { $ne: true },
+                ...(isDemo ? {} : NON_DEMO_USER_FILTER),
                 totalScore: { $gt: user.totalScore || 0 }
             }) + 1;
 

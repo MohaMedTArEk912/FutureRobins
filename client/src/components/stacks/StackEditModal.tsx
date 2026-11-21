@@ -36,13 +36,13 @@ const StackEditModal: React.FC<StackEditModalProps> = ({ isOpen, subject, onClos
             title="Edit Stack"
             description="Update stack details including title, description and icon."
             maxWidth="max-w-md"
-            icon={<Edit2 className="w-6 h-6 text-purple-500" />}
+            icon={<Edit2 className="w-6 h-6 text-teal-500" />}
             footer={
                 <>
                     <button onClick={onClose} className="flex-1 py-3 bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 rounded-xl font-bold hover:bg-gray-200 dark:hover:bg-white/10">
                         Cancel
                     </button>
-                    <button onClick={handleSave} className="flex-1 py-3 bg-purple-600 text-white rounded-xl font-bold hover:bg-purple-500 shadow-lg shadow-purple-500/20">
+                    <button onClick={handleSave} className="flex-1 py-3 bg-teal-600 text-white rounded-xl font-bold hover:bg-teal-500 shadow-lg shadow-teal-500/20">
                         Save Changes
                     </button>
                 </>
@@ -52,7 +52,7 @@ const StackEditModal: React.FC<StackEditModalProps> = ({ isOpen, subject, onClos
                 <div>
                     <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Title</label>
                     <input
-                        className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all font-bold"
+                        className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all font-bold"
                         value={editForm.title}
                         onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
                         placeholder="e.g. Mathematics"
@@ -61,7 +61,7 @@ const StackEditModal: React.FC<StackEditModalProps> = ({ isOpen, subject, onClos
                 <div>
                     <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Description</label>
                     <textarea
-                        className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 h-24 resize-none transition-all"
+                        className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500 h-24 resize-none transition-all"
                         value={editForm.description}
                         onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
                         placeholder="Describe the contents of this stack..."
@@ -78,7 +78,7 @@ const StackEditModal: React.FC<StackEditModalProps> = ({ isOpen, subject, onClos
                                 <button
                                     key={iconName}
                                     onClick={() => setEditForm({ ...editForm, icon: iconName })}
-                                    className={`aspect-square flex items-center justify-center rounded-lg transition-all ${isSelected ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/30' : 'text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10'}`}
+                                    className={`aspect-square flex items-center justify-center rounded-lg transition-all ${isSelected ? 'bg-teal-600 text-white shadow-lg shadow-teal-500/30' : 'text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10'}`}
                                 >
                                     {IconComp ? <IconComp className="w-5 h-5" /> : <div className="w-5 h-5 bg-gray-500/20 rounded" />}
                                 </button>

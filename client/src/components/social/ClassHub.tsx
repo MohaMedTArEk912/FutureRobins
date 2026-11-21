@@ -272,13 +272,17 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
         }
         try {
             const data = await api.getClanLeaderboard(forceRefresh);
-            setClanLeaderboard(Array.isArray(data) ? data : []);
+            const isDemoViewer = user.userId === 'demo_student' || user.userId === 'demo_teacher';
+            const filtered = (Array.isArray(data) ? data : []).filter(
+                (c) => isDemoViewer || (c.tag !== 'DEMO' && c.name !== 'Live Demo Cohort')
+            );
+            setClanLeaderboard(filtered);
         } catch {
             showNotification('error', 'Failed to fetch class rankings');
         } finally {
             setLoadingLeaderboard(false);
         }
-    }, [showNotification, clanLeaderboard.length]);
+    }, [showNotification, clanLeaderboard.length, user.userId]);
 
     const isValidBannerUrl = (url: string) => {
         if (!url.trim()) return true;
@@ -361,7 +365,10 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
     const refreshMyClasses = useCallback(async (preferredClanId?: string) => {
         try {
             const classes = await api.getMyClasses(user.userId);
-            const list = Array.isArray(classes) ? classes : [];
+            const isDemoViewer = user.userId === 'demo_student' || user.userId === 'demo_teacher';
+            const list = (Array.isArray(classes) ? classes : []).filter(
+                (c) => isDemoViewer || (c.tag !== 'DEMO' && c.name !== 'Live Demo Cohort' && c.leaderId !== 'demo_teacher')
+            );
             setMyClasses(list);
 
             const targetId = preferredClanId || activeClassId || user.clanId || list[0]?.clanId || '';
@@ -602,7 +609,7 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
     if (loading && !clan) return (
         <div className="flex items-center justify-center py-20">
             <div className="text-center">
-                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-violet-500 mx-auto mb-4"></div>
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-sky-500 mx-auto mb-4"></div>
                 <p className="text-gray-500 dark:text-gray-400 font-bold text-sm">Loading Class...</p>
             </div>
         </div>
@@ -680,7 +687,7 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                                 view === 'my_clan'
                                     ? (isBento
                                         ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                        : 'bg-violet-600 text-white shadow-md shadow-violet-600/30')
+                                        : 'bg-sky-600 text-white shadow-md shadow-sky-600/30')
                                     : (isBento ? 'text-black hover:bg-[#fef9c3]' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white')
                             }`}
                         >
@@ -697,7 +704,7 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                                 view === 'leaderboard'
                                     ? (isBento
                                         ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                        : 'bg-violet-600 text-white shadow-md shadow-violet-600/30')
+                                        : 'bg-sky-600 text-white shadow-md shadow-sky-600/30')
                                     : (isBento ? 'text-black hover:bg-[#fef9c3]' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white')
                             }`}
                         >
@@ -734,14 +741,14 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                     <div className={`p-4 sm:p-5 rounded-3xl transition-all relative overflow-hidden ${
                         isBento
                             ? 'bg-[#fef08a] text-black border-3 border-black shadow-[6px_6px_0px_#000]'
-                            : 'bg-gradient-to-r from-amber-500/15 via-orange-500/15 to-violet-500/15 border-2 border-amber-500/30 text-slate-900 dark:text-white shadow-xl backdrop-blur-xl'
+                            : 'bg-amber-500/15 border-2 border-amber-500/30 text-slate-900 dark:text-white shadow-xl backdrop-blur-xl'
                     }`}>
                         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                             <div className="flex items-start gap-3.5 flex-1 min-w-0">
                                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${
                                     isBento
                                         ? 'bg-[#facc15] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                        : 'bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-md shadow-orange-500/30'
+                                        : 'bg-amber-500 text-white shadow-md shadow-orange-500/30'
                                 }`}>
                                     <Megaphone className="w-6 h-6 animate-bounce" />
                                 </div>
@@ -873,7 +880,7 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                                         {[
                                             { label: 'Discord', url: 'https://discord.gg/', btn: 'Join Discord' },
                                             { label: 'WhatsApp', url: 'https://chat.whatsapp.com/', btn: 'WhatsApp Group' },
-                                            { label: 'Study', url: '/study', btn: 'Study Resources' }
+                                            { label: 'Tracks', url: '/tracks', btn: 'Skill Tracks' }
                                         ].map(p => (
                                             <button
                                                 key={p.label}
@@ -904,7 +911,7 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                     <div className={`p-6 sm:p-8 rounded-[2.5rem] transition-all ${
                         isBento
                             ? 'bg-white text-black border-3 border-black shadow-[6px_6px_0px_#000]'
-                            : 'bg-white/90 dark:bg-[#13141f] border border-gray-200 dark:border-white/10 shadow-xl backdrop-blur-xl'
+                            : 'bg-white/90 dark:bg-[#141210] border border-gray-200 dark:border-white/10 shadow-xl backdrop-blur-xl'
                     }`}>
                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 pb-6 border-b border-gray-200 dark:border-white/10">
                             <div className="flex items-center gap-3">
@@ -932,7 +939,7 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
 
                         {loadingLeaderboard && clanLeaderboard.length === 0 ? (
                             <div className="text-center py-16">
-                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-500 mx-auto mb-3"></div>
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sky-500 mx-auto mb-3"></div>
                                 <p className="text-xs font-bold text-gray-500">Loading class rankings...</p>
                             </div>
                         ) : clanLeaderboard.length === 0 ? (
@@ -955,8 +962,8 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                                                         ? 'bg-[#bef264] text-black border-2.5 border-black shadow-[4px_4px_0px_#000]'
                                                         : 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000]')
                                                     : (isMyClan
-                                                        ? 'bg-violet-500/10 border-2 border-violet-500 text-slate-900 dark:text-white shadow-md'
-                                                        : 'bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/5 text-slate-800 dark:text-slate-200 hover:border-violet-500/30')
+                                                        ? 'bg-sky-500/10 border-2 border-sky-500 text-slate-900 dark:text-white shadow-md'
+                                                        : 'bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/5 text-slate-800 dark:text-slate-200 hover:border-sky-500/30')
                                             }`}
                                         >
                                             <div className="flex items-center gap-3.5 min-w-0">
@@ -987,7 +994,7 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                                                         </h3>
                                                         {isMyClan && (
                                                             <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${
-                                                                isBento ? 'bg-black text-white' : 'bg-violet-600 text-white'
+                                                                isBento ? 'bg-black text-white' : 'bg-sky-600 text-white'
                                                             }`}>
                                                                 Your Class
                                                             </span>
@@ -1021,10 +1028,10 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                     <div className={`rounded-[1.75rem] sm:rounded-[2.5rem] overflow-hidden ${
                         isBento
                             ? 'bg-white text-black border-[3px] border-black shadow-[6px_6px_0px_#000]'
-                            : 'bg-white dark:bg-[#13141f] border border-gray-200 dark:border-white/10 shadow-sm'
+                            : 'bg-white dark:bg-[#141210] border border-gray-200 dark:border-white/10 shadow-sm'
                     }`}>
                     {/* Clan Header */}
-                    <div className="relative bg-gradient-to-r from-violet-600 to-indigo-600 p-5 pt-14 sm:p-8 sm:pt-8 text-white overflow-hidden">
+                    <div className="relative bg-sky-600 p-5 pt-14 sm:p-8 sm:pt-8 text-white overflow-hidden">
                         <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
                         <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full blur-2xl translate-y-1/2 -translate-x-1/4" />
                         <div className="absolute top-4 right-4 flex gap-2 z-10">
@@ -1054,7 +1061,7 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                                         className={`absolute -bottom-1 -right-1 p-2 rounded-xl transition-transform hover:scale-110 cursor-pointer ${
                                             isBento
                                                 ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                                : 'bg-white text-violet-700 shadow-md'
+                                                : 'bg-white text-sky-700 shadow-md'
                                         }`}
                                         title="Change Class Emblem"
                                     >
@@ -1214,7 +1221,7 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                                             setAnnouncementContent('');
                                             setIsComposingAnnouncement(prev => !prev);
                                         }}
-                                        className="flex items-center gap-2 px-4 py-2 bg-violet-500 hover:bg-violet-600 text-white rounded-xl font-bold text-sm transition-all shadow-lg shadow-violet-500/20 cursor-pointer"
+                                        className="flex items-center gap-2 px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white rounded-xl font-bold text-sm transition-all shadow-lg shadow-sky-500/20 cursor-pointer"
                                     >
                                         <Megaphone className="w-4 h-4" />
                                         <span>{isComposingAnnouncement ? 'Cancel' : 'Post New'}</span>
@@ -1226,8 +1233,8 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                             {isComposingAnnouncement && (isLeader || clan.members.find(m => m.userId === user.userId)?.role === 'elder') && (
                                 <div className={`mb-6 p-5 rounded-2xl space-y-3 ${
                                     isBento
-                                        ? 'bg-[#f5f3ff] border-2 border-black shadow-[4px_4px_0px_#000]'
-                                        : 'bg-violet-500/5 border border-violet-500/25'
+                                        ? 'bg-[#fff7ed] border-2 border-black shadow-[4px_4px_0px_#000]'
+                                        : 'bg-sky-500/5 border border-sky-500/25'
                                 }`}>
                                     <label className="block text-xs font-black uppercase tracking-wider">New Class Announcement</label>
                                     <textarea
@@ -1271,7 +1278,7 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                                                 }
                                             }}
                                             className={`px-5 py-2 rounded-xl text-xs font-black uppercase cursor-pointer ${
-                                                isBento ? 'bg-[#bef264] text-black border-2 border-black' : 'bg-violet-600 hover:bg-violet-700 text-white'
+                                                isBento ? 'bg-[#bef264] text-black border-2 border-black' : 'bg-sky-600 hover:bg-sky-700 text-white'
                                             }`}
                                         >
                                             Post Announcement
@@ -1306,12 +1313,12 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                                                 key={ann.id} 
                                                 className={`p-5 rounded-xl border transition-all hover:shadow-lg ${
                                                     ann.isPinned 
-                                                        ? 'bg-gradient-to-br from-orange-50 to-orange-100/50 dark:from-orange-900/20 dark:to-orange-900/10 border-orange-300 dark:border-orange-800 shadow-sm' 
-                                                        : 'bg-white dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                                                        ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-300 dark:border-orange-800 shadow-sm' 
+                                                        : 'bg-white dark:bg-[#1c1917]/50 border-gray-200 dark:border-[#f5f3ec]/16 hover:border-gray-300 dark:hover:border-gray-600'
                                                 } relative group`}
                                             >
                                                 <div className="flex items-start gap-3 mb-3">
-                                                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-violet-500 to-indigo-500 flex items-center justify-center flex-shrink-0 shadow-sm">
+                                                    <div className="w-10 h-10 rounded-lg bg-sky-500 flex items-center justify-center flex-shrink-0 shadow-sm">
                                                         {author?.avatar ? (
                                                             <Avatar config={author.avatar} size="sm" className="w-full h-full rounded-lg" />
                                                         ) : (
@@ -1389,7 +1396,7 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                                     })}
                                 </div>
                             ) : (
-                                <div className="text-center py-12 text-gray-400 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50/50 dark:bg-gray-800/30">
+                                <div className="text-center py-12 text-gray-400 border-2 border-dashed border-gray-200 dark:border-[#f5f3ec]/16 rounded-xl bg-gray-50/50 dark:bg-[#1c1917]/30">
                                     <Megaphone className="w-12 h-12 mx-auto mb-3 opacity-50" />
                                     <p className="text-sm font-medium">No announcements yet.</p>
                                     <p className="text-xs mt-1 opacity-75">Teacher updates and session reminders will appear here!</p>
@@ -1419,8 +1426,8 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                         <>
                         <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 bg-violet-500/10 rounded-xl flex items-center justify-center">
-                                    <Users className="w-5 h-5 text-violet-500" />
+                                <div className="w-10 h-10 bg-sky-500/10 rounded-xl flex items-center justify-center">
+                                    <Users className="w-5 h-5 text-sky-500" />
                                 </div>
                                 <h2 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Class Roster &amp; Students</h2>
                             </div>
@@ -1434,7 +1441,7 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                                         <Link2 className="w-4 h-4" />
                                         Copy Invite Link
                                     </button>
-                                    <button type="button" onClick={() => setClassSubTab('invite')} className="flex items-center gap-2 px-4 py-2 bg-violet-500/10 border border-violet-500/30 text-violet-500 rounded-xl font-bold text-sm hover:bg-violet-500/20 transition-all cursor-pointer">
+                                    <button type="button" onClick={() => setClassSubTab('invite')} className="flex items-center gap-2 px-4 py-2 bg-sky-500/10 border border-sky-500/30 text-sky-500 rounded-xl font-bold text-sm hover:bg-sky-500/20 transition-all cursor-pointer">
                                         <UserPlus className="w-4 h-4" />
                                         Invite Students
                                     </button>
@@ -1454,7 +1461,7 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                                 </h3>
                                 <div className="space-y-3">
                                     {clan.activeJoinRequests.map((req: { userId: string; name?: string; avatar?: AvatarConfig }) => (
-                                        <div key={req.userId} className="flex items-center justify-between bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm">
+                                        <div key={req.userId} className="flex items-center justify-between bg-white dark:bg-[#1c1917] p-4 rounded-xl shadow-sm">
                                             <div
                                                 onClick={() => openUserProfile(req.userId)}
                                                 className="flex items-center gap-3 cursor-pointer group"
@@ -1484,13 +1491,13 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {clan.members.map((member) => (
-                                <div key={member.userId} className="relative flex items-center gap-4 p-4 rounded-2xl bg-white/60 dark:bg-white/5 border border-white/20 dark:border-white/5 group hover:border-violet-500/20 transition-all">
+                                <div key={member.userId} className="relative flex items-center gap-4 p-4 rounded-2xl bg-white/60 dark:bg-white/5 border border-white/20 dark:border-white/5 group hover:border-sky-500/20 transition-all">
                                     <div
                                         onClick={() => openUserProfile(member.userId)}
                                         className="flex items-center gap-4 flex-1 cursor-pointer group/member min-w-0"
                                         title={`View ${member.name}'s profile`}
                                     >
-                                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 flex items-center justify-center font-bold text-lg text-gray-600 dark:text-gray-300 overflow-hidden shrink-0 group-hover/member:ring-2 group-hover/member:ring-indigo-500 transition-all">
+                                        <div className="w-12 h-12 rounded-xl bg-gray-200 dark:bg-gray-600 flex items-center justify-center font-bold text-lg text-gray-600 dark:text-gray-300 overflow-hidden shrink-0 group-hover/member:ring-2 group-hover/member:ring-indigo-500 transition-all">
                                             {member.avatar ? (
                                                 <Avatar config={member.avatar} size="md" className="w-full h-full" />
                                             ) : (
@@ -1514,7 +1521,7 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                                                 )}
                                             </div>
                                             <div className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                                                Contributed: <span className="font-medium text-violet-600 dark:text-violet-400">{member.contribution || 0} XP</span>
+                                                Contributed: <span className="font-medium text-sky-600 dark:text-sky-400">{member.contribution || 0} XP</span>
                                             </div>
                                         </div>
                                     </div>
@@ -1523,11 +1530,11 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                                     {user.userId !== member.userId && (
                                         (isLeader || (clan.members.find(m => m.userId === user.userId)?.role === 'elder' && member.role === 'member')) && (
                                             <div className="relative">
-                                                <button onClick={() => setActiveMenu(activeMenu === member.userId ? null : member.userId)} className="p-2 text-gray-400 hover:text-violet-600 dark:hover:text-white transition-colors">
+                                                <button onClick={() => setActiveMenu(activeMenu === member.userId ? null : member.userId)} className="p-2 text-gray-400 hover:text-sky-600 dark:hover:text-white transition-colors">
                                                     <MoreVertical className="w-5 h-5" />
                                                 </button>
                                                 {activeMenu === member.userId && (
-                                                    <div className="absolute right-0 bottom-full mb-2 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 z-50 overflow-hidden animate-in fade-in slide-in-from-bottom-2">
+                                                    <div className="absolute right-0 bottom-full mb-2 w-48 bg-white dark:bg-[#1c1917] rounded-xl shadow-xl border border-gray-100 dark:border-[#f5f3ec]/16 z-50 overflow-hidden animate-in fade-in slide-in-from-bottom-2">
                                                         {isLeader && member.role !== 'leader' && (
                                                             <>
                                                                 {member.role === 'member' ? (
@@ -1653,7 +1660,7 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                                             className={`px-6 rounded-xl font-black text-xs uppercase cursor-pointer ${
                                                 isBento
                                                     ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#a3e635]'
-                                                    : 'bg-violet-600 text-white'
+                                                    : 'bg-sky-600 text-white'
                                             }`}
                                         >
                                             Search
@@ -1695,7 +1702,7 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                                                         className={`px-4 py-1.5 rounded-lg text-xs font-black uppercase cursor-pointer ${
                                                             isBento
                                                                 ? 'bg-[#bef264] text-black border border-black shadow-[1px_1px_0px_#000] hover:bg-[#a3e635]'
-                                                                : 'bg-violet-600 text-white'
+                                                                : 'bg-sky-600 text-white'
                                                         }`}
                                                     >
                                                         Send Invite
@@ -1761,7 +1768,7 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                                             className={`px-6 py-3 rounded-xl font-black text-xs uppercase tracking-wider cursor-pointer ${
                                                 isBento
                                                     ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#a3e635]'
-                                                    : 'bg-violet-600 hover:bg-violet-700 text-white'
+                                                    : 'bg-sky-600 hover:bg-sky-700 text-white'
                                             }`}
                                         >
                                             Save Class Changes
@@ -1806,13 +1813,13 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
             <div className={`p-5 sm:p-8 md:p-10 rounded-[1.75rem] sm:rounded-[2.5rem] text-center relative overflow-hidden ${
                 isBento
                     ? 'bg-white text-black border-[3px] border-black shadow-[6px_6px_0px_#000]'
-                    : 'bg-white/90 dark:bg-[#13141f] border border-gray-200 dark:border-white/10 shadow-xl backdrop-blur-xl'
+                    : 'bg-white/90 dark:bg-[#141210] border border-gray-200 dark:border-white/10 shadow-xl backdrop-blur-xl'
             }`}>
                 <div className="flex items-center justify-center gap-2 mb-3">
                     <span className={`px-3 py-1 rounded-full text-[11px] uppercase tracking-wider select-none inline-flex items-center gap-1.5 ${
                         isBento
                             ? 'font-black bg-[#fde047] text-black border-2 border-black shadow-[2px_2px_0px_#000] -rotate-1'
-                            : 'font-bold bg-violet-500/10 text-violet-600 dark:text-violet-400 border border-violet-500/20'
+                            : 'font-bold bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20'
                     }`}>
                         <GraduationCap className="w-3.5 h-3.5" />
                         CLASSROOMS &amp; TRACKS
@@ -1820,8 +1827,8 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                 </div>
                 <div className={`w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center ${
                     isBento
-                        ? 'bg-[#ddd6fe] text-black border-2.5 border-black shadow-[3px_3px_0px_#000]'
-                        : 'bg-gradient-to-br from-violet-500 to-indigo-600 text-white shadow-lg shadow-violet-500/30'
+                        ? 'bg-[#fed7aa] text-black border-2.5 border-black shadow-[3px_3px_0px_#000]'
+                        : 'bg-sky-500 text-white shadow-lg shadow-sky-500/30'
                 }`}>
                     <GraduationCap className="w-8 h-8" />
                 </div>
@@ -1882,7 +1889,7 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                                 view === id
                                     ? (isBento
                                         ? 'font-black bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                        : 'font-bold bg-violet-600 text-white shadow-md shadow-violet-500/30')
+                                        : 'font-bold bg-sky-600 text-white shadow-md shadow-sky-500/30')
                                     : (isBento
                                         ? 'font-bold text-gray-700 hover:text-black hover:bg-black/5'
                                         : 'font-semibold text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white')
@@ -1923,8 +1930,8 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                     {clanInvites.length > 0 && (
                         <div className={`p-6 rounded-[2rem] relative overflow-hidden ${
                             isBento
-                                ? 'bg-[#ddd6fe] text-black border-3 border-black shadow-[5px_5px_0px_#000]'
-                                : 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-xl'
+                                ? 'bg-[#fed7aa] text-black border-3 border-black shadow-[5px_5px_0px_#000]'
+                                : 'bg-sky-600 text-white shadow-xl'
                         }`}>
                             <h3 className="text-xl font-black mb-6 flex items-center gap-3 relative z-10">
                                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
@@ -1934,7 +1941,7 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                                 </div>
                                 Class Invitations
                                 <span className={`text-xs font-black px-2.5 py-1 rounded-full ${
-                                    isBento ? 'bg-black text-white' : 'bg-white text-violet-600 shadow-sm'
+                                    isBento ? 'bg-black text-white' : 'bg-white text-sky-600 shadow-sm'
                                 }`}>
                                     {clanInvites.length}
                                 </span>
@@ -1976,7 +1983,7 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                                                 className={`px-4 py-2 rounded-xl font-bold text-sm transition-all shadow-md cursor-pointer ${
                                                     isBento
                                                         ? 'bg-[#bef264] text-black border-2 border-black hover:bg-[#a3e635]'
-                                                        : 'bg-white text-violet-600 hover:scale-105 active:scale-95'
+                                                        : 'bg-white text-sky-600 hover:scale-105 active:scale-95'
                                                 }`}
                                             >
                                                 Accept
@@ -2015,7 +2022,7 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                                     className={`rounded-[2rem] p-6 transition-all flex flex-col justify-between gap-5 ${
                                         isBento
                                             ? 'bg-white text-black border-2.5 border-black shadow-[4px_4px_0px_#000]'
-                                            : 'bg-white dark:bg-[#13141f] border border-gray-200 dark:border-white/10 shadow-sm'
+                                            : 'bg-white dark:bg-[#141210] border border-gray-200 dark:border-white/10 shadow-sm'
                                     }`}
                                 >
                                     <div className="flex items-start gap-4">
@@ -2043,7 +2050,7 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                                         className={`w-full py-3 rounded-xl text-sm font-black cursor-pointer transition-all ${
                                             isBento
                                                 ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:bg-[#a3e635]'
-                                                : 'bg-violet-600 hover:bg-violet-700 text-white shadow-lg'
+                                                : 'bg-sky-600 hover:bg-sky-700 text-white shadow-lg'
                                         }`}
                                     >
                                         Open Class Dashboard →
@@ -2055,12 +2062,12 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                         <div className={`text-center py-16 px-6 rounded-[2.5rem] ${
                             isBento
                                 ? 'bg-white text-black border-3 border-black shadow-[6px_6px_0px_#000]'
-                                : 'bg-white dark:bg-[#13141f] border border-gray-200 dark:border-white/10 shadow-lg'
+                                : 'bg-white dark:bg-[#141210] border border-gray-200 dark:border-white/10 shadow-lg'
                         }`}>
                             <div className={`w-20 h-20 mx-auto mb-6 rounded-3xl flex items-center justify-center ${
                                 isBento
-                                    ? 'bg-[#ddd6fe] text-black border-2.5 border-black shadow-[3px_3px_0px_#000]'
-                                    : 'bg-violet-500/10 text-violet-500 dark:bg-white/10 dark:text-violet-400'
+                                    ? 'bg-[#fed7aa] text-black border-2.5 border-black shadow-[3px_3px_0px_#000]'
+                                    : 'bg-sky-500/10 text-sky-500 dark:bg-white/10 dark:text-sky-400'
                             }`}>
                                 <GraduationCap className="w-10 h-10" />
                             </div>
@@ -2079,7 +2086,7 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                                     className={`px-6 py-3.5 rounded-xl text-sm inline-flex items-center gap-2 transition-all cursor-pointer ${
                                         isBento
                                             ? 'bg-[#bef264] text-black font-black border-2 border-black shadow-[3px_3px_0px_#000] hover:bg-[#a3e635]'
-                                            : 'bg-violet-600 hover:bg-violet-700 text-white font-bold shadow-lg shadow-violet-500/25'
+                                            : 'bg-sky-600 hover:bg-sky-700 text-white font-bold shadow-lg shadow-sky-500/25'
                                     }`}
                                 >
                                     <GraduationCap className="w-4 h-4" />
@@ -2095,7 +2102,7 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                 <div className={`p-6 sm:p-8 rounded-[2.5rem] transition-all ${
                     isBento
                         ? 'bg-white text-black border-3 border-black shadow-[6px_6px_0px_#000]'
-                        : 'bg-white/90 dark:bg-[#13141f] border border-gray-200 dark:border-white/10 shadow-xl backdrop-blur-xl'
+                        : 'bg-white/90 dark:bg-[#141210] border border-gray-200 dark:border-white/10 shadow-xl backdrop-blur-xl'
                 }`}>
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 pb-6 border-b border-gray-200 dark:border-white/10">
                         <div className="flex items-center gap-3">
@@ -2123,7 +2130,7 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
 
                     {loadingLeaderboard ? (
                         <div className="text-center py-16">
-                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-500 mx-auto mb-3"></div>
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sky-500 mx-auto mb-3"></div>
                             <p className="text-xs font-bold text-gray-500">Loading class rankings...</p>
                         </div>
                     ) : clanLeaderboard.length === 0 ? (
@@ -2140,7 +2147,7 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                                     className={`p-4 sm:p-5 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all ${
                                         isBento
                                             ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000]'
-                                            : 'bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/5 text-slate-800 dark:text-slate-200 hover:border-violet-500/30'
+                                            : 'bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/5 text-slate-800 dark:text-slate-200 hover:border-sky-500/30'
                                     }`}
                                 >
                                     <div className="flex items-center gap-4 min-w-0">
@@ -2190,13 +2197,13 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                 <div className={`rounded-[2.5rem] p-8 max-w-2xl mx-auto ${
                     isBento
                         ? 'bg-white text-black border-3 border-black shadow-[6px_6px_0px_#000]'
-                        : 'bg-white dark:bg-[#13141f] border border-gray-200 dark:border-white/10 shadow-xl'
+                        : 'bg-white dark:bg-[#141210] border border-gray-200 dark:border-white/10 shadow-xl'
                 }`}>
                     <div className="flex items-center gap-3 mb-8">
                         <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
                             isBento
                                 ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                : 'bg-violet-600 text-white shadow-lg shadow-violet-500/20'
+                                : 'bg-sky-600 text-white shadow-lg shadow-sky-500/20'
                         }`}>
                             <GraduationCap className="w-6 h-6" />
                         </div>
@@ -2220,7 +2227,7 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                                 className={`w-full p-4 rounded-xl focus:outline-none transition-all font-bold text-sm ${
                                     isBento
                                         ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] focus:shadow-[3px_3px_0px_#000]'
-                                        : 'bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white focus:ring-2 focus:ring-violet-500'
+                                        : 'bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white focus:ring-2 focus:ring-sky-500'
                                 }`}
                                 placeholder="e.g. Python Junior — Cohort A"
                             />
@@ -2270,7 +2277,7 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                                         className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer ${
                                             isBento
                                                 ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000]'
-                                                : 'bg-violet-600 hover:bg-violet-700 text-white shadow-md'
+                                                : 'bg-sky-600 hover:bg-sky-700 text-white shadow-md'
                                         }`}
                                     >
                                         <Palette className="w-4 h-4" />
@@ -2315,7 +2322,7 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                                     className={`w-full p-4 rounded-xl focus:outline-none transition-all font-bold text-sm font-mono uppercase ${
                                         isBento
                                             ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] focus:shadow-[3px_3px_0px_#000]'
-                                            : 'bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white focus:ring-2 focus:ring-violet-500'
+                                            : 'bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white focus:ring-2 focus:ring-sky-500'
                                     }`}
                                     placeholder="PY101"
                                 />
@@ -2353,7 +2360,7 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                                 className={`w-full p-4 rounded-xl focus:outline-none transition-all font-bold text-sm resize-none ${
                                     isBento
                                         ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] focus:shadow-[3px_3px_0px_#000]'
-                                        : 'bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white focus:ring-2 focus:ring-violet-500'
+                                        : 'bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white focus:ring-2 focus:ring-sky-500'
                                 }`}
                                 placeholder="Describe the class schedule, goals, or track..."
                             />
@@ -2363,7 +2370,7 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                             className={`w-full py-4 rounded-2xl text-lg font-black transition-all cursor-pointer ${
                                 isBento
                                     ? 'bg-[#bef264] text-black border-2.5 border-black shadow-[4px_4px_0px_#000] hover:bg-[#a3e635] active:translate-y-0.5'
-                                    : 'bg-violet-600 hover:bg-violet-700 text-white font-bold shadow-lg shadow-violet-500/20 hover:scale-[1.01] active:scale-[0.99]'
+                                    : 'bg-sky-600 hover:bg-sky-700 text-white font-bold shadow-lg shadow-sky-500/20 hover:scale-[1.01] active:scale-[0.99]'
                             }`}
                         >
                             Create Class
@@ -2374,7 +2381,7 @@ export const ClanHub: React.FC<ClanHubProps> = ({ user, onUpdateUser }) => {
                 <div className={`rounded-[2.5rem] p-10 max-w-lg mx-auto text-center space-y-4 ${
                     isBento
                         ? 'bg-white text-black border-3 border-black shadow-[6px_6px_0px_#000]'
-                        : 'bg-white dark:bg-[#13141f] border border-gray-200 dark:border-white/10 shadow-xl'
+                        : 'bg-white dark:bg-[#141210] border border-gray-200 dark:border-white/10 shadow-xl'
                 }`}>
                     <Lock className="w-12 h-12 mx-auto text-amber-500" />
                     <h2 className="text-xl font-black uppercase">Admin Only</h2>

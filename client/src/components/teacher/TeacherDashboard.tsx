@@ -407,7 +407,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                             onClick={() => openClassSection(cls.clanId, 'ai_studio')}
                             className={`py-2 px-2.5 rounded-xl text-[11px] uppercase flex items-center justify-center gap-1 cursor-pointer ${styles.secondaryBtn}`}
                         >
-                            <Sparkles className={`w-3.5 h-3.5 shrink-0 ${styles.isBento ? '' : 'text-violet-500'}`} />
+                            <Sparkles className={`w-3.5 h-3.5 shrink-0 ${styles.isBento ? '' : 'text-sky-500'}`} />
                             <span>AI Studio</span>
                         </button>
                     </div>

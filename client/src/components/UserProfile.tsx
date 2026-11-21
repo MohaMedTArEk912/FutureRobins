@@ -20,13 +20,13 @@ import {
     exportQuizHistoryToPDF,
     exportAttemptToPDF
 } from '../lib/exportUtils';
-import AttemptDetailsModal from './admin/AttemptDetailsModal.tsx';
 import UserSettings from './UserSettings.tsx';
 import Avatar from './Avatar';
 import AvatarEditor from './AvatarEditor';
 import { StreakRewardModal } from './gamification/StreakRewardModal';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useLanguage } from '../context/LanguageContext.tsx';
+import { usePersistentShell } from '../context/PersistentShellContext';
 import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
 import Footer from './Footer';
@@ -61,19 +61,19 @@ const getRarityBadgeClasses = (rarity?: string, isBento = false) => {
         case 'mythic':
             return isBento
                 ? 'bg-[#f472b6] text-black border border-black shadow-[1.5px_1.5px_0px_#000]'
-                : 'bg-gradient-to-r from-rose-500 to-fuchsia-600 text-white shadow-rose-500/25';
+                : 'bg-rose-600 dark:bg-[#fb7185] text-white dark:text-[#0a0908]';
         case 'legendary':
             return isBento
                 ? 'bg-[#fde047] text-black border border-black shadow-[1.5px_1.5px_0px_#000]'
-                : 'bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-amber-500/25';
+                : 'bg-amber-500 dark:bg-[#fde047] text-white dark:text-[#0a0908]';
         case 'epic':
             return isBento
-                ? 'bg-[#c084fc] text-black border border-black shadow-[1.5px_1.5px_0px_#000]'
-                : 'bg-gradient-to-r from-purple-500 to-violet-600 text-white shadow-purple-500/25';
+                ? 'bg-[#fdba74] text-black border border-black shadow-[1.5px_1.5px_0px_#000]'
+                : 'bg-orange-600 dark:bg-[#fdba74] text-white dark:text-[#0a0908]';
         case 'rare':
             return isBento
                 ? 'bg-[#38bdf8] text-black border border-black shadow-[1.5px_1.5px_0px_#000]'
-                : 'bg-gradient-to-r from-sky-400 to-blue-600 text-white shadow-sky-500/25';
+                : 'bg-sky-600 dark:bg-[#bae6fd] text-white dark:text-[#0a0908]';
         case 'common':
         default:
             return isBento
@@ -175,6 +175,7 @@ export type ProfileTab =
 const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onBack, onUserUpdate }) => {
     const { isBento } = useTheme();
     const { tx } = useLanguage();
+    const { inPersistentShell } = usePersistentShell();
     const { logout } = useAuth();
     const { showNotification } = useNotification();
     const { socket } = useSocket();
@@ -196,7 +197,6 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
     const [isAvatarEditorOpen, setIsAvatarEditorOpen] = useState(false);
     const [isStreakModalOpen, setIsStreakModalOpen] = useState(false);
     const [currentUser, setCurrentUser] = useState<UserData>(user);
-    const [inspectingAttempt, setInspectingAttempt] = useState<AttemptData | null>(null);
     const [exportingAttemptId, setExportingAttemptId] = useState<string | null>(null);
 
     // Badge Vault & Trophy Showcase state
@@ -525,7 +525,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
             target: 7,
             unit: 'Days',
             unlocked: streak >= 7,
-            gradient: 'from-orange-500 to-amber-500'
+            gradient: 'bg-orange-500 dark:bg-[#fde047] dark:text-[#0a0908]'
         },
         {
             id: 'centurion',
@@ -536,7 +536,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
             target: 100,
             unit: 'Quizzes',
             unlocked: totalQuizzesCount >= 100,
-            gradient: 'from-indigo-500 to-purple-600'
+            gradient: 'bg-indigo-600 dark:bg-[#fdba74] dark:text-[#0a0908]'
         },
         {
             id: 'master-100',
@@ -547,7 +547,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
             target: 5,
             unit: 'Quizzes',
             unlocked: perfectScoreCount >= 5,
-            gradient: 'from-amber-400 to-yellow-500'
+            gradient: 'bg-amber-500 dark:bg-[#fde047] dark:text-[#0a0908]'
         },
         {
             id: 'scholar-5',
@@ -558,7 +558,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
             target: 5,
             unit: 'Lvl',
             unlocked: level >= 5,
-            gradient: 'from-emerald-500 to-teal-500'
+            gradient: 'bg-emerald-600 dark:bg-[#bef264] dark:text-[#0a0908]'
         },
         {
             id: 'scholar-10',
@@ -569,7 +569,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
             target: 10,
             unit: 'Lvl',
             unlocked: level >= 10,
-            gradient: 'from-purple-600 to-pink-600'
+            gradient: 'bg-teal-600 dark:bg-[#fb7185] dark:text-[#0a0908]'
         },
         {
             id: 'xp-titan',
@@ -580,7 +580,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
             target: 2500,
             unit: 'XP',
             unlocked: currentXP >= 2500,
-            gradient: 'from-blue-500 to-cyan-500'
+            gradient: 'bg-sky-600 dark:bg-[#bae6fd] dark:text-[#0a0908]'
         }
     ];
 
@@ -619,12 +619,36 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
         return { total, pools, passed, mastered };
     }, [sortedAttempts]);
 
+    const getAttemptCorrectCount = React.useCallback((attempt: AttemptData) => {
+        const total = Number(attempt.totalQuestions) || 0;
+        const score = Number(attempt.score) || 0;
+        const pct = Number(attempt.percentage) || 0;
+        if (attempt.answers && typeof attempt.answers === 'object') {
+            let hasDetailed = false;
+            let correct = 0;
+            for (const v of Object.values(attempt.answers)) {
+                if (v && typeof v === 'object' && 'isCorrect' in v) {
+                    hasDetailed = true;
+                    if (v.isCorrect === true) correct++;
+                }
+            }
+            if (hasDetailed) return correct;
+        }
+        if (total > 0 && (score > total || Math.abs((score / total) * 100 - pct) > 2)) {
+            return Math.min(total, Math.max(0, Math.round((pct / 100) * total)));
+        }
+        return Math.min(total || score, Math.max(0, score));
+    }, []);
+
     const filteredAttempts = React.useMemo(() => {
         return sortedAttempts.filter(attempt => {
             if (activitySearch.trim()) {
                 const q = activitySearch.toLowerCase().trim();
+                const correctCount = getAttemptCorrectCount(attempt);
                 const titleMatch = attempt.quizTitle?.toLowerCase().includes(q);
-                const scoreMatch = `${attempt.score}/${attempt.totalQuestions}`.includes(q);
+                const scoreMatch =
+                    `${correctCount}/${attempt.totalQuestions}`.includes(q) ||
+                    `${attempt.score}/${attempt.totalQuestions}`.includes(q);
                 const dateMatch = new Date(attempt.completedAt).toLocaleDateString().includes(q);
                 if (!titleMatch && !scoreMatch && !dateMatch) return false;
             }
@@ -640,7 +664,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
             }
             return true;
         });
-    }, [sortedAttempts, activitySearch, activityFilter]);
+    }, [sortedAttempts, activitySearch, activityFilter, getAttemptCorrectCount]);
 
     const totalItems = filteredAttempts.length;
     const itemsPerPage = pageSize === 'all' ? totalItems : pageSize;
@@ -747,26 +771,27 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
     const currentCertificateAttempt = attempts.find(a => a.attemptId === downloadingAttemptId);
 
     return (
-        <div className="min-h-dvh bg-slate-50 dark:bg-[#090d16] text-slate-900 dark:text-slate-100 selection:bg-indigo-500/25 relative overflow-hidden">
-            {/* Ambient Background */}
-            <AmbientBackground />
+        <div data-spatial-content className={inPersistentShell ? 'w-full text-slate-900 dark:text-slate-100 selection:bg-indigo-500/25 relative' : 'min-h-dvh bg-slate-50 dark:bg-[#0a0908] text-slate-900 dark:text-slate-100 selection:bg-indigo-500/25 relative overflow-hidden'}>
+            {!inPersistentShell && <AmbientBackground />}
 
-            <Navbar
-                user={user}
-                onBack={onBack}
-                showBack={true}
-                title="My Profile"
-                onViewProfile={() => navigate('/profile')}
-                onViewLeaderboard={() => navigate('/leaderboard')}
-                onLogout={logout}
-                showActions={true}
-            />
+            {!inPersistentShell && (
+                <Navbar
+                    user={user}
+                    onBack={onBack}
+                    showBack={true}
+                    title="My Profile"
+                    onViewProfile={() => navigate('/profile')}
+                    onViewLeaderboard={() => navigate('/leaderboard')}
+                    onLogout={logout}
+                    showActions={true}
+                />
+            )}
 
             {/* Mobile Sticky Tab Navigation */}
             <div className={`lg:hidden sticky top-14 z-30 pt-2 pb-2 backdrop-blur-xl border-b px-3 flex items-center gap-1.5 overflow-x-auto scrollbar-none ${
                 isBento
                     ? 'bg-white/95 border-b-2 border-black'
-                    : 'bg-white/90 dark:bg-[#090d16]/90 border-slate-200 dark:border-white/10'
+                    : 'bg-white/90 dark:bg-[#0a0908]/90 border-slate-200 dark:border-white/10'
             }`}>
                 {[
                     { id: 'overview' as ProfileTab, label: tx('Overview', 'نظرة عامة'), icon: LayoutDashboard },
@@ -815,7 +840,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                     <div className={`p-4 rounded-2xl ${
                         isBento
                             ? 'bg-white text-black border-2 border-black shadow-[4px_4px_0px_#000]'
-                            : 'bg-white dark:bg-[#111625] border border-slate-200/90 dark:border-white/10 shadow-lg'
+                            : 'bg-white dark:bg-[#141210] border border-slate-200/90 dark:border-white/10 shadow-lg'
                     }`}>
                         <div className="px-3 py-2 mb-2 border-b border-slate-200/60 dark:border-white/10">
                             <p className={`text-[10px] font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-slate-400'}`}>
@@ -872,14 +897,14 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                     <div className={`p-4 rounded-2xl ${
                         isBento
                             ? 'bg-[#fef9c3] text-black border-2 border-black shadow-[4px_4px_0px_#000]'
-                            : 'bg-white dark:bg-[#111625] border border-slate-200/90 dark:border-white/10 shadow-sm'
+                            : 'bg-white dark:bg-[#141210] border border-slate-200/90 dark:border-white/10 shadow-sm'
                     }`}>
                         <div className="flex items-center gap-3 mb-3">
                             <div className={`w-10 h-10 rounded-xl overflow-hidden shrink-0 ${isBento ? 'border-2 border-black' : 'ring-2 ring-indigo-500/30'}`}>
                                 {currentUser.avatar ? (
                                     <Avatar config={currentUser.avatar} size="sm" className="w-full h-full" />
                                 ) : (
-                                    <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-bold flex items-center justify-center text-sm">
+                                    <div className="w-full h-full bg-indigo-500 text-white font-bold flex items-center justify-center text-sm">
                                         {currentUser.name.charAt(0)}
                                     </div>
                                 )}
@@ -903,20 +928,21 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                     {activeTab === 'overview' && (
                         <div className="space-y-8 animate-in fade-in duration-200">
                             {/* Profile Card */}
-                            <div className="relative glass-card rounded-2xl p-6 sm:p-8 overflow-hidden mb-8">
-                                <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-r from-indigo-600/20 to-purple-600/20" />
+                            <div className="relative glass-card profile-hero-card rounded-2xl p-4 sm:p-8 overflow-hidden mb-8">
+                                <div className="absolute top-0 left-0 w-full h-24 sm:h-32 bg-slate-100 dark:bg-[#1a1714] border-b border-slate-200 dark:border-[#2e2924]" />
+                                <div className="hidden dark:block absolute top-0 left-4 right-4 sm:left-6 sm:right-6 h-[3px] rounded-b bg-[#bef264] pointer-events-none" />
 
-                    <div className="relative z-10 flex flex-col md:flex-row items-center gap-8 md:gap-12 pt-4">
-                        <div className="relative group">
-                            <div className={`w-32 h-32 rounded-full relative z-10 group-hover:scale-105 transition-transform duration-300 ${
+                    <div className="relative z-10 flex flex-col md:flex-row items-center gap-5 sm:gap-8 md:gap-12 pt-2 sm:pt-4">
+                        <div className="relative group shrink-0">
+                            <div className={`w-24 h-24 sm:w-32 sm:h-32 rounded-full relative z-10 group-hover:scale-105 transition-transform duration-300 ${
                                 isBento
                                     ? 'border-[3px] border-black shadow-[4px_4px_0px_#000] bg-white'
-                                    : 'ring-4 ring-indigo-500/50 shadow-2xl bg-white dark:bg-[#0a0a0b]'
+                                    : 'ring-4 ring-indigo-500/40 dark:ring-[#bef264]/70 shadow-2xl bg-white dark:bg-[#0a0908]'
                             }`}>
                                 {currentUser.avatar ? (
                                     <Avatar config={currentUser.avatar} size="xl" className="w-full h-full" />
                                 ) : (
-                                    <div className="w-full h-full rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-5xl font-black text-white">
+                                    <div className="w-full h-full rounded-full bg-indigo-600 dark:bg-[#bef264] flex items-center justify-center text-5xl font-black text-white dark:text-[#0a0908]">
                                         {currentUser.name.charAt(0)}
                                     </div>
                                 )}
@@ -927,7 +953,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                                 className={`absolute bottom-0 right-0 z-20 p-2.5 rounded-full transition-all cursor-pointer hover:scale-110 ${
                                     isBento
                                         ? 'bg-[#bef264] text-black border-2 border-black shadow-[2.5px_2.5px_0px_#000] hover:bg-[#fde047]'
-                                        : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg border-4 border-white dark:border-[#13141f] hover:shadow-indigo-500/25'
+                                        : 'bg-indigo-600 hover:bg-indigo-500 dark:bg-[#bef264] dark:hover:bg-[#d2fa8a] text-white dark:text-[#0a0908] shadow-lg border-4 border-white dark:border-[#141210]'
                                 }`}
                                 title="Customize Avatar"
                             >
@@ -937,9 +963,9 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
 
                         <div className="flex-1 text-center md:text-left w-full">
                             <div className="mb-6">
-                                <h2 className="text-4xl font-black text-gray-900 dark:text-white mb-2 tracking-tight flex items-center justify-center md:justify-start gap-3 flex-wrap">
+                                <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-gray-900 dark:text-[#f5f3ec] mb-1.5 sm:mb-2 tracking-tight flex items-center justify-center md:justify-start gap-2 sm:gap-3 flex-wrap">
                                     <span>{currentUser.name}</span>
-                                    <span className="text-sm bg-gradient-to-r from-amber-400 to-orange-500 text-white px-3 py-1 rounded-full font-black shadow-sm border border-white/20 transform hover:scale-105 transition-transform cursor-default">
+                                    <span className="text-sm bg-amber-500 dark:bg-[#fde047] text-white dark:text-[#0a0908] px-3 py-1 rounded-full font-black shadow-sm border border-black/15 transform hover:scale-105 transition-transform cursor-default">
                                         Lvl {currentUser.level || 1}
                                     </span>
                                     {equippedBadge && (
@@ -957,43 +983,41 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                                         </button>
                                     )}
                                 </h2>
-                                <p className="text-lg text-gray-500 dark:text-gray-400 font-medium">{currentUser.email}</p>
+                                <p className="text-sm sm:text-base md:text-lg text-gray-500 dark:text-[#b5aea4] font-medium break-all">{currentUser.email}</p>
                             </div>
 
                             {/* Level Progress */}
                             <div className="mb-8 max-w-xl mx-auto md:mx-0">
-                                <div className="flex justify-between text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                                <div className="flex justify-between text-xs font-bold text-gray-500 dark:text-[#a8a29e] uppercase tracking-wider mb-2">
                                     <span>Progress</span>
-                                    <span>{xpToNextLevel} XP to Level {level + 1}</span>
+                                    <span className="dark:text-[#f5f3ec]">{xpToNextLevel} XP to Level {level + 1}</span>
                                 </div>
-                                <div className="h-4 bg-gray-200 dark:bg-black/40 rounded-full overflow-hidden border border-gray-300 dark:border-white/5">
+                                <div className="h-3.5 bg-gray-200 dark:bg-[#0b0a09] rounded-full overflow-hidden border border-gray-300 dark:border-[#2e2924] p-0.5">
                                     <div
-                                        className="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full shadow-[0_0_15px_rgba(168,85,247,0.5)] transition-all duration-1000 ease-out relative overflow-hidden"
+                                        className="h-full bg-indigo-600 dark:bg-[#bef264] rounded-full transition-all duration-1000 ease-out"
                                         style={{ width: `${levelProgress}%` }}
-                                    >
-                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
-                                    </div>
+                                    />
                                 </div>
                             </div>
 
-                            <div className="flex flex-wrap gap-4 justify-center md:justify-start">
-                                <div className="pl-2 pr-5 py-2 bg-indigo-500/10 rounded-xl border border-indigo-500/20 flex items-center gap-3">
-                                    <div className="p-1.5 bg-indigo-500/20 rounded-lg">
-                                        <Trophy className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                            <div className="flex flex-wrap gap-2 sm:gap-3 justify-center md:justify-start">
+                                <div className="pl-2 pr-3 sm:pr-4 py-1.5 sm:py-2 bg-indigo-500/10 dark:bg-[#1c1917] rounded-xl border border-indigo-500/20 dark:border-[#2e2924] flex items-center gap-2 text-xs sm:text-sm">
+                                    <div className="p-1 sm:p-1.5 bg-indigo-500/20 dark:bg-[#fde047] rounded-lg">
+                                        <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-600 dark:text-[#0a0908]" />
                                     </div>
-                                    <span className="font-bold text-indigo-700 dark:text-indigo-200">Rank #{rank}</span>
+                                    <span className="font-bold text-indigo-700 dark:text-[#f5f3ec]">Rank #{rank}</span>
                                 </div>
-                                <div className="pl-2 pr-5 py-2 bg-orange-500/10 rounded-xl border border-orange-500/20 flex items-center gap-3">
-                                    <div className="p-1.5 bg-orange-500/20 rounded-lg">
-                                        <Flame className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+                                <div className="pl-2 pr-3 sm:pr-4 py-1.5 sm:py-2 bg-orange-500/10 dark:bg-[#1c1917] rounded-xl border border-orange-500/20 dark:border-[#2e2924] flex items-center gap-2 text-xs sm:text-sm">
+                                    <div className="p-1 sm:p-1.5 bg-orange-500/20 dark:bg-[#bef264] rounded-lg">
+                                        <Flame className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-600 dark:text-[#0a0908]" />
                                     </div>
-                                    <span className="font-bold text-orange-700 dark:text-orange-200">{currentUser.streak || 0} Day Streak</span>
+                                    <span className="font-bold text-orange-700 dark:text-[#f5f3ec]">{currentUser.streak || 0} Day Streak</span>
                                 </div>
-                                <div className="pl-2 pr-5 py-2 bg-blue-500/10 rounded-xl border border-blue-500/20 flex items-center gap-3">
-                                    <div className="p-1.5 bg-blue-500/20 rounded-lg">
-                                        <Calendar className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                                <div className="pl-2 pr-3 sm:pr-4 py-1.5 sm:py-2 bg-blue-500/10 dark:bg-[#1c1917] rounded-xl border border-blue-500/20 dark:border-[#2e2924] flex items-center gap-2 text-xs sm:text-sm">
+                                    <div className="p-1 sm:p-1.5 bg-blue-500/20 dark:bg-[#bae6fd] rounded-lg">
+                                        <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-600 dark:text-[#0a0908]" />
                                     </div>
-                                    <span className="font-bold text-blue-700 dark:text-blue-200">Joined {new Date(currentUser.createdAt || currentUser.lastLoginDate || new Date()).toLocaleDateString()}</span>
+                                    <span className="font-bold text-blue-700 dark:text-[#f5f3ec]">Joined {new Date(currentUser.createdAt || currentUser.lastLoginDate || new Date()).toLocaleDateString()}</span>
                                 </div>
                             </div>
                         </div>
@@ -1004,12 +1028,12 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                 <div className="mb-12">
                     <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-orange-500 to-amber-400 text-white flex items-center justify-center font-black text-xl shadow-lg shadow-orange-500/25">
+                            <div className="w-10 h-10 rounded-2xl bg-amber-500 dark:bg-[#fde047] text-white dark:text-[#0a0908] flex items-center justify-center font-black text-xl shadow-sm">
                                 🔥
                             </div>
                             <div>
-                                <h3 className="text-2xl font-black text-gray-900 dark:text-white">Streak & Activity Tracking</h3>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                                <h3 className="text-lg sm:text-2xl font-black text-gray-900 dark:text-[#f5f3ec]">Streak & Activity Tracking</h3>
+                                <p className="text-xs text-gray-500 dark:text-[#a8a29e] font-medium">
                                     Track your daily consistency, 7-day milestones, and protected streak multipliers.
                                 </p>
                             </div>
@@ -1020,8 +1044,8 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                             onClick={() => setIsStreakModalOpen(true)}
                             className={`px-5 py-2.5 rounded-2xl font-black text-xs uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-md ${
                                 isStreakClaimedToday
-                                    ? 'bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
-                                    : 'bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-orange-500/25 hover:scale-105 active:scale-95'
+                                    ? 'bg-emerald-500/15 hover:bg-emerald-500/25 dark:bg-[#192211] dark:hover:bg-[#222f17] text-emerald-600 dark:text-[#bef264] border border-emerald-500/30 dark:border-[#bef264]/35'
+                                    : 'bg-amber-500 hover:bg-amber-600 dark:bg-[#fde047] dark:hover:bg-[#fef08a] text-white dark:text-[#0a0908] dark:shadow-[0_3px_0_#050504] hover:scale-105 active:scale-95'
                             }`}
                         >
                             {isStreakClaimedToday ? (
@@ -1038,7 +1062,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                         <div className={`p-5 rounded-2xl relative overflow-hidden group transition-transform hover:-translate-y-0.5 ${
                             isBento
                                 ? 'profile-stat-card-yellow bg-[#fef08a] border-2 border-black shadow-[4px_4px_0px_#000] text-black'
-                                : 'bg-white dark:bg-[#13141f] border border-orange-200/80 dark:border-orange-500/20 shadow-sm dark:shadow-none text-gray-900 dark:text-white'
+                                : 'bg-white dark:bg-[#141210] border border-orange-200/80 dark:border-orange-500/20 shadow-sm dark:shadow-none text-gray-900 dark:text-white'
                         }`}>
                             <div className="flex items-center justify-between mb-3">
                                 <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg ${
@@ -1070,7 +1094,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                         <div className={`p-5 rounded-2xl relative overflow-hidden group transition-transform hover:-translate-y-0.5 ${
                             isBento
                                 ? 'profile-stat-card-blue bg-[#bae6fd] border-2 border-black shadow-[4px_4px_0px_#000] text-black'
-                                : 'bg-white dark:bg-[#13141f] border border-sky-200/80 dark:border-sky-500/20 shadow-sm dark:shadow-none text-gray-900 dark:text-white'
+                                : 'bg-white dark:bg-[#141210] border border-sky-200/80 dark:border-sky-500/20 shadow-sm dark:shadow-none text-gray-900 dark:text-white'
                         }`}>
                             <div className="flex items-center justify-between mb-3">
                                 <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg ${
@@ -1093,23 +1117,23 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                         {/* Current Cycle */}
                         <div className={`p-5 rounded-2xl relative overflow-hidden group transition-transform hover:-translate-y-0.5 ${
                             isBento
-                                ? 'profile-stat-card-purple bg-[#ddd6fe] border-2 border-black shadow-[4px_4px_0px_#000] text-black'
-                                : 'bg-white dark:bg-[#13141f] border border-purple-200/80 dark:border-purple-500/20 shadow-sm dark:shadow-none text-gray-900 dark:text-white'
+                                ? 'profile-stat-card-purple bg-[#fed7aa] border-2 border-black shadow-[4px_4px_0px_#000] text-black'
+                                : 'bg-white dark:bg-[#141210] border border-teal-200/80 dark:border-teal-500/20 shadow-sm dark:shadow-none text-gray-900 dark:text-white'
                         }`}>
                             <div className="flex items-center justify-between mb-3">
                                 <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg ${
                                     isBento
                                         ? 'bg-white/90 border border-black shadow-[1px_1px_0px_#000] text-black'
-                                        : 'bg-purple-50 dark:bg-purple-500/10 text-purple-700 dark:text-purple-400 border border-purple-200 dark:border-purple-500/20'
+                                        : 'bg-teal-50 dark:bg-teal-500/10 text-teal-700 dark:text-teal-400 border border-teal-200 dark:border-teal-500/20'
                                 }`}>
                                     7-Day Cycle
                                 </span>
-                                <Sparkles className={`w-5 h-5 ${isBento ? 'text-purple-700' : 'text-purple-500'}`} />
+                                <Sparkles className={`w-5 h-5 ${isBento ? 'text-teal-700' : 'text-teal-500'}`} />
                             </div>
                             <div className="text-3xl font-black mb-1 tracking-tight">
                                 Day {currentStreakDay} <span className="text-sm font-bold opacity-75">/ 7</span>
                             </div>
-                            <div className={`text-xs font-black ${isBento ? 'text-purple-950' : 'text-purple-600 dark:text-purple-400'}`}>
+                            <div className={`text-xs font-black ${isBento ? 'text-teal-950' : 'text-teal-600 dark:text-teal-400'}`}>
                                 {currentStreakDay === 7 ? '🎁 Mystery Loot Box today!' : `${7 - currentStreakDay} days to Mystery Box`}
                             </div>
                         </div>
@@ -1118,7 +1142,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                         <div className={`p-5 rounded-2xl relative overflow-hidden group transition-transform hover:-translate-y-0.5 ${
                             isBento
                                 ? 'profile-stat-card-green bg-[#d9f99d] border-2 border-black shadow-[4px_4px_0px_#000] text-black'
-                                : 'bg-white dark:bg-[#13141f] border border-emerald-200/80 dark:border-emerald-500/20 shadow-sm dark:shadow-none text-gray-900 dark:text-white'
+                                : 'bg-white dark:bg-[#141210] border border-emerald-200/80 dark:border-emerald-500/20 shadow-sm dark:shadow-none text-gray-900 dark:text-white'
                         }`}>
                             <div className="flex items-center justify-between mb-3">
                                 <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg ${
@@ -1143,7 +1167,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                     <div className={`profile-section-card rounded-2xl p-6 ${
                         isBento
                             ? 'bg-white border-2 border-black shadow-[4px_4px_0px_#000]'
-                            : 'bg-white dark:bg-[#13141f] border border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none'
+                            : 'bg-white dark:bg-[#141210] border border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none'
                     }`}>
                         <div className="flex flex-wrap items-center justify-between gap-2 mb-4 pb-2 border-b border-gray-200/80 dark:border-white/10">
                             <div className="flex items-center gap-2">
@@ -1153,7 +1177,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                                 <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${
                                     isBento
                                         ? 'bg-[#fde047] text-black border border-black shadow-[1px_1px_0px_#000]'
-                                        : 'bg-purple-100 dark:bg-purple-500/15 text-purple-700 dark:text-purple-300'
+                                        : 'bg-teal-100 dark:bg-teal-500/15 text-teal-700 dark:text-teal-300'
                                 }`}>
                                     7-Day Quest
                                 </span>
@@ -1168,10 +1192,10 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                                 { day: 1, label: '+25 Coins', icon: '🪙', bg: 'bg-[#fef08a]', text: 'text-amber-950' },
                                 { day: 2, label: '+50 Coins & 50 XP', icon: '⚡', bg: 'bg-[#bef264]', text: 'text-lime-950' },
                                 { day: 3, label: '1x Hint Power-Up', icon: '💡', bg: 'bg-[#bae6fd]', text: 'text-sky-950' },
-                                { day: 4, label: '+100 Coins & 100 XP', icon: '🪙', bg: 'bg-[#c4b5fd]', text: 'text-purple-950' },
+                                { day: 4, label: '+100 Coins & 100 XP', icon: '🪙', bg: 'bg-[#fdba74]', text: 'text-teal-950' },
                                 { day: 5, label: '1x Time Freeze', icon: '⏳', bg: 'bg-[#67e8f9]', text: 'text-cyan-950' },
                                 { day: 6, label: '+150 Coins & 250 XP', icon: '🔥', bg: 'bg-[#fdba74]', text: 'text-orange-950' },
-                                { day: 7, label: 'Mystery Loot Box', icon: '🎁', bg: 'bg-gradient-to-b from-[#f472b6] to-[#fde047]', text: 'text-pink-950' }
+                                { day: 7, label: 'Mystery Loot Box', icon: '🎁', bg: 'bg-[#f472b6]', text: 'text-pink-950' }
                             ].map((milestone) => {
                                 const isPast = milestone.day < currentStreakDay;
                                 const isToday = milestone.day === currentStreakDay;
@@ -1246,7 +1270,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                                                 <span className={`inline-block w-full py-1 text-[9px] font-black uppercase tracking-wider rounded-lg ${
                                                     isBento
                                                         ? 'bg-orange-500 text-white border border-black shadow-[1.5px_1.5px_0px_#000] animate-pulse'
-                                                        : 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-sm shadow-orange-500/20'
+                                                        : 'bg-orange-500 text-white shadow-sm shadow-orange-500/20'
                                                 }`}>
                                                     {isStreakClaimedToday ? '✓ Done' : '🎁 Claim'}
                                                 </span>
@@ -1273,8 +1297,8 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                     {/* 1. Performance Analytics Page Link Card */}
                     <div className={`p-6 rounded-2xl flex flex-col justify-between transition-all ${
                         isBento
-                            ? 'bg-[#c4b5fd] text-black border-2 border-black shadow-[4px_4px_0px_#000]'
-                            : 'bg-gradient-to-br from-indigo-600/10 via-purple-600/10 to-pink-600/10 dark:from-indigo-500/15 dark:via-purple-500/15 dark:to-pink-500/10 border border-indigo-500/30 text-slate-900 dark:text-white shadow-sm'
+                            ? 'bg-[#fdba74] text-black border-2 border-black shadow-[4px_4px_0px_#000]'
+                            : 'bg-indigo-600/10 dark:bg-indigo-500/15 border border-indigo-500/30 text-slate-900 dark:text-white shadow-sm'
                     }`}>
                         <div>
                             <div className="flex items-center justify-between gap-3 mb-4">
@@ -1320,7 +1344,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                     <div className={`p-6 rounded-2xl flex flex-col justify-between transition-all ${
                         isBento
                             ? 'bg-white text-black border-2 border-black shadow-[4px_4px_0px_#000]'
-                            : 'bg-white dark:bg-[#13141f] border border-gray-200 dark:border-white/10 shadow-sm'
+                            : 'bg-white dark:bg-[#141210] border border-gray-200 dark:border-white/10 shadow-sm'
                     }`}>
                         <div>
                             <div className="flex items-center justify-between gap-2 mb-4">
@@ -1383,7 +1407,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                     <div className={`p-6 rounded-2xl flex flex-col justify-between transition-all ${
                         isBento
                             ? 'bg-white text-black border-2 border-black shadow-[4px_4px_0px_#000]'
-                            : 'bg-white dark:bg-[#13141f] border border-gray-200 dark:border-white/10 shadow-sm'
+                            : 'bg-white dark:bg-[#141210] border border-gray-200 dark:border-white/10 shadow-sm'
                     }`}>
                         <div>
                             <div className="flex items-center justify-between gap-2 mb-4">
@@ -1391,7 +1415,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
                                         isBento
                                             ? 'bg-[#bae6fd] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                            : 'bg-purple-500/15 text-purple-500'
+                                            : 'bg-teal-500/15 text-teal-500'
                                     }`}>
                                         <History className="w-5 h-5" />
                                     </div>
@@ -1457,7 +1481,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                 <div className={`profile-section-card rounded-2xl p-6 sm:p-8 ${
                     isBento
                         ? 'bg-white border-2 border-black shadow-[4px_4px_0px_#000]'
-                        : 'bg-white dark:bg-[#13141f] border border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none'
+                        : 'bg-white dark:bg-[#141210] border border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none'
                 }`}>
                     <div>
                             <div className="flex items-center justify-between mb-4">
@@ -1484,7 +1508,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                                                         ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000]'
                                                         : 'bg-white text-black border-2 border-black/70 shadow-[2px_2px_0px_#000]'
                                                     : milestone.unlocked
-                                                        ? 'bg-gradient-to-br from-indigo-500/10 to-purple-500/10 dark:from-indigo-500/20 dark:to-purple-500/20 border border-indigo-500/30 text-slate-900 dark:text-white shadow-sm'
+                                                        ? 'bg-indigo-500/10 dark:bg-indigo-500/20 border border-indigo-500/30 text-slate-900 dark:text-white shadow-sm'
                                                         : 'bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/10 text-slate-700 dark:text-slate-300'
                                             }`}
                                         >
@@ -1493,7 +1517,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                                                     isBento
                                                         ? 'bg-white text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]'
                                                         : milestone.unlocked
-                                                            ? `bg-gradient-to-br ${milestone.gradient} text-white shadow-md`
+                                                            ? `${milestone.gradient} text-white shadow-sm`
                                                             : 'bg-slate-200 dark:bg-white/10 text-slate-400'
                                                 }`}>
                                                     <BadgeIcon icon={milestone.icon} className="w-5 h-5" />
@@ -1548,7 +1572,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                     <div className={`rounded-[2.5rem] p-6 sm:p-8 transition-all ${
                         isBento
                             ? 'bg-white border-3 border-black shadow-[6px_6px_0px_#000]'
-                            : 'bg-white dark:bg-[#13141f] border border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none'
+                            : 'bg-white dark:bg-[#141210] border border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none'
                     }`}>
                         {/* Header with Title, Stats & Sync Button */}
                         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8">
@@ -1692,10 +1716,10 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                                                 badge.isUnlocked
                                                     ? isBento
                                                         ? 'bg-white border-2 border-black shadow-[4px_4px_0px_#000] hover:shadow-[6px_6px_0px_#000] hover:-translate-y-0.5'
-                                                        : 'bg-white dark:bg-[#1a1b26] border border-gray-200/80 dark:border-white/10 shadow-sm hover:shadow-xl hover:border-indigo-500/40 hover:-translate-y-0.5'
+                                                        : 'bg-white dark:bg-[#1c1917] border border-gray-200/80 dark:border-white/10 shadow-sm hover:shadow-xl hover:border-indigo-500/40 hover:-translate-y-0.5'
                                                     : isBento
                                                         ? 'bg-gray-50 border border-black/40 opacity-80'
-                                                        : 'bg-gray-50/60 dark:bg-[#12131c]/60 border border-gray-200/50 dark:border-white/5 opacity-75 hover:opacity-90'
+                                                        : 'bg-gray-50/60 dark:bg-[#141210]/60 border border-gray-200/50 dark:border-white/5 opacity-75 hover:opacity-90'
                                             }`}
                                         >
                                             {/* Top Row: Rarity tag, XP reward, Lock / Equip indicator */}
@@ -1726,7 +1750,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                                                     badge.isUnlocked
                                                         ? isBento
                                                             ? 'bg-amber-100 border border-black shadow-[2px_2px_0px_#000]'
-                                                            : 'bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 text-white shadow-md'
+                                                            : 'bg-indigo-500 text-white shadow-md'
                                                         : 'bg-gray-200 dark:bg-white/5 text-gray-400'
                                                 }`}>
                                                     <BadgeIcon icon={badge.icon} className={`w-7 h-7 ${badge.isUnlocked ? '' : 'grayscale opacity-60'}`} />
@@ -1795,7 +1819,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                                                         <div className="h-2 bg-gray-200 dark:bg-black/30 rounded-full overflow-hidden">
                                                             <div
                                                                 className={`h-full rounded-full transition-all duration-700 ${
-                                                                    isBento ? 'bg-black' : 'bg-gradient-to-r from-indigo-500 to-purple-500'
+                                                                    isBento ? 'bg-black' : 'bg-indigo-500'
                                                                 }`}
                                                                 style={{ width: `${progress.pct}%` }}
                                                             />
@@ -1820,7 +1844,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                 <div className={`profile-section-card rounded-2xl overflow-hidden ${
                     isBento
                         ? 'bg-white border-2 border-black shadow-[4px_4px_0px_#000]'
-                        : 'bg-white dark:bg-[#13141f] border border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none'
+                        : 'bg-white dark:bg-[#141210] border border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none'
                 }`}>
                     <div className={`p-6 sm:p-8 flex flex-wrap justify-between items-center gap-4 ${
                         isBento
@@ -1990,7 +2014,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                 <div className={`profile-section-card rounded-2xl overflow-hidden ${
                     isBento
                         ? 'bg-white border-2 border-black shadow-[4px_4px_0px_#000]'
-                        : 'bg-white dark:bg-[#13141f] border border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none'
+                        : 'bg-white dark:bg-[#141210] border border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none'
                 }`}>
                     {/* Header */}
                     <div className={`p-6 sm:p-8 flex flex-wrap justify-between items-center gap-4 ${
@@ -2001,10 +2025,10 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                         <div className="flex items-center gap-3">
                             <div className={`w-10 h-10 rounded-2xl flex items-center justify-center font-black ${
                                 isBento
-                                    ? 'bg-[#c4b5fd] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                    : 'bg-purple-500/10 text-purple-600 dark:text-purple-400'
+                                    ? 'bg-[#fdba74] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                    : 'bg-teal-500/10 text-teal-600 dark:text-teal-400'
                             }`}>
-                                <History className={`w-5 h-5 ${isBento ? 'text-black' : 'text-purple-600 dark:text-purple-400'}`} />
+                                <History className={`w-5 h-5 ${isBento ? 'text-black' : 'text-teal-600 dark:text-teal-400'}`} />
                             </div>
                             <div>
                                 <h2 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight">Full Activity History</h2>
@@ -2028,8 +2052,8 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                                     onClick={handleExportHistoryPDF}
                                     className={`px-4 py-2.5 rounded-xl font-black text-xs sm:text-sm flex items-center gap-2 transition-all hover:scale-105 active:scale-95 cursor-pointer ${
                                         isBento
-                                            ? 'bg-[#8b5cf6] hover:bg-[#7c3aed] text-white border-2 border-black shadow-[3px_3px_0px_#000]'
-                                            : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md shadow-indigo-500/20'
+                                            ? 'bg-[#0d9488] hover:bg-[#0f766e] text-white border-2 border-black shadow-[3px_3px_0px_#000]'
+                                            : 'bg-teal-600 hover:bg-teal-700 text-white shadow-md shadow-indigo-500/20'
                                     }`}
                                     title="Download Academic Transcript PDF"
                                 >
@@ -2044,7 +2068,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                     <div className={`p-4 sm:p-5 flex flex-col gap-4 ${
                         isBento
                             ? 'border-b-2 border-black bg-white'
-                            : 'border-b border-gray-200 dark:border-white/10 bg-white dark:bg-[#13141f]'
+                            : 'border-b border-gray-200 dark:border-white/10 bg-white dark:bg-[#141210]'
                     }`}>
                         {/* Top: Filter Tabs */}
                         <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none select-none flex-wrap">
@@ -2053,9 +2077,9 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                                 onClick={() => { setActivityFilter('all'); setCurrentPage(1); }}
                                 className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
                                     isBento
-                                        ? `border-2 border-black ${activityFilter === 'all' ? 'bg-[#8b5cf6] text-white shadow-[2px_2px_0px_#000]' : 'bg-white text-gray-800 hover:bg-gray-100 shadow-[1px_1px_0px_#000]'}`
+                                        ? `border-2 border-black ${activityFilter === 'all' ? 'bg-[#0d9488] text-white shadow-[2px_2px_0px_#000]' : 'bg-white text-gray-800 hover:bg-gray-100 shadow-[1px_1px_0px_#000]'}`
                                         : activityFilter === 'all'
-                                            ? 'bg-purple-600 text-white shadow-sm'
+                                            ? 'bg-teal-600 text-white shadow-sm'
                                             : 'bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/10 border border-transparent'
                                 }`}
                             >
@@ -2140,7 +2164,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                                     className={`w-full pl-10 pr-9 py-2 text-xs font-bold text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none ${
                                         isBento
                                             ? 'bg-white border-2 border-black rounded-xl shadow-[2px_2px_0px_#000]'
-                                            : 'bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-purple-500'
+                                            : 'bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-teal-500'
                                     }`}
                                 />
                                 {activitySearch && (
@@ -2172,7 +2196,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                                             onClick={() => { setPageSize(size); setCurrentPage(1); }}
                                             className={`px-3 py-1 rounded-lg text-[11px] font-black transition-all cursor-pointer ${
                                                 pageSize === size
-                                                    ? 'bg-[#8b5cf6] text-white shadow-sm'
+                                                    ? 'bg-[#0d9488] text-white shadow-sm'
                                                     : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
                                             }`}
                                         >
@@ -2237,21 +2261,22 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                                                         : 'bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20'
                                                 }`}
                                             >
-                                                {attempt.score}/{attempt.totalQuestions} ({attempt.percentage}%)
+                                                {getAttemptCorrectCount(attempt)}/{attempt.totalQuestions} ({attempt.percentage}%)
                                             </span>
                                         </div>
 
                                         {/* Action Buttons for Mobile Card */}
                                         <div className="flex items-center gap-2 mt-3 pt-2 border-t border-gray-100 dark:border-white/5 flex-wrap">
-                                            <button
-                                                type="button"
-                                                onClick={() => setInspectingAttempt(attempt)}
-                                                className="px-2.5 py-1 rounded-lg bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/10 text-[11px] font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
-                                                title="View question-by-question breakdown"
+                                            <a
+                                                href={`/attempts/${encodeURIComponent(attempt.attemptId)}/inspect`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="px-2.5 py-1 rounded-lg bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/10 text-[11px] font-bold flex items-center gap-1.5 transition-colors cursor-pointer no-underline"
+                                                title="Open full attempt inspection page"
                                             >
                                                 <Eye className="w-3.5 h-3.5 text-indigo-500" />
                                                 <span>Inspect</span>
-                                            </button>
+                                            </a>
 
                                             <button
                                                 type="button"
@@ -2290,12 +2315,12 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                             })}
 
                             {attempts.length === 0 && (
-                                <div className="px-6 py-14 text-center bg-white dark:bg-[#13141f]">
+                                <div className="px-6 py-14 text-center bg-white dark:bg-[#141210]">
                                     <div className="max-w-md mx-auto space-y-4">
                                         <div className={`w-16 h-16 mx-auto rounded-2xl flex items-center justify-center text-3xl font-black ${
                                             isBento
                                                 ? 'bg-[#fde047] text-black border-2 border-black shadow-[3.5px_3.5px_0px_#000]'
-                                                : 'bg-purple-500/10 text-purple-600 dark:text-purple-400'
+                                                : 'bg-teal-500/10 text-teal-600 dark:text-teal-400'
                                         }`}>
                                             📜
                                         </div>
@@ -2303,7 +2328,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                                             <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider inline-block ${
                                                 isBento
                                                     ? 'bg-[#bef264] text-black border border-black shadow-[1.5px_1.5px_0px_#000]'
-                                                    : 'bg-purple-100 dark:bg-purple-500/15 text-purple-700 dark:text-purple-300'
+                                                    : 'bg-teal-100 dark:bg-teal-500/15 text-teal-700 dark:text-teal-300'
                                             }`}>
                                                 Quest Log Awaiting
                                             </span>
@@ -2320,8 +2345,8 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                                                 onClick={() => navigate('/')}
                                                 className={`px-4 py-2.5 text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer ${
                                                     isBento
-                                                        ? 'bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-black border-2 border-black shadow-[2.5px_2.5px_0px_#000] active:scale-95'
-                                                        : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold shadow-md shadow-purple-500/20 active:scale-95'
+                                                        ? 'bg-[#0d9488] hover:bg-[#0f766e] text-white font-black border-2 border-black shadow-[2.5px_2.5px_0px_#000] active:scale-95'
+                                                        : 'bg-teal-600 hover:bg-teal-700 text-white font-bold shadow-md shadow-teal-500/20 active:scale-95'
                                                 }`}
                                             >
                                                 🚀 Explore Learning Roads
@@ -2349,7 +2374,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                                     <button
                                         type="button"
                                         onClick={() => { setActivitySearch(''); setActivityFilter('all'); }}
-                                        className="px-4 py-2 bg-purple-600 text-white rounded-xl text-xs font-bold hover:bg-purple-700 transition-colors cursor-pointer"
+                                        className="px-4 py-2 bg-teal-600 text-white rounded-xl text-xs font-bold hover:bg-teal-700 transition-colors cursor-pointer"
                                     >
                                         Reset Filters
                                     </button>
@@ -2405,7 +2430,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                                                         {attempt.percentage}%
                                                     </span>
                                                     <span className="text-xs text-gray-400 font-semibold">
-                                                        ({attempt.score}/{attempt.totalQuestions})
+                                                        ({getAttemptCorrectCount(attempt)}/{attempt.totalQuestions})
                                                     </span>
                                                 </div>
                                             </td>
@@ -2420,15 +2445,16 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
 
                                             <td className="px-8 py-5 text-right">
                                                 <div className="flex items-center justify-end gap-2">
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => setInspectingAttempt(attempt)}
-                                                        className="p-2 bg-gray-100 hover:bg-gray-200 dark:bg-white/5 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 rounded-xl transition-all font-bold text-xs flex items-center gap-1 border border-gray-200/60 dark:border-white/5 cursor-pointer"
-                                                        title="View Attempt Details"
+                                                    <a
+                                                        href={`/attempts/${encodeURIComponent(attempt.attemptId)}/inspect`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="p-2 bg-gray-100 hover:bg-gray-200 dark:bg-white/5 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 rounded-xl transition-all font-bold text-xs flex items-center gap-1 border border-gray-200/60 dark:border-white/5 cursor-pointer no-underline"
+                                                        title="Open full attempt inspection page"
                                                     >
                                                         <Eye className="w-4 h-4" />
                                                         <span className="hidden lg:inline">Inspect</span>
-                                                    </button>
+                                                    </a>
 
                                                     <button
                                                         type="button"
@@ -2469,12 +2495,12 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
 
                                 {attempts.length === 0 && (
                                     <tr>
-                                        <td colSpan={5} className="px-6 py-14 text-center bg-white dark:bg-[#13141f]">
+                                        <td colSpan={5} className="px-6 py-14 text-center bg-white dark:bg-[#141210]">
                                             <div className="max-w-md mx-auto space-y-4">
                                                 <div className={`w-16 h-16 mx-auto rounded-2xl flex items-center justify-center text-3xl font-black ${
                                                     isBento
                                                         ? 'bg-[#fde047] text-black border-2 border-black shadow-[3.5px_3.5px_0px_#000]'
-                                                        : 'bg-purple-500/10 text-purple-600 dark:text-purple-400'
+                                                        : 'bg-teal-500/10 text-teal-600 dark:text-teal-400'
                                                 }`}>
                                                     📜
                                                 </div>
@@ -2482,7 +2508,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                                                     <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider inline-block ${
                                                         isBento
                                                             ? 'bg-[#bef264] text-black border border-black shadow-[1.5px_1.5px_0px_#000]'
-                                                            : 'bg-purple-100 dark:bg-purple-500/15 text-purple-700 dark:text-purple-300'
+                                                            : 'bg-teal-100 dark:bg-teal-500/15 text-teal-700 dark:text-teal-300'
                                                     }`}>
                                                         Quest Log Awaiting
                                                     </span>
@@ -2499,8 +2525,8 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                                                         onClick={() => navigate('/')}
                                                         className={`px-4 py-2.5 text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer ${
                                                             isBento
-                                                                ? 'bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-black border-2 border-black shadow-[2.5px_2.5px_0px_#000] active:scale-95'
-                                                                : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold shadow-md shadow-purple-500/20 active:scale-95'
+                                                                ? 'bg-[#0d9488] hover:bg-[#0f766e] text-white font-black border-2 border-black shadow-[2.5px_2.5px_0px_#000] active:scale-95'
+                                                                : 'bg-teal-600 hover:bg-teal-700 text-white font-bold shadow-md shadow-teal-500/20 active:scale-95'
                                                         }`}
                                                     >
                                                         🚀 Explore Learning Roads
@@ -2530,7 +2556,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                                             <button
                                                 type="button"
                                                 onClick={() => { setActivitySearch(''); setActivityFilter('all'); }}
-                                                className="px-4 py-2 bg-purple-600 text-white rounded-xl text-xs font-bold hover:bg-purple-700 transition-colors cursor-pointer"
+                                                className="px-4 py-2 bg-teal-600 text-white rounded-xl text-xs font-bold hover:bg-teal-700 transition-colors cursor-pointer"
                                             >
                                                 Reset Filters
                                             </button>
@@ -2587,7 +2613,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                                                         onClick={() => setCurrentPage(page)}
                                                         className={`w-8 h-8 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                                                             safeCurrentPage === page
-                                                                ? 'bg-purple-600 text-white shadow-sm'
+                                                                ? 'bg-teal-600 text-white shadow-sm'
                                                                 : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5'
                                                         }`}
                                                     >
@@ -2619,7 +2645,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                         <div className={`p-6 sm:p-8 rounded-2xl animate-in fade-in duration-200 ${
                             isBento
                                 ? 'bg-white text-black border-2 border-black shadow-[4px_4px_0px_#000]'
-                                : 'bg-white dark:bg-[#13141f] border border-gray-200 dark:border-white/10 shadow-sm'
+                                : 'bg-white dark:bg-[#141210] border border-gray-200 dark:border-white/10 shadow-sm'
                         }`}>
                             <div className="flex flex-wrap items-center justify-between gap-4 mb-8 pb-6 border-b border-gray-200/80 dark:border-white/10">
                                 <div className="flex items-center gap-3">
@@ -2741,7 +2767,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                         <div className={`p-6 sm:p-8 rounded-2xl animate-in fade-in duration-200 ${
                             isBento
                                 ? 'bg-white text-black border-2 border-black shadow-[4px_4px_0px_#000]'
-                                : 'bg-white dark:bg-[#13141f] border border-gray-200 dark:border-white/10 shadow-sm'
+                                : 'bg-white dark:bg-[#141210] border border-gray-200 dark:border-white/10 shadow-sm'
                         }`}>
                             <div className="flex flex-wrap items-center justify-between gap-4 mb-8 pb-6 border-b border-gray-200/80 dark:border-white/10">
                                 <div className="flex items-center gap-3">
@@ -2859,14 +2885,6 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                 </main>
             </div>
 
-            {/* Inspect Attempt Modal */}
-            {inspectingAttempt && (
-                <AttemptDetailsModal
-                    attempt={inspectingAttempt}
-                    onClose={() => setInspectingAttempt(null)}
-                />
-            )}
-
             {/* Hidden Certificate Component */}
             {currentCertificateAttempt && (
                 <div style={{ position: 'absolute', top: -10000, left: -10000 }}>
@@ -2877,7 +2895,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                         score={
                             currentCertificateAttempt.poolProgress?.percentage === 100 || currentCertificateAttempt.poolProgress?.justCompletedPool
                                 ? (currentCertificateAttempt.poolProgress.totalCount || currentCertificateAttempt.totalQuestions)
-                                : currentCertificateAttempt.score
+                                : getAttemptCorrectCount(currentCertificateAttempt)
                         }
                         totalQuestions={
                             currentCertificateAttempt.poolProgress?.percentage === 100 || currentCertificateAttempt.poolProgress?.justCompletedPool
@@ -2917,7 +2935,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                     onClaimStreak={handleStreakClaim}
                 />
             )}
-            <Footer />
+            {!inPersistentShell && <Footer />}
         </div>
     );
 };

@@ -120,7 +120,7 @@ export const AICoachModal: React.FC<AICoachModalProps> = ({
                         <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
                             isBento
                                 ? 'bg-[#bef264] border-2 border-black text-black shadow-[3px_3px_0px_#000]'
-                                : 'bg-gradient-to-tr from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/30'
+                                : 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/30'
                         }`}>
                             <Bot className="w-6 h-6" />
                         </div>
@@ -166,7 +166,7 @@ export const AICoachModal: React.FC<AICoachModalProps> = ({
                 <div className={`p-6 rounded-2xl space-y-3 ${
                     isBento
                         ? 'bg-[#fef08a] border-2 border-black shadow-[4px_4px_0px_#000]'
-                        : 'bg-indigo-50/70 dark:bg-gradient-to-br dark:from-indigo-950/40 dark:via-[#181a30] dark:to-purple-950/40 border border-indigo-200 dark:border-indigo-500/30 shadow-inner'
+                        : 'bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-500/30 shadow-inner'
                 }`}>
                     <div className={`flex items-center justify-between text-xs font-black uppercase tracking-wider ${
                         isBento ? 'text-black' : 'text-indigo-700 dark:text-amber-300'
@@ -233,7 +233,7 @@ export const AICoachModal: React.FC<AICoachModalProps> = ({
                         className={`px-6 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition cursor-pointer ${
                             isBento
                                 ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[3px_3px_0px_#000] active:translate-x-0.5 active:translate-y-0.5'
-                                : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg shadow-indigo-500/25'
+                                : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/25'
                         }`}
                     >
                         Got It, Let Me Answer!

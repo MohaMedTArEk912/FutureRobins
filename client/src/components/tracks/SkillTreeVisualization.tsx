@@ -44,10 +44,10 @@ const SkillTreeVisualization: React.FC<SkillTreeVisualizationProps> = ({
 
     const getRarityColor = (rarity: string) => {
         switch (rarity) {
-            case 'legendary': return 'from-yellow-400 via-orange-400 to-orange-500';
-            case 'epic': return 'from-orange-500 via-red-400 to-red-500';
-            case 'rare': return 'from-purple-500 via-pink-400 to-pink-500';
-            default: return 'from-blue-500 via-cyan-400 to-cyan-500';
+            case 'legendary': return 'bg-amber-500';
+            case 'epic': return 'bg-orange-600';
+            case 'rare': return 'bg-teal-600';
+            default: return 'bg-sky-600';
         }
     };
 
@@ -69,14 +69,14 @@ const SkillTreeVisualization: React.FC<SkillTreeVisualizationProps> = ({
                 <div className="relative group">
                     {/* Glow Effect */}
                     {!isBento && (
-                        <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 rounded-3xl blur-xl opacity-75 group-hover:opacity-100 transition duration-500 animate-pulse" />
+                        <div className="absolute -inset-1 bg-teal-600 rounded-3xl blur-xl opacity-75 group-hover:opacity-100 transition duration-500 animate-pulse" />
                     )}
 
                     {/* Main Track Card */}
                     <div className={`relative rounded-3xl p-6 md:p-8 transition-all ${
                         isBento
                             ? 'bg-[#fde047] text-black border-3 border-black shadow-[6px_6px_0px_#000]'
-                            : 'bg-gradient-to-br from-purple-600 via-blue-600 to-purple-700 shadow-2xl border-2 border-white/20'
+                            : 'bg-teal-600 shadow-2xl border-2 border-white/20'
                     }`}>
                         <div className="flex items-center gap-4 md:gap-6">
                             {/* Icon */}
@@ -107,7 +107,7 @@ const SkillTreeVisualization: React.FC<SkillTreeVisualizationProps> = ({
                                             className={`h-full transition-all duration-700 ${
                                                 isBento
                                                     ? 'bg-[#bef264]'
-                                                    : 'bg-gradient-to-r from-green-400 to-emerald-400 shadow-lg'
+                                                    : 'bg-green-400 shadow-lg'
                                             }`}
                                             style={{ width: `${progressPercent}%` }}
                                         />
@@ -120,7 +120,7 @@ const SkillTreeVisualization: React.FC<SkillTreeVisualizationProps> = ({
 
                     {/* Connector Line Down */}
                     <div className={`absolute left-1/2 -bottom-12 transform -translate-x-1/2 w-1.5 h-12 ${
-                        isBento ? 'bg-black' : 'bg-gradient-to-b from-purple-500 to-transparent'
+                        isBento ? 'bg-black' : 'bg-teal-500'
                     }`} />
                 </div>
             </div>
@@ -133,10 +133,10 @@ const SkillTreeVisualization: React.FC<SkillTreeVisualizationProps> = ({
                         moduleFilter === 'all'
                             ? isBento
                                 ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000] font-black'
-                                : 'bg-purple-600 text-white shadow-lg font-semibold text-sm'
+                                : 'bg-teal-600 text-white shadow-lg font-semibold text-sm'
                             : isBento
                                 ? 'bg-white text-black/70 border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-black/5 font-black'
-                                : 'bg-gray-200 dark:bg-gray-800/50 text-gray-500 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-800 font-semibold text-sm'
+                                : 'bg-gray-200 dark:bg-[#1c1917]/50 text-gray-500 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-800 font-semibold text-sm'
                     }`}
                 >
                     All Modules
@@ -150,7 +150,7 @@ const SkillTreeVisualization: React.FC<SkillTreeVisualizationProps> = ({
                                 : 'bg-blue-600 text-white shadow-lg font-semibold text-sm'
                             : isBento
                                 ? 'bg-white text-black/70 border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-black/5 font-black'
-                                : 'bg-gray-200 dark:bg-gray-800/50 text-gray-500 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-800 font-semibold text-sm'
+                                : 'bg-gray-200 dark:bg-[#1c1917]/50 text-gray-500 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-800 font-semibold text-sm'
                     }`}
                 >
                     Incomplete
@@ -164,7 +164,7 @@ const SkillTreeVisualization: React.FC<SkillTreeVisualizationProps> = ({
                                 : 'bg-green-600 text-white shadow-lg font-semibold text-sm'
                             : isBento
                                 ? 'bg-white text-black/70 border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-black/5 font-black'
-                                : 'bg-gray-200 dark:bg-gray-800/50 text-gray-500 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-800 font-semibold text-sm'
+                                : 'bg-gray-200 dark:bg-[#1c1917]/50 text-gray-500 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-800 font-semibold text-sm'
                     }`}
                 >
                     Completed
@@ -175,7 +175,7 @@ const SkillTreeVisualization: React.FC<SkillTreeVisualizationProps> = ({
             <div className="relative max-w-6xl mx-auto">
                 {/* Vertical Spine */}
                 <div className={`absolute left-1/2 top-0 bottom-0 rounded-full transform -translate-x-1/2 ${
-                    isBento ? 'w-1.5 bg-black' : 'w-1 bg-gradient-to-b from-purple-500/60 via-blue-500/60 to-purple-500/60'
+                    isBento ? 'w-1.5 bg-black' : 'w-1 bg-teal-500/60'
                 }`} />
 
                 {/* Module Nodes */}
@@ -189,7 +189,7 @@ const SkillTreeVisualization: React.FC<SkillTreeVisualizationProps> = ({
                             <div key={moduleNode.module.moduleId} className="relative">
                                 {/* Horizontal Branch Line */}
                                 <div className={`hidden md:block absolute top-1/2 ${isLeft ? 'right-1/2 left-0' : 'left-1/2 right-0'} ${
-                                    isBento ? 'h-1 bg-black' : 'h-0.5 bg-gradient-to-r from-purple-500/60 to-transparent'
+                                    isBento ? 'h-1 bg-black' : 'h-0.5 bg-teal-500/60'
                                 }`} style={{ width: '120px' }} />
 
                                 {/* Module Card */}
@@ -205,7 +205,7 @@ const SkillTreeVisualization: React.FC<SkillTreeVisualizationProps> = ({
                                                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
                                                     isBento
                                                         ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                                        : 'bg-gradient-to-br from-green-500 to-emerald-600 shadow-xl shadow-green-500/60 border-2 border-green-300 text-white'
+                                                        : 'bg-green-500 shadow-xl shadow-green-500/60 border-2 border-green-300 text-white'
                                                 }`}>
                                                     <CheckCircle2 className="w-6 h-6" />
                                                 </div>
@@ -221,7 +221,7 @@ const SkillTreeVisualization: React.FC<SkillTreeVisualizationProps> = ({
                                                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center animate-pulse ${
                                                     isBento
                                                         ? 'bg-[#fde047] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                                        : 'bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/40 border-2 border-blue-300 text-white'
+                                                        : 'bg-blue-500 shadow-lg shadow-blue-500/40 border-2 border-blue-300 text-white'
                                                 }`}>
                                                     <Circle className="w-6 h-6" />
                                                 </div>
@@ -238,15 +238,15 @@ const SkillTreeVisualization: React.FC<SkillTreeVisualizationProps> = ({
                                                             ? 'bg-slate-100 text-black/60 border-3 border-black shadow-[3px_3px_0px_#000]'
                                                             : 'bg-white text-black border-3 border-black shadow-[5px_5px_0px_#000]'
                                                     : moduleNode.isCompleted
-                                                        ? 'bg-gradient-to-br from-green-500/10 via-emerald-500/10 to-teal-500/10 dark:from-green-500/30 dark:via-emerald-500/30 dark:to-teal-500/30 border-2 border-green-500/70 shadow-2xl shadow-green-500/20 dark:shadow-green-500/40 bg-white dark:bg-transparent'
+                                                        ? 'border-2 border-green-500/70 shadow-2xl shadow-green-500/20 dark:shadow-green-500/40 bg-white dark:bg-transparent'
                                                         : moduleNode.isLocked
-                                                            ? 'bg-gray-50 dark:bg-transparent bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800/90 dark:to-gray-900/90 border-2 border-gray-200 dark:border-gray-700/70'
-                                                            : 'bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10 dark:from-blue-500/30 dark:via-purple-500/30 dark:to-pink-500/30 border-2 border-blue-500/70 hover:border-blue-400 hover:shadow-2xl hover:shadow-blue-500/50 bg-white dark:bg-transparent'
+                                                            ? 'bg-gray-50 dark:bg-transparent border-2 border-gray-200 dark:border-[#f5f3ec]/12'
+                                                            : 'border-2 border-blue-500/70 hover:border-blue-400 hover:shadow-2xl hover:shadow-blue-500/50 bg-white dark:bg-transparent'
                                             } ${isHovered ? 'scale-105 -translate-y-2' : ''}`}
                                         >
                                             {/* Shimmer */}
                                             {!moduleNode.isLocked && !isBento && (
-                                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                                                <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                                             )}
 
                                             <div className="relative p-6">
@@ -274,7 +274,7 @@ const SkillTreeVisualization: React.FC<SkillTreeVisualizationProps> = ({
                                                     isBento ? 'border-t-2 border-black' : 'border-t border-gray-200 dark:border-white/20'
                                                 }`}>
                                                     {hasBadges ? (
-                                                        <div className={`flex items-center gap-2 text-sm ${isBento ? 'text-black font-black' : 'text-purple-300'}`}>
+                                                        <div className={`flex items-center gap-2 text-sm ${isBento ? 'text-black font-black' : 'text-teal-300'}`}>
                                                             <Sparkles className="w-4 h-4" />
                                                             <span className="font-bold">{moduleNode.badges.length} badges</span>
                                                         </div>
@@ -298,7 +298,7 @@ const SkillTreeVisualization: React.FC<SkillTreeVisualizationProps> = ({
                                                         className={`mt-4 w-full px-5 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all disabled:opacity-50 cursor-pointer ${
                                                             isBento
                                                                 ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:translate-x-0.5 hover:translate-y-0.5 active:shadow-none'
-                                                                : 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white shadow-lg hover:shadow-green-500/50 font-bold'
+                                                                : 'bg-green-500 hover:bg-green-600 text-white shadow-lg hover:shadow-green-500/50 font-bold'
                                                         }`}
                                                     >
                                                         {completingId === moduleNode.module.moduleId ? (
@@ -334,13 +334,13 @@ const SkillTreeVisualization: React.FC<SkillTreeVisualizationProps> = ({
                                                                         ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000]'
                                                                         : 'bg-white text-black/50 border-2 border-black shadow-[2px_2px_0px_#000] grayscale'
                                                                     : isEarned
-                                                                        ? `bg-gradient-to-br ${rarityColor} border-2 border-white/40 shadow-lg hover:shadow-xl hover:scale-105`
-                                                                        : 'bg-gray-100 dark:bg-gray-800/70 border-2 border-gray-200 dark:border-gray-700/70 grayscale hover:grayscale-0 hover:border-gray-400 dark:hover:border-gray-600'
+                                                                        ? `${rarityColor} border-2 border-white/40 shadow-lg hover:shadow-xl hover:scale-105`
+                                                                        : 'bg-gray-100 dark:bg-[#1c1917]/70 border-2 border-gray-200 dark:border-[#f5f3ec]/12 grayscale hover:grayscale-0 hover:border-gray-400 dark:hover:border-gray-600'
                                                             }`}
                                                             title={badge.description}
                                                         >
                                                             {isEarned && !isBento && (
-                                                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                                                                <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                                                             )}
 
                                                             <div className="relative p-2.5 h-full flex items-center gap-2">

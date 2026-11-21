@@ -241,7 +241,7 @@ export const PublicUserProfileView: React.FC<PublicUserProfileViewProps> = ({
             case 'legendary':
                 return isBento ? 'bg-[#fde047] text-black border border-black' : 'bg-amber-400 text-black';
             case 'epic':
-                return isBento ? 'bg-[#c084fc] text-black border border-black' : 'bg-purple-500 text-white';
+                return isBento ? 'bg-[#fdba74] text-black border border-black' : 'bg-teal-500 text-white';
             case 'rare':
                 return isBento ? 'bg-[#38bdf8] text-black border border-black' : 'bg-sky-500 text-white';
             default:
@@ -255,13 +255,13 @@ export const PublicUserProfileView: React.FC<PublicUserProfileViewProps> = ({
             <div className={`relative p-6 sm:p-8 rounded-3xl overflow-hidden transition-all ${
                 isBento
                     ? 'bg-white text-black border-3 border-black shadow-[6px_6px_0px_#000]'
-                    : 'bg-white dark:bg-[#111625] text-slate-900 dark:text-white border border-slate-200/80 dark:border-white/10 shadow-xl'
+                    : 'bg-white dark:bg-[#141210] text-slate-900 dark:text-white border border-slate-200/80 dark:border-white/10 shadow-xl'
             }`}>
                 {/* Decorative Top Accent Stripe */}
                 <div className={`absolute top-0 left-0 right-0 h-3 ${
                     isBento
-                        ? 'bg-gradient-to-r from-[#bef264] via-[#fde047] to-[#93c5fd] border-b-2 border-black'
-                        : 'bg-gradient-to-r from-violet-600 via-indigo-600 to-emerald-500'
+                        ? 'bg-[#bef264] border-b-2 border-black'
+                        : 'bg-sky-600'
                 }`} />
 
                 <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pt-2">
@@ -272,7 +272,7 @@ export const PublicUserProfileView: React.FC<PublicUserProfileViewProps> = ({
                             <div className={`w-20 h-20 sm:w-24 sm:h-24 rounded-3xl flex items-center justify-center font-black text-2xl overflow-hidden ${
                                 isBento
                                     ? 'bg-[#fde047] border-3 border-black shadow-[4px_4px_0px_#000]'
-                                    : 'bg-gradient-to-br from-indigo-500 via-violet-600 to-purple-600 text-white ring-4 ring-indigo-500/20 shadow-2xl'
+                                    : 'bg-indigo-500 text-white ring-4 ring-indigo-500/20 shadow-2xl'
                             }`}>
                                 {user.avatar ? (
                                     <Avatar config={user.avatar} size="lg" className="w-full h-full" />
@@ -348,8 +348,8 @@ export const PublicUserProfileView: React.FC<PublicUserProfileViewProps> = ({
                                         }}
                                         className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-black transition-all cursor-pointer ${
                                             isBento
-                                                ? 'bg-[#ddd6fe] text-black border border-black shadow-[1.5px_1.5px_0px_#000] hover:-translate-y-0.5'
-                                                : 'bg-violet-500/15 text-violet-600 dark:text-violet-400 border border-violet-500/30 hover:bg-violet-500/25'
+                                                ? 'bg-[#fed7aa] text-black border border-black shadow-[1.5px_1.5px_0px_#000] hover:-translate-y-0.5'
+                                                : 'bg-sky-500/15 text-sky-600 dark:text-sky-400 border border-sky-500/30 hover:bg-sky-500/25'
                                         }`}
                                         title={`Clan ${clan.name}`}
                                     >
@@ -396,7 +396,7 @@ export const PublicUserProfileView: React.FC<PublicUserProfileViewProps> = ({
                                     className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
                                         isBento
                                             ? 'bg-[#93c5fd] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5'
-                                            : 'bg-violet-600 text-white hover:bg-violet-700 shadow-sm'
+                                            : 'bg-sky-600 text-white hover:bg-sky-700 shadow-sm'
                                     }`}
                                 >
                                     <MessageCircle className="w-3.5 h-3.5" />
@@ -510,7 +510,7 @@ export const PublicUserProfileView: React.FC<PublicUserProfileViewProps> = ({
                     }`}>
                         <div
                             className={`h-full transition-all duration-500 ${
-                                isBento ? 'bg-[#bef264]' : 'bg-gradient-to-r from-indigo-500 to-violet-600'
+                                isBento ? 'bg-[#bef264]' : 'bg-indigo-500'
                             }`}
                             style={{ width: `${xpProgressPercent}%` }}
                         />
@@ -523,7 +523,7 @@ export const PublicUserProfileView: React.FC<PublicUserProfileViewProps> = ({
                 <div className={`p-4 rounded-2xl flex items-center gap-3.5 ${
                     isBento
                         ? 'bg-white text-black border-2.5 border-black shadow-[3px_3px_0px_#000]'
-                        : 'bg-white dark:bg-[#111625] text-slate-900 dark:text-white border border-slate-200/80 dark:border-white/5'
+                        : 'bg-white dark:bg-[#141210] text-slate-900 dark:text-white border border-slate-200/80 dark:border-white/5'
                 }`}>
                     <div className={`p-2.5 rounded-xl shrink-0 ${
                         isBento ? 'bg-[#bef264] border-2 border-black shadow-[1.5px_1.5px_0px_#000]' : 'bg-emerald-500/10 text-emerald-500'
@@ -539,7 +539,7 @@ export const PublicUserProfileView: React.FC<PublicUserProfileViewProps> = ({
                 <div className={`p-4 rounded-2xl flex items-center gap-3.5 ${
                     isBento
                         ? 'bg-white text-black border-2.5 border-black shadow-[3px_3px_0px_#000]'
-                        : 'bg-white dark:bg-[#111625] text-slate-900 dark:text-white border border-slate-200/80 dark:border-white/5'
+                        : 'bg-white dark:bg-[#141210] text-slate-900 dark:text-white border border-slate-200/80 dark:border-white/5'
                 }`}>
                     <div className={`p-2.5 rounded-xl shrink-0 ${
                         isBento ? 'bg-[#fde047] border-2 border-black shadow-[1.5px_1.5px_0px_#000]' : 'bg-amber-500/10 text-amber-500'
@@ -555,7 +555,7 @@ export const PublicUserProfileView: React.FC<PublicUserProfileViewProps> = ({
                 <div className={`p-4 rounded-2xl flex items-center gap-3.5 ${
                     isBento
                         ? 'bg-white text-black border-2.5 border-black shadow-[3px_3px_0px_#000]'
-                        : 'bg-white dark:bg-[#111625] text-slate-900 dark:text-white border border-slate-200/80 dark:border-white/5'
+                        : 'bg-white dark:bg-[#141210] text-slate-900 dark:text-white border border-slate-200/80 dark:border-white/5'
                 }`}>
                     <div className={`p-2.5 rounded-xl shrink-0 ${
                         isBento ? 'bg-[#93c5fd] border-2 border-black shadow-[1.5px_1.5px_0px_#000]' : 'bg-sky-500/10 text-sky-500'
@@ -571,7 +571,7 @@ export const PublicUserProfileView: React.FC<PublicUserProfileViewProps> = ({
                 <div className={`p-4 rounded-2xl flex items-center gap-3.5 ${
                     isBento
                         ? 'bg-white text-black border-2.5 border-black shadow-[3px_3px_0px_#000]'
-                        : 'bg-white dark:bg-[#111625] text-slate-900 dark:text-white border border-slate-200/80 dark:border-white/5'
+                        : 'bg-white dark:bg-[#141210] text-slate-900 dark:text-white border border-slate-200/80 dark:border-white/5'
                 }`}>
                     <div className={`p-2.5 rounded-xl shrink-0 ${
                         isBento ? 'bg-[#f472b6] border-2 border-black shadow-[1.5px_1.5px_0px_#000]' : 'bg-pink-500/10 text-pink-500'
@@ -644,7 +644,7 @@ export const PublicUserProfileView: React.FC<PublicUserProfileViewProps> = ({
                                             className={`p-4 rounded-2xl flex items-start gap-3.5 transition-all ${
                                                 isBento
                                                     ? 'bg-white text-black border-2 border-black shadow-[2.5px_2.5px_0px_#000] hover:shadow-[3.5px_3.5px_0px_#000]'
-                                                    : 'bg-white dark:bg-[#111625] text-slate-900 dark:text-white border border-slate-200/80 dark:border-white/5 hover:border-indigo-500/30'
+                                                    : 'bg-white dark:bg-[#141210] text-slate-900 dark:text-white border border-slate-200/80 dark:border-white/5 hover:border-indigo-500/30'
                                             }`}
                                         >
                                             <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl shrink-0 ${
@@ -703,7 +703,7 @@ export const PublicUserProfileView: React.FC<PublicUserProfileViewProps> = ({
                                         className={`p-3.5 rounded-2xl flex items-center justify-between gap-4 transition-all ${
                                             isBento
                                                 ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                                : 'bg-white dark:bg-[#111625] text-slate-900 dark:text-white border border-slate-200/80 dark:border-white/5'
+                                                : 'bg-white dark:bg-[#141210] text-slate-900 dark:text-white border border-slate-200/80 dark:border-white/5'
                                         }`}
                                     >
                                         <div className="flex items-center gap-3 min-w-0">
@@ -735,7 +735,16 @@ export const PublicUserProfileView: React.FC<PublicUserProfileViewProps> = ({
                                                 {attempt.percentage}%
                                             </div>
                                             <div className="text-[10px] text-slate-400 font-bold">
-                                                {attempt.score} / {attempt.totalQuestions} pts
+                                                {(() => {
+                                                    const total = Number(attempt.totalQuestions) || 0;
+                                                    const sc = Number(attempt.score) || 0;
+                                                    const pct = Number(attempt.percentage) || 0;
+                                                    const correct =
+                                                        total > 0 && (sc > total || Math.abs((sc / total) * 100 - pct) > 2)
+                                                            ? Math.min(total, Math.max(0, Math.round((pct / 100) * total)))
+                                                            : Math.min(total || sc, Math.max(0, sc));
+                                                    return total > 0 ? `${correct}/${total} Qs • ${sc} pts` : `${sc} pts`;
+                                                })()}
                                             </div>
                                         </div>
                                     </div>

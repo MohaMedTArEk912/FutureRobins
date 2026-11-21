@@ -781,7 +781,14 @@ export const exportQuizHistoryToPDF = async (attempts: AttemptData[], user?: Use
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(8);
         doc.setTextColor(71, 85, 105);
-        doc.text(`${att.score}/${att.totalQuestions} (${att.percentage}%)`, margin + 95, y + 1);
+        const attTotal = Number(att.totalQuestions) || 0;
+        const attScore = Number(att.score) || 0;
+        const attPct = Number(att.percentage) || 0;
+        const attCorrect =
+            attTotal > 0 && (attScore > attTotal || Math.abs((attScore / attTotal) * 100 - attPct) > 2)
+                ? Math.min(attTotal, Math.max(0, Math.round((attPct / 100) * attTotal)))
+                : Math.min(attTotal || attScore, Math.max(0, attScore));
+        doc.text(`${attCorrect}/${attTotal} (${attPct}%)`, margin + 95, y + 1);
 
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(isPassed ? 16 : 220, isPassed ? 185 : 38, isPassed ? 129 : 38);

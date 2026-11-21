@@ -13,8 +13,17 @@
 }
 
 .dark .app-dialog-overlay {
-  --dialog-surface: #0c101c;
-  --dialog-shade: rgb(5 8 16 / 68%);
+  --dialog-surface: #141210;
+  --dialog-shade: rgb(6 5 4 / 82%);
+}
+
+.dark .app-dialog-overlay:not(:has(> :is(.modal-backdrop, .app-dialog-backdrop))),
+.dark .app-dialog-overlay > :is(.modal-backdrop, .app-dialog-backdrop) {
+  backdrop-filter: none;
+}
+
+.dark .app-dialog-panel {
+  box-shadow: 0 8px 0 #050504, 0 24px 60px rgb(0 0 0 / 75%);
 }
 
 /* A nested dialog keeps the page locked after another dialog closes. */
@@ -84,8 +93,12 @@ body:has(.app-dialog-overlay) {
 }
 
 .app-dialog-panel :where(button, [role="button"], a[href]):focus-visible {
-  outline: 2px solid #6366f1;
+  outline: 2px solid #0284c7;
   outline-offset: 2px;
+}
+
+.dark .app-dialog-panel :where(button, [role="button"], a[href]):focus-visible {
+  outline-color: #bef264;
 }
 
 @media (max-height: 35rem) {

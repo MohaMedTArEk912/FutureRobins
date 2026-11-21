@@ -167,7 +167,7 @@ const BadgeManagement: React.FC<BadgeManagementProps> = ({ adminId, onNotificati
             <div className={`flex flex-col sm:flex-row justify-between items-center p-4 sm:p-5 rounded-3xl gap-4 transition-all relative z-20 ${
                 isBento
                     ? 'bg-white border-2 border-black shadow-[4px_4px_0px_#000]'
-                    : 'bg-white/60 dark:bg-[#1e1e2d]/60 backdrop-blur-xl border border-white/20 dark:border-white/5 shadow-sm'
+                    : 'bg-white/60 dark:bg-[#1c1917]/60 backdrop-blur-xl border border-white/20 dark:border-white/5 shadow-sm'
             }`}>
                 <div className="flex items-center gap-3">
                     <div className={`p-2.5 rounded-2xl ${
@@ -191,7 +191,7 @@ const BadgeManagement: React.FC<BadgeManagementProps> = ({ adminId, onNotificati
                                         ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000] translate-x-0.5 translate-y-0.5'
                                         : 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5'
                                     : showMenu
-                                        ? 'bg-purple-500/20 text-purple-600 dark:text-purple-400 border border-purple-500/30'
+                                        ? 'bg-teal-500/20 text-teal-600 dark:text-teal-400 border border-teal-500/30'
                                         : 'bg-white/50 dark:bg-white/5 hover:bg-white dark:hover:bg-white/10 text-gray-500 dark:text-gray-400 border border-white/20 dark:border-white/5 shadow-sm'
                             }`}
                             title="More badge actions"
@@ -204,7 +204,7 @@ const BadgeManagement: React.FC<BadgeManagementProps> = ({ adminId, onNotificati
                             <div className={`absolute right-0 top-full mt-2 w-56 rounded-2xl shadow-2xl z-50 overflow-hidden animate-in slide-in-from-top-2 duration-200 p-1.5 ${
                                 isBento
                                     ? 'bg-white text-black border-2 border-black shadow-[4px_4px_0px_#000]'
-                                    : 'bg-white/95 dark:bg-[#1e1e2d]/95 backdrop-blur-xl border border-slate-200 dark:border-white/10 text-slate-800 dark:text-white'
+                                    : 'bg-white/95 dark:bg-[#1c1917]/95 backdrop-blur-xl border border-slate-200 dark:border-white/10 text-slate-800 dark:text-white'
                             }`}>
                                 <button
                                     type="button"
@@ -215,11 +215,11 @@ const BadgeManagement: React.FC<BadgeManagementProps> = ({ adminId, onNotificati
                                     className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-left transition-colors font-bold text-xs uppercase tracking-wider cursor-pointer ${
                                         isBento
                                             ? 'hover:bg-[#fde047] text-black font-mono'
-                                            : 'hover:bg-purple-500/10 text-gray-700 dark:text-gray-200'
+                                            : 'hover:bg-teal-500/10 text-gray-700 dark:text-gray-200'
                                     }`}
                                 >
                                     <div className={`p-1.5 rounded-lg shrink-0 ${
-                                        isBento ? 'bg-[#fde047] text-black border border-black' : 'bg-purple-500/10 text-purple-600 dark:text-purple-400'
+                                        isBento ? 'bg-[#fde047] text-black border border-black' : 'bg-teal-500/10 text-teal-600 dark:text-teal-400'
                                     }`}>
                                         <Download className="w-4 h-4" />
                                     </div>
@@ -256,7 +256,7 @@ const BadgeManagement: React.FC<BadgeManagementProps> = ({ adminId, onNotificati
                         className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all cursor-pointer ${
                             isBento
                                 ? 'bg-[#fde047] text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:shadow-[4px_4px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 font-mono disabled:opacity-50'
-                                : 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-lg shadow-amber-500/25 hover:-translate-y-0.5 disabled:opacity-50'
+                                : 'bg-amber-500 hover:bg-amber-600 text-white shadow-lg shadow-amber-500/25 hover:-translate-y-0.5 disabled:opacity-50'
                         }`}
                         title="Auto-seed 30 comprehensive achievement badges across 8 categories"
                     >
@@ -282,7 +282,7 @@ const BadgeManagement: React.FC<BadgeManagementProps> = ({ adminId, onNotificati
                         className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all cursor-pointer ${
                             isBento
                                 ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:shadow-[4px_4px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 font-mono'
-                                : 'bg-purple-600 hover:bg-purple-700 text-white shadow-lg shadow-purple-600/25 hover:shadow-purple-600/40 hover:-translate-y-0.5'
+                                : 'bg-teal-600 hover:bg-teal-700 text-white shadow-lg shadow-teal-600/25 hover:shadow-teal-600/40 hover:-translate-y-0.5'
                         }`}
                     >
                         <Plus className={`w-4 h-4 ${isBento ? 'text-black' : 'text-white'}`} /> New Badge
@@ -298,14 +298,14 @@ const BadgeManagement: React.FC<BadgeManagementProps> = ({ adminId, onNotificati
                         className={`rounded-[2.5rem] p-5 transition-all group relative overflow-hidden ${
                             isBento
                                 ? 'bg-white border-2 border-black shadow-[4px_4px_0px_#000] hover:shadow-[6px_6px_0px_#000] hover:-translate-y-0.5'
-                                : 'bg-white/60 dark:bg-[#1e1e2d]/60 backdrop-blur-xl border border-white/20 dark:border-white/5 hover:border-indigo-500/30 shadow-sm hover:shadow-xl'
+                                : 'bg-white/60 dark:bg-[#1c1917]/60 backdrop-blur-xl border border-white/20 dark:border-white/5 hover:border-indigo-500/30 shadow-sm hover:shadow-xl'
                         }`}
                     >
                         <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/5 rounded-bl-full -mr-12 -mt-12 pointer-events-none" />
 
                         <div className="flex items-start justify-between mb-4 relative z-10">
                             <div className="flex items-center gap-4">
-                                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${getRarityColor(badge.rarity)} flex items-center justify-center text-3xl shadow-xl transform group-hover:scale-110 transition-transform duration-300`}>
+                                <div className={`w-14 h-14 rounded-2xl ${getRarityColor(badge.rarity)} flex items-center justify-center text-3xl shadow-md transform group-hover:scale-110 transition-transform duration-300`}>
                                     {badge.icon}
                                 </div>
                                 <div className="space-y-1">
@@ -345,7 +345,7 @@ const BadgeManagement: React.FC<BadgeManagementProps> = ({ adminId, onNotificati
 
                         <div className="flex flex-wrap gap-2 pt-4 border-t border-white/10">
                             {badge.rewards.xp > 0 && (
-                                <div className="px-3 py-1.5 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 text-[10px] font-black uppercase tracking-widest border border-purple-500/10">
+                                <div className="px-3 py-1.5 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 text-[10px] font-black uppercase tracking-widest border border-teal-500/10">
                                     ⚡ {badge.rewards.xp} XP
                                 </div>
                             )}
