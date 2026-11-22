@@ -253,8 +253,8 @@ export const NAV_PRESETS: Record<PresetKey, { title: string; description: string
         secondary: ['/classroom', '/clans', '/shop', '/social', '/analytics']
     },
     competitor: {
-        title: '⚔️ Arenas & Clans',
-        description: 'Optimized for players focused on duels, clan wars, and leaderboard climbing',
+        title: '⚔️ Arenas & Classes',
+        description: 'Optimized for players focused on duels, class competitions, and leaderboard climbing',
         primary: ['/', '/tournaments', '/clans', '/social', '/leaderboard'],
         secondary: ['/daily', '/tracks', '/classroom', '/shop', '/analytics']
     },

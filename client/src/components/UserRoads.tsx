@@ -942,7 +942,7 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                     <Bell className="w-5 h-5 animate-pulse" />
                                 </div>
                                 <div>
-                                    <h3 className="text-sm font-bold text-slate-900 dark:text-white">Clan Invitation</h3>
+                                    <h3 className="text-sm font-bold text-slate-900 dark:text-white">Class Invitation</h3>
                                     <p className="text-slate-500 dark:text-slate-400 text-xs font-medium">
                                         You have been invited to join <span className="text-indigo-500 font-semibold">{user.clanInvites[0].clanName}</span>.
                                     </p>

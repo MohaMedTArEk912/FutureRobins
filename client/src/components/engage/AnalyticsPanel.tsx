@@ -948,7 +948,7 @@ const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({ user }) => {
                 </h4>
                 <p className={`text-xs leading-relaxed ${isBento ? 'text-black/80' : 'text-slate-600 dark:text-slate-400'}`}>
                   You maintain <strong className="font-tabular font-black">{topCategory?.average || avgScore}%</strong>{' '}
-                  mastery here! Consider taking advanced timed duels or challenging clan members in this track.
+                  mastery here! Consider taking advanced timed duels or challenging class members in this track.
                 </p>
               </div>
               <button

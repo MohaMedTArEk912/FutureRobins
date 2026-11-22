@@ -228,7 +228,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ users, currentUser, onBack })
                         }`}
                     >
                         <Shield className="w-4 h-4" />
-                        {tx('Clans', 'الكلاسات')}
+                        {tx('Classes', 'الكلاسات')}
                     </button>
                 </div>
             </div>
@@ -441,7 +441,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ users, currentUser, onBack })
                         {loadingClans ? (
                             <div className="text-center py-20">
                                 <div className="animate-spin rounded-full h-10 w-10 border-2 border-indigo-600 border-t-transparent mx-auto mb-4"></div>
-                                <p className="text-slate-500 dark:text-slate-400 text-sm">Loading clan rankings...</p>
+                                <p className="text-slate-500 dark:text-slate-400 text-sm">Loading class rankings...</p>
                             </div>
                         ) : clanLeaderboard.length === 0 ? (
                             <div className={`text-center py-16 rounded-3xl ${
@@ -450,8 +450,8 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ users, currentUser, onBack })
                                     : 'glass-card border border-dashed border-slate-300 dark:border-white/10'
                             }`}>
                                 <Shield className="w-16 h-16 text-slate-400 mx-auto mb-4 opacity-50" />
-                                <h2 className="text-xl font-bold text-slate-700 dark:text-slate-300">No Clans Yet</h2>
-                                <p className="text-slate-500 text-sm mt-1">Be the first to establish a clan and claim rank #1!</p>
+                                <h2 className="text-xl font-bold text-slate-700 dark:text-slate-300">No Classes Yet</h2>
+                                <p className="text-slate-500 text-sm mt-1">Be the first to establish a class and claim rank #1!</p>
                             </div>
                         ) : (
                             <>
@@ -470,7 +470,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ users, currentUser, onBack })
                                             <Shield className="w-6 h-6" />
                                         </div>
                                         <div>
-                                            <div className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black/60' : 'text-slate-500 dark:text-slate-400 font-semibold'}`}>Total Clans</div>
+                                            <div className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black/60' : 'text-slate-500 dark:text-slate-400 font-semibold'}`}>Total Classes</div>
                                             <div className={`font-tabular text-2xl sm:text-3xl font-black ${isBento ? 'text-black' : 'text-slate-900 dark:text-white font-extrabold'}`}>{clanLeaderboard.length.toLocaleString()}</div>
                                         </div>
                                     </div>
@@ -506,7 +506,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ users, currentUser, onBack })
                                             <Trophy className="w-6 h-6" />
                                         </div>
                                         <div className="relative z-10 min-w-0">
-                                            <div className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black/80' : 'text-indigo-200 font-semibold'}`}>Your Clan Rank</div>
+                                            <div className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black/80' : 'text-indigo-200 font-semibold'}`}>Your Class Rank</div>
                                             <div className={`font-tabular text-2xl sm:text-3xl font-black truncate ${isBento ? 'text-black' : 'text-white font-extrabold'}`}>
                                                 {currentUser.clanId
                                                     ? `#${clanLeaderboard.find(c => c.clanId === currentUser.clanId)?.rank || 'N/A'}`
@@ -530,14 +530,14 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ users, currentUser, onBack })
                                     }`}>
                                         <div className="flex items-center gap-2.5">
                                             <Trophy className={`w-5 h-5 ${isBento ? 'text-black' : 'text-indigo-500'}`} />
-                                            <h3 className={`font-black text-base sm:text-lg uppercase tracking-tight ${isBento ? 'text-black' : 'text-slate-900 dark:text-white'}`}>Clan Rankings</h3>
+                                            <h3 className={`font-black text-base sm:text-lg uppercase tracking-tight ${isBento ? 'text-black' : 'text-slate-900 dark:text-white'}`}>Class Rankings</h3>
                                         </div>
                                         <span className={`px-3 py-1 rounded-full text-xs font-black font-tabular ${
                                             isBento
                                                 ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
                                                 : 'bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/5'
                                         }`}>
-                                            {clanLeaderboard.length} Clans
+                                            {clanLeaderboard.length} Classes
                                         </span>
                                     </div>
 

@@ -18,7 +18,7 @@ export const NAV_ITEMS = [
     { path: '/tournaments', icon: Trophy, label: 'Arenas', color: 'bg-amber-500' },
     { path: '/leaderboard', icon: Award, label: 'Rankings', color: 'bg-amber-500' },
     { path: '/daily', icon: Calendar, label: 'Daily', color: 'bg-orange-500' },
-    { path: '/clans', icon: Shield, label: 'Clans', color: 'bg-sky-600' },
+    { path: '/clans', icon: Shield, label: 'Classes', color: 'bg-sky-600' },
     { path: '/shop', icon: ShoppingBag, label: 'Shop', color: 'bg-teal-600' },
     { path: '/social', icon: Users, label: 'Social', color: 'bg-rose-500' },
 ];

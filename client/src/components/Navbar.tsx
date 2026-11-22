@@ -626,7 +626,7 @@ const Navbar: React.FC<NavbarProps> = ({
                                         ? 'bg-[#fde047] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000]'
                                         : 'text-slate-700 dark:text-[#fde047] hover:text-indigo-600 dark:hover:text-[#fef08a] bg-slate-100/80 dark:bg-[#1c1917] border border-slate-200/80 dark:border-[#f5f3ec]/12 hover:border-indigo-500/40 dark:hover:border-[#fde047]/40'
                                 }`}
-                                title={tx('Chat Hub (Clans & Friends)', 'مركز الشات (الكلاسات والأصدقاء)')}
+                                title={tx('Chat Hub (Classes & Friends)', 'مركز الشات (الكلاسات والأصدقاء)')}
                                 aria-label={tx('Open Chat Hub', 'فتح الشات')}
                             >
                                 <MessageSquare className={`w-4 h-4 ${isBento ? 'stroke-[2.5]' : ''}`} />

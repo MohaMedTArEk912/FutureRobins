@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Gift, Sparkles } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { Gift, Sparkles, X } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { sounds } from '../../lib/soundEffects';
 import { useTheme } from '../../context/ThemeContext';
@@ -48,7 +49,8 @@ export const MysteryLootBox: React.FC<MysteryLootBoxProps> = ({
             confetti({
                 particleCount: 120,
                 spread: 90,
-                origin: { y: 0.6 }
+                origin: { y: 0.6 },
+                zIndex: 10060
             });
         }, 1200);
     };
@@ -60,15 +62,27 @@ export const MysteryLootBox: React.FC<MysteryLootBoxProps> = ({
         onClose();
     };
 
-    return (
-        <div className={`app-dialog-overlay fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-300 ${
-            isBento ? 'bg-black/50 backdrop-blur-sm' : 'bg-[#050504]/82'
+    const content = (
+        <div className={`app-dialog-overlay fixed inset-0 z-[10050] flex items-center justify-center p-4 animate-in fade-in duration-300 ${
+            isBento ? 'bg-black/60 backdrop-blur-sm' : 'bg-[#050504]/85'
         }`}>
             <div className={`app-dialog-panel app-dialog-panel--padded relative w-full max-w-md p-8 text-center overflow-hidden transition-all ${
                 isBento
                     ? 'bg-white text-black rounded-2xl border-[3px] border-black shadow-[6px_6px_0px_#000]'
                     : 'bg-[#141210] rounded-2xl border-[1.5px] border-[#2e2924] shadow-[0_8px_0_#050504] text-[#f5f3ec]'
             }`}>
+                {boxState === 'closed' && (
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        aria-label="Close Mystery Loot Box"
+                        className={`absolute top-3 right-3 z-20 p-1.5 rounded-lg cursor-pointer transition-colors ${
+                            isBento ? 'text-black hover:bg-black/10' : 'text-[#a8a29e] hover:text-[#f5f3ec] hover:bg-white/10'
+                        }`}
+                    >
+                        <X className="w-4 h-4" />
+                    </button>
+                )}
                 {boxState === 'closed' && (
                     <div className="space-y-6 relative z-10">
                         <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
@@ -174,6 +188,8 @@ export const MysteryLootBox: React.FC<MysteryLootBoxProps> = ({
             </div>
         </div>
     );
+
+    return typeof document !== 'undefined' ? createPortal(content, document.body) : content;
 };
 
 export default MysteryLootBox;

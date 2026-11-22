@@ -134,8 +134,8 @@ export const StreakRewardModal: React.FC<StreakRewardModalProps> = ({
                         <button
                             type="button"
                             onClick={handleClaimToday}
-                            disabled={isClaimedToday}
-                            className={`px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all cursor-pointer ${
+                            disabled={isClaimedToday || isClaiming}
+                            className={`px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all cursor-pointer disabled:opacity-60 ${
                                 isBento
                                     ? isClaimedToday
                                         ? 'bg-gray-100 text-gray-500 border-2 border-black/30 cursor-default shadow-none'
@@ -145,7 +145,7 @@ export const StreakRewardModal: React.FC<StreakRewardModalProps> = ({
                                         : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908] shadow-[0_3px_0_#050504]'
                             }`}
                         >
-                            {isClaimedToday ? '✓ Claimed Today' : 'Claim Day Reward'}
+                            {isClaimedToday ? '✓ Claimed Today' : isClaiming ? 'Claiming...' : 'Claim Day Reward'}
                         </button>
                     </div>
                 }

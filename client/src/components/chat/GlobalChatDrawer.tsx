@@ -202,7 +202,7 @@ export const GlobalChatDrawer: React.FC = () => {
 
     const renderInputBar = (placeholderText: string) => (
         <div className={`p-2.5 sm:p-3 border-t shrink-0 ${
-            isBento ? 'bg-neutral-50 border-t-2 border-black' : 'bg-gray-50 dark:bg-[#161827] border-gray-200 dark:border-white/10'
+            isBento ? 'bg-neutral-50 border-t-2 border-black' : 'bg-[#141210] border-[#2e2924]'
         }`}>
             <div className={`w-full ${isFullscreen ? 'max-w-4xl mx-auto' : ''}`}>
                 {/* Quick Snippet Chips */}
@@ -215,7 +215,7 @@ export const GlobalChatDrawer: React.FC = () => {
                             className={`px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-[11px] font-bold shrink-0 transition-all cursor-pointer select-none ${
                                 isBento
                                     ? 'bg-white text-black border border-black hover:bg-yellow-100 shadow-[1px_1px_0px_#000]'
-                                    : 'bg-gray-200 dark:bg-white/10 hover:bg-gray-300 dark:hover:bg-white/20 text-gray-800 dark:text-gray-200'
+                                    : 'bg-[#1a1714] hover:bg-[#24201c] text-[#f5f3ec] border border-[#2e2924] hover:border-[#bef264]/50'
                             }`}
                         >
                             {snippet}
@@ -233,7 +233,7 @@ export const GlobalChatDrawer: React.FC = () => {
                         className={`flex-1 py-2 sm:py-2.5 px-3 sm:px-3.5 rounded-xl text-xs sm:text-sm font-medium outline-none transition-all ${
                             isBento
                                 ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] focus:shadow-[3px_3px_0px_#000]'
-                                : 'bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white focus:border-sky-500'
+                                : 'bg-[#0a0908] border border-[#2e2924] text-[#f5f3ec] placeholder:text-[#78716c] focus:border-[#bef264]'
                         }`}
                     />
                     <button
@@ -242,7 +242,7 @@ export const GlobalChatDrawer: React.FC = () => {
                         className={`p-2 sm:p-2.5 rounded-xl font-black transition-all cursor-pointer disabled:opacity-40 shrink-0 ${
                             isBento
                                 ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000] active:translate-y-0.5'
-                                : 'bg-sky-600 hover:bg-sky-700 text-white shadow-md'
+                                : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908]'
                         }`}
                         title="Send Message"
                     >
@@ -256,9 +256,9 @@ export const GlobalChatDrawer: React.FC = () => {
     const renderFriendsList = () => (
         <div className="flex-1 flex flex-col overflow-hidden">
             {/* Search Bar */}
-            <div className="p-3 border-b border-black/10 dark:border-white/10">
+            <div className={`p-3 border-b ${isBento ? 'border-black/10' : 'border-[#2e2924]'}`}>
                 <div className="relative">
-                    <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <Search className={`w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 ${isBento ? 'text-gray-400' : 'text-[#78716c]'}`} />
                     <input
                         type="text"
                         value={friendSearch}
@@ -267,7 +267,7 @@ export const GlobalChatDrawer: React.FC = () => {
                         className={`w-full pl-9 pr-3 py-2 rounded-xl text-xs font-bold outline-none ${
                             isBento
                                 ? 'bg-neutral-100 border-2 border-black focus:bg-white'
-                                : 'bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10'
+                                : 'bg-[#141210] border border-[#2e2924] text-[#f5f3ec] placeholder:text-[#78716c] focus:border-[#bef264]'
                         }`}
                     />
                 </div>
@@ -276,9 +276,9 @@ export const GlobalChatDrawer: React.FC = () => {
             {/* Friends List */}
             <div className="flex-1 overflow-y-auto p-3 space-y-2 custom-scrollbar">
                 {filteredFriends.length === 0 ? (
-                    <div className="text-center py-12 opacity-60">
-                        <Users className="w-10 h-10 mx-auto mb-2 text-gray-400" />
-                        <p className="font-bold text-xs">
+                    <div className="text-center py-12">
+                        <Users className={`w-10 h-10 mx-auto mb-2 ${isBento ? 'text-gray-400' : 'text-[#78716c]'}`} />
+                        <p className={`font-bold text-xs ${isBento ? 'opacity-60' : 'text-[#a8a29e]'}`}>
                             {friendsList.length === 0 ? 'No friends added yet.' : 'No matching friends found.'}
                         </p>
                         {friendsList.length === 0 && (
@@ -288,7 +288,9 @@ export const GlobalChatDrawer: React.FC = () => {
                                     closeChat();
                                     navigate('/social');
                                 }}
-                                className="mt-3 text-xs font-black underline text-indigo-500 hover:text-indigo-600 cursor-pointer"
+                                className={`mt-3 text-xs font-black underline cursor-pointer ${
+                                    isBento ? 'text-indigo-500 hover:text-indigo-600' : 'text-[#bef264] hover:text-[#d2fa8a]'
+                                }`}
                             >
                                 Add Friends on Social Hub →
                             </button>
@@ -312,10 +314,10 @@ export const GlobalChatDrawer: React.FC = () => {
                                     isSelected
                                         ? (isBento
                                             ? 'bg-[#fed7aa] border-2 border-black shadow-[3px_3px_0px_#000]'
-                                            : 'bg-sky-500/15 dark:bg-sky-500/20 border-sky-500/40 border')
+                                            : 'bg-[#192211] border border-[#bef264]/55 text-[#f5f3ec]')
                                         : (isBento
                                             ? 'bg-white border-2 border-black shadow-[2.5px_2.5px_0px_#000] hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_#000]'
-                                            : 'bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 border border-gray-200 dark:border-white/5')
+                                            : 'bg-[#141210] hover:bg-[#1a1714] border border-[#2e2924]')
                                 }`}
                             >
                                 <div className="flex items-center gap-3 min-w-0">
@@ -323,18 +325,22 @@ export const GlobalChatDrawer: React.FC = () => {
                                         {friend.avatar ? (
                                             <Avatar config={friend.avatar} size="sm" className="w-10 h-10 rounded-full" />
                                         ) : (
-                                            <div className="w-10 h-10 rounded-full bg-sky-600 text-white font-bold flex items-center justify-center text-sm">
+                                            <div className={`w-10 h-10 rounded-full font-bold flex items-center justify-center text-sm ${
+                                                isBento ? 'bg-sky-600 text-white' : 'bg-[#1a1714] border border-[#2e2924] text-[#bef264]'
+                                            }`}>
                                                 {friend.name.charAt(0)}
                                             </div>
                                         )}
-                                        <span className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white dark:border-black ${
-                                            isOnline ? 'bg-emerald-500' : 'bg-gray-400'
+                                        <span className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 ${
+                                            isBento ? 'border-white' : 'border-[#141210]'
+                                        } ${
+                                            isOnline ? (isBento ? 'bg-emerald-500' : 'bg-[#bef264]') : 'bg-[#78716c]'
                                         }`} />
                                     </div>
 
                                     <div className="truncate">
                                         <p className="font-black text-sm truncate">{friend.name}</p>
-                                        <p className="text-[11px] text-gray-500 truncate font-semibold">
+                                        <p className={`text-[11px] truncate font-semibold ${isBento ? 'text-gray-500' : 'text-[#a8a29e]'}`}>
                                             {lastMsg ? lastMsg.content : (isOnline ? 'Active now' : 'Offline')}
                                         </p>
                                     </div>
@@ -342,7 +348,7 @@ export const GlobalChatDrawer: React.FC = () => {
 
                                 <div className="flex items-center gap-2 shrink-0">
                                     {unread > 0 && (
-                                        <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-red-500 text-white">
+                                        <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-[#fb7185] text-[#0a0908]">
                                             {unread}
                                         </span>
                                     )}
@@ -355,7 +361,7 @@ export const GlobalChatDrawer: React.FC = () => {
                                         className={`p-2 rounded-xl transition-all cursor-pointer ${
                                             isBento
                                                 ? 'bg-[#bef264] text-black border border-black hover:bg-[#a3e635]'
-                                                : 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20'
+                                                : 'bg-[#231e0f] text-[#fde047] border border-[#fde047]/35 hover:bg-[#2e2713]'
                                         }`}
                                         title="Challenge to Duel"
                                     >
@@ -377,14 +383,16 @@ export const GlobalChatDrawer: React.FC = () => {
             <div className="flex-1 flex flex-col overflow-hidden h-full">
                 {/* Direct Chat Header */}
                 <div className={`p-2.5 sm:p-3 border-b flex items-center justify-between text-xs shrink-0 ${
-                    isBento ? 'bg-sky-50 border-black/10' : 'bg-slate-50 dark:bg-white/5 border-gray-100 dark:border-white/5'
+                    isBento ? 'bg-sky-50 border-black/10' : 'bg-[#141210] border-[#2e2924]'
                 }`}>
                     <div className={`flex items-center justify-between w-full ${isFullscreen ? 'max-w-4xl mx-auto' : ''}`}>
                         <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
                             <button
                                 type="button"
                                 onClick={() => setActiveFriend(null)}
-                                className={`p-1.5 rounded-xl hover:bg-black/10 dark:hover:bg-white/10 transition-colors shrink-0 ${
+                                className={`p-1.5 rounded-xl transition-colors shrink-0 cursor-pointer ${
+                                    isBento ? 'hover:bg-black/10' : 'hover:bg-[#1a1714] text-[#a8a29e] hover:text-[#f5f3ec]'
+                                } ${
                                     isSplit ? 'md:hidden' : ''
                                 }`}
                                 title="Back to all friends"
@@ -400,19 +408,27 @@ export const GlobalChatDrawer: React.FC = () => {
                                     {activeFriend.avatar ? (
                                         <Avatar config={activeFriend.avatar} size="sm" className="w-7 h-7 sm:w-8 sm:h-8 rounded-full" />
                                     ) : (
-                                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-sky-600 text-white font-bold flex items-center justify-center text-xs">
+                                        <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full font-bold flex items-center justify-center text-xs ${
+                                            isBento ? 'bg-sky-600 text-white' : 'bg-[#1a1714] border border-[#2e2924] text-[#bef264]'
+                                        }`}>
                                             {activeFriend.name.charAt(0)}
                                         </div>
                                     )}
                                     {onlineUserIds.has(activeFriend.userId) && (
-                                        <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 border border-white dark:border-black animate-pulse" />
+                                        <span className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border animate-pulse ${
+                                            isBento ? 'bg-emerald-500 border-white' : 'bg-[#bef264] border-[#141210]'
+                                        }`} />
                                     )}
                                 </div>
                                 <div className="truncate">
-                                    <p className="font-black text-xs sm:text-sm truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{activeFriend.name}</p>
-                                    <p className="text-[9px] sm:text-[10px] text-gray-500 flex items-center gap-1 font-bold truncate">
+                                    <p className={`font-black text-xs sm:text-sm truncate transition-colors ${
+                                        isBento ? 'group-hover:text-indigo-600' : 'group-hover:text-[#bef264]'
+                                    }`}>{activeFriend.name}</p>
+                                    <p className={`text-[9px] sm:text-[10px] flex items-center gap-1 font-bold truncate ${
+                                        isBento ? 'text-gray-500' : 'text-[#a8a29e]'
+                                    }`}>
                                         {onlineUserIds.has(activeFriend.userId) ? (
-                                            <span className="text-emerald-500 font-extrabold">Online</span>
+                                            <span className={`font-extrabold ${isBento ? 'text-emerald-500' : 'text-[#bef264]'}`}>Online</span>
                                         ) : (
                                             <span>Offline</span>
                                         )}
@@ -429,7 +445,7 @@ export const GlobalChatDrawer: React.FC = () => {
                             className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-wider flex items-center gap-1 transition-all cursor-pointer shrink-0 ${
                                 isBento
                                     ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000]'
-                                    : 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                                    : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908]'
                             }`}
                             title="Send Quiz Duel Challenge"
                         >
@@ -443,10 +459,10 @@ export const GlobalChatDrawer: React.FC = () => {
                 <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
                     <div className={`w-full space-y-3 ${isFullscreen ? 'max-w-4xl mx-auto' : ''}`}>
                         {currentDmMessages.length === 0 ? (
-                            <div className="text-center py-16 opacity-60">
-                                <MessageCircle className="w-12 h-12 mx-auto mb-2 text-gray-400" />
+                            <div className="text-center py-16">
+                                <MessageCircle className={`w-12 h-12 mx-auto mb-2 ${isBento ? 'text-gray-400 opacity-60' : 'text-[#78716c]'}`} />
                                 <p className="font-bold text-sm">No messages yet with {activeFriend.name}.</p>
-                                <p className="text-xs mt-1">Send a message or challenge them to a quiz duel!</p>
+                                <p className={`text-xs mt-1 ${isBento ? 'opacity-60' : 'text-[#a8a29e]'}`}>Send a message or challenge them to a quiz duel!</p>
                             </div>
                         ) : (
                             currentDmMessages.map(msg => {
@@ -457,12 +473,12 @@ export const GlobalChatDrawer: React.FC = () => {
                                     <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'} group relative`}>
                                         <div className={`max-w-[85%] rounded-2xl p-3 shadow-sm transition-all ${
                                             isMe
-                                                ? (isBento ? 'bg-[#bae6fd] text-black border-2 border-black' : 'bg-indigo-600 text-white')
-                                                : (isBento ? 'bg-white text-black border-2 border-black' : 'bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white')
+                                                ? (isBento ? 'bg-[#bae6fd] text-black border-2 border-black' : 'bg-[#192211] text-[#f5f3ec] border border-[#bef264]/45')
+                                                : (isBento ? 'bg-white text-black border-2 border-black' : 'bg-[#141210] text-[#f5f3ec] border border-[#2e2924]')
                                         }`}>
                                             {isChallenge ? (
                                                 <div className="space-y-2">
-                                                    <div className="flex items-center gap-1.5 font-black text-xs text-amber-500">
+                                                    <div className={`flex items-center gap-1.5 font-black text-xs ${isBento ? 'text-amber-600' : 'text-[#fde047]'}`}>
                                                         <Swords className="w-4 h-4" />
                                                         <span>QUIZ DUEL CHALLENGE</span>
                                                     </div>
@@ -484,7 +500,11 @@ export const GlobalChatDrawer: React.FC = () => {
                                                                     navigate(`/quiz/${msg.challengeData?.quizId || 'general'}`);
                                                                 }
                                                             }}
-                                                            className="w-full py-2 bg-emerald-500 text-white font-black text-xs rounded-xl shadow cursor-pointer hover:bg-emerald-600"
+                                                            className={`w-full py-2 font-black text-xs rounded-xl shadow cursor-pointer ${
+                                                                isBento
+                                                                    ? 'bg-emerald-500 text-white hover:bg-emerald-600'
+                                                                    : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908]'
+                                                            }`}
                                                         >
                                                             Accept Challenge →
                                                         </button>
@@ -535,17 +555,23 @@ export const GlobalChatDrawer: React.FC = () => {
             } ${
                 isBento
                     ? 'bg-white text-black' + (isFullscreen ? '' : ' border-l-[3px] border-black')
-                    : 'bg-white dark:bg-[#11131f] text-gray-900 dark:text-white' + (isFullscreen ? '' : ' border-l border-gray-200 dark:border-white/10')
+                    : 'bg-[#0e0d0b] text-[#f5f3ec]' + (isFullscreen ? '' : ' border-l border-[#2e2924]')
             }`}>
                 {/* Header */}
                 <div className={`p-3 sm:p-4 border-b flex flex-col gap-2.5 sm:gap-3 shrink-0 ${
                     isBento
                         ? 'bg-[#fde047] border-b-[2.5px] border-black text-black'
-                        : 'bg-sky-600 text-white'
+                        : 'bg-[#141210] border-[#2e2924] text-[#f5f3ec]'
                 }`}>
                     <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2 font-black text-sm sm:text-base uppercase tracking-tight min-w-0">
-                            <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
+                            <span className={`p-1.5 rounded-xl shrink-0 ${
+                                isBento
+                                    ? 'bg-white text-black border-2 border-black'
+                                    : 'bg-[#192211] text-[#bef264] border border-[#bef264]/40'
+                            }`}>
+                                <MessageCircle className="w-4 h-4 shrink-0" />
+                            </span>
                             <span className="truncate">Social Chat Hub</span>
                             {isFullscreen && <span className="text-[10px] sm:text-xs opacity-75 font-mono lowercase tracking-normal shrink-0">(fullscreen)</span>}
                         </div>
@@ -557,7 +583,7 @@ export const GlobalChatDrawer: React.FC = () => {
                                     className={`btn-unstyled inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[10px] sm:text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer shrink-0 ${
                                         isBento
                                             ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#a3e635]'
-                                            : 'bg-white/20 hover:bg-white/30 text-white border border-white/25'
+                                            : 'bg-[#1a1714] hover:bg-[#24201c] text-[#bef264] border border-[#bef264]/35'
                                     }`}
                                     title={`Return to ${returnToLabel}`}
                                 >
@@ -572,7 +598,7 @@ export const GlobalChatDrawer: React.FC = () => {
                                 className={`p-1.5 rounded-xl transition-all cursor-pointer ${
                                     isBento
                                         ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-neutral-100'
-                                        : 'text-white/80 hover:text-white hover:bg-white/10'
+                                        : 'bg-[#1a1714] text-[#a8a29e] hover:text-[#f5f3ec] hover:bg-[#24201c] border border-[#2e2924]'
                                 }`}
                                 title={isFullscreen ? 'Exit Fullscreen (Esc)' : 'Fullscreen Mode'}
                                 aria-label={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen Mode'}
@@ -585,7 +611,7 @@ export const GlobalChatDrawer: React.FC = () => {
                                 className={`p-1.5 rounded-xl transition-all cursor-pointer ${
                                     isBento
                                         ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-neutral-100'
-                                        : 'text-white/80 hover:text-white hover:bg-white/10'
+                                        : 'bg-[#1a1714] text-[#a8a29e] hover:text-[#f5f3ec] hover:bg-[#24201c] border border-[#2e2924]'
                                 }`}
                                 title={returnToLabel ? `Close & return to ${returnToLabel}` : 'Close Chat'}
                             >
@@ -596,8 +622,26 @@ export const GlobalChatDrawer: React.FC = () => {
 
                     {/* Tab Navigation */}
                     <div className={`flex items-center gap-1.5 sm:gap-2 p-1 rounded-xl ${
-                        isBento ? 'bg-black/10' : 'bg-black/20 backdrop-blur-sm'
+                        isBento ? 'bg-black/10' : 'bg-[#0a0908] border border-[#2e2924]'
                     }`}>
+                        <button
+                            type="button"
+                            onClick={() => setActiveTab('direct')}
+                            className={`flex-1 py-1.5 sm:py-2 px-2 sm:px-3 rounded-lg text-[11px] sm:text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1 sm:gap-1.5 transition-all cursor-pointer truncate ${
+                                activeTab === 'direct'
+                                    ? (isBento ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]' : 'bg-[#bef264] text-[#0a0908]')
+                                    : (isBento ? 'opacity-70 hover:opacity-100' : 'text-[#a8a29e] hover:text-[#f5f3ec] hover:bg-[#1a1714]')
+                            }`}
+                        >
+                            <Users className="w-3.5 h-3.5 shrink-0" />
+                            <span className="truncate">Friends ({friendsList.length})</span>
+                            {Object.values(unreadByFriend).reduce((a, b) => a + b, 0) > 0 && (
+                                <span className="ml-1 px-1.5 py-0.2 bg-[#fb7185] text-[#0a0908] rounded-full text-[10px] shrink-0">
+                                    {Object.values(unreadByFriend).reduce((a, b) => a + b, 0)}
+                                </span>
+                            )}
+                        </button>
+
                         <button
                             type="button"
                             onClick={() => {
@@ -606,34 +650,16 @@ export const GlobalChatDrawer: React.FC = () => {
                             }}
                             className={`flex-1 py-1.5 sm:py-2 px-2 sm:px-3 rounded-lg text-[11px] sm:text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1 sm:gap-1.5 transition-all cursor-pointer truncate ${
                                 activeTab === 'clan'
-                                    ? (isBento ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]' : 'bg-white text-sky-700 shadow')
-                                    : 'opacity-70 hover:opacity-100'
+                                    ? (isBento ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]' : 'bg-[#bef264] text-[#0a0908]')
+                                    : (isBento ? 'opacity-70 hover:opacity-100' : 'text-[#a8a29e] hover:text-[#f5f3ec] hover:bg-[#1a1714]')
                             }`}
                         >
                             <Shield className="w-3.5 h-3.5 shrink-0" />
-                            <span className="truncate">Clan</span>
+                            <span className="truncate">Class</span>
                             {clan && <span className="opacity-75 hidden xs:inline truncate">[{clan.tag}]</span>}
                             {unreadClanCount > 0 && (
-                                <span className="ml-1 px-1.5 py-0.2 bg-red-500 text-white rounded-full text-[10px] shrink-0">
+                                <span className="ml-1 px-1.5 py-0.2 bg-[#fb7185] text-[#0a0908] rounded-full text-[10px] shrink-0">
                                     {unreadClanCount}
-                                </span>
-                            )}
-                        </button>
-
-                        <button
-                            type="button"
-                            onClick={() => setActiveTab('direct')}
-                            className={`flex-1 py-1.5 sm:py-2 px-2 sm:px-3 rounded-lg text-[11px] sm:text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1 sm:gap-1.5 transition-all cursor-pointer truncate ${
-                                activeTab === 'direct'
-                                    ? (isBento ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]' : 'bg-white text-sky-700 shadow')
-                                    : 'opacity-70 hover:opacity-100'
-                            }`}
-                        >
-                            <Users className="w-3.5 h-3.5 shrink-0" />
-                            <span className="truncate">Friends ({friendsList.length})</span>
-                            {Object.values(unreadByFriend).reduce((a, b) => a + b, 0) > 0 && (
-                                <span className="ml-1 px-1.5 py-0.2 bg-red-500 text-white rounded-full text-[10px] shrink-0">
-                                    {Object.values(unreadByFriend).reduce((a, b) => a + b, 0)}
                                 </span>
                             )}
                         </button>
@@ -648,7 +674,7 @@ export const GlobalChatDrawer: React.FC = () => {
                             <div className="flex-1 flex flex-col overflow-hidden h-full">
                                 {/* Clan Banner Subheader */}
                                 <div className={`p-2.5 sm:p-3 border-b flex items-center justify-between text-xs shrink-0 ${
-                                    isBento ? 'bg-yellow-50 border-black/10' : 'bg-slate-50 dark:bg-white/5 border-gray-100 dark:border-white/5'
+                                    isBento ? 'bg-yellow-50 border-black/10' : 'bg-[#141210] border-[#2e2924]'
                                 }`}>
                                     <div className={`flex items-center justify-between w-full ${isFullscreen ? 'max-w-4xl mx-auto' : ''}`}>
                                         <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
@@ -685,10 +711,10 @@ export const GlobalChatDrawer: React.FC = () => {
                                 <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
                                     <div className={`w-full space-y-3 ${isFullscreen ? 'max-w-4xl mx-auto' : ''}`}>
                                         {clanMessages.length === 0 ? (
-                                            <div className="text-center py-16 opacity-60">
-                                                <Shield className="w-12 h-12 mx-auto mb-2 text-gray-400" />
-                                                <p className="font-bold text-sm">No clan messages yet.</p>
-                                                <p className="text-xs mt-1">Be the first to say hello to your team!</p>
+                                            <div className="text-center py-16">
+                                                <Shield className={`w-12 h-12 mx-auto mb-2 ${isBento ? 'text-gray-400 opacity-60' : 'text-[#78716c]'}`} />
+                                                <p className="font-bold text-sm">No class messages yet.</p>
+                                                <p className={`text-xs mt-1 ${isBento ? 'opacity-60' : 'text-[#a8a29e]'}`}>Be the first to say hello to your class!</p>
                                             </div>
                                         ) : (
                                             clanMessages.map(msg => {
@@ -697,8 +723,8 @@ export const GlobalChatDrawer: React.FC = () => {
                                                     <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'} group relative`}>
                                                         <div className={`max-w-[85%] rounded-2xl p-3 shadow-sm transition-all ${
                                                             isMe
-                                                                ? (isBento ? 'bg-[#bef264] text-black border-2 border-black' : 'bg-sky-600 text-white')
-                                                                : (isBento ? 'bg-white text-black border-2 border-black' : 'bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white')
+                                                                ? (isBento ? 'bg-[#bef264] text-black border-2 border-black' : 'bg-[#192211] text-[#f5f3ec] border border-[#bef264]/45')
+                                                                : (isBento ? 'bg-white text-black border-2 border-black' : 'bg-[#141210] text-[#f5f3ec] border border-[#2e2924]')
                                                         }`}>
                                                             <div className="flex items-center gap-2 mb-1">
                                                                 <span
@@ -795,24 +821,28 @@ export const GlobalChatDrawer: React.FC = () => {
                             </div>
                         ) : (
                             <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
-                                <Shield className="w-16 h-16 text-gray-300 dark:text-gray-600 mb-3" />
-                                <h3 className="text-lg font-black uppercase tracking-tight">No Clan Yet</h3>
-                                <p className="text-xs text-gray-500 max-w-xs mt-1 mb-6">
-                                    Join an alliance or create your own guild to unlock team chat, group challenges, and shared XP!
+                                <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-4 ${
+                                    isBento ? 'bg-[#faf8f2] border-2 border-black text-black' : 'bg-[#141210] border border-[#2e2924] text-[#a8a29e]'
+                                }`}>
+                                    <Shield className="w-8 h-8" />
+                                </div>
+                                <h3 className="text-lg font-black uppercase tracking-tight">No Class Yet</h3>
+                                <p className={`text-xs max-w-xs mt-1.5 mb-6 leading-relaxed ${isBento ? 'text-gray-600' : 'text-[#a8a29e]'}`}>
+                                    Join a class to unlock class chat, group challenges, and shared XP!
                                 </p>
                                 <button
                                     type="button"
                                     onClick={() => {
                                         closeChat();
-                                        navigate('/clans');
+                                        navigate('/classes');
                                     }}
                                     className={`px-5 py-3 rounded-2xl font-black text-xs uppercase tracking-wider transition-all cursor-pointer ${
                                         isBento
                                             ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:shadow-[4px_4px_0px_#000]'
-                                            : 'bg-sky-600 text-white hover:bg-sky-700 shadow-md'
+                                            : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908]'
                                     }`}
                                 >
-                                    Explore Clans
+                                    Explore Classes
                                 </button>
                             </div>
                         )
@@ -824,7 +854,9 @@ export const GlobalChatDrawer: React.FC = () => {
                             /* Fullscreen Split View for Direct Messages */
                             <div className="flex-1 flex flex-col md:flex-row overflow-hidden h-full">
                                 {/* Left: Friends Directory (Fixed 320px on desktop) */}
-                                <div className={`w-full md:w-80 border-r border-black/10 dark:border-white/10 flex flex-col shrink-0 h-full overflow-hidden ${
+                                <div className={`w-full md:w-80 border-r flex flex-col shrink-0 h-full overflow-hidden ${
+                                    isBento ? 'border-black/15' : 'border-[#2e2924]'
+                                } ${
                                     activeFriend ? 'hidden md:flex' : 'flex'
                                 }`}>
                                     {renderFriendsList()}
@@ -837,10 +869,10 @@ export const GlobalChatDrawer: React.FC = () => {
                                     {activeFriend ? (
                                         renderActiveConversation(true)
                                     ) : (
-                                        <div className="flex-1 flex flex-col items-center justify-center p-8 text-center opacity-60">
-                                            <Users className="w-16 h-16 text-gray-400 mb-3" />
+                                        <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
+                                            <Users className={`w-16 h-16 mb-3 ${isBento ? 'text-gray-400 opacity-60' : 'text-[#78716c]'}`} />
                                             <h3 className="text-lg font-black uppercase tracking-tight">Select a Friend</h3>
-                                            <p className="text-xs text-gray-500 max-w-xs mt-1">
+                                            <p className={`text-xs max-w-xs mt-1 ${isBento ? 'text-gray-500 opacity-75' : 'text-[#a8a29e]'}`}>
                                                 Choose a friend from the list on the left to start chatting in real-time or challenge them to a quiz duel!
                                             </p>
                                         </div>

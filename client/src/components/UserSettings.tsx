@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Eye, EyeOff, Mail, User as UserIcon, Lock, Check, AlertCircle, Sliders, Globe, Download, RefreshCw, Smartphone, Palette, Moon, LayoutGrid } from 'lucide-react';
+import { X, Eye, EyeOff, Mail, User as UserIcon, Lock, Check, AlertCircle, Sliders, Globe, Download, RefreshCw, Smartphone, Palette } from 'lucide-react';
 import type { UserData } from '../types/index.ts';
 import { api } from '../lib/api.ts';
 import { pwaUpdater, type PwaUpdateState } from '../lib/pwaUpdater.ts';
@@ -16,7 +16,7 @@ interface UserSettingsProps {
 }
 
 const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, embedded = false }) => {
-    const { isBento, theme, setTheme, openThemeModal } = useTheme();
+    const { isBento, theme, openThemeModal } = useTheme();
     const { language, setLanguage, tx } = useLanguage();
     const { openCustomizer, config } = useNavArrangement();
     const [name, setName] = useState(user.name);
@@ -283,25 +283,22 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
         </div>
     );
 
+    const compactThemeLabel = theme === 'bento'
+        ? tx('Bento', 'بينتو')
+        : tx('Noir Studio', 'نوار ستوديو');
+
     const appearanceSection = (
         <section className={`space-y-2.5 sm:space-y-3 border-t pt-4 sm:pt-5 ${isBento ? 'border-black/20' : 'border-gray-200 dark:border-white/5'}`}>
             <div className="flex items-center justify-between gap-2">
                 <h3 className={`flex items-center gap-2 text-xs sm:text-sm font-black uppercase tracking-wider truncate ${isBento ? 'text-black' : 'text-gray-500 dark:text-gray-400'}`}>
                     <Palette className={`size-3.5 sm:size-4 shrink-0 ${isBento ? 'text-black' : 'text-indigo-600 dark:text-indigo-400'}`} />
-                    <span className="sm:hidden">{tx('Theme', 'الثيم')}</span>
-                    <span className="hidden sm:inline">{tx('Appearance & Theme', 'المظهر والثيم')}</span>
+                    <span className="truncate">{tx('Appearance & Theme', 'المظهر والثيم')}</span>
                 </h3>
-                <button
-                    type="button"
-                    onClick={openThemeModal}
-                    className={`btn-unstyled text-[10px] sm:text-[11px] font-black px-2.5 py-1 rounded-full whitespace-nowrap shrink-0 cursor-pointer transition-all active:scale-95 ${
-                        isBento
-                            ? 'bg-[#fde047] text-black border border-black hover:bg-[#fef08a]'
-                            : 'bg-indigo-50 dark:bg-[#bef264]/15 text-indigo-600 dark:text-[#bef264] border border-transparent dark:border-[#bef264]/30 hover:bg-indigo-100 dark:hover:bg-[#bef264]/25'
-                    }`}
-                >
-                    {tx('Preview', 'معاينة')}
-                </button>
+                <span className={`text-[10px] sm:text-[11px] font-black px-2 sm:px-2.5 py-0.5 rounded-full whitespace-nowrap shrink-0 ${
+                    isBento ? 'bg-[#fde047] text-black border border-black' : 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400'
+                }`}>
+                    {compactThemeLabel}
+                </span>
             </div>
             <p className={`text-[11px] sm:text-xs leading-snug ${isBento ? 'text-gray-700 font-semibold' : 'text-gray-500 dark:text-gray-400'}`}>
                 {tx(
@@ -309,67 +306,24 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
                     'بدّل بين ثيم نوار ستوديو الداكن وثيم بينتو العصري.'
                 )}
             </p>
-            <div className="grid grid-cols-2 gap-2">
-                <button
-                    type="button"
-                    aria-pressed={theme === 'dark'}
-                    onClick={() => setTheme('dark')}
-                    className={`btn-unstyled h-11 sm:h-12 px-2.5 sm:px-3 rounded-xl text-start transition-all cursor-pointer flex items-center justify-between gap-1.5 min-w-0 ${
-                        theme === 'dark'
-                            ? isBento
-                                ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                : 'bg-[#bef264] text-[#0a0908] border border-[#bef264] shadow-md'
-                            : isBento
-                                ? 'bg-white hover:bg-[#fef9c3] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                : 'bg-white dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-white/10'
-                    }`}
-                >
-                    <span className="flex items-center gap-2 min-w-0">
-                        <Moon className="w-4 h-4 shrink-0" />
-                        <span className="min-w-0">
-                            <span className="block text-xs font-black truncate">{tx('Noir Studio', 'نوار ستوديو')}</span>
-                            <span className={`block text-[10px] font-semibold truncate ${
-                                theme === 'dark'
-                                    ? isBento ? 'text-black/75' : 'text-[#0a0908]/75'
-                                    : 'text-gray-500 dark:text-[#a8a29e]'
-                            }`}>
-                                {tx('Dark', 'داكن')}
-                            </span>
-                        </span>
-                    </span>
-                    {theme === 'dark' && <Check className="w-3.5 h-3.5 shrink-0" />}
-                </button>
-
-                <button
-                    type="button"
-                    aria-pressed={theme === 'bento'}
-                    onClick={() => setTheme('bento')}
-                    className={`btn-unstyled h-11 sm:h-12 px-2.5 sm:px-3 rounded-xl text-start transition-all cursor-pointer flex items-center justify-between gap-1.5 min-w-0 ${
-                        theme === 'bento'
-                            ? isBento
-                                ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                : 'bg-[#bef264] text-[#0a0908] border border-[#bef264] shadow-md'
-                            : isBento
-                                ? 'bg-white hover:bg-[#fef9c3] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                : 'bg-white dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-white/10'
-                    }`}
-                >
-                    <span className="flex items-center gap-2 min-w-0">
-                        <LayoutGrid className="w-4 h-4 shrink-0" />
-                        <span className="min-w-0">
-                            <span className="block text-xs font-black truncate">{tx('Bento', 'بينتو')}</span>
-                            <span className={`block text-[10px] font-semibold truncate ${
-                                theme === 'bento'
-                                    ? isBento ? 'text-black/75' : 'text-[#0a0908]/75'
-                                    : 'text-gray-500 dark:text-[#a8a29e]'
-                            }`}>
-                                {tx('Pop Bold', 'جريء')}
-                            </span>
-                        </span>
-                    </span>
-                    {theme === 'bento' && <Check className="w-3.5 h-3.5 shrink-0" />}
-                </button>
-            </div>
+            <button
+                type="button"
+                onClick={openThemeModal}
+                className={`btn-unstyled w-full h-11 px-3 sm:px-4 rounded-xl font-black text-xs sm:text-sm flex items-center justify-between gap-2 transition-all cursor-pointer active:scale-[0.99] ${
+                    isBento
+                        ? 'border-2 border-black bg-white text-black shadow-[2px_2px_0px_#000] hover:bg-[#fef9c3]'
+                        : 'border border-gray-200 bg-white text-slate-800 hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:text-[#f5f3ec] dark:hover:bg-white/10'
+                }`}
+            >
+                <span className="flex items-center gap-2 min-w-0">
+                    <Palette className="w-4 h-4 shrink-0" />
+                    <span className="sm:hidden truncate">{tx('Choose Theme', 'اختار الثيم')}</span>
+                    <span className="hidden sm:inline truncate">{tx('Choose Platform Theme', 'اختار ثيم المنصة')}</span>
+                </span>
+                <span className={`text-[11px] sm:text-xs font-black whitespace-nowrap shrink-0 ${isBento ? 'text-black/75' : 'text-indigo-600 dark:text-[#fde047]'}`}>
+                    {compactThemeLabel} →
+                </span>
+            </button>
         </section>
     );
 

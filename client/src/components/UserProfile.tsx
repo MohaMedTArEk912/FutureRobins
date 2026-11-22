@@ -131,7 +131,7 @@ const getBadgeProgress = (badge: Partial<BadgeDefinition>, user: UserData, attem
             break;
         case 'clans':
             current = user.clanId ? 1 : 0;
-            unit = 'Clan';
+            unit = 'Class';
             break;
         case 'clan_contribution': {
             const userRecord = user as unknown as Record<string, unknown>;
@@ -892,34 +892,6 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                             })}
                         </nav>
                     </div>
-
-                    {/* Sidebar User Quick Card */}
-                    <div className={`p-4 rounded-2xl ${
-                        isBento
-                            ? 'bg-[#fef9c3] text-black border-2 border-black shadow-[4px_4px_0px_#000]'
-                            : 'bg-white dark:bg-[#141210] border border-slate-200/90 dark:border-white/10 shadow-sm'
-                    }`}>
-                        <div className="flex items-center gap-3 mb-3">
-                            <div className={`w-10 h-10 rounded-xl overflow-hidden shrink-0 ${isBento ? 'border-2 border-black' : 'ring-2 ring-indigo-500/30'}`}>
-                                {currentUser.avatar ? (
-                                    <Avatar config={currentUser.avatar} size="sm" className="w-full h-full" />
-                                ) : (
-                                    <div className="w-full h-full bg-indigo-500 text-white font-bold flex items-center justify-center text-sm">
-                                        {currentUser.name.charAt(0)}
-                                    </div>
-                                )}
-                            </div>
-                            <div className="min-w-0 flex-1">
-                                <p className="text-xs font-black truncate">{currentUser.name}</p>
-                                <p className="text-[10px] text-slate-500 truncate">{currentUser.email}</p>
-                            </div>
-                        </div>
-                        <div className="flex items-center justify-between text-[11px] font-bold pt-2 border-t border-black/10 dark:border-white/10">
-                            <span className="opacity-75">Global Rank</span>
-                            <span className="font-black text-indigo-600 dark:text-indigo-400">#{rank}</span>
-                        </div>
-                    </div>
-
                 </aside>
 
                 {/* Main Content Area */}
@@ -1673,7 +1645,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                                 { id: 'speed', label: 'Speed' },
                                 { id: 'xp', label: 'XP & Levels' },
                                 { id: 'tracks', label: 'Roadmaps' },
-                                { id: 'clans', label: 'Clans & Social' },
+                                { id: 'clans', label: 'Classes & Social' },
                                 { id: 'arena', label: 'Arena' },
                             ].map(cat => (
                                 <button

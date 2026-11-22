@@ -71,7 +71,7 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const currentUserName = currentUser?.name;
 
     const [isOpen, setIsOpen] = useState(false);
-    const [activeTab, setActiveTab] = useState<'clan' | 'direct'>('clan');
+    const [activeTab, setActiveTab] = useState<'clan' | 'direct'>('direct');
     const [activeFriend, setActiveFriend] = useState<UserData | null>(null);
     const [returnToLabel, setReturnToLabel] = useState<string | null>(null);
 
@@ -291,7 +291,7 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }, []);
 
     // Open chat helper
-    const openChat = useCallback((tab: 'clan' | 'direct' = 'clan', friend?: UserData | string, options?: OpenChatOptions) => {
+    const openChat = useCallback((tab: 'clan' | 'direct' = 'direct', friend?: UserData | string, options?: OpenChatOptions) => {
         setReturnToLabel(options?.returnToLabel ?? null);
         setIsOpen(true);
         if (tab) {

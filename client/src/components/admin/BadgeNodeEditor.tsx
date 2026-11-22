@@ -157,7 +157,7 @@ const BadgeNodeEditor: React.FC<BadgeNodeEditorProps> = ({ badge, onSave, onClos
                                 <option value="speed">Speed</option>
                                 <option value="xp">XP & Levels</option>
                                 <option value="skills">Roadmaps & Skills</option>
-                                <option value="social">Clans & Social</option>
+                                <option value="social">Classes & Social</option>
                                 <option value="arena">Arena & Duels</option>
                                 <option value="other">Other</option>
                             </select>
