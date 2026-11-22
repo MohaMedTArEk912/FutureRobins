@@ -1,47 +1,96 @@
-[
-  {
-    "title": "Two Sum Target Finder",
-    "description": "Given an array of integers `nums` and an integer `target`, return indices of the two numbers such that they add up to `target`.\n\nYou may assume that each input would have **exactly one solution**, and you may not use the same element twice.\n\n### Example:\n```python\nnums = [2, 7, 11, 15], target = 9\n# Output: [0, 1] because nums[0] + nums[1] == 9\n```\n\n### Constraints:\n- $2 \\le \\text{len}(nums) \\le 10^4$\n- Time complexity target: $O(N)$",
-    "referenceCode": "def two_sum(nums, target):\n    lookup = {}\n    for i, num in enumerate(nums):\n        complement = target - num\n        if complement in lookup:\n            return [lookup[complement], i]\n        lookup[num] = i\n    return []\n\n# Test execution\nprint(two_sum([2, 7, 11, 15], 9))",
-    "language": "python",
-    "difficulty": "easy",
-    "category": "Algorithms",
-    "hints": [
-      "Consider using a hash map (dictionary) to store each number and its index.",
-      "For every number `num`, calculate `target - num` and check if it already exists in your map."
+{
+  "_aiPrompt": {
+    "version": "2.0",
+    "targetPlatform": "Quiz Platform",
+    "templateType": "compiler-questions",
+    "howToUse": [
+      "1. Attach or paste your programming lecture slides, lab sheet, or algorithms topic along with this JSON.",
+      "2. Instruct the AI: 'Follow _aiPrompt strictly to generate daily compiler coding challenges directly based on my slides/topic.'",
+      "3. Upload or paste the returned JSON in Compiler Questions -> Import/Export -> Import from JSON."
     ],
-    "rewardCoins": 50,
-    "rewardXP": 100,
-    "isActive": true
+    "prompt": "You are a Senior Competitive Programming & Coding Lab Author and strict JSON generator for Quiz Platform. Based strictly on the attached programming slides, notes, or syllabus, create self-contained coding problems in strict JSON format.\n\nPROBLEM CRAFTING QUALITY:\n- Tie every problem directly to concepts taught in the attached slides (e.g., loops, arrays/lists, dictionaries/hash maps, recursion, two pointers, binary search, OOP).\n- Provide clear Problem Statement, Input / Output specification, 2 concrete Worked Examples (including an edge case), and explicit Constraints.\n- Write clean, idiomatic, bug-free 'referenceCode' that handles edge cases cleanly and prints or demonstrates a working call.\n- Write 2-3 progressive 'hints' that nudge the student's thinking step-by-step WITHOUT giving away the full answer.\n\nCRITICAL UI & TEXT RENDERING RULES:\n- The Daily Challenge UI displays 'description' and 'hints' inside a plain pre-wrapped text block (whitespace-pre-wrap). It does NOT parse Markdown and does NOT run KaTeX!\n- THEREFORE, NEVER use ### headings, **bold**, *italics*, ```code fences```, `inline backticks`, or $LaTeX$ math ($...$) anywhere inside 'title', 'description', or 'hints'!\n- Format 'description' using clean plain-text headings ('Problem:', 'Example 1:', 'Example 2:', 'Constraints:'), indented lines, and Unicode math symbols (≤, ≥, ×, ≠, ->, O(N), O(log N)).\n\nSTRICT JSON OUTPUT:\n- Return ONLY valid raw JSON matching { \"questions\": [ ... ] }. Omit '_aiPrompt'. Use only valid enum values from strictJsonContract.",
+    "strictJsonContract": {
+      "rootObject": {
+        "questions": "CompilerQuestion[] (omit _aiPrompt)"
+      },
+      "CompilerQuestion": {
+        "title": "string (required concise problem title, max 200 chars)",
+        "description": "string (required clean PLAIN TEXT with \\n formatting; NO markdown ###/**/` and NO $LaTeX$)",
+        "referenceCode": "string (required complete, tested solution with \\n)",
+        "language": "enum: 'javascript' | 'python' | 'java' | 'cpp' | 'typescript'",
+        "difficulty": "enum: 'easy' | 'medium' | 'hard'",
+        "category": "string (e.g. 'Arrays', 'Hash Maps', 'Recursion', 'Binary Search')",
+        "hints": "string[] (2-3 plain-text hints; NO markdown/LaTeX)",
+        "rewardCoins": "number (e.g. 50 easy, 80 medium, 120 hard)",
+        "rewardXP": "number (e.g. 100 easy, 160 medium, 250 hard)",
+        "isActive": "boolean (true)"
+      }
+    }
   },
-  {
-    "title": "Deep Flatten Array with Depth Limit",
-    "description": "Write a JavaScript function `flatten(arr, depth)` that recursively flattens a nested array up to the specified `depth`.\n\n### Example:\n```javascript\nflatten([1, [2, [3, [4]], 5]], 2);\n// Output: [1, 2, 3, [4], 5]\n```\n\n### Requirements:\n- Must handle empty nested arrays gracefully.\n- If `depth <= 0`, return a shallow copy of the original array.",
-    "referenceCode": "function flatten(arr, depth = 1) {\n  if (depth <= 0) return arr.slice();\n  return arr.reduce((acc, val) => {\n    if (Array.isArray(val)) {\n      acc.push(...flatten(val, depth - 1));\n    } else {\n      acc.push(val);\n    }\n    return acc;\n  }, []);\n}\n\nconsole.log(flatten([1, [2, [3, [4]], 5]], 2));",
-    "language": "javascript",
-    "difficulty": "medium",
-    "category": "Data Structures",
-    "hints": [
-      "Array.prototype.reduce or recursion works effectively here.",
-      "Check `Array.isArray(element)` and decrease `depth - 1` on each recursive descent."
-    ],
-    "rewardCoins": 75,
-    "rewardXP": 150,
-    "isActive": true
-  },
-  {
-    "title": "Search in Rotated Sorted Array",
-    "description": "You are given an integer array `nums` sorted in ascending order (with distinct values), which has been rotated at an unknown pivot index.\n\nGiven the array `nums` after the possible rotation and an integer `target`, return the index of `target` if it is in `nums`, or `-1` if it is not in `nums`.\n\n### Complexity Requirement:\n- You must write an algorithm with **$O(\\log N)$** runtime complexity.",
-    "referenceCode": "#include <iostream>\n#include <vector>\n\nint search(const std::vector<int>& nums, int target) {\n    int left = 0, right = static_cast<int>(nums.size()) - 1;\n    while (left <= right) {\n        int mid = left + (right - left) / 2;\n        if (nums[mid] == target) return mid;\n        \n        // Left half is sorted\n        if (nums[left] <= nums[mid]) {\n            if (target >= nums[left] && target < nums[mid]) {\n                right = mid - 1;\n            } else {\n                left = mid + 1;\n            }\n        } else { // Right half is sorted\n            if (target > nums[mid] && target <= nums[right]) {\n                left = mid + 1;\n            } else {\n                right = mid - 1;\n            }\n        }\n    }\n    return -1;\n}\n\nint main() {\n    std::vector<int> nums = {4, 5, 6, 7, 0, 1, 2};\n    std::cout << search(nums, 0) << std::endl; // Output: 4\n    return 0;\n}",
-    "language": "cpp",
-    "difficulty": "hard",
-    "category": "Algorithms",
-    "hints": [
-      "Notice that at least one half of the array (left or right of mid) is always normally sorted.",
-      "Determine which side is sorted by comparing `nums[left]` with `nums[mid]`, then check if `target` lies within that sorted range."
-    ],
-    "rewardCoins": 120,
-    "rewardXP": 250,
-    "isActive": true
-  }
-]
+  "questions": [
+    {
+      "title": "Two Sum Target Finder",
+      "description": "Problem:\nGiven an integer array nums and an integer target, return the two distinct indices whose values add up to target. Every test input has exactly one valid solution, and you cannot use the same element twice.\n\nExample 1:\n  Input: nums = [2, 7, 11, 15], target = 9\n  Output: [0, 1]   (because nums[0] + nums[1] == 9)\n\nExample 2:\n  Input: nums = [3, 2, 4], target = 6\n  Output: [1, 2]\n\nConstraints:\n  - 2 ≤ len(nums) ≤ 10,000\n  - Target Time Complexity: O(N)",
+      "referenceCode": "def two_sum(nums, target):\n    seen = {}\n    for idx, value in enumerate(nums):\n        complement = target - value\n        if complement in seen:\n            return [seen[complement], idx]\n        seen[value] = idx\n    return []\n\nprint(two_sum([2, 7, 11, 15], 9))\nprint(two_sum([3, 2, 4], 6))\n",
+      "language": "python",
+      "difficulty": "easy",
+      "category": "Hash Maps",
+      "hints": [
+        "Brute force nested loops take O(N^2). Can you remember previously visited values in O(1) lookup time?",
+        "Store each value's index in a Python dict as you iterate once from left to right.",
+        "Before inserting the current number, check whether (target - current) is already in your dictionary."
+      ],
+      "rewardCoins": 50,
+      "rewardXP": 100,
+      "isActive": true
+    },
+    {
+      "title": "Deep Flatten Array with Depth Limit",
+      "description": "Problem:\nWrite a JavaScript function flatten(arr, depth = 1) that returns a new array flattening nested sub-arrays up to depth levels deep. Elements nested deeper than depth must remain intact as sub-arrays.\n\nExample 1:\n  Input: arr = [1, [2, [3, [4]], 5]], depth = 2\n  Output: [1, 2, 3, [4], 5]\n\nExample 2:\n  Input: arr = [1, [2, 3]], depth = 0\n  Output: [1, [2, 3]]\n\nConstraints:\n  - Do not mutate the original input array.\n  - Handle empty nested arrays [] cleanly.\n  - If depth ≤ 0, return a shallow copy of arr.",
+      "referenceCode": "function flatten(arr, depth = 1) {\n  if (depth <= 0) return arr.slice();\n  const result = [];\n  for (const item of arr) {\n    if (Array.isArray(item)) {\n      result.push(...flatten(item, depth - 1));\n    } else {\n      result.push(item);\n    }\n  }\n  return result;\n}\n\nconsole.log(JSON.stringify(flatten([1, [2, [3, [4]], 5]], 2)));\n",
+      "language": "javascript",
+      "difficulty": "medium",
+      "category": "Recursion",
+      "hints": [
+        "Base case: when depth ≤ 0, return arr.slice() so no further unwrapping occurs.",
+        "Check Array.isArray(item) to distinguish nested sub-arrays from scalar values.",
+        "Recurse with (depth - 1) and spread or push the returned elements into the accumulator array."
+      ],
+      "rewardCoins": 80,
+      "rewardXP": 160,
+      "isActive": true
+    },
+    {
+      "title": "Group Anagrams by Canonical Key",
+      "description": "Problem:\nWrite a TypeScript function groupAnagrams(words: string[]): string[][] that groups strings that are anagrams of one another into separate sub-arrays.\n\nExample 1:\n  Input: [\"eat\", \"tea\", \"tan\", \"ate\", \"nat\", \"bat\"]\n  Output: [[\"eat\", \"tea\", \"ate\"], [\"tan\", \"nat\"], [\"bat\"]]\n\nExample 2:\n  Input: [\"\"]\n  Output: [[\"\"]]\n\nConstraints:\n  - 1 ≤ words.length ≤ 10,000\n  - Lowercase ASCII strings; group ordering may be arbitrary.",
+      "referenceCode": "function groupAnagrams(words: string[]): string[][] {\n  const buckets = new Map<string, string[]>();\n  for (const word of words) {\n    const key = word.split('').sort().join('');\n    const group = buckets.get(key) ?? [];\n    group.push(word);\n    buckets.set(key, group);\n  }\n  return Array.from(buckets.values());\n}\n\nconsole.log(JSON.stringify(groupAnagrams(['eat', 'tea', 'tan', 'ate', 'nat', 'bat'])));\n",
+      "language": "typescript",
+      "difficulty": "medium",
+      "category": "Strings & Maps",
+      "hints": [
+        "Two words are anagrams if and only if they contain identical character counts.",
+        "Sorting the characters of each word creates a canonical string key shared by all its anagrams.",
+        "Use a Map<string, string[]> keyed by the sorted signature (or a 26-letter frequency key for O(K) per word)."
+      ],
+      "rewardCoins": 85,
+      "rewardXP": 175,
+      "isActive": true
+    },
+    {
+      "title": "Search in Rotated Sorted Array",
+      "description": "Problem:\nYou are given an integer array nums containing distinct values originally sorted ascending, then rotated at an unknown pivot index. Return the index of target if present in nums, otherwise return -1.\n\nExample 1:\n  Input: nums = [4, 5, 6, 7, 0, 1, 2], target = 0\n  Output: 4\n\nExample 2:\n  Input: nums = [4, 5, 6, 7, 0, 1, 2], target = 3\n  Output: -1\n\nConstraints:\n  - 1 ≤ nums.length ≤ 5,000\n  - Required Runtime Complexity: O(log N)",
+      "referenceCode": "#include <iostream>\n#include <vector>\n\nint search(const std::vector<int>& nums, int target) {\n    int left = 0;\n    int right = static_cast<int>(nums.size()) - 1;\n    while (left <= right) {\n        int mid = left + (right - left) / 2;\n        if (nums[mid] == target) return mid;\n\n        if (nums[left] <= nums[mid]) {\n            if (target >= nums[left] && target < nums[mid]) {\n                right = mid - 1;\n            } else {\n                left = mid + 1;\n            }\n        } else {\n            if (target > nums[mid] && target <= nums[right]) {\n                left = mid + 1;\n            } else {\n                right = mid - 1;\n            }\n        }\n    }\n    return -1;\n}\n\nint main() {\n    std::vector<int> nums = {4, 5, 6, 7, 0, 1, 2};\n    std::cout << search(nums, 0) << std::endl;\n    return 0;\n}\n",
+      "language": "cpp",
+      "difficulty": "hard",
+      "category": "Binary Search",
+      "hints": [
+        "A linear scan violates the O(log N) constraint; modify standard binary search instead.",
+        "Whenever you split at mid, at least one half ([left..mid] or [mid..right]) MUST still be strictly sorted.",
+        "Identify the sorted half by comparing nums[left] <= nums[mid], then test if target falls inside that sorted interval."
+      ],
+      "rewardCoins": 120,
+      "rewardXP": 250,
+      "isActive": true
+    }
+  ]
+}

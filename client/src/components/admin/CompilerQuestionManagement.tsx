@@ -207,6 +207,30 @@ const CompilerQuestionManagement: React.FC<CompilerQuestionManagementProps> = ({
     };
 
     // ===== JSON Import/Export =====
+    const extractCompilerQuestions = (parsed: unknown): Partial<CompilerQuestion>[] => {
+        const isQuestionItem = (item: unknown): item is Partial<CompilerQuestion> =>
+            Boolean(item && typeof item === 'object' && ('title' in item || 'description' in item));
+
+        if (Array.isArray(parsed)) {
+            return parsed.filter(isQuestionItem);
+        }
+        if (parsed && typeof parsed === 'object') {
+            const obj = parsed as Record<string, unknown>;
+            if (Array.isArray(obj.questions)) {
+                return obj.questions.filter(isQuestionItem);
+            }
+            if (Array.isArray(obj.items)) {
+                return obj.items.filter(isQuestionItem);
+            }
+            if (isQuestionItem(obj)) {
+                const clean: Record<string, unknown> = { ...obj };
+                delete clean._aiPrompt;
+                return [clean as Partial<CompilerQuestion>];
+            }
+        }
+        return [];
+    };
+
     const handleDownloadSampleJson = () => {
         const a = document.createElement('a');
         a.href = '/samples/compiler-questions-sample.json';
@@ -227,7 +251,7 @@ const CompilerQuestionManagement: React.FC<CompilerQuestionManagementProps> = ({
             setImportJson(text);
             try {
                 const parsed = JSON.parse(text);
-                setImportPreview(Array.isArray(parsed) ? parsed : [parsed]);
+                setImportPreview(extractCompilerQuestions(parsed));
             } catch { setImportPreview([]); }
         };
         reader.readAsText(file);
@@ -345,8 +369,8 @@ const CompilerQuestionManagement: React.FC<CompilerQuestionManagementProps> = ({
                     <div className="space-y-4">
                         <textarea
                             value={importJson}
-                            onChange={e => { setImportJson(e.target.value); try { const p = JSON.parse(e.target.value); setImportPreview(Array.isArray(p) ? p : [p]); } catch { setImportPreview([]); } }}
-                            placeholder='Paste JSON array here, e.g.:\n[\n  { "title": "...", "description": "...", ... }\n]'
+                            onChange={e => { setImportJson(e.target.value); try { const p = JSON.parse(e.target.value); setImportPreview(extractCompilerQuestions(p)); } catch { setImportPreview([]); } }}
+                            placeholder='Paste JSON array or { "questions": [...] } here'
                             className={`w-full h-48 font-mono text-sm p-4 rounded-xl outline-none resize-none ${
                                 isBento
                                     ? 'bg-[#f5f3ec] text-black border-2 border-black shadow-[2px_2px_0px_#000] placeholder:text-neutral-500'

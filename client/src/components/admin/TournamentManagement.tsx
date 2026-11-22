@@ -640,7 +640,13 @@ const TournamentManagement: React.FC<TournamentManagementProps> = ({
                             points: typeof q.points === 'number' ? q.points : 10,
                             explanation: String(q.explanation || ''),
                             codeSnippet: String(q.codeSnippet || ''),
-                            orderingItems: Array.isArray(q.orderingItems) ? q.orderingItems : undefined
+                            orderingItems: Array.isArray(q.orderingItems) ? q.orderingItems.map(item => String(item)) : undefined,
+                            matchingPairs: Array.isArray(q.matchingPairs)
+                                ? q.matchingPairs
+                                    .filter((p): p is Record<string, unknown> => Boolean(p && typeof p === 'object'))
+                                    .map(p => ({ left: String(p.left ?? ''), right: String(p.right ?? '') }))
+                                : undefined,
+                            imageUrl: typeof q.imageUrl === 'string' && q.imageUrl.trim() ? q.imageUrl.trim() : undefined
                         }))
                     };
                 }
@@ -716,7 +722,14 @@ const TournamentManagement: React.FC<TournamentManagementProps> = ({
                         rawQuestions = json;
                     }
                 } else if (typeof json === 'object' && json !== null) {
-                    if (Array.isArray(json.questions)) {
+                    if (Array.isArray(json.quizzes) && json.quizzes.length > 0 && Array.isArray(json.quizzes[0]?.questions)) {
+                        const firstQuiz = json.quizzes[0];
+                        rawQuestions = firstQuiz.questions;
+                        quizTitle = firstQuiz.title || firstQuiz.name || '';
+                        quizDesc = firstQuiz.description || '';
+                        quizTime = firstQuiz.timeLimit || firstQuiz.durationMinutes || 45;
+                        quizScore = firstQuiz.passingScore || 70;
+                    } else if (Array.isArray(json.questions)) {
                         rawQuestions = json.questions;
                         quizTitle = json.title || json.name || '';
                         quizDesc = json.description || '';
@@ -752,7 +765,9 @@ const TournamentManagement: React.FC<TournamentManagementProps> = ({
                     const safeAnswer: string | number =
                         typeof rawAns === 'number' || typeof rawAns === 'string'
                             ? rawAns
-                            : String(rawAns ?? 0);
+                            : Array.isArray(rawAns) && rawAns.length > 0
+                                ? String(rawAns[0])
+                                : String(rawAns ?? 0);
 
                     return {
                         id: q.id !== undefined ? String(q.id) : `tq_${idx + 1}`,
@@ -763,7 +778,13 @@ const TournamentManagement: React.FC<TournamentManagementProps> = ({
                         points: typeof q.points === 'number' ? q.points : (typeof q.point === 'number' ? q.point : 10),
                         explanation: typeof q.explanation === 'string' ? q.explanation : '',
                         codeSnippet: typeof q.codeSnippet === 'string' ? q.codeSnippet : '',
-                        orderingItems: Array.isArray(q.orderingItems) ? q.orderingItems.map(item => String(item)) : undefined
+                        orderingItems: Array.isArray(q.orderingItems) ? q.orderingItems.map(item => String(item)) : undefined,
+                        matchingPairs: Array.isArray(q.matchingPairs)
+                            ? q.matchingPairs
+                                .filter((p): p is Record<string, unknown> => Boolean(p && typeof p === 'object'))
+                                .map(p => ({ left: String(p.left ?? ''), right: String(p.right ?? '') }))
+                            : undefined,
+                        imageUrl: typeof q.imageUrl === 'string' && q.imageUrl.trim() ? q.imageUrl.trim() : undefined
                     };
                 });
 

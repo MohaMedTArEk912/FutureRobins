@@ -4,7 +4,8 @@ import path from 'path';
 import fs from 'fs';
 import os from 'os';
 import { generateQuiz, aiHealth, getAICoachHint, translateQuestionContent, getDailyQuote } from '../controllers/aiController.js';
-import { verifyUser, verifyAdmin } from '../middleware/authMiddleware.js';
+import { refineExistingJson } from '../controllers/aiJsonRefinerController.js';
+import { verifyUser, verifyAdmin, verifyTeacher } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -47,6 +48,9 @@ router.post('/generate', verifyUser, verifyAdmin, upload.fields([
     { name: 'file', maxCount: 1 },
     { name: 'styleFile', maxCount: 1 }
 ]), generateQuiz);
+
+// AI JSON Refiner Studio (Staff: Teachers & Admins)
+router.post('/refine-json', verifyUser, verifyTeacher, upload.single('sourceFile'), refineExistingJson);
 
 // Socratic AI Study Coach Hint
 router.post('/coach-hint', verifyUser, getAICoachHint);

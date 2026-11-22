@@ -21,6 +21,7 @@ interface TransitionMeta {
     durationMs: number;
     transitionId: number;
     isAnimating: boolean;
+    axis: 'x' | 'y';
 }
 
 /**
@@ -124,13 +125,11 @@ function buildHorizontalExitKeyframes(dir: 1 | -1): Keyframe[] {
         const u = i / SAMPLE_STEPS;
         const move = spatialEase(u);
         const txPct = -dir * 68 * move;
-        const depth = smootherstep(clamp01(u / 0.58));
-        const scale = 1 - 0.065 * depth;
         const fade = smootherstep(clamp01((u - 0.12) / 0.70));
         const opacity = 1 - fade;
         frames.push({
             offset: u,
-            transform: `translate3d(${txPct.toFixed(3)}%, 0, 0) scale(${scale.toFixed(4)})`,
+            transform: `translate3d(${txPct.toFixed(3)}%, 0, 0)`,
             opacity: Number(opacity.toFixed(4))
         });
     }
@@ -143,49 +142,43 @@ function buildHorizontalEnterKeyframes(dir: 1 | -1): Keyframe[] {
         const u = i / SAMPLE_STEPS;
         const move = spatialEase(u);
         const txPct = dir * 68 * (1 - move);
-        const rise = smootherstep(clamp01((u - 0.10) / 0.84));
-        const scale = 0.935 + 0.065 * rise;
         const opacity = smootherstep(clamp01((u - 0.06) / 0.44));
         frames.push({
             offset: u,
-            transform: `translate3d(${txPct.toFixed(3)}%, 0, 0) scale(${scale.toFixed(4)})`,
+            transform: `translate3d(${txPct.toFixed(3)}%, 0, 0)`,
             opacity: Number(opacity.toFixed(4))
         });
     }
     return frames;
 }
 
-function buildVerticalExitKeyframes(dir: 1 | -1): Keyframe[] {
+function buildVerticalExitKeyframes(dir: 1 | -1, travel = 68): Keyframe[] {
     const frames: Keyframe[] = [];
     for (let i = 0; i <= SAMPLE_STEPS; i++) {
         const u = i / SAMPLE_STEPS;
         const move = spatialEase(u);
-        const tyPx = -dir * 68 * move;
-        const depth = smootherstep(clamp01(u / 0.58));
-        const scale = 1 - 0.04 * depth;
+        const tyPx = -dir * travel * move;
         const fade = smootherstep(clamp01((u - 0.10) / 0.72));
         const opacity = 1 - fade;
         frames.push({
             offset: u,
-            transform: `translate3d(0, ${tyPx.toFixed(2)}px, 0) scale(${scale.toFixed(4)})`,
+            transform: `translate3d(0, ${tyPx.toFixed(2)}px, 0)`,
             opacity: Number(opacity.toFixed(4))
         });
     }
     return frames;
 }
 
-function buildVerticalEnterKeyframes(dir: 1 | -1): Keyframe[] {
+function buildVerticalEnterKeyframes(dir: 1 | -1, travel = 68): Keyframe[] {
     const frames: Keyframe[] = [];
     for (let i = 0; i <= SAMPLE_STEPS; i++) {
         const u = i / SAMPLE_STEPS;
         const move = spatialEase(u);
-        const tyPx = dir * 68 * (1 - move);
-        const rise = smootherstep(clamp01((u - 0.10) / 0.84));
-        const scale = 0.96 + 0.04 * rise;
+        const tyPx = dir * travel * (1 - move);
         const opacity = smootherstep(clamp01((u - 0.06) / 0.44));
         frames.push({
             offset: u,
-            transform: `translate3d(0, ${tyPx.toFixed(2)}px, 0) scale(${scale.toFixed(4)})`,
+            transform: `translate3d(0, ${tyPx.toFixed(2)}px, 0)`,
             opacity: Number(opacity.toFixed(4))
         });
     }
@@ -257,7 +250,8 @@ export const SpatialRouteStage: React.FC<SpatialRouteStageProps> = ({
             dir: 1,
             durationMs: BASE_HORIZONTAL_MS,
             transitionId: 0,
-            isAnimating: false
+            isAnimating: false,
+            axis
         }
     }));
 
@@ -280,8 +274,12 @@ export const SpatialRouteStage: React.FC<SpatialRouteStageProps> = ({
             logicalDir = 1;
         }
 
-        const visualDir: 1 | -1 =
-            axis === 'x' && isArabic ? (logicalDir === 1 ? -1 : 1) : logicalDir;
+        // Footer navigation: push current page down, next page falls in from the top
+        const footerUp = (location.state as { spatial?: string } | null)?.spatial === 'drop';
+        const effectiveAxis: 'x' | 'y' = footerUp ? 'y' : axis;
+        const visualDir: 1 | -1 = footerUp
+            ? -1
+            : effectiveAxis === 'x' && isArabic ? (logicalDir === 1 ? -1 : 1) : logicalDir;
         const durationMs = Math.min(1060, BASE_HORIZONTAL_MS + Math.min(3, Math.max(0, hopDistance - 1)) * 60);
         const capturedScrollY = typeof window !== 'undefined' ? window.scrollY : 0;
 
@@ -309,6 +307,7 @@ export const SpatialRouteStage: React.FC<SpatialRouteStageProps> = ({
                     dir: visualDir,
                     durationMs,
                     transitionId: prev.meta.transitionId + 1,
+                    axis: effectiveAxis,
                     isAnimating: Boolean(prevActiveLayer && prevActiveLayer.key !== routeKey)
                 }
             };
@@ -338,7 +337,8 @@ export const SpatialRouteStage: React.FC<SpatialRouteStageProps> = ({
         activeKey: metaActiveKey,
         exitingKey: metaExitingKey,
         dir: metaDir,
-        durationMs: metaDurationMs
+        durationMs: metaDurationMs,
+        axis: metaAxis
     } = state.meta;
 
     // Drive GPU Web Animations API physics with Frame-0 mount isolation so zero frames are dropped
@@ -371,8 +371,11 @@ export const SpatialRouteStage: React.FC<SpatialRouteStageProps> = ({
             return () => window.clearTimeout(timer);
         }
 
+        // Footer drop: current page is pushed down off-screen while the next page falls in from the top
+        const isDrop = metaAxis === 'y' && dir === -1 && axis === 'x';
+        const vTravel = isDrop ? Math.round(window.innerHeight * 0.85) : 68;
         const runningAnimations: Animation[] = [];
-        let maxEndMs = axis === 'x' ? dur : VERTICAL_MS;
+        let maxEndMs = metaAxis === 'x' ? dur : VERTICAL_MS;
 
         const stageAnimation = (anim: Animation, endMs: number) => {
             // Hold synchronously at keyframe 0 while browser finishes mount layout & GPU upload
@@ -382,7 +385,7 @@ export const SpatialRouteStage: React.FC<SpatialRouteStageProps> = ({
             if (endMs > maxEndMs) maxEndMs = endMs;
         };
 
-        if (axis === 'x') {
+        if (metaAxis === 'x') {
             // 1. Outgoing Page Plane: smooth depth pull + continuous sweep in -dir
             if (exitEl) {
                 stageAnimation(
@@ -396,7 +399,7 @@ export const SpatialRouteStage: React.FC<SpatialRouteStageProps> = ({
 
                 // Outgoing page sections trail with progressive physical inertia
                 const exitBlocks = getSpatialContentBlocks(exitEl);
-                const maxExit = Math.min(8, exitBlocks.length);
+                const maxExit = Math.min(4, exitBlocks.length);
                 for (let i = 0; i < maxExit; i++) {
                     const pullPx = dir * -(24 + i * 16);
                     stageAnimation(
@@ -423,7 +426,7 @@ export const SpatialRouteStage: React.FC<SpatialRouteStageProps> = ({
 
                 // Incoming page cards settle with cascading physical mass inertia
                 const enterBlocks = getSpatialContentBlocks(enterEl);
-                const maxEnter = Math.min(8, enterBlocks.length);
+                const maxEnter = Math.min(5, enterBlocks.length);
                 for (let i = 0; i < maxEnter; i++) {
                     const trailPx = dir * (28 + i * 20);
                     const blockDelay = i * 18;
@@ -443,7 +446,7 @@ export const SpatialRouteStage: React.FC<SpatialRouteStageProps> = ({
             // Vertical Teacher Sidebar spatial transition (780ms C2-smooth glide + card inertia)
             if (exitEl) {
                 stageAnimation(
-                    exitEl.animate(buildVerticalExitKeyframes(dir), {
+                    exitEl.animate(buildVerticalExitKeyframes(dir, vTravel), {
                         duration: VERTICAL_MS,
                         easing: 'linear',
                         fill: 'both'
@@ -453,7 +456,7 @@ export const SpatialRouteStage: React.FC<SpatialRouteStageProps> = ({
             }
             if (enterEl) {
                 stageAnimation(
-                    enterEl.animate(buildVerticalEnterKeyframes(dir), {
+                    enterEl.animate(buildVerticalEnterKeyframes(dir, vTravel), {
                         duration: VERTICAL_MS,
                         easing: 'linear',
                         fill: 'backwards'
@@ -462,7 +465,7 @@ export const SpatialRouteStage: React.FC<SpatialRouteStageProps> = ({
                 );
 
                 const enterBlocks = getSpatialContentBlocks(enterEl);
-                const maxEnter = Math.min(6, enterBlocks.length);
+                const maxEnter = Math.min(4, enterBlocks.length);
                 for (let i = 0; i < maxEnter; i++) {
                     const trailPx = dir * (18 + i * 12);
                     const blockDelay = i * 16;
@@ -506,22 +509,26 @@ export const SpatialRouteStage: React.FC<SpatialRouteStageProps> = ({
 
         // Start playback on the next animation frame AFTER React mount layout & GPU upload complete
         // so Frame 1 starts at 0ms with every single motion frame rendered smoothly.
+        let rafId2 = 0;
         const rafId = window.requestAnimationFrame(() => {
-            if (cancelled) return;
-            for (const anim of runningAnimations) {
-                anim.play();
-            }
-            Promise.allSettled(runningAnimations.map((a) => a.finished)).then(() => {
-                finishTransition();
+            rafId2 = window.requestAnimationFrame(() => {
+                if (cancelled) return;
+                for (const anim of runningAnimations) {
+                    anim.play();
+                }
+                Promise.allSettled(runningAnimations.map((a) => a.finished)).then(() => {
+                    finishTransition();
+                });
             });
         });
 
         // Safety fallback in case a backgrounded tab throttles rAF/WAAPI completion
-        fallbackTimer = window.setTimeout(finishTransition, maxEndMs + 220);
+        fallbackTimer = window.setTimeout(finishTransition, maxEndMs + 320);
 
         return () => {
             cancelled = true;
             window.cancelAnimationFrame(rafId);
+            window.cancelAnimationFrame(rafId2);
             if (fallbackTimer !== null) {
                 window.clearTimeout(fallbackTimer);
             }
@@ -540,7 +547,7 @@ export const SpatialRouteStage: React.FC<SpatialRouteStageProps> = ({
         metaExitingKey,
         metaDir,
         metaDurationMs,
-        axis
+        metaAxis
     ]);
 
     return (

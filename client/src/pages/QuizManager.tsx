@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, MoreVertical, Download, Upload, Plus, CheckSquare, Square, Trash2, Sliders, X } from 'lucide-react';
+import { ArrowLeft, MoreVertical, Download, Upload, Plus, CheckSquare, Square, Trash2, Sliders, X, Sparkles } from 'lucide-react';
 import { api } from '../lib/api';
 import type { Quiz, Subject, UserData, Question } from '../types';
 import { DIFFICULTY_LEVELS } from '../constants/quizDefaults';
@@ -385,9 +385,7 @@ const QuizManager: React.FC<QuizManagerProps> = ({ quizzes, currentUser, onRefre
 
             if (Array.isArray(json)) {
                 const list = json as Record<string, unknown>[];
-                if (list.length > 0 && list[0]?.question && Array.isArray(list[0]?.options)) {
-                    questions = list as Partial<Question>[];
-                } else if (list.length > 0 && list[0]?.questions && Array.isArray(list[0]?.questions)) {
+                if (Array.isArray(list) && list.length > 0 && list[0]?.questions && Array.isArray(list[0]?.questions)) {
                     questions = list[0].questions as Partial<Question>[];
                     metadata = {
                         title: typeof list[0].title === 'string' ? list[0].title : undefined,
@@ -395,10 +393,23 @@ const QuizManager: React.FC<QuizManagerProps> = ({ quizzes, currentUser, onRefre
                         timeLimit: typeof list[0].timeLimit === 'number' ? list[0].timeLimit : undefined,
                         passingScore: typeof list[0].passingScore === 'number' ? list[0].passingScore : undefined,
                     };
+                } else if (list.length > 0 && list[0]?.question && Array.isArray(list[0]?.options)) {
+                    questions = list as Partial<Question>[];
                 }
             } else if (json && typeof json === 'object') {
                 const obj = json as Record<string, unknown>;
-                if (Array.isArray(obj.questions)) {
+                if (Array.isArray(obj.quizzes) && obj.quizzes.length > 0) {
+                    const firstQuiz = obj.quizzes[0] as Record<string, unknown>;
+                    if (firstQuiz && Array.isArray(firstQuiz.questions)) {
+                        questions = firstQuiz.questions as Partial<Question>[];
+                        metadata = {
+                            title: typeof firstQuiz.title === 'string' ? firstQuiz.title : undefined,
+                            description: typeof firstQuiz.description === 'string' ? firstQuiz.description : undefined,
+                            timeLimit: typeof firstQuiz.timeLimit === 'number' ? firstQuiz.timeLimit : undefined,
+                            passingScore: typeof firstQuiz.passingScore === 'number' ? firstQuiz.passingScore : undefined,
+                        };
+                    }
+                } else if (Array.isArray(obj.questions)) {
                     questions = obj.questions as Partial<Question>[];
                     metadata = {
                         title: typeof obj.title === 'string' ? obj.title : undefined,
@@ -483,6 +494,15 @@ const QuizManager: React.FC<QuizManagerProps> = ({ quizzes, currentUser, onRefre
         document.body.removeChild(link);
     };
 
+    const handleDownloadPoolSample = () => {
+        const link = document.createElement('a');
+        link.href = '/samples/question-pool-sample.json';
+        link.download = 'question-pool-sample.json';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     const handleImportQuiz = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files;
         if (!files || files.length === 0) return;
@@ -521,7 +541,12 @@ const QuizManager: React.FC<QuizManagerProps> = ({ quizzes, currentUser, onRefre
                     if (Array.isArray(content)) {
                         allQuizzes.push(...(content as Partial<Quiz>[]));
                     } else if (content && typeof content === 'object' && content !== null) {
-                        allQuizzes.push(content as Partial<Quiz>);
+                        const obj = content as Record<string, unknown>;
+                        if (Array.isArray(obj.quizzes)) {
+                            allQuizzes.push(...(obj.quizzes as Partial<Quiz>[]));
+                        } else if (obj.title || obj.id || Array.isArray(obj.questions)) {
+                            allQuizzes.push(obj as Partial<Quiz>);
+                        }
                     }
                 } else {
                     console.error(result.reason);
@@ -543,8 +568,13 @@ const QuizManager: React.FC<QuizManagerProps> = ({ quizzes, currentUser, onRefre
                 });
             }
 
-            // Pre-sanitize imported quizzes to guarantee IDs and question text fields
+            // Pre-sanitize imported quizzes to guarantee IDs, question text fields, compiler flags & clean metadata
             allQuizzes.forEach((quiz) => {
+                const rawQuiz = quiz as Partial<Quiz> & { _aiPrompt?: unknown; coinReward?: number };
+                delete rawQuiz._aiPrompt;
+                if (rawQuiz.coinsReward === undefined && typeof rawQuiz.coinReward === 'number') {
+                    rawQuiz.coinsReward = rawQuiz.coinReward;
+                }
                 if (!quiz.id && quiz.title) {
                     const slug = String(quiz.title)
                         .toLowerCase()
@@ -554,14 +584,18 @@ const QuizManager: React.FC<QuizManagerProps> = ({ quizzes, currentUser, onRefre
                     quiz.id = `${slug || 'quiz'}-${crypto.randomUUID().slice(0, 8)}`;
                 }
                 if (Array.isArray(quiz.questions)) {
-                    // Normalize any question text/id structures
-                    quiz.questions = quiz.questions.map((q: Partial<Question> & { text?: string }, idx: number) => ({
-                        ...q,
-                        id: Number.isFinite(Number(q.id)) ? Number(q.id) : idx + 1,
-                        question: q.question || q.text || `Question ${idx + 1}`,
-                        part: q.part || 'A',
-                        points: Number.isFinite(Number(q.points)) ? Number(q.points) : 10
-                    })) as Question[];
+                    // Normalize any question text/id/compiler structures
+                    quiz.questions = quiz.questions.map((q: Partial<Question> & { text?: string }, idx: number) => {
+                        const isCompilerQ = Boolean(q.isCompiler || q.type === 'compiler' || (q.compilerConfig && Object.keys(q.compilerConfig).length > 0));
+                        return {
+                            ...q,
+                            id: Number.isFinite(Number(q.id)) ? Number(q.id) : idx + 1,
+                            question: q.question || q.text || `Question ${idx + 1}`,
+                            part: q.part || 'A',
+                            points: Number.isFinite(Number(q.points)) ? Number(q.points) : 10,
+                            ...(isCompilerQ ? { type: 'compiler', isCompiler: true } : {})
+                        };
+                    }) as Question[];
                 }
             });
 
@@ -671,6 +705,25 @@ const QuizManager: React.FC<QuizManagerProps> = ({ quizzes, currentUser, onRefre
                                     }`}
                                 >
                                     <Download className={`w-4 h-4 ${isBento ? 'text-black' : 'text-gray-400'}`} /> Sample JSON
+                                </button>
+                                <button
+                                    onClick={() => { handleDownloadPoolSample(); setActiveHeaderMenu(false); }}
+                                    className={`w-full text-left px-4 py-3 flex items-center gap-2 text-sm font-medium cursor-pointer ${
+                                        isBento ? 'hover:bg-neutral-100 text-black' : 'hover:bg-gray-50 dark:hover:bg-white/5 text-gray-700 dark:text-gray-200'
+                                    }`}
+                                >
+                                    <Download className={`w-4 h-4 ${isBento ? 'text-black' : 'text-teal-500'}`} /> Pool Sample JSON
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setActiveHeaderMenu(false);
+                                        navigate(`/admin/json-studio?type=${quizTypeFilter === 'pool' ? 'question-pool' : 'quiz'}`);
+                                    }}
+                                    className={`w-full text-left px-4 py-3 flex items-center gap-2 text-sm font-bold cursor-pointer ${
+                                        isBento ? 'hover:bg-[#fde047] text-black border-t border-black/15' : 'hover:bg-white/5 text-[#fde047] border-t border-white/10'
+                                    }`}
+                                >
+                                    <Sparkles className={`w-4 h-4 ${isBento ? 'text-black' : 'text-[#fde047]'}`} /> AI Upgrade JSON
                                 </button>
                                 <label className={`w-full text-left px-4 py-3 flex items-center gap-2 text-sm font-medium cursor-pointer ${
                                     isBento ? 'hover:bg-neutral-100 text-black' : 'hover:bg-gray-50 dark:hover:bg-white/5 text-gray-700 dark:text-gray-200'

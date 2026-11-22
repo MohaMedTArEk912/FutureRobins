@@ -1,13 +1,154 @@
 {
-  "name": "Spring Code Clash Championship",
-  "description": "High-intensity tournament competing across data structures, logic, and rapid problem solving. Top rankers earn legendary badges and exclusive store rewards.",
-  "startsAt": "2026-10-01T10:00:00.000Z",
-  "endsAt": "2026-10-08T18:00:00.000Z",
+  "_aiPrompt": {
+    "version": "2.0",
+    "targetPlatform": "Quiz Platform",
+    "templateType": "tournament-event",
+    "howToUse": [
+      "1. Attach or paste your slides, revision pack, or competition syllabus alongside this JSON file.",
+      "2. Instruct the AI: 'Follow _aiPrompt strictly to generate a complete timed Tournament + dedicated customQuiz based on my material.'",
+      "3. Upload in Tournament Management -> Upload Tournament JSON (populates the Tournament Editor + Dedicated Quiz Builder)."
+    ],
+    "prompt": "You are a Competitive Championship Director and strict JSON generator for Quiz Platform. Using the attached slides, revision pack, or syllabus, create a complete timed Tournament configuration including an embedded competitive 'customQuiz'.\n\nTOURNAMENT & QUESTION QUALITY RULES:\n- Write an exciting, clear tournament 'name' and 'description' reflecting the subject and stakes.\n- Populate 'customQuiz.questions' with 6-12 crisp, fast-reading competitive questions grounded 100% in the attached material (mix 'multiple-choice', 'code-output', 'text', 'ordering', 'matching').\n- Note: In customQuiz questions, use the 'text' property (NOT 'question') for the prompt string.\n- Escalate difficulty & points gradually (10 -> 15 -> 20) so ties are cleanly broken by accuracy and speed.\n- Keep distractors sharp and realistic; avoid ambiguous wording in timed conditions.\n\nUI & TEXT RENDERING RULES (CRITICAL):\n- Question 'text', 'options', 'orderingItems', 'matchingPairs', and 'explanation' support KaTeX ($...$ / $$...$$ with double-escaped \\\\ backslashes) and plain text ONLY.\n- NEVER put Markdown (**bold**, ```, `inline backticks`, ###) in text/options/explanations—place code inside 'codeSnippet'.\n- Keep 'orderingItems' in exact correct sequence (concise <= 65 chars). Keep 'matchingPairs' concise.\n\nSTRICT JSON OUTPUT:\n- Return ONLY valid raw JSON matching the top-level Tournament contract below. Set 'quizMode': 'custom'. Omit '_aiPrompt'.",
+    "strictJsonContract": {
+      "rootObject": {
+        "name": "string (required tournament title)",
+        "description": "string (rules, topics, and reward summary)",
+        "startsAt": "string (ISO-8601 UTC timestamp)",
+        "endsAt": "string (ISO-8601 UTC timestamp after startsAt)",
+        "durationMinutes": "number (timed attempt duration in minutes)",
+        "status": "enum: 'scheduled' | 'live' | 'completed' (use 'scheduled')",
+        "quizMode": "'custom' (or 'assigned' when referencing existing quizIds)",
+        "quizIds": "string[] (empty [] for custom mode)",
+        "requiresApproval": "boolean (true)",
+        "resultsRevealed": "boolean (false)",
+        "rewardBadgeId": "string (optional badgeId)",
+        "rewardItemId": "string (optional shop itemId)",
+        "rewardCoins": "number (integer >= 0)",
+        "rewardXp": "number (integer >= 0)",
+        "customQuiz": {
+          "title": "string",
+          "description": "string",
+          "timeLimit": "number (minutes)",
+          "passingScore": "number (0-100)",
+          "questions": [
+            {
+              "id": "string (e.g. 'tq_1', 'tq_2')",
+              "text": "string (required question prompt; $KaTeX$ allowed, NO raw markdown)",
+              "type": "enum: 'multiple-choice' | 'code-output' | 'text' | 'ordering' | 'matching'",
+              "options": "string[] (4 items for MCQ; optional choices for code-output)",
+              "correctAnswer": "number (0-based index) | string",
+              "points": "number (10 | 15 | 20)",
+              "explanation": "string",
+              "codeSnippet": "string (for code-output)",
+              "orderingItems": "string[] (exact solved sequence for ordering)",
+              "matchingPairs": "{ left: string, right: string }[] (3-5 pairs for matching)"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "name": "Code Clash Championship: Algorithms & Web Core",
+  "description": "High-intensity timed arena competing across asymptotic analysis, code tracing, execution pipelines, and architecture fundamentals. Top rankers earn championship coins, XP, and an arena badge.",
+  "startsAt": "2026-12-01T16:00:00.000Z",
+  "endsAt": "2026-12-03T20:00:00.000Z",
+  "durationMinutes": 25,
   "status": "scheduled",
-  "quizIds": [
-    "quiz_algo_prelims",
-    "quiz_algo_finals"
-  ],
-  "rewardBadgeId": "badge_tournament_master",
-  "rewardItemId": "item_trophy_gold"
+  "quizMode": "custom",
+  "quizIds": [],
+  "requiresApproval": true,
+  "resultsRevealed": false,
+  "rewardBadgeId": "arena-grand-champion",
+  "rewardItemId": "item_trophy_gold",
+  "rewardCoins": 1000,
+  "rewardXp": 500,
+  "customQuiz": {
+    "title": "Code Clash Championship Exam",
+    "description": "Timed multi-format competitive exam balancing speed with precision.",
+    "timeLimit": 25,
+    "passingScore": 70,
+    "questions": [
+      {
+        "id": "tq_1",
+        "type": "multiple-choice",
+        "text": "A hash table uses open addressing with a high load factor $\\alpha = 0.99$. Which operation suffers most severely when collisions cluster?",
+        "options": [
+          "Worst-case key lookup degrades toward $O(N)$ probing",
+          "Array memory address alignment changes to $O(\\log N)$",
+          "All integer keys convert automatically into floating point",
+          "Hash values reverse byte order on every insertion"
+        ],
+        "correctAnswer": 0,
+        "points": 10,
+        "explanation": "When a hash table approaches full capacity, probe chains lengthen dramatically, pushing lookups from $O(1)$ average toward $O(N)$."
+      },
+      {
+        "id": "tq_2",
+        "type": "code-output",
+        "text": "Predict the exact terminal output when this JavaScript async queue executes:",
+        "codeSnippet": "console.log('A');\nsetTimeout(() => console.log('B'), 0);\nPromise.resolve().then(() => console.log('C'));\nconsole.log('D');",
+        "options": [
+          "A D C B",
+          "A B C D",
+          "A C D B",
+          "A D B C"
+        ],
+        "correctAnswer": 0,
+        "points": 15,
+        "explanation": "Synchronous code runs first (A, D), then the microtask queue drains (Promise then -> C) before the macrotask queue (setTimeout -> B)."
+      },
+      {
+        "id": "tq_3",
+        "type": "text",
+        "text": "What Python method removes and returns the last element from a list in $O(1)$ amortized time?",
+        "options": [],
+        "correctAnswer": "pop",
+        "points": 10,
+        "explanation": "Calling list.pop() without an index removes and returns the tail element in $O(1)$ time without shifting earlier indices."
+      },
+      {
+        "id": "tq_4",
+        "type": "ordering",
+        "text": "Order the phases of an HTTP browser request lifecycle from initial URL submission to DOM paint:",
+        "options": [],
+        "orderingItems": [
+          "1. DNS lookup resolves domain to IP",
+          "2. TCP + TLS handshake connects server",
+          "3. HTTP GET request & response headers",
+          "4. Parse HTML/CSS into Render Tree",
+          "5. Layout geometry & paint pixels"
+        ],
+        "correctAnswer": 0,
+        "points": 20,
+        "explanation": "Browsers resolve DNS first, establish transport/TLS security, exchange HTTP payloads, construct DOM + CSSOM, and finally run layout and paint."
+      },
+      {
+        "id": "tq_5",
+        "type": "matching",
+        "text": "Match each algorithm strategy with its classic canonical problem:",
+        "options": [],
+        "matchingPairs": [
+          {
+            "left": "Two Pointers",
+            "right": "Pair sum in a sorted array in O(1) space"
+          },
+          {
+            "left": "Sliding Window",
+            "right": "Longest substring with unique characters"
+          },
+          {
+            "left": "Monotonic Stack",
+            "right": "Next greater element for every index"
+          },
+          {
+            "left": "Union-Find (DSU)",
+            "right": "Cycle detection in undirected graphs"
+          }
+        ],
+        "correctAnswer": 0,
+        "points": 20,
+        "explanation": "Recognizing problem invariants maps directly to optimal linear-time algorithmic templates."
+      }
+    ]
+  }
 }

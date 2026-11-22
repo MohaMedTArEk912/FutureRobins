@@ -1,119 +1,228 @@
-[
-  {
-    "title": "Computer Science Core Question Pool",
-    "description": "Dynamic Question Pool where each student receives 5 randomly sampled questions from this bank on every attempt.",
-    "category": "Computer Science",
-    "difficulty": "medium",
-    "timeLimit": 20,
-    "passingScore": 80,
-    "xpReward": 200,
-    "coinReward": 80,
-    "quizType": "pool",
-    "isQuestionPool": true,
-    "questionsPerAttempt": 5,
-    "shuffleQuestions": true,
-    "isProctored": false,
-    "requireFullscreen": false,
-    "disableCopyPaste": false,
-    "strictTabSwitchLimit": 5,
-    "reviewMode": true,
-    "questions": [
-      {
-        "id": "pool_q1",
-        "text": "Which data structure follows the First In, First Out (FIFO) principle?",
-        "type": "multiple-choice",
-        "points": 10,
-        "options": ["Queue", "Stack", "Binary Heap", "Hash Table"],
-        "correctAnswer": 0,
-        "explanation": "Queues operate on a FIFO basis, where items are dequeued in the order they were enqueued."
+{
+  "_aiPrompt": {
+    "version": "2.0",
+    "targetPlatform": "Quiz Platform",
+    "templateType": "question-pool-import",
+    "howToUse": [
+      "1. Attach or paste your slides, textbook chapter, or subject modules alongside this JSON template.",
+      "2. Instruct the AI: 'Follow _aiPrompt strictly to generate a randomized Question Pool bank covering every topic proportionally.'",
+      "3. Upload the returned JSON in Quiz Manager -> Import JSON. Each student attempt will receive a fresh non-repeating batch of questionsPerAttempt items."
+    ],
+    "prompt": "You are an expert item-bank psychometrician and strict JSON generator for Quiz Platform. Using ONLY the attached slides, textbook chapter, or topic, create a large, balanced Question Pool in strict JSON format.\n\nQUESTION POOL DESIGN GOALS:\n- A Question Pool serves random non-repeating subsets ('questionsPerAttempt') to students on each attempt—so EVERY question MUST be completely self-contained! NEVER reference 'Question 3 above' or repeat near-identical rewordings of the same fact.\n- Generate at least 15-25 diverse questions (2x to 3x 'questionsPerAttempt') evenly distributed across every slide/sub-topic.\n- Mix cognitive levels and question types ('multiple-choice', 'code-output', 'text', 'ordering', 'matching') so every random draw feels fair, varied, and challenging.\n- Balance option lengths across all 4 multiple-choice options; every distractor must stem from a plausible student error (off-by-one, swapped definition, wrong complexity class, wrong scope).\n- Write crisp explanations (1-2 sentences) teaching the underlying principle and warning against the main misconception.\n\nUI & TEXT RENDERING RULES (CRITICAL):\n- Question text, options, orderingItems, matchingPairs, and explanation use KaTeX math ($...$ inline, $$...$$ block, double-escaped backslashes \\\\ in JSON) and plain text ONLY.\n- NEVER include raw Markdown (**bold**, *italic*, ### headings, ```code fences```, or `inline backticks`) in any text/option/explanation field because the renderer shows literal symbols.\n- Put code snippets exclusively in 'codeSnippet' with clean \\n line breaks.\n- Keep 'orderingItems' in exact correct order (concise items <= 65 chars). Keep 'matchingPairs' clean (<= 35 chars left, <= 65 chars right).\n\nSTRICT JSON OUTPUT:\n- Return ONLY valid raw JSON matching { \"quizzes\": [ { ... } ] }. Set \"quizType\": \"pool\", \"isQuestionPool\": true, appropriate \"questionsPerAttempt\" (typically 5-10), and omit '_aiPrompt'.",
+    "strictJsonContract": {
+      "rootObject": {
+        "quizzes": "QuestionPoolQuiz[] (omit _aiPrompt)"
       },
-      {
-        "id": "pool_q2",
-        "text": "What is the average lookup time complexity in a balanced Binary Search Tree (e.g., AVL or Red-Black Tree)?",
-        "type": "multiple-choice",
-        "points": 10,
-        "options": ["$O(\\log N)$", "$O(1)$", "$O(N)$", "$O(N \\log N)$"],
-        "correctAnswer": 0,
-        "explanation": "Self-balancing binary trees maintain height proportional to $\\log N$, guaranteeing $O(\\log N)$ search time."
+      "QuestionPoolQuiz": {
+        "id": "string (kebab-case pool slug)",
+        "title": "string (required)",
+        "description": "string (required; state pool size & sampled attempt size)",
+        "category": "string",
+        "difficulty": "enum: 'Beginner' | 'Intermediate' | 'Advanced'",
+        "icon": "enum: 'Code2' | 'BookOpen' | 'Brain' | 'Target' | 'Trophy' | 'Lightbulb' | 'Award' | 'Rocket' | 'Monitor' | 'FlaskConical' | 'Zap' | 'Wrench'",
+        "timeLimit": "number (minutes; 0 = unlimited)",
+        "passingScore": "number (0-100)",
+        "xpReward": "number",
+        "coinsReward": "number",
+        "quizType": "'pool' (required)",
+        "isQuestionPool": "true (required)",
+        "questionsPerAttempt": "number (must be < questions.length, e.g. 5 or 10)",
+        "shuffleQuestions": "true",
+        "isVisible": "true",
+        "reviewMode": "boolean",
+        "questions": "QuestionObject[] (recommended 15-30 independent items)"
       },
-      {
-        "id": "pool_q3",
-        "text": "What will be printed to stdout?",
-        "type": "code-output",
-        "points": 15,
-        "codeSnippet": "a = [10, 20, 30]\nb = a\nb.append(40)\nprint(len(a))",
-        "correctAnswer": "4",
-        "explanation": "`b` and `a` reference the exact same underlying list in memory, so appending to `b` alters `a`."
-      },
-      {
-        "id": "pool_q4",
-        "text": "What keyword is used in JavaScript to declare an immutable block-scoped variable binding?",
-        "type": "text",
-        "points": 10,
-        "correctAnswer": "const",
-        "explanation": "`const` declares block-scoped constants that cannot be reassigned through re-assignment."
-      },
-      {
-        "id": "pool_q5",
-        "text": "Order these sorting algorithms by their worst-case time complexity, from best to worst:",
-        "type": "ordering",
-        "points": 20,
-        "orderingItems": [
-          "Merge Sort - O(N log N)",
-          "Heap Sort - O(N log N)",
-          "QuickSort - O(N²)",
-          "Selection Sort - O(N²)"
-        ],
-        "explanation": "Merge Sort and Heap Sort have $O(N \\log N)$ worst cases, while QuickSort and Selection Sort can degrade to $O(N²)$."
-      },
-      {
-        "id": "pool_q6",
-        "text": "Match the database design concept with its definition:",
-        "type": "matching",
-        "points": 20,
-        "matchingPairs": [
-          { "left": "Primary Key", "right": "Unique identifier for each record in a table" },
-          { "left": "Foreign Key", "right": "Field establishing relational link between two tables" },
-          { "left": "Index", "right": "Data structure improving query lookup performance" },
-          { "left": "Normalization", "right": "Process minimizing data redundancy and anomalies" }
-        ],
-        "explanation": "Fundamental relational database schema definitions."
-      },
-      {
-        "id": "pool_q7",
-        "text": "In distributed computing, what does the 'C' represent in Brewer's CAP Theorem?",
-        "type": "multiple-choice",
-        "points": 10,
-        "options": ["Consistency", "Concurrency", "Coherence", "Capacity"],
-        "correctAnswer": 0,
-        "explanation": "CAP theorem states distributed systems trade off Consistency, Availability, and Partition Tolerance."
-      },
-      {
-        "id": "pool_q8",
-        "text": "What is the output of `bool([])` in Python?",
-        "type": "code-output",
-        "points": 15,
-        "codeSnippet": "val = []\nprint(bool(val))",
-        "correctAnswer": "False",
-        "explanation": "Empty collections in Python evaluate to `False` in boolean contexts."
-      },
-      {
-        "id": "pool_q9",
-        "text": "Which network protocol is connectionless and does not guarantee packet delivery order?",
-        "type": "text",
-        "points": 10,
-        "correctAnswer": "UDP",
-        "explanation": "User Datagram Protocol (UDP) is a connectionless transport protocol prioritizing speed over delivery guarantee."
-      },
-      {
-        "id": "pool_q10",
-        "text": "What is the space complexity of Depth First Search (DFS) on a balanced binary tree of depth $H$?",
-        "type": "multiple-choice",
-        "points": 10,
-        "options": ["$O(H)$", "$O(N^2)$", "$O(1)$", "$O(2^H)$"],
-        "correctAnswer": 0,
-        "explanation": "DFS call stack memory usage is proportional to the tree height $H$."
+      "QuestionObject": {
+        "id": "number (1, 2, 3, ...)",
+        "type": "enum: 'multiple-choice' | 'code-output' | 'text' | 'ordering' | 'matching'",
+        "part": "string (topic/slide tag so admins can audit topic coverage)",
+        "question": "string (self-contained prompt; $KaTeX$ allowed, NO raw markdown)",
+        "points": "number (10 | 15 | 20)",
+        "explanation": "string",
+        "shuffleOptions": "true",
+        "options": "string[] (for multiple-choice [4] or optional code-output choices)",
+        "correctAnswer": "number (0-based index) | string | string[]",
+        "codeSnippet": "string (for code-output)",
+        "orderingItems": "string[] (exact solved sequence top-to-bottom)",
+        "matchingPairs": "{ left: string, right: string }[] (3-5 pairs)"
       }
-    ]
-  }
-]
+    }
+  },
+  "quizzes": [
+    {
+      "id": "cs-core-question-pool",
+      "title": "Computer Science Core Question Pool",
+      "description": "Dynamic Question Pool delivering 5 non-repeating questions drawn from a 10-question multi-topic bank on every attempt.",
+      "category": "Computer Science",
+      "difficulty": "Intermediate",
+      "icon": "Target",
+      "timeLimit": 15,
+      "passingScore": 80,
+      "xpReward": 200,
+      "coinsReward": 80,
+      "quizType": "pool",
+      "isQuestionPool": true,
+      "questionsPerAttempt": 5,
+      "shuffleQuestions": true,
+      "isVisible": true,
+      "isProctored": false,
+      "requireFullscreen": false,
+      "disableCopyPaste": false,
+      "strictTabSwitchLimit": 0,
+      "reviewMode": true,
+      "questions": [
+        {
+          "id": 1,
+          "part": "Data Structures",
+          "type": "multiple-choice",
+          "question": "Which linear data structure enforces First In, First Out (FIFO) ordering for insertions and removals?",
+          "points": 10,
+          "options": [
+            "Queue",
+            "Stack",
+            "Binary Max-Heap",
+            "Hash Table"
+          ],
+          "correctAnswer": 0,
+          "explanation": "A Queue enqueues items at the rear and dequeues from the front in FIFO order, whereas a Stack follows Last In, First Out (LIFO).",
+          "shuffleOptions": true
+        },
+        {
+          "id": 2,
+          "part": "Trees & Complexity",
+          "type": "multiple-choice",
+          "question": "What is the guaranteed worst-case lookup time complexity in a height-balanced Binary Search Tree such as an AVL or Red-Black Tree with $N$ nodes?",
+          "points": 10,
+          "options": [
+            "$O(\\log N)$",
+            "$O(1)$",
+            "$O(N)$",
+            "$O(N \\log N)$"
+          ],
+          "correctAnswer": 0,
+          "explanation": "Rebalancing rotations bound tree height to $\\Theta(\\log N)$, preventing degenerate $O(N)$ chains.",
+          "shuffleOptions": true
+        },
+        {
+          "id": 3,
+          "part": "Python Memory Model",
+          "type": "code-output",
+          "question": "Predict the exact stdout output produced by this Python reference-aliasing snippet:",
+          "points": 15,
+          "codeSnippet": "a = [10, 20, 30]\nb = a\nb.append(40)\nprint(len(a))",
+          "correctAnswer": "4",
+          "explanation": "Both b and a bind to the same mutable list object in memory, so mutating b with append() increases len(a) to 4."
+        },
+        {
+          "id": 4,
+          "part": "JavaScript Scope",
+          "type": "text",
+          "question": "Which JavaScript keyword declares a block-scoped variable binding that cannot be reassigned after initialization?",
+          "points": 10,
+          "correctAnswer": [
+            "const"
+          ],
+          "explanation": "The const declaration creates a block-scoped read-only binding reference, unlike let (reassignable) or var (function-scoped)."
+        },
+        {
+          "id": 5,
+          "part": "Sorting Algorithms",
+          "type": "ordering",
+          "question": "Order these sorting algorithms by their worst-case asymptotic time complexity, from fastest to slowest (or fewest guarantees):",
+          "points": 20,
+          "orderingItems": [
+            "Merge Sort - O(N log N) worst case",
+            "Heap Sort - O(N log N) with O(1) space",
+            "QuickSort - O(N log N) avg, O(N^2) worst",
+            "Bubble Sort - O(N^2) avg & worst"
+          ],
+          "explanation": "Merge Sort and Heap Sort guarantee $O(N \\log N)$ worst-case time; QuickSort is $O(N \\log N)$ on average but degrades to $O(N^2)$ on bad pivots; Bubble Sort is quadratic in both average and worst cases."
+        },
+        {
+          "id": 6,
+          "part": "Relational Databases",
+          "type": "matching",
+          "question": "Match each relational database schema term with its exact architectural purpose:",
+          "points": 20,
+          "matchingPairs": [
+            {
+              "left": "Primary Key",
+              "right": "Uniquely identifies each table row"
+            },
+            {
+              "left": "Foreign Key",
+              "right": "Links a row to a key in another table"
+            },
+            {
+              "left": "B-Tree Index",
+              "right": "Accelerates WHERE & JOIN lookups"
+            },
+            {
+              "left": "Normalization",
+              "right": "Reduces redundant data & update anomalies"
+            }
+          ],
+          "explanation": "Keys enforce entity and referential integrity, indexes trade write overhead for fast reads, and normalization structures dependencies cleanly."
+        },
+        {
+          "id": 7,
+          "part": "Distributed Systems",
+          "type": "multiple-choice",
+          "question": "In Brewer's CAP Theorem for distributed data stores, what property does the letter C stand for?",
+          "points": 10,
+          "options": [
+            "Consistency across all nodes",
+            "Concurrency of worker threads",
+            "Caching at network edges",
+            "Compression of log streams"
+          ],
+          "correctAnswer": 0,
+          "explanation": "CAP stands for Consistency, Availability, and Partition Tolerance—a partitioned distributed store must choose between linearizable Consistency and Availability."
+        },
+        {
+          "id": 8,
+          "part": "Python Truthiness",
+          "type": "code-output",
+          "question": "What boolean value is printed to stdout by this Python snippet?",
+          "points": 15,
+          "codeSnippet": "values = []\nprint(bool(values))",
+          "options": [
+            "False",
+            "True",
+            "None",
+            "TypeError"
+          ],
+          "correctAnswer": 0,
+          "explanation": "Empty Python sequences and collections ([], {}, '', set()) evaluate to False in boolean context."
+        },
+        {
+          "id": 9,
+          "part": "Computer Networks",
+          "type": "text",
+          "question": "Which connectionless transport protocol prioritizes low latency over delivery guarantees and packet ordering?",
+          "points": 10,
+          "correctAnswer": [
+            "UDP",
+            "User Datagram Protocol"
+          ],
+          "explanation": "UDP (User Datagram Protocol) skips handshakes and retransmission overhead, making it ideal for real-time audio, video, and multiplayer games."
+        },
+        {
+          "id": 10,
+          "part": "Graph Traversal",
+          "type": "multiple-choice",
+          "question": "What is the auxiliary call-stack space complexity of recursive Depth-First Search (DFS) on a tree of maximum height $H$?",
+          "points": 10,
+          "options": [
+            "$O(H)$",
+            "$O(1)$",
+            "$O(2^H)$",
+            "$O(H^2)$"
+          ],
+          "correctAnswer": 0,
+          "explanation": "DFS only keeps the current root-to-leaf path on the recursion stack, consuming $O(H)$ space."
+        }
+      ]
+    }
+  ]
+}

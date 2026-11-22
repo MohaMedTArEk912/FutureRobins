@@ -8,7 +8,7 @@ import { ChatProvider } from './context/ChatContext';
 import { NavArrangementProvider } from './context/NavArrangementContext';
 import { UserProfileModalProvider } from './context/UserProfileModalContext';
 import { SecretGameProvider } from './context/SecretGameContext';
-import { ProtectedRoute, AdminRoute } from './components/RouteGuards';
+import { ProtectedRoute, AdminRoute, StaffRoute } from './components/RouteGuards';
 import MainLayout from './layouts/MainLayout';
 import PageLoader from './components/PageLoader.tsx';
 import { AiJobProvider } from './contexts/AiJobContext';
@@ -31,6 +31,7 @@ const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage'));
 const TeacherQuizRevisionPage = lazy(() => import('./pages/TeacherQuizRevisionPage'));
 const ProctoringTelemetryPage = lazy(() => import('./pages/ProctoringTelemetryPage'));
+const AiJsonStudioPage = lazy(() => import('./pages/AiJsonStudioPage'));
 
 const TournamentInviteRedirect: React.FC = () => {
     const { tournamentId } = useParams<{ tournamentId: string }>();
@@ -147,6 +148,17 @@ const App: React.FC = () => {
                               <AdminRoute>
                                 <TeacherQuizRevisionPage />
                               </AdminRoute>
+                            } />
+
+                            <Route path="/admin/json-studio" element={
+                              <StaffRoute>
+                                <AiJsonStudioPage />
+                              </StaffRoute>
+                            } />
+                            <Route path="/json-studio" element={
+                              <StaffRoute>
+                                <AiJsonStudioPage />
+                              </StaffRoute>
                             } />
 
                             {/* User Routes wrapped in MainLayout */}

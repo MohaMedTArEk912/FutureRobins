@@ -1,12 +1,56 @@
 {
-  "title": "Tournament Preliminary Sprint: Algorithms",
-  "description": "Official timed tournament qualifying stage. Real-time competitive scoring enabled.",
+  "_aiPrompt": {
+    "version": "2.0",
+    "targetPlatform": "Quiz Platform",
+    "templateType": "tournament-quiz",
+    "howToUse": [
+      "1. Attach or paste your lecture slides, exam review notes, or subject alongside this JSON file.",
+      "2. Instruct the AI: 'Follow _aiPrompt strictly to generate a proctored Tournament Preliminary / Final Quiz based on my slides.'",
+      "3. Upload in Tournament Management -> Upload Quiz JSON (auto-populates the Dedicated Tournament Quiz Builder)."
+    ],
+    "prompt": "You are an Examination & Esports Assessment Author and strict JSON generator for Quiz Platform. Using ONLY the attached slides, notes, or syllabus, create a high-integrity proctored Tournament Quiz JSON.\n\nCOMPETITIVE EXAM RULES:\n- Every question must test sharp understanding of concepts, code execution, formulas, or ordering/matching from the provided slides—no guesswork trivia.\n- Progress difficulty cleanly from 10-point warmups to 15-point code traces and 20-point structural ordering/matching tie-breakers.\n- All 4 multiple-choice options must be plausible and balanced in length.\n- Keep 'text' property (used by Tournament Custom Quiz Builder) crisp, clear, and free of raw Markdown (**bold**, ```, `backticks`, ###).\n- Use KaTeX math delimiters ($...$ / $$...$$ with double-escaped \\\\ backslashes) only for formulas and Big-O notation.\n\nSTRICT JSON OUTPUT:\n- Return ONLY valid raw JSON matching the schema below. Omit '_aiPrompt'.",
+    "strictJsonContract": {
+      "rootObject": {
+        "title": "string (required)",
+        "description": "string",
+        "category": "'Tournament' (or subject category)",
+        "difficulty": "enum: 'Beginner' | 'Intermediate' | 'Advanced'",
+        "timeLimit": "number (minutes)",
+        "passingScore": "number (0-100)",
+        "xpReward": "number",
+        "coinsReward": "number",
+        "icon": "'Trophy'",
+        "isTournamentOnly": "true",
+        "isProctored": "true",
+        "requireFullscreen": "true",
+        "disableCopyPaste": "true",
+        "strictTabSwitchLimit": "number (e.g. 2)",
+        "questions": [
+          {
+            "id": "string (e.g. 'tq_1')",
+            "text": "string (required; $KaTeX$ allowed, NO raw markdown)",
+            "type": "enum: 'multiple-choice' | 'code-output' | 'text' | 'ordering' | 'matching'",
+            "points": "number (10 | 15 | 20)",
+            "options": "string[] (required 4 items for multiple-choice; optional choices for code-output)",
+            "correctAnswer": "number (0-based index for MCQ/code-output-with-options) | string (exact answer for free code-output or text)",
+            "explanation": "string",
+            "codeSnippet": "string (for code-output)",
+            "orderingItems": "string[] (exact solved order top-to-bottom)",
+            "matchingPairs": "{ left: string, right: string }[] (3-5 clean pairs)"
+          }
+        ]
+      }
+    }
+  },
+  "title": "Tournament Qualifier: Algorithms & Runtime Logic",
+  "description": "Official timed tournament qualifying exam with strict proctoring, balanced asymptotic analysis, code tracing, and structural ranking.",
   "category": "Tournament",
-  "difficulty": "medium",
-  "timeLimit": 15,
+  "difficulty": "Intermediate",
+  "timeLimit": 20,
   "passingScore": 70,
   "xpReward": 300,
-  "coinReward": 150,
+  "coinsReward": 150,
+  "icon": "Trophy",
   "isTournamentOnly": true,
   "isProctored": true,
   "requireFullscreen": true,
@@ -15,33 +59,88 @@
   "questions": [
     {
       "id": "tq_1",
-      "text": "What is the worst-case time complexity of QuickSort when the pivot is always the extreme element?",
       "type": "multiple-choice",
+      "text": "What is the worst-case time complexity of QuickSort when the chosen pivot is consistently the minimum or maximum element?",
       "points": 10,
-      "options": ["O(N log N)", "O(N²)", "O(N)", "O(log N)"],
+      "options": [
+        "$O(N \\log N)$",
+        "$O(N^2)$",
+        "$O(N)$",
+        "$O(\\log N)$"
+      ],
       "correctAnswer": 1,
-      "explanation": "When QuickSort partitions on an extreme element each time, recursion depth becomes N resulting in O(N²) time."
+      "explanation": "Skewed partitions split the array into sizes $0$ and $N - 1$ at every level, creating depth $N$ and total work $\\sum_{k=1}^{N} k = O(N^2)$."
     },
     {
       "id": "tq_2",
-      "text": "What is the output of the following Python snippet?",
       "type": "code-output",
+      "text": "What integer is printed to stdout by this Python reference-rebinding snippet?",
       "points": 15,
       "codeSnippet": "x = [1, 2, 3]\ny = x\nx = x + [4]\nprint(len(y))",
       "correctAnswer": "3",
-      "explanation": "`x + [4]` creates a new list assigned to `x`, leaving `y` referencing the original 3-element list."
+      "explanation": "Evaluating x + [4] allocates a fresh list object and rebinds x, leaving y pointing to the original 3-element list."
     },
     {
       "id": "tq_3",
-      "text": "Arrange these algorithms in increasing order of average-case asymptotic complexity:",
+      "type": "code-output",
+      "text": "Predict the exact stdout output produced by this JavaScript closure loop:",
+      "points": 15,
+      "codeSnippet": "const out = [];\nfor (let i = 0; i < 3; i++) {\n  out.push(() => i * 2);\n}\nconsole.log(out.map(fn => fn()).join(','));",
+      "options": [
+        "0,2,4",
+        "6,6,6",
+        "0,1,2",
+        "2,4,6"
+      ],
+      "correctAnswer": 0,
+      "explanation": "Declaring the loop counter with let creates a fresh block-scoped binding per iteration, preserving values 0, 1, and 2 inside each closure."
+    },
+    {
+      "id": "tq_4",
+      "type": "text",
+      "text": "Which single-word traversal explores a graph level-by-level and guarantees shortest paths in unweighted graphs?",
+      "points": 10,
+      "correctAnswer": "BFS",
+      "explanation": "Breadth-First Search (BFS) expands vertices in order of hop distance from the source via a FIFO queue."
+    },
+    {
+      "id": "tq_5",
       "type": "ordering",
+      "text": "Arrange these time complexities in strictly increasing order of growth rate (fastest to slowest):",
       "points": 20,
       "orderingItems": [
+        "Constant lookup - O(1)",
         "Binary Search - O(log N)",
         "Linear Scan - O(N)",
         "Merge Sort - O(N log N)",
-        "Bubble Sort - O(N²)"
-      ]
+        "Nested Pairs - O(N^2)"
+      ],
+      "explanation": "For large $N$, growth hierarchy satisfies $1 < \\log N < N < N \\log N < N^2$."
+    },
+    {
+      "id": "tq_6",
+      "type": "matching",
+      "text": "Match each data structure with its signature strength:",
+      "points": 20,
+      "matchingPairs": [
+        {
+          "left": "Hash Map",
+          "right": "Expected O(1) key-value lookup"
+        },
+        {
+          "left": "Min-Heap",
+          "right": "O(1) peek & O(log N) extract minimum"
+        },
+        {
+          "left": "Trie (Prefix Tree)",
+          "right": "O(L) prefix autocomplete over strings"
+        },
+        {
+          "left": "Stack",
+          "right": "O(1) LIFO push & pop for backtracking"
+        }
+      ],
+      "explanation": "Choosing the right container directly optimizes latency for lookups, priority scheduling, prefix queries, or nested calls."
     }
   ]
 }

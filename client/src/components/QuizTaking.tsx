@@ -22,17 +22,26 @@ const CompilerQuestion = React.lazy(() => import('./question-types/CompilerQuest
 
 type AnswerValue = string | number | string[] | Record<string, string>;
 
-const isSameAnswer = (a: unknown, b: unknown): boolean => {
-    if (a === b) return true;
-    if (a === undefined || a === null || b === undefined || b === null) return false;
-    if (typeof a === 'object' && typeof b === 'object') {
-        try {
-            return JSON.stringify(a) === JSON.stringify(b);
-        } catch {
-            return false;
-        }
+const isQuestionAnswerComplete = (q: Question | undefined, ans: unknown): boolean => {
+    if (!q || ans === undefined || ans === null) return false;
+    if (q.type === 'matching') {
+        const pairCount =
+            q.matchingPairs?.length ||
+            (typeof q.correctAnswer === 'object' && q.correctAnswer !== null
+                ? Object.keys(q.correctAnswer).length
+                : 0);
+        return typeof ans === 'object' && !Array.isArray(ans) && Object.keys(ans).length >= pairCount;
     }
-    return String(a).trim() === String(b).trim();
+    if (q.type === 'text') {
+        return typeof ans === 'string' && ans.trim().length > 0;
+    }
+    if (q.type === 'ordering') {
+        return Array.isArray(ans) && ans.length > 0;
+    }
+    if (q.isCompiler || q.type === 'compiler') {
+        return typeof ans === 'string' && ans.trim().length > 0;
+    }
+    return true;
 };
 
 interface QuizTakingProps {
@@ -354,11 +363,14 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
     const [flaggedQuestions, setFlaggedQuestions] = useState<Record<number, boolean>>({});
     const [showQuestionMenu, setShowQuestionMenu] = useState(false);
     const [unsubmittedWarning, setUnsubmittedWarning] = useState<string | null>(null);
+    const [visitedActualIndices, setVisitedActualIndices] = useState<Record<number, boolean>>({});
+    const [hasAttemptedFinish, setHasAttemptedFinish] = useState(false);
 
     const quizIdentifier = quiz.id || quiz._id || quiz.title;
     const storageKey = `quiz_progress_${user.userId}_${quizIdentifier}`;
 
     const isUnlimitedTime = (quiz.timeLimit === 0 && !countUpTimer);
+    const isReviewMode = quiz.reviewMode !== false && !delayedValidation;
 
     // --- LOGIC: Forced Shuffling (questions and options are always shuffled) ---
     const generateShuffledIndices = useCallback((length: number) => {
@@ -469,6 +481,9 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
         sessionStorage.removeItem(storageKey);
         setSavedState(null);
         setSubmittedAnswers({});
+        setVisitedActualIndices({});
+        setHasAttemptedFinish(false);
+        setUnsubmittedWarning(null);
         setShowResumePrompt(false);
         resetQuestionState();
     };
@@ -634,54 +649,74 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
 
     const goToQuestion = useCallback((questionPosition: number) => {
         if (isSubmitting) return;
+        const leavingActualIdx = getActualQuestionIndex(currentQuestion);
+        if (leavingActualIdx !== undefined) {
+            setVisitedActualIndices(prev => (prev[leavingActualIdx] ? prev : { ...prev, [leavingActualIdx]: true }));
+        }
         setCurrentQuestion(questionPosition);
         resetQuestionState(questionPosition);
         setShowQuestionMenu(false);
-    }, [isSubmitting, resetQuestionState]);
+    }, [isSubmitting, resetQuestionState, getActualQuestionIndex, currentQuestion]);
 
-    const unsubmittedQuestionsList = useMemo(() => {
-        const questionIndices = retryMode ? wrongQuestionIndices : quiz.questions.map((_, i) => i);
-        return questionIndices.filter(actualIdx => {
-            const q = quiz.questions[actualIdx];
-            if (!q) return false;
-            const ans = answers[actualIdx];
-            if (ans === undefined || ans === null) return true;
-            if (q.type === 'matching') {
-                const pairCount = q.matchingPairs?.length || (typeof q.correctAnswer === 'object' && q.correctAnswer !== null ? Object.keys(q.correctAnswer).length : 0);
-                if (typeof ans !== 'object' || Object.keys(ans).length < pairCount) return true;
-            }
-            if (q.type === 'text') {
-                if (typeof ans !== 'string' || ans.trim().length === 0) return true;
-            }
-            if (!submittedQuestions[actualIdx]) return true;
-            // In quiz mode: if answer was changed since last submit, it is unsubmitted
-            if (quiz.reviewMode === false && submittedAnswers[actualIdx] !== undefined) {
-                if (!isSameAnswer(ans, submittedAnswers[actualIdx])) return true;
-            }
+    const activePositions = useMemo(() => {
+        const count = retryMode ? wrongQuestionIndices.length : quiz.questions.length;
+        return Array.from({ length: count }, (_, pos) => pos);
+    }, [retryMode, wrongQuestionIndices.length, quiz.questions.length]);
+
+    const incompletePositions = useMemo(() => {
+        return activePositions.filter(pos => {
+            const actualIdx = getActualQuestionIndex(pos);
+            const qObj = quiz.questions[actualIdx];
+            if (!qObj) return false;
+            const complete = isQuestionAnswerComplete(qObj, answers[actualIdx]);
+            if (!complete) return true;
+            // Review Mode requires explicit per-question check/submit; Quiz Mode allows direct selection
+            if (isReviewMode && !submittedQuestions[actualIdx]) return true;
             return false;
         });
-    }, [retryMode, wrongQuestionIndices, quiz.questions, answers, submittedQuestions, quiz.reviewMode, submittedAnswers]);
+    }, [activePositions, getActualQuestionIndex, quiz.questions, answers, isReviewMode, submittedQuestions]);
 
-    const allQuestionsSubmitted = unsubmittedQuestionsList.length === 0;
+    const allQuestionsSubmitted = incompletePositions.length === 0;
+
+    const redAlertActualSet = useMemo(() => {
+        const set = new Set<number>();
+        for (const pos of incompletePositions) {
+            const actualIdx = getActualQuestionIndex(pos);
+            if (hasAttemptedFinish || (visitedActualIndices[actualIdx] && pos !== currentQuestion)) {
+                set.add(actualIdx);
+            }
+        }
+        return set;
+    }, [incompletePositions, getActualQuestionIndex, hasAttemptedFinish, visitedActualIndices, currentQuestion]);
+
+    useEffect(() => {
+        if (allQuestionsSubmitted && unsubmittedWarning) {
+            setUnsubmittedWarning(null);
+        }
+    }, [allQuestionsSubmitted, unsubmittedWarning]);
 
     const handleQuizComplete = useCallback((isTimeUp = false) => {
         if (isSubmitting) return;
 
-        // If manual submission (not auto-timeout), verify that ALL questions are answered and submitted!
+        // If manual submission (not auto-timeout), verify all questions are answered (and submitted in Review Mode)
         if (!isTimeUp && !allQuestionsSubmitted) {
+            setHasAttemptedFinish(true);
             setShakeError(true);
             setTimeout(() => setShakeError(false), 500);
+            sounds.playIncorrect();
 
-            const count = unsubmittedQuestionsList.length;
-            const msg = `Cannot finish quiz yet: Please answer and submit all questions (${count} question${count > 1 ? 's' : ''} remaining).`;
+            const count = incompletePositions.length;
+            const msg = isReviewMode
+                ? tx(
+                    `${count} question${count > 1 ? 's' : ''} not submitted yet — tap a red number to finish`,
+                    `في ${count} سؤال متسلمش لسه — اضغط على الرقم الأحمر للإجابة`
+                )
+                : tx(
+                    `${count} unanswered question${count > 1 ? 's' : ''} — tap a red number to answer`,
+                    `في ${count} سؤال بدون إجابة — اضغط على الرقم الأحمر للإجابة`
+                );
             setUnsubmittedWarning(msg);
-
-            // Auto-navigate to first unsubmitted question position
-            const firstUnsubmittedActual = unsubmittedQuestionsList[0];
-            const targetPos = (retryMode ? wrongQuestionIndices : questionOrder).indexOf(firstUnsubmittedActual);
-            if (targetPos !== -1 && targetPos !== currentQuestion) {
-                goToQuestion(targetPos);
-            }
+            setShowQuestionMenu(true);
             return;
         }
 
@@ -780,23 +815,31 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
             telemetry
         });
 
-    }, [answers, delayedValidation, isSubmitting, onComplete, onProgress, questionOrder, quiz.questions, quiz.passingScore, storageKey, timeLeft, countUpTimer, checkComplexAnswer, currentQuestion, allQuestionsSubmitted, unsubmittedQuestionsList, retryMode, wrongQuestionIndices, goToQuestion]);
+    }, [answers, delayedValidation, isSubmitting, onComplete, onProgress, questionOrder, quiz.questions, quiz.passingScore, storageKey, timeLeft, countUpTimer, checkComplexAnswer, currentQuestion, allQuestionsSubmitted, incompletePositions.length, isReviewMode, tx]);
 
     const nextQuestion = useCallback(() => {
         if (isSubmitting) return;
+        const leavingActualIdx = getActualQuestionIndex(currentQuestion);
+        if (leavingActualIdx !== undefined) {
+            setVisitedActualIndices(prev => (prev[leavingActualIdx] ? prev : { ...prev, [leavingActualIdx]: true }));
+        }
         if (!isLastQuestion) {
             setCurrentQuestion(c => c + 1);
             resetQuestionState(currentQuestion + 1);
         } else {
             handleQuizComplete(false);
         }
-    }, [isSubmitting, isLastQuestion, handleQuizComplete, currentQuestion, resetQuestionState]);
+    }, [isSubmitting, isLastQuestion, handleQuizComplete, currentQuestion, resetQuestionState, getActualQuestionIndex]);
 
     const previousQuestion = useCallback(() => {
         if (isSubmitting || currentQuestion <= 0) return;
+        const leavingActualIdx = getActualQuestionIndex(currentQuestion);
+        if (leavingActualIdx !== undefined) {
+            setVisitedActualIndices(prev => (prev[leavingActualIdx] ? prev : { ...prev, [leavingActualIdx]: true }));
+        }
         setCurrentQuestion(c => c - 1);
         resetQuestionState(currentQuestion - 1);
-    }, [isSubmitting, currentQuestion, resetQuestionState]);
+    }, [isSubmitting, currentQuestion, resetQuestionState, getActualQuestionIndex]);
 
     const toggleCurrentQuestionFlag = useCallback(() => {
         const actualIndex = getActualQuestionIndex();
@@ -1075,7 +1118,7 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
 
         const actualIndex = getActualQuestionIndex();
         // Lock answer if already submitted in review mode
-        if (quiz.reviewMode !== false && submittedQuestions[actualIndex]) return;
+        if (isReviewMode && submittedQuestions[actualIndex]) return;
         const q = quiz.questions[actualIndex];
 
         // Rapid Guessing Detection (< 1.8 seconds on questions with text)
@@ -1102,17 +1145,6 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
         const newAnswers = { ...answers, [actualIndex]: answer };
         setAnswers(newAnswers);
 
-        // In Quiz Mode: if user changed their answer from the previously submitted answer,
-        // update submittedQuestions so that they are prompted to re-submit before finishing!
-        if (quiz.reviewMode === false) {
-            const prevSub = submittedAnswers[actualIndex];
-            if (prevSub !== undefined) {
-                const isSame = isSameAnswer(answer, prevSub);
-                setSubmittedQuestions(prev => ({ ...prev, [actualIndex]: isSame }));
-                setQuestionSubmitted(isSame);
-            }
-        }
-
         if (onProgress) {
             let currentScore = 0;
             let answered = 0;
@@ -1131,7 +1163,7 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
             const progressIndex = delayedValidation ? correctCount : answered;
             onProgress(currentScore, progressIndex);
         }
-    }, [isSubmitting, getActualQuestionIndex, quiz.questions, mustAnswerCorrectly, delayedValidation, answers, onProgress, checkComplexAnswer, currentQuestion, quiz.reviewMode, submittedQuestions, submittedAnswers]);
+    }, [isSubmitting, getActualQuestionIndex, quiz.questions, mustAnswerCorrectly, delayedValidation, answers, onProgress, checkComplexAnswer, currentQuestion, isReviewMode, submittedQuestions]);
 
 
     const submitQuestion = useCallback(() => {
@@ -1220,26 +1252,31 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                     return;
                 }
 
-                const isAlreadySubmitted = Boolean(
-                    submittedQuestions[actualIndex] && 
-                    (quiz.reviewMode !== false || isSameAnswer(answers[actualIndex], submittedAnswers[actualIndex]))
-                );
-                if (isInputFocused && !isAlreadySubmitted) return; // Let input's onKeyDown handle submit
+                const isAlreadySubmitted = Boolean(isReviewMode && submittedQuestions[actualIndex]);
+                if (isInputFocused && (!isReviewMode || !isAlreadySubmitted)) return; // Let TextQuestion handle Enter on input
 
                 e.preventDefault();
-                const currentAns = answers[actualIndex];
-                if (currentAns === undefined) {
-                    setShakeError(true);
-                    setTimeout(() => setShakeError(false), 400);
-                    return;
-                }
-
-                if (!isAlreadySubmitted) {
-                    submitQuestion();
-                } else if (!isLastQuestion) {
-                    nextQuestion();
+                if (isReviewMode) {
+                    if (!isAlreadySubmitted) {
+                        if (!isQuestionAnswerComplete(q, answers[actualIndex])) {
+                            setShakeError(true);
+                            setTimeout(() => setShakeError(false), 400);
+                            return;
+                        }
+                        submitQuestion();
+                    } else if (allQuestionsSubmitted && (isLastQuestion || hasAttemptedFinish)) {
+                        handleQuizComplete(false);
+                    } else if (!isLastQuestion) {
+                        nextQuestion();
+                    } else {
+                        handleQuizComplete(false);
+                    }
                 } else {
-                    handleQuizComplete(false);
+                    if (isLastQuestion) {
+                        handleQuizComplete(false);
+                    } else {
+                        nextQuestion();
+                    }
                 }
                 return;
             }
@@ -1290,7 +1327,7 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [showResumePrompt, isSubmitting, showShop, getActualQuestionIndex, quiz.questions, quiz.reviewMode, delayedValidation, answers, questionSubmitted, submittedQuestions, submittedAnswers, isLastQuestion, nextQuestion, previousQuestion, optionsOrder, hiddenOptions, handleAnswer, submitQuestion, handleQuizComplete]);
+    }, [showResumePrompt, isSubmitting, showShop, getActualQuestionIndex, quiz.questions, quiz.reviewMode, delayedValidation, isReviewMode, answers, questionSubmitted, submittedQuestions, allQuestionsSubmitted, hasAttemptedFinish, isLastQuestion, nextQuestion, previousQuestion, optionsOrder, hiddenOptions, handleAnswer, submitQuestion, handleQuizComplete]);
 
 
     // --- Power-up Application Logic ---
@@ -1514,21 +1551,11 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
         q.type !== 'text' || (typeof currentAnswer === 'string' && currentAnswer.trim().length > 0)
     );
 
-    const isReviewMode = quiz.reviewMode !== false;
     const isCurrentQuestionSubmitted = Boolean(
-        hasCompleteAnswer && submittedQuestions[actualIndex] &&
-        (isReviewMode || isSameAnswer(currentAnswer, submittedAnswers[actualIndex]))
-    );
-
-    const hasChangedFromSubmitted = Boolean(
-        !isReviewMode &&
-        hasCompleteAnswer &&
-        submittedAnswers[actualIndex] !== undefined &&
-        !isSameAnswer(currentAnswer, submittedAnswers[actualIndex])
+        hasCompleteAnswer && submittedQuestions[actualIndex]
     );
 
     const isReviewModeSubmitted = Boolean(
-        !delayedValidation &&
         isReviewMode &&
         isCurrentQuestionSubmitted
     );
@@ -1631,6 +1658,13 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                 }
                 .animate-glow-in {
                     animation: screen-glow-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+                }
+                @keyframes quiz-red-alert {
+                    0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); transform: scale(1); }
+                    50% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); transform: scale(1.06); }
+                }
+                .animate-quiz-red-alert {
+                    animation: quiz-red-alert 1.25s cubic-bezier(0.4, 0, 0.6, 1) infinite;
                 }
             `}</style>
 
@@ -1932,14 +1966,27 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                                         type="button"
                                         onClick={() => setShowQuestionMenu(prev => !prev)}
                                         aria-expanded={showQuestionMenu}
-                                        className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-black border transition-all cursor-pointer whitespace-nowrap ${
-                                            isBento
-                                                ? 'bg-white text-black border-2 border-black hover:bg-[#bae6fd] shadow-[2px_2px_0px_#000]'
-                                                : 'bg-[#1c1917] hover:bg-[#24201c] text-[#f5f3ec] border-[#2e2924] hover:border-[#bef264]'
+                                        className={`relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-black border transition-all cursor-pointer whitespace-nowrap ${
+                                            redAlertActualSet.size > 0
+                                                ? isBento
+                                                    ? 'bg-[#fecdd3] text-black border-2 border-red-600 shadow-[2px_2px_0px_#dc2626] animate-quiz-red-alert'
+                                                    : 'bg-[#2a1418] text-[#fb7185] border-[#fb7185] animate-quiz-red-alert'
+                                                : isBento
+                                                    ? 'bg-white text-black border-2 border-black hover:bg-[#bae6fd] shadow-[2px_2px_0px_#000]'
+                                                    : 'bg-[#1c1917] hover:bg-[#24201c] text-[#f5f3ec] border-[#2e2924] hover:border-[#bef264]'
                                         }`}
                                     >
-                                        <List className="w-4 h-4" />
+                                        <List className="w-4 h-4 shrink-0" />
                                         <span className="hidden sm:inline">{tx('Questions', 'الأسئلة')}</span>
+                                        {redAlertActualSet.size > 0 && (
+                                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-black leading-none bg-red-600 text-white">
+                                                <span className="relative flex h-1.5 w-1.5">
+                                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-80" />
+                                                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white" />
+                                                </span>
+                                                {redAlertActualSet.size}
+                                            </span>
+                                        )}
                                     </button>
 
                                     <div className={`hidden sm:block font-tabular font-black text-xs sm:text-sm ${isBento ? 'text-black' : 'text-[#bef264]'}`}>
@@ -1948,75 +1995,132 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                                 </div>
                             </div>
                             {showQuestionMenu && (
-                                <div className={`absolute right-3 left-3 sm:left-auto sm:right-6 lg:right-7 top-full mt-1.5 z-50 sm:w-64 rounded-2xl p-3 shadow-2xl animate-in fade-in zoom-in-95 duration-150 ${
+                                <div className={`absolute right-3 left-3 sm:left-auto sm:right-6 lg:right-7 top-full mt-1.5 z-50 sm:w-72 rounded-2xl p-3 shadow-2xl animate-in fade-in zoom-in-95 duration-150 ${
                                     isBento
                                         ? 'bg-white text-black border-2 border-black shadow-[5px_5px_0px_#000]'
                                         : 'bg-[#141210] border-[1.5px] border-[#2e2924] shadow-[0_8px_0_#050504] text-[#f5f3ec]'
                                 }`}>
-                                    <div className="flex items-center justify-between mb-2">
-                                        <span className="text-xs font-black uppercase tracking-wider">Jump to question</span>
-                                        <span className="text-[10px] font-bold text-slate-400">{Object.values(flaggedQuestions).filter(Boolean).length} flagged</span>
+                                    <div className="flex items-center justify-between gap-2 mb-2">
+                                        <span className="text-xs font-black uppercase tracking-wider">
+                                            {tx('Jump to question', 'انتقل لسؤال')}
+                                        </span>
+                                        <span className={`text-[10px] font-bold ${isBento ? 'text-black/65' : 'text-[#a8a29e]'}`}>
+                                            {activePositions.length - incompletePositions.length}/{activePositions.length} {tx('done', 'تم')} · {Object.values(flaggedQuestions).filter(Boolean).length} {tx('flagged', 'مميز')}
+                                        </span>
                                     </div>
-                                    <div className="grid grid-cols-5 gap-2 max-h-48 overflow-y-auto">
-                                        {(retryMode ? wrongQuestionIndices : quiz.questions.map((_, index) => index)).map((_, position) => {
+
+                                    {redAlertActualSet.size > 0 && (
+                                        <div className={`mb-2.5 p-2 rounded-xl flex items-center justify-between gap-2 text-[11px] font-black ${
+                                            isBento
+                                                ? 'bg-[#fecdd3] text-black border-2 border-red-600'
+                                                : 'bg-[#2a1418] text-[#fda4af] border border-[#fb7185]/60'
+                                        }`}>
+                                            <span className="flex items-center gap-1.5 min-w-0 truncate">
+                                                <AlertCircle className="w-3.5 h-3.5 text-red-500 shrink-0 animate-pulse" />
+                                                <span className="truncate">
+                                                    {tx(
+                                                        `${redAlertActualSet.size} missed — tap red`,
+                                                        `${redAlertActualSet.size} ناقص — اضغط الأحمر`
+                                                    )}
+                                                </span>
+                                            </span>
+                                            {incompletePositions.length > 0 && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => goToQuestion(incompletePositions[0])}
+                                                    className={`px-2 py-0.5 rounded-lg text-[10px] font-black shrink-0 cursor-pointer transition-all ${
+                                                        isBento
+                                                            ? 'bg-red-600 text-white border border-black hover:bg-red-700'
+                                                            : 'bg-[#fb7185] text-[#0a0908] hover:bg-[#fda4af]'
+                                                    }`}
+                                                >
+                                                    {tx(`Go Q${incompletePositions[0] + 1} →`, `روح س${incompletePositions[0] + 1} →`)}
+                                                </button>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    <div className="grid grid-cols-5 gap-2 max-h-48 overflow-y-auto p-1">
+                                        {activePositions.map((position) => {
                                             const menuActualIndex = getActualQuestionIndex(position);
-                                            const isMenuAnswered = answers[menuActualIndex] !== undefined;
+                                            const qObj = quiz.questions[menuActualIndex];
+                                            const isMenuComplete = isQuestionAnswerComplete(qObj, answers[menuActualIndex]);
                                             const isFlagged = flaggedQuestions[menuActualIndex];
-                                            const isMenuSub = Boolean(
-                                                isMenuAnswered && submittedQuestions[menuActualIndex] &&
-                                                (isReviewMode || isSameAnswer(answers[menuActualIndex], submittedAnswers[menuActualIndex]))
-                                            );
-                                            const hasMenuChanged = Boolean(
-                                                !isReviewMode && isMenuAnswered && !isMenuSub && submittedAnswers[menuActualIndex] !== undefined
-                                            );
-                                            const showReviewColors = isReviewMode && !delayedValidation && isMenuSub;
+                                            const isMenuSub = Boolean(isMenuComplete && submittedQuestions[menuActualIndex]);
+                                            const showReviewColors = isReviewMode && isMenuSub;
                                             const isMenuCorrect = showReviewColors ? questionCorrectness[menuActualIndex] : undefined;
+                                            const isRedAlert = redAlertActualSet.has(menuActualIndex);
+                                            const isCurrent = position === currentQuestion;
+
                                             return (
                                                 <button
                                                     type="button"
                                                     key={menuActualIndex}
                                                     onClick={() => goToQuestion(position)}
                                                     className={`relative h-9 rounded-lg text-xs font-black border-2 cursor-pointer transition-all ${
-                                                        position === currentQuestion
+                                                        isCurrent
                                                             ? isBento
                                                                 ? 'bg-[#bef264] !text-black border-black shadow-[2px_2px_0px_#000]'
                                                                 : 'bg-[#bef264] text-[#0a0908] border-[#bef264]'
-                                                            : showReviewColors
-                                                                ? isMenuCorrect
-                                                                    ? isBento
-                                                                        ? 'bg-[#dcfce7] !text-black border-black hover:bg-[#bbf7d0]'
-                                                                        : 'bg-[#192211] text-[#bef264] border-[#bef264]/60'
-                                                                    : isBento
-                                                                        ? 'bg-[#fecdd3] !text-black border-black hover:bg-[#fda4af]'
-                                                                        : 'bg-[#2a1418] text-[#fb7185] border-[#fb7185]/60'
-                                                                : isMenuSub
-                                                                    ? isBento
-                                                                        ? 'bg-[#fed7aa] !text-black border-black font-black hover:bg-[#fdba74]'
-                                                                        : 'bg-[#111c22] text-[#bae6fd] border-[#bae6fd]/50 hover:border-[#bae6fd]'
-                                                                    : hasMenuChanged
+                                                            : isRedAlert
+                                                                ? isBento
+                                                                    ? 'bg-[#fecdd3] !text-black border-red-600 ring-2 ring-red-500/60 shadow-[2px_2px_0px_#dc2626] animate-quiz-red-alert'
+                                                                    : 'bg-[#2a1418] text-[#fb7185] border-[#fb7185] ring-2 ring-red-500/40 animate-quiz-red-alert'
+                                                                : showReviewColors
+                                                                    ? isMenuCorrect
                                                                         ? isBento
-                                                                            ? 'bg-[#fef08a] !text-black border-black font-black hover:bg-[#fde047]'
-                                                                            : 'bg-[#231e0f] text-[#fde047] border-[#fde047]/50 hover:border-[#fde047]'
+                                                                            ? 'bg-[#dcfce7] !text-black border-black hover:bg-[#bbf7d0]'
+                                                                            : 'bg-[#192211] text-[#bef264] border-[#bef264]/60'
+                                                                        : isBento
+                                                                            ? 'bg-[#fecdd3] !text-black border-black hover:bg-[#fda4af]'
+                                                                            : 'bg-[#2a1418] text-[#fb7185] border-[#fb7185]/60'
+                                                                    : isMenuSub || (!isReviewMode && isMenuComplete)
+                                                                        ? isBento
+                                                                            ? 'bg-[#bae6fd] !text-black border-black font-black hover:bg-[#7dd3fc]'
+                                                                            : 'bg-[#111c22] text-[#bae6fd] border-[#bae6fd]/55 hover:border-[#bae6fd]'
                                                                         : isBento
                                                                             ? 'bg-[#faf8f2] !text-black border-black hover:bg-[#fef9c3]'
                                                                             : 'bg-[#1c1917] text-[#a8a29e] border-[#2e2924] hover:border-[#bef264]/60 hover:text-[#f5f3ec]'
                                                     }`}
                                                 >
                                                     {position + 1}
+                                                    {isRedAlert && (
+                                                        <span className="absolute -left-1.5 -top-1.5 flex h-3.5 w-3.5 items-center justify-center">
+                                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75" />
+                                                            <span className="relative inline-flex items-center justify-center rounded-full h-3.5 w-3.5 bg-red-600 text-[9px] font-black text-white border border-black/30">
+                                                                !
+                                                            </span>
+                                                        </span>
+                                                    )}
                                                     {showReviewColors ? (
                                                         <span className={`absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full ${isMenuCorrect ? (isBento ? 'bg-black' : 'bg-[#bef264]') : (isBento ? 'bg-black' : 'bg-[#fb7185]')}`} />
-                                                    ) : isMenuSub ? (
+                                                    ) : (isMenuSub || (!isReviewMode && isMenuComplete)) ? (
                                                         <span className={`absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full ${isBento ? 'bg-black' : 'bg-[#bae6fd]'}`} />
-                                                    ) : hasMenuChanged ? (
-                                                        <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-[#fde047]" />
-                                                    ) : isMenuAnswered ? (
-                                                        <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#78716c]" />
                                                     ) : null}
                                                     {isFlagged && <Flag className={`absolute -right-1.5 -top-1.5 w-3.5 h-3.5 ${isBento ? 'text-black fill-[#fde047]' : 'text-[#fde047] fill-[#fde047]'}`} />}
                                                 </button>
                                             );
                                         })}
                                     </div>
+
+                                    {allQuestionsSubmitted && (
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setShowQuestionMenu(false);
+                                                handleQuizComplete(false);
+                                            }}
+                                            disabled={isSubmitting}
+                                            className={`mt-2.5 w-full py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer transition-all ${
+                                                isBento
+                                                    ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                                    : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908]'
+                                            }`}
+                                        >
+                                            <span>{tx('Submit Quiz Now', 'تسليم الكويز دلوقتي')}</span>
+                                            <CheckCircle className="w-3.5 h-3.5" />
+                                        </button>
+                                    )}
                                 </div>
                             )}
                         </div>
@@ -2464,7 +2568,8 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                                 submitted={isReviewModeSubmitted}
                                 isCorrect={isEffectiveCorrect}
                                 onChange={(val) => handleAnswer(val)}
-                                onSubmit={submitQuestion}
+                                onSubmit={isReviewMode ? submitQuestion : () => nextQuestion()}
+                                hideSubmitButton={true}
                                 readOnly={isSubmitting || isReviewModeSubmitted}
                             />
                         ) : (
@@ -2603,15 +2708,32 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                     </div>
                 )}
                 
-                {/* Unsubmitted Warning Notification Banner */}
+                {/* Unsubmitted / Missing Question Alert Banner */}
                 {unsubmittedWarning && (
-                    <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-[#fde047] text-black px-4 py-1.5 rounded-xl border-2 border-black font-black text-xs shadow-[3px_3px_0px_#000] flex items-center gap-2 z-30 animate-in fade-in slide-in-from-bottom-2 max-w-[90%] whitespace-nowrap">
-                        <AlertCircle className="w-4 h-4 shrink-0 text-black" />
+                    <div className={`absolute -top-13 left-1/2 -translate-x-1/2 px-3 sm:px-4 py-1.5 rounded-xl font-black text-xs flex items-center gap-2 z-30 animate-in fade-in slide-in-from-bottom-2 max-w-[94%] ${
+                        isBento
+                            ? 'bg-[#fecdd3] text-black border-2 border-red-600 shadow-[3px_3px_0px_#dc2626]'
+                            : 'bg-[#2a1418] text-[#fda4af] border border-[#fb7185] shadow-lg'
+                    }`}>
+                        <AlertCircle className="w-4 h-4 shrink-0 text-red-500 animate-pulse" />
                         <span className="truncate">{unsubmittedWarning}</span>
+                        {incompletePositions.length > 0 && (
+                            <button
+                                type="button"
+                                onClick={() => goToQuestion(incompletePositions[0])}
+                                className={`px-2 py-0.5 rounded-lg text-[10px] font-black shrink-0 cursor-pointer ${
+                                    isBento
+                                        ? 'bg-red-600 text-white border border-black'
+                                        : 'bg-[#fb7185] text-[#0a0908]'
+                                }`}
+                            >
+                                {tx(`Q${incompletePositions[0] + 1} →`, `س${incompletePositions[0] + 1} →`)}
+                            </button>
+                        )}
                         <button
                             type="button"
                             onClick={() => setUnsubmittedWarning(null)}
-                            className="ml-1 text-black font-black hover:opacity-70 cursor-pointer text-sm leading-none"
+                            className="ml-0.5 font-black hover:opacity-70 cursor-pointer text-sm leading-none shrink-0"
                             aria-label="Dismiss warning"
                         >
                             ✕
@@ -2637,151 +2759,177 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                         }`} role="status" aria-live="assertive">
                             {isEffectiveCorrect ? <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 shrink-0 text-current" /> : <XCircle className="w-4 h-4 sm:w-5 sm:h-5 shrink-0 text-current" />}
                             <span className="font-black text-xs sm:text-sm whitespace-nowrap">
-                                {isEffectiveCorrect ? 'Correct answer!' : 'Not quite. Check the highlighted answer.'}
+                                {isEffectiveCorrect ? tx('Correct answer!', 'إجابة صحيحة!') : tx('Not quite. Check the highlighted answer.', 'مش دي الصح — شوف الإجابة المتعلمة.')}
                             </span>
                         </div>
                     </div>
                 )}
 
-                {/* Quiz Mode Submission Status Pill */}
-                {!isReviewMode && (
-                    <div className="hidden md:flex items-center gap-2">
-                        {isCurrentQuestionSubmitted ? (
-                            <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black ${
-                                isBento
-                                    ? 'bg-[#fed7aa] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                    : 'bg-[#111c22] text-[#bae6fd] border border-[#bae6fd]/35'
-                            }`}>
-                                <CheckCircle className={`w-3.5 h-3.5 ${isBento ? 'text-black' : 'text-[#bae6fd]'}`} />
-                                <span>Answer Submitted</span>
-                            </div>
-                        ) : hasChangedFromSubmitted ? (
-                            <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black animate-pulse ${
-                                isBento
-                                    ? 'bg-[#fef08a] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                    : 'bg-[#231e0f] text-[#fde047] border border-[#fde047]/35'
-                            }`}>
-                                <AlertCircle className={`w-3.5 h-3.5 ${isBento ? 'text-black' : 'text-[#fde047]'}`} />
-                                <span>Unsubmitted Changes</span>
-                            </div>
-                        ) : null}
-                    </div>
-                )}
+                {(() => {
+                    const nextMissedPos = incompletePositions.find(pos => pos !== currentQuestion);
+                    const directSubmitReady = allQuestionsSubmitted && !isLastQuestion;
 
-                <div className="flex w-full sm:w-auto items-center gap-2 sm:gap-3 pointer-events-auto">
-                    {/* Previous Question Button */}
-                    <button
-                        type="button"
-                        onClick={previousQuestion}
-                        disabled={currentQuestion === 0 || isSubmitting}
-                        className={`min-h-[42px] px-3 sm:px-5 py-2 font-black text-xs uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0 ${
-                            isBento
-                                ? 'bg-white text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:bg-[#fef9c3] active:translate-y-0.5 disabled:opacity-40'
-                                : 'bg-[#1c1917] hover:bg-[#24201c] disabled:opacity-40 text-[#f5f3ec] border border-[#2e2924]'
-                        }`}
-                    >
-                        <span>←</span>
-                        <span className="sm:hidden">{tx('Prev', 'سابق')}</span>
-                        <span className="hidden sm:inline">{tx('Previous', 'السابق')}</span>
-                    </button>
-
-                    {/* Quiz Mode: Optional quick re-submit button if already submitted */}
-                    {!isReviewMode && isCurrentQuestionSubmitted && (
-                        <button
-                            type="button"
-                            onClick={submitQuestion}
-                            disabled={!hasCompleteAnswer || isSubmitting}
-                            title="Re-submit this answer"
-                            className={`hidden sm:flex min-h-[42px] px-3.5 py-2 font-black text-xs uppercase tracking-wider rounded-xl transition-all items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap ${
-                                isBento
-                                    ? 'bg-[#e2e8f0] hover:bg-[#cbd5e1] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                    : 'bg-[#1c1917] hover:bg-[#24201c] text-[#f5f3ec] border border-[#2e2924]'
-                            }`}
-                        >
-                            <RotateCcw className="w-3.5 h-3.5" />
-                            <span>Re-submit</span>
-                        </button>
-                    )}
-
-                    {/* Submit / Re-submit Answer Button (when unsubmitted or answer changed) */}
-                    {!isCurrentQuestionSubmitted && (
-                        <button
-                            type="button"
-                            onClick={submitQuestion}
-                            disabled={!hasCompleteAnswer || isSubmitting}
-                            className={`flex-1 sm:flex-none min-h-[42px] px-3.5 sm:px-6 py-2 font-black text-xs uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap ${
-                                isBento
-                                    ? 'bg-[#fde047] hover:bg-[#facc15] text-black border-2 border-black shadow-[3px_3px_0px_#000] active:translate-y-0.5 disabled:opacity-40'
-                                    : 'bg-[#fde047] hover:bg-[#fef08a] disabled:opacity-40 text-[#0a0908] shadow-[0_3px_0_#050504]'
-                            }`}
-                        >
-                            <span className="sm:hidden">{hasChangedFromSubmitted ? tx('Update', 'تعديل') : tx('Submit', 'تسليم')}</span>
-                            <span className="hidden sm:inline">{hasChangedFromSubmitted ? tx('Re-submit Answer', 'إرسال التعديل') : tx('Submit Answer', 'تسليم الإجابة')}</span>
-                            <CheckCircle className="w-4 h-4 shrink-0" />
-                        </button>
-                    )}
-
-                    {/* Next Question / Finish Quiz Button */}
-                    {!isLastQuestion ? (
-                        <>
+                    return (
+                        <div className="flex w-full sm:w-auto items-center gap-2 sm:gap-2.5 pointer-events-auto">
+                            {/* Previous Question Button */}
                             <button
                                 type="button"
-                                onClick={nextQuestion}
-                                disabled={isReviewMode && !isCurrentQuestionSubmitted}
-                                className={`flex-1 sm:flex-none min-h-[42px] px-3.5 sm:px-6 py-2 font-black text-xs uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap ${
+                                onClick={previousQuestion}
+                                disabled={currentQuestion === 0 || isSubmitting}
+                                className={`min-h-[42px] px-3 sm:px-4 py-2 font-black text-xs uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0 ${
                                     isBento
-                                        ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[3px_3px_0px_#000] active:translate-y-0.5 disabled:opacity-40'
-                                        : 'bg-[#bef264] hover:bg-[#d2fa8a] disabled:opacity-40 text-[#0a0908] shadow-[0_3px_0_#050504]'
+                                        ? 'bg-white text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:bg-[#fef9c3] active:translate-y-0.5 disabled:opacity-40'
+                                        : 'bg-[#1c1917] hover:bg-[#24201c] disabled:opacity-40 text-[#f5f3ec] border border-[#2e2924]'
                                 }`}
                             >
-                                <span className="sm:hidden">{tx('Next', 'التالي')}</span>
-                                <span className="hidden sm:inline">{tx('Next Question', 'السؤال الجاي')}</span>
-                                <span>→</span>
+                                <span>←</span>
+                                <span className="sm:hidden">{tx('Prev', 'سابق')}</span>
+                                <span className="hidden sm:inline">{tx('Previous', 'السابق')}</span>
                             </button>
 
-                            {allQuestionsSubmitted && (
+                            {/* Unified Review Mode (Submit -> same button becomes Next/Finish) vs Direct Quiz Mode (Next -> Finish) */}
+                            {isReviewMode ? (
+                                !isCurrentQuestionSubmitted ? (
+                                    <button
+                                        type="button"
+                                        onClick={submitQuestion}
+                                        disabled={!hasCompleteAnswer || isSubmitting}
+                                        className={`flex-1 sm:flex-none min-h-[42px] px-3.5 sm:px-6 py-2 font-black text-xs uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap ${
+                                            isBento
+                                                ? 'bg-[#fde047] hover:bg-[#facc15] text-black border-2 border-black shadow-[3px_3px_0px_#000] active:translate-y-0.5 disabled:opacity-40'
+                                                : 'bg-[#fde047] hover:bg-[#fef08a] disabled:opacity-40 text-[#0a0908] shadow-[0_3px_0_#050504]'
+                                        }`}
+                                    >
+                                        <span className="sm:hidden">{tx('Submit', 'تسليم')}</span>
+                                        <span className="hidden sm:inline">{tx('Submit Answer', 'تسليم الإجابة')}</span>
+                                        <CheckCircle className="w-4 h-4 shrink-0" />
+                                    </button>
+                                ) : !isLastQuestion ? (
+                                    <button
+                                        type="button"
+                                        onClick={nextQuestion}
+                                        disabled={isSubmitting}
+                                        className={`flex-1 sm:flex-none min-h-[42px] px-3.5 sm:px-6 py-2 font-black text-xs uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap ${
+                                            directSubmitReady
+                                                ? isBento
+                                                    ? 'bg-white hover:bg-[#fef9c3] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                                    : 'bg-[#1c1917] hover:bg-[#24201c] text-[#f5f3ec] border border-[#2e2924]'
+                                                : isBento
+                                                    ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[3px_3px_0px_#000] active:translate-y-0.5'
+                                                    : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908] shadow-[0_3px_0_#050504]'
+                                        }`}
+                                    >
+                                        <span className="sm:hidden">{tx('Next', 'التالي')}</span>
+                                        <span className="hidden sm:inline">{tx('Next Question', 'السؤال الجاي')}</span>
+                                        <span>→</span>
+                                    </button>
+                                ) : (
+                                    <button
+                                        type="button"
+                                        onClick={() => handleQuizComplete(false)}
+                                        disabled={isSubmitting}
+                                        className={`flex-1 sm:flex-none min-h-[42px] px-4 sm:px-6 py-2 font-black text-xs uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap ${
+                                            allQuestionsSubmitted
+                                                ? isBento
+                                                    ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[3px_3px_0px_#000] active:translate-y-0.5'
+                                                    : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908] shadow-[0_3px_0_#050504]'
+                                                : isBento
+                                                    ? 'bg-[#fecdd3] hover:bg-[#fda4af] text-black border-2 border-red-600 shadow-[3px_3px_0px_#dc2626]'
+                                                    : 'bg-[#fb7185] hover:bg-[#fda4af] text-[#0a0908] shadow-[0_3px_0_#050504]'
+                                        }`}
+                                    >
+                                        <span>
+                                            {isSubmitting
+                                                ? tx('Submitting...', 'جاري التسليم...')
+                                                : allQuestionsSubmitted
+                                                    ? tx('Finish Quiz', 'إنهاء الكويز')
+                                                    : tx(`Finish (${incompletePositions.length} left)`, `إنهاء (${incompletePositions.length} متبقي)`)}
+                                        </span>
+                                        <Target className="w-4 h-4 shrink-0" />
+                                    </button>
+                                )
+                            ) : !isLastQuestion ? (
+                                <button
+                                    type="button"
+                                    onClick={nextQuestion}
+                                    disabled={isSubmitting}
+                                    className={`flex-1 sm:flex-none min-h-[42px] px-3.5 sm:px-6 py-2 font-black text-xs uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap ${
+                                        directSubmitReady
+                                            ? isBento
+                                                ? 'bg-white hover:bg-[#fef9c3] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                                : 'bg-[#1c1917] hover:bg-[#24201c] text-[#f5f3ec] border border-[#2e2924]'
+                                            : isBento
+                                                ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[3px_3px_0px_#000] active:translate-y-0.5'
+                                                : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908] shadow-[0_3px_0_#050504]'
+                                    }`}
+                                >
+                                    <span className="sm:hidden">{tx('Next', 'التالي')}</span>
+                                    <span className="hidden sm:inline">{tx('Next Question', 'السؤال الجاي')}</span>
+                                    <span>→</span>
+                                </button>
+                            ) : (
                                 <button
                                     type="button"
                                     onClick={() => handleQuizComplete(false)}
                                     disabled={isSubmitting}
-                                    title="All questions submitted! Finish quiz now."
-                                    className={`hidden md:flex min-h-[42px] px-4 py-2 font-black text-xs uppercase tracking-wider rounded-xl transition-all items-center justify-center gap-2 cursor-pointer whitespace-nowrap ${
+                                    className={`flex-1 sm:flex-none min-h-[42px] px-4 sm:px-6 py-2 font-black text-xs uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap ${
+                                        allQuestionsSubmitted
+                                            ? isBento
+                                                ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[3px_3px_0px_#000] active:translate-y-0.5'
+                                                : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908] shadow-[0_3px_0_#050504]'
+                                            : isBento
+                                                ? 'bg-[#fecdd3] hover:bg-[#fda4af] text-black border-2 border-red-600 shadow-[3px_3px_0px_#dc2626]'
+                                                : 'bg-[#fb7185] hover:bg-[#fda4af] text-[#0a0908] shadow-[0_3px_0_#050504]'
+                                    }`}
+                                >
+                                    <span>
+                                        {isSubmitting
+                                            ? tx('Submitting...', 'جاري التسليم...')
+                                            : allQuestionsSubmitted
+                                                ? tx('Submit Quiz', 'تسليم الكويز')
+                                                : tx(`Submit (${incompletePositions.length} left)`, `تسليم (${incompletePositions.length} ناقص)`)}
+                                    </span>
+                                    <Target className="w-4 h-4 shrink-0" />
+                                </button>
+                            )}
+
+                            {/* Direct Submit Quiz Button when all questions are ready (from ANY question without returning to last!) */}
+                            {directSubmitReady && (
+                                <button
+                                    type="button"
+                                    onClick={() => handleQuizComplete(false)}
+                                    disabled={isSubmitting}
+                                    title={tx('All questions complete! Submit directly now.', 'كل الأسئلة خلصت! سلّم مباشرة دلوقتي.')}
+                                    className={`flex-1 sm:flex-none min-h-[42px] px-3.5 sm:px-5 py-2 font-black text-xs uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap animate-in fade-in zoom-in-95 ${
                                         isBento
-                                            ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[3px_3px_0px_#000]'
+                                            ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[3px_3px_0px_#000] active:translate-y-0.5'
                                             : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908] shadow-[0_3px_0_#050504]'
                                     }`}
                                 >
-                                    <span>{tx('Finish Quiz', 'إنهاء الكويز')}</span>
-                                    <Target className="w-4 h-4" />
+                                    <span className="sm:hidden">{tx('Submit Quiz', 'تسليم')}</span>
+                                    <span className="hidden sm:inline">{tx('Submit Quiz', 'تسليم الكويز')}</span>
+                                    <CheckCircle className="w-4 h-4 shrink-0" />
                                 </button>
                             )}
-                        </>
-                    ) : (
-                        <button
-                            type="button"
-                            onClick={() => handleQuizComplete(false)}
-                            disabled={isSubmitting}
-                            className={`flex-1 sm:flex-none min-h-[42px] px-4 sm:px-6 py-2 font-black text-xs uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap ${
-                                isBento
-                                    ? allQuestionsSubmitted
-                                        ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[3px_3px_0px_#000] active:translate-y-0.5'
-                                        : 'bg-[#fde047] hover:bg-[#facc15] text-black border-2 border-black shadow-[3px_3px_0px_#000]'
-                                    : allQuestionsSubmitted
-                                        ? 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908] shadow-[0_3px_0_#050504]'
-                                        : 'bg-[#fde047] hover:bg-[#fef08a] text-[#0a0908] shadow-[0_3px_0_#050504]'
-                            }`}
-                        >
-                            <span>
-                                {isSubmitting
-                                    ? tx('Submitting...', 'جاري التسليم...')
-                                    : allQuestionsSubmitted
-                                        ? tx('Finish Quiz', 'إنهاء الكويز')
-                                        : tx(`Finish (${unsubmittedQuestionsList.length} left)`, `إنهاء (${unsubmittedQuestionsList.length} متبقي)`)}
-                            </span>
-                            <Target className="w-4 h-4 shrink-0" />
-                        </button>
-                    )}
-                </div>
+
+                            {/* Quick Next Missed Jump Button when fixing forgotten questions */}
+                            {hasAttemptedFinish && !allQuestionsSubmitted && !isLastQuestion && nextMissedPos !== undefined && (
+                                <button
+                                    type="button"
+                                    onClick={() => goToQuestion(nextMissedPos)}
+                                    disabled={isSubmitting}
+                                    className={`min-h-[42px] px-3 sm:px-4 py-2 font-black text-xs uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap shrink-0 animate-quiz-red-alert ${
+                                        isBento
+                                            ? 'bg-[#fecdd3] hover:bg-[#fda4af] text-black border-2 border-red-600 shadow-[2px_2px_0px_#dc2626]'
+                                            : 'bg-[#2a1418] hover:bg-[#3a1b20] text-[#fb7185] border border-[#fb7185]'
+                                    }`}
+                                >
+                                    <span>{tx(`Missed Q${nextMissedPos + 1} →`, `س${nextMissedPos + 1} ناقص →`)}</span>
+                                </button>
+                            )}
+                        </div>
+                    );
+                })()}
             </div>
         </div> {/* End ELEVATED QUIZ BOARD CONTAINER */}
 

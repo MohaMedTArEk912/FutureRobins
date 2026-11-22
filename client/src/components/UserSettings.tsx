@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Eye, EyeOff, Mail, User as UserIcon, Lock, Check, AlertCircle, Sliders, Globe, Download, RefreshCw, Smartphone, Palette } from 'lucide-react';
+import { X, Eye, EyeOff, Mail, User as UserIcon, Lock, Check, AlertCircle, Sliders, Globe, Download, RefreshCw, Smartphone, Palette, Moon, LayoutGrid } from 'lucide-react';
 import type { UserData } from '../types/index.ts';
 import { api } from '../lib/api.ts';
 import { pwaUpdater, type PwaUpdateState } from '../lib/pwaUpdater.ts';
@@ -16,7 +16,7 @@ interface UserSettingsProps {
 }
 
 const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, embedded = false }) => {
-    const { isBento, theme, openThemeModal } = useTheme();
+    const { isBento, theme, setTheme, openThemeModal } = useTheme();
     const { language, setLanguage, tx } = useLanguage();
     const { openCustomizer, config } = useNavArrangement();
     const [name, setName] = useState(user.name);
@@ -212,11 +212,6 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
                 ? tx('Student', 'طالب')
                 : tx('Account', 'حساب');
 
-    const themeLabels: Record<'dark' | 'bento', string> = {
-        dark: tx('Noir Studio', 'نوار ستوديو'),
-        bento: tx('Neo-Brutalist', 'بينتو')
-    };
-
     const profileInfoSection = (
         <div className="space-y-4">
             <div>
@@ -265,18 +260,18 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
                         />
                     </div>
                 </div>
-                <div className={`w-full h-12 px-4 rounded-xl flex items-center justify-between gap-2 ${
+                <div className={`w-full h-11 sm:h-12 px-3 sm:px-4 rounded-xl flex items-center justify-between gap-2 ${
                     isBento
                         ? 'border-2 border-black bg-white text-black shadow-[2px_2px_0px_#000]'
                         : 'bg-gray-50 dark:bg-[#0e0d0b] border border-gray-200 dark:border-[#f5f3ec]/14 text-gray-700 dark:text-gray-300'
                 }`}>
-                    <span className="flex items-center gap-3 min-w-0">
-                        <Check className={`w-5 h-5 shrink-0 ${isBento ? 'text-black' : 'text-emerald-500 dark:text-[#bef264]'}`} />
-                        <span className="text-sm font-medium truncate">
+                    <span className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                        <Check className={`w-4 h-4 sm:w-5 sm:h-5 shrink-0 ${isBento ? 'text-black' : 'text-emerald-500 dark:text-[#bef264]'}`} />
+                        <span className="text-xs sm:text-sm font-medium truncate">
                             {tx('Account Status', 'حالة الحساب')}
                         </span>
                     </span>
-                    <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-black uppercase tracking-wider shrink-0 ${
+                    <span className={`px-2 sm:px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-black uppercase tracking-wider whitespace-nowrap shrink-0 ${
                         isBento
                             ? 'bg-[#bef264] text-black border border-black'
                             : 'bg-emerald-500/15 text-emerald-600 dark:text-[#bef264] border border-emerald-500/25 dark:border-[#bef264]/30'
@@ -289,71 +284,122 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
     );
 
     const appearanceSection = (
-        <section className={`space-y-3 border-t pt-5 ${isBento ? 'border-black/20' : 'border-gray-200 dark:border-white/5'}`}>
+        <section className={`space-y-2.5 sm:space-y-3 border-t pt-4 sm:pt-5 ${isBento ? 'border-black/20' : 'border-gray-200 dark:border-white/5'}`}>
             <div className="flex items-center justify-between gap-2">
-                <h3 className={`flex items-center gap-2 text-sm font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-gray-500 dark:text-gray-400'}`}>
-                    <Palette className={`size-4 ${isBento ? 'text-black' : 'text-indigo-600 dark:text-indigo-400'}`} />
-                    {tx('Appearance & Theme', 'المظهر والثيم')}
+                <h3 className={`flex items-center gap-2 text-xs sm:text-sm font-black uppercase tracking-wider truncate ${isBento ? 'text-black' : 'text-gray-500 dark:text-gray-400'}`}>
+                    <Palette className={`size-3.5 sm:size-4 shrink-0 ${isBento ? 'text-black' : 'text-indigo-600 dark:text-indigo-400'}`} />
+                    <span className="sm:hidden">{tx('Theme', 'الثيم')}</span>
+                    <span className="hidden sm:inline">{tx('Appearance & Theme', 'المظهر والثيم')}</span>
                 </h3>
-                <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
-                    isBento ? 'bg-[#fde047] text-black border border-black' : 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400'
-                }`}>
-                    {themeLabels[theme]}
-                </span>
+                <button
+                    type="button"
+                    onClick={openThemeModal}
+                    className={`btn-unstyled text-[10px] sm:text-[11px] font-black px-2.5 py-1 rounded-full whitespace-nowrap shrink-0 cursor-pointer transition-all active:scale-95 ${
+                        isBento
+                            ? 'bg-[#fde047] text-black border border-black hover:bg-[#fef08a]'
+                            : 'bg-indigo-50 dark:bg-[#bef264]/15 text-indigo-600 dark:text-[#bef264] border border-transparent dark:border-[#bef264]/30 hover:bg-indigo-100 dark:hover:bg-[#bef264]/25'
+                    }`}
+                >
+                    {tx('Preview', 'معاينة')}
+                </button>
             </div>
-            <p className={`text-xs min-h-[32px] leading-relaxed ${isBento ? 'text-gray-700 font-semibold' : 'text-gray-500 dark:text-gray-400'}`}>
+            <p className={`text-[11px] sm:text-xs leading-snug ${isBento ? 'text-gray-700 font-semibold' : 'text-gray-500 dark:text-gray-400'}`}>
                 {tx(
                     'Switch between Noir Studio dark mode and Neo-Brutalist Bento.',
                     'بدّل بين ثيم نوار ستوديو الداكن وثيم بينتو العصري.'
                 )}
             </p>
-            <button
-                type="button"
-                onClick={openThemeModal}
-                className={`btn-unstyled w-full h-12 px-4 rounded-xl font-black text-sm flex items-center justify-between gap-2 transition-all cursor-pointer ${
-                    isBento
-                        ? 'border-2 border-black bg-white text-black shadow-[2px_2px_0px_#000] hover:bg-[#fef9c3]'
-                        : 'border border-gray-200 bg-white text-slate-800 hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:text-[#f5f3ec] dark:hover:bg-white/10'
-                }`}
-            >
-                <span className="flex items-center gap-2">
-                    <Palette className="w-4 h-4 shrink-0" />
-                    <span>{tx('Choose Platform Theme', 'اختار ثيم المنصة')}</span>
-                </span>
-                <span className={`text-xs font-black ${isBento ? 'text-black/70' : 'text-indigo-600 dark:text-[#fde047]'}`}>
-                    {themeLabels[theme]} →
-                </span>
-            </button>
+            <div className="grid grid-cols-2 gap-2">
+                <button
+                    type="button"
+                    aria-pressed={theme === 'dark'}
+                    onClick={() => setTheme('dark')}
+                    className={`btn-unstyled h-11 sm:h-12 px-2.5 sm:px-3 rounded-xl text-start transition-all cursor-pointer flex items-center justify-between gap-1.5 min-w-0 ${
+                        theme === 'dark'
+                            ? isBento
+                                ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                : 'bg-[#bef264] text-[#0a0908] border border-[#bef264] shadow-md'
+                            : isBento
+                                ? 'bg-white hover:bg-[#fef9c3] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                : 'bg-white dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-white/10'
+                    }`}
+                >
+                    <span className="flex items-center gap-2 min-w-0">
+                        <Moon className="w-4 h-4 shrink-0" />
+                        <span className="min-w-0">
+                            <span className="block text-xs font-black truncate">{tx('Noir Studio', 'نوار ستوديو')}</span>
+                            <span className={`block text-[10px] font-semibold truncate ${
+                                theme === 'dark'
+                                    ? isBento ? 'text-black/75' : 'text-[#0a0908]/75'
+                                    : 'text-gray-500 dark:text-[#a8a29e]'
+                            }`}>
+                                {tx('Dark', 'داكن')}
+                            </span>
+                        </span>
+                    </span>
+                    {theme === 'dark' && <Check className="w-3.5 h-3.5 shrink-0" />}
+                </button>
+
+                <button
+                    type="button"
+                    aria-pressed={theme === 'bento'}
+                    onClick={() => setTheme('bento')}
+                    className={`btn-unstyled h-11 sm:h-12 px-2.5 sm:px-3 rounded-xl text-start transition-all cursor-pointer flex items-center justify-between gap-1.5 min-w-0 ${
+                        theme === 'bento'
+                            ? isBento
+                                ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                : 'bg-[#bef264] text-[#0a0908] border border-[#bef264] shadow-md'
+                            : isBento
+                                ? 'bg-white hover:bg-[#fef9c3] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                : 'bg-white dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-white/10'
+                    }`}
+                >
+                    <span className="flex items-center gap-2 min-w-0">
+                        <LayoutGrid className="w-4 h-4 shrink-0" />
+                        <span className="min-w-0">
+                            <span className="block text-xs font-black truncate">{tx('Bento', 'بينتو')}</span>
+                            <span className={`block text-[10px] font-semibold truncate ${
+                                theme === 'bento'
+                                    ? isBento ? 'text-black/75' : 'text-[#0a0908]/75'
+                                    : 'text-gray-500 dark:text-[#a8a29e]'
+                            }`}>
+                                {tx('Pop Bold', 'جريء')}
+                            </span>
+                        </span>
+                    </span>
+                    {theme === 'bento' && <Check className="w-3.5 h-3.5 shrink-0" />}
+                </button>
+            </div>
         </section>
     );
 
     const languageSection = (
-        <div className={`pt-5 space-y-3 border-t ${isBento ? 'border-black/20' : 'border-gray-200 dark:border-white/5'}`}>
+        <div className={`pt-4 sm:pt-5 space-y-2.5 sm:space-y-3 border-t ${isBento ? 'border-black/20' : 'border-gray-200 dark:border-white/5'}`}>
             <div className="flex items-center justify-between gap-2">
-                <h3 className={`text-sm font-black uppercase tracking-wider flex items-center gap-2 ${
+                <h3 className={`text-xs sm:text-sm font-black uppercase tracking-wider flex items-center gap-2 truncate ${
                     isBento ? 'text-black' : 'text-gray-500 dark:text-gray-400'
                 }`}>
-                    <Globe className={`w-4 h-4 ${isBento ? 'text-black' : 'text-indigo-600 dark:text-indigo-400'}`} /> {tx('Platform Language', 'لغة المنصة')}
+                    <Globe className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${isBento ? 'text-black' : 'text-indigo-600 dark:text-indigo-400'}`} /> {tx('Platform Language', 'لغة المنصة')}
                 </h3>
-                <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
+                <span className={`text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded-full whitespace-nowrap shrink-0 ${
                     isBento ? 'bg-[#bae6fd] text-black border border-black' : 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400'
                 }`}>
                     {language === 'ar-EG' ? 'العربية (مصري)' : 'English'}
                 </span>
             </div>
-            <p className={`text-xs min-h-[32px] leading-relaxed ${isBento ? 'text-gray-700 font-semibold' : 'text-gray-500 dark:text-gray-400'}`}>
+            <p className={`text-[11px] sm:text-xs leading-snug ${isBento ? 'text-gray-700 font-semibold' : 'text-gray-500 dark:text-gray-400'}`}>
                 {tx(
                     'Switch all menus, buttons, and platform pages between English and Egyptian Arabic.',
                     'حوّل كل القوائم والأزرار وصفحات المنصة بين العربية المصرية والإنجليزية.'
                 )}
             </p>
-            <div className="grid grid-cols-2 gap-2.5">
+            <div className="grid grid-cols-2 gap-2">
                 <button
                     type="button"
                     aria-pressed={language === 'ar-EG'}
                     disabled={isSavingLang}
                     onClick={() => void handleLanguageSelect('ar-EG')}
-                    className={`btn-unstyled h-12 px-3 rounded-xl text-start transition-all cursor-pointer flex items-center justify-between gap-2 disabled:opacity-60 ${
+                    className={`btn-unstyled h-11 sm:h-12 px-2.5 sm:px-3 rounded-xl text-start transition-all cursor-pointer flex items-center justify-between gap-1.5 min-w-0 disabled:opacity-60 ${
                         language === 'ar-EG'
                             ? (isBento
                                 ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000]'
@@ -374,7 +420,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
                             </span>
                         </span>
                     </span>
-                    {language === 'ar-EG' && <Check className="w-4 h-4 shrink-0" />}
+                    {language === 'ar-EG' && <Check className="w-3.5 h-3.5 shrink-0" />}
                 </button>
 
                 <button
@@ -382,7 +428,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
                     aria-pressed={language === 'en'}
                     disabled={isSavingLang}
                     onClick={() => void handleLanguageSelect('en')}
-                    className={`btn-unstyled h-12 px-3 rounded-xl text-start transition-all cursor-pointer flex items-center justify-between gap-2 disabled:opacity-60 ${
+                    className={`btn-unstyled h-11 sm:h-12 px-2.5 sm:px-3 rounded-xl text-start transition-all cursor-pointer flex items-center justify-between gap-1.5 min-w-0 disabled:opacity-60 ${
                         language === 'en'
                             ? (isBento
                                 ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000]'
@@ -403,7 +449,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
                             </span>
                         </span>
                     </span>
-                    {language === 'en' && <Check className="w-4 h-4 shrink-0" />}
+                    {language === 'en' && <Check className="w-3.5 h-3.5 shrink-0" />}
                 </button>
             </div>
         </div>

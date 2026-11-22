@@ -79,12 +79,15 @@ const QuizTakingPage: React.FC = () => {
                                 part: 'Tournament',
                                 question: q.text,
                                 text: q.text,
-                                type: (q.type as 'multiple-choice' | 'text' | 'code-output' | 'ordering') || 'multiple-choice',
+                                type: (q.type as 'multiple-choice' | 'text' | 'code-output' | 'ordering' | 'matching') || 'multiple-choice',
                                 options: q.options || [],
                                 correctAnswer: q.correctAnswer,
                                 explanation: q.explanation || '',
                                 points: q.points || 10,
-                                codeSnippet: q.codeSnippet
+                                codeSnippet: q.codeSnippet,
+                                orderingItems: q.orderingItems,
+                                matchingPairs: q.matchingPairs,
+                                imageUrl: q.imageUrl
                             }))
                         };
                         if (isMounted) {

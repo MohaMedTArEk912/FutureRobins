@@ -427,6 +427,9 @@ export interface TournamentCustomQuestion {
     explanation?: string;
     points?: number;
     codeSnippet?: string;
+    orderingItems?: string[];
+    matchingPairs?: { left: string; right: string }[];
+    imageUrl?: string;
 }
 
 export interface TournamentCustomQuiz {

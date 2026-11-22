@@ -26,6 +26,8 @@ import {
     Sliders,
     Palette,
     ChevronDown,
+    Sparkles,
+    ArrowUpRight,
     type LucideIcon
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -510,7 +512,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                                         </span>
                                                     </div>
                                                     <div className={`text-[10px] truncate ${isBento ? 'text-black/60' : 'text-gray-400 dark:text-[#a8a29e]'}`}>
-                                                        Switch between Light, Noir Studio, & Bento
+                                                        Switch between Noir Studio &amp; Neo-Brutalist Bento
                                                     </div>
                                                 </div>
                                             </div>
@@ -640,6 +642,29 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <div className={`p-4 border-t space-y-2 mt-auto ${
                         isBento ? 'border-black/20' : 'border-gray-200/60 dark:border-white/5'
                     }`}>
+                        <button
+                            type="button"
+                            onClick={() => navigate('/admin/json-studio')}
+                            className={`w-full h-11 flex items-center justify-between px-3.5 py-2.5 rounded-2xl transition-all font-black text-xs uppercase tracking-wider group cursor-pointer ${
+                                isBento
+                                    ? 'bg-[#fde047] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[4px_4px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 font-mono'
+                                    : 'bg-[#1a1714] hover:bg-[#24201c] text-[#fde047] border border-[#fde047]/35'
+                            }`}
+                            title="Open Standalone AI JSON Refiner Studio"
+                        >
+                            <div className="flex items-center gap-2.5 min-w-0">
+                                <div className={`p-1.5 rounded-xl shrink-0 ${
+                                    isBento
+                                        ? 'bg-white text-black border border-black'
+                                        : 'bg-[#fde047]/15 text-[#fde047]'
+                                }`}>
+                                    <Sparkles className="w-4 h-4" />
+                                </div>
+                                <span className="whitespace-nowrap truncate">AI JSON Studio</span>
+                            </div>
+                            <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform shrink-0 ml-2" />
+                        </button>
+
                         <button
                             type="button"
                             onClick={() => navigate('/')}
@@ -833,6 +858,25 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                 <span>Switch to Student App</span>
                             </div>
                             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setIsSidebarOpen(false);
+                                navigate('/admin/json-studio');
+                            }}
+                            className={`w-full flex items-center justify-between px-4 py-2.5 rounded-2xl transition-all font-black text-xs uppercase tracking-wider cursor-pointer ${
+                                isBento
+                                    ? 'bg-[#fde047] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[4px_4px_0px_#000] font-mono'
+                                    : 'bg-[#1a1714] hover:bg-[#24201c] text-[#fde047] border border-[#fde047]/35'
+                            }`}
+                        >
+                            <div className="flex items-center gap-3">
+                                <Sparkles className="w-4 h-4" />
+                                <span>AI JSON Studio</span>
+                            </div>
+                            <ArrowUpRight className="w-4 h-4" />
                         </button>
 
                         <button

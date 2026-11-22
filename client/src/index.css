@@ -2378,6 +2378,26 @@ button:active {
   -webkit-backface-visibility: hidden;
 }
 
+
+/* Perf: during a page swap, drop the costly paint effects so the compositor only moves flat layers */
+.spatial-stage.is-transitioning *,
+.spatial-stage.is-transitioning *::before,
+.spatial-stage.is-transitioning *::after {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+.spatial-layer-exit *,
+.spatial-layer-exit *::before,
+.spatial-layer-exit *::after {
+  animation-play-state: paused !important;
+  transition: none !important;
+}
+.spatial-layer-exit {
+  contain: layout paint style;
+}
+.spatial-layer-enter {
+  contain: layout style;
+}
 /* Gliding Active Indicator Pill inside Desktop Navbar (synchronized 860ms C2-smooth spatial glide) */
 .nav-glide-indicator {
   transition:

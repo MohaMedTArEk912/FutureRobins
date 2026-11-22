@@ -111,6 +111,19 @@ export const sanitizeQuestions = (questions, quizId = 'unknown') => {
       }
     }
 
+    // Ensure compiler flag and type stay synchronized for UI rendering & grading
+    if (question.type === 'compiler' || question.isCompiler || (question.compilerConfig && typeof question.compilerConfig === 'object' && Object.keys(question.compilerConfig).length > 0)) {
+      question.type = 'compiler';
+      question.isCompiler = true;
+    }
+
+    // Preserve string[] accepted aliases for text questions and normalize entries
+    if (question.type === 'text' && Array.isArray(question.correctAnswer)) {
+      question.correctAnswer = question.correctAnswer
+        .map(ans => (ans !== undefined && ans !== null ? String(ans).trim() : ''))
+        .filter(Boolean);
+    }
+
     // Normalize options to strings when present
     if (question.options && Array.isArray(question.options)) {
       question.options = question.options.map(opt => (typeof opt === 'string' ? opt : String(opt)));
@@ -272,9 +285,11 @@ export const importQuizzes = async (req, res) => {
   try {
     let quizzes = req.body;
     
-    // Support single quiz import by wrapping in array
+    // Support wrapped envelopes ({ _aiPrompt, quizzes: [...] }) or single quiz objects
     if (!Array.isArray(quizzes)) {
-      if (typeof quizzes === 'object' && quizzes !== null && (quizzes.id || quizzes.title)) {
+      if (typeof quizzes === 'object' && quizzes !== null && Array.isArray(quizzes.quizzes)) {
+        quizzes = quizzes.quizzes;
+      } else if (typeof quizzes === 'object' && quizzes !== null && (quizzes.id || quizzes.title)) {
         quizzes = [quizzes];
       } else {
         return res.status(400).json({ message: 'Expected an array of quizzes or a valid quiz object' });
@@ -331,9 +346,12 @@ export const importQuizzes = async (req, res) => {
           quiz.questions = [];
         }
 
-        // Remove _id to avoid CastError if it's not a valid ObjectId
+        // Remove _id and embedded template _aiPrompt metadata before persisting
         if (quiz._id) {
           delete quiz._id;
+        }
+        if (quiz._aiPrompt) {
+          delete quiz._aiPrompt;
         }
 
         const updated = await Quiz.findOneAndUpdate(

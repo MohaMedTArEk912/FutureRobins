@@ -13,6 +13,7 @@ interface TextQuestionProps {
     onSubmit?: () => void;
     readOnly?: boolean;
     placeholder?: string;
+    hideSubmitButton?: boolean;
 }
 
 export const TextQuestion: React.FC<TextQuestionProps> = ({
@@ -23,7 +24,8 @@ export const TextQuestion: React.FC<TextQuestionProps> = ({
     onChange,
     onSubmit,
     readOnly = false,
-    placeholder
+    placeholder,
+    hideSubmitButton = false
 }) => {
     const { theme, isBento } = useTheme();
     const { tx } = useLanguage();
@@ -110,7 +112,7 @@ export const TextQuestion: React.FC<TextQuestionProps> = ({
                 </div>
 
                 {/* Submit Action Button when not yet submitted */}
-                {!submitted && !readOnly && onSubmit && (
+                {!submitted && !readOnly && onSubmit && !hideSubmitButton && (
                     <div className="flex items-center justify-between gap-3 pt-1 flex-wrap">
                         <span className={`text-[11px] font-bold flex items-center gap-1.5 ${
                             isBento ? 'text-slate-600 dark:text-slate-400' : 'text-gray-400'

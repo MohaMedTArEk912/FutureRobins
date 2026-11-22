@@ -48,6 +48,14 @@ const ROUTE_METADATA: Record<string, RouteMetadata> = {
         title: 'Admin Management Console | Quiz Platform',
         description: 'Admin dashboard to manage quizzes, questions, users, tournaments, and analytics.'
     },
+    '/admin/json-studio': {
+        title: 'AI JSON Refiner Studio | Quiz Platform',
+        description: 'Audit, repair, and upgrade platform JSON files with split-screen Old vs. New comparison.'
+    },
+    '/json-studio': {
+        title: 'AI JSON Refiner Studio | Quiz Platform',
+        description: 'Audit, repair, and upgrade platform JSON files with split-screen Old vs. New comparison.'
+    },
     '/game/vs': {
         title: 'Live 1v1 Quiz Duel | Quiz Platform',
         description: 'Real-time head-to-head multiplayer quiz match.'
@@ -125,6 +133,14 @@ const ROUTE_METADATA_AR: Record<string, RouteMetadata> = {
     '/admin': {
         title: 'لوحة تحكم الإدارة | منصة الكويزات',
         description: 'إدارة الكويزات والأسئلة والمستخدمين والكلاسات.'
+    },
+    '/admin/json-studio': {
+        title: 'استوديو تحسين JSON بالذكاء الاصطناعي | منصة الكويزات',
+        description: 'مراجعة وتصليح وتطوير ملفات JSON بمقارنة مباشرة بين القديم والجديد.'
+    },
+    '/json-studio': {
+        title: 'استوديو تحسين JSON بالذكاء الاصطناعي | منصة الكويزات',
+        description: 'مراجعة وتصليح وتطوير ملفات JSON بمقارنة مباشرة بين القديم والجديد.'
     },
     '/game/vs': {
         title: 'مواجهة مباشرة 1 ضد 1 | منصة الكويزات',

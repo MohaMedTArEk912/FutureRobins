@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     GraduationCap, Users, Compass, Copy, Link2, RefreshCw,
     BarChart3, Sparkles, MonitorPlay, UserPlus, MessageCircle, Search,
     ArrowUpCircle, ArrowDownCircle,
-    Trash2, CheckCircle2, XCircle, X, FileCode, ArrowLeft
+    Trash2, CheckCircle2, XCircle, X, FileCode, ArrowLeft, ArrowUpRight
 } from 'lucide-react';
 import type {
     UserData,
@@ -86,6 +87,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
     quizzes,
     onSelectQuiz
 }) => {
+    const navigate = useNavigate();
     const { theme } = useTheme();
     const styles = useMemo(() => getTeacherThemeStyles(theme), [theme]);
     const { showNotification } = useNotification();
@@ -795,7 +797,8 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                         {/* SECTION 4: UNIFIED SESSIONS, INTERACTIVE BOARD & PRESENTATIONS STUDIO */}
                         {(activeSection === 'sessions' || activeSection === 'board_studio' || activeSection === 'presentations') && (
                             <div className="space-y-5">
-                                {/* Unified 3-in-1 Sub-Tab Switcher */}
+                                {/* Unified 3-in-1 Sub-Tab Switcher + Standalone AI JSON Studio Page Button */}
+                                <div className="flex flex-wrap items-center justify-between gap-2.5">
                                 <div className={`p-1.5 rounded-2xl flex flex-wrap items-center gap-1.5 w-full sm:w-fit ${
                                     styles.isBento
                                         ? 'bg-slate-100 border-2 border-black shadow-[3px_3px_0px_#000]'
@@ -828,6 +831,16 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                                             </button>
                                         );
                                     })}
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => navigate('/admin/json-studio?type=presentation')}
+                                    className={`px-3.5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 cursor-pointer transition-all ${styles.primaryBtn}`}
+                                >
+                                    <Sparkles className="w-3.5 h-3.5" />
+                                    <span>AI JSON Studio</span>
+                                    <ArrowUpRight className="w-3.5 h-3.5" />
+                                </button>
                                 </div>
 
                                 {activeSection === 'sessions' && (

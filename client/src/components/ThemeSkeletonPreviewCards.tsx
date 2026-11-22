@@ -46,7 +46,7 @@ const ThemeSkeletonPreviewCards: React.FC<ThemeSkeletonPreviewCardsProps> = ({ o
     const { tx } = useLanguage();
 
     return (
-        <div className="grid w-full shrink-0 gap-2.5 md:grid-cols-2 md:gap-4">
+        <div className="grid w-full shrink-0 gap-2 md:grid-cols-2 md:gap-4">
             {THEMES.map((item) => {
                 const isSelected = currentTheme === item.id;
                 const Icon = item.icon;
@@ -65,7 +65,7 @@ const ThemeSkeletonPreviewCards: React.FC<ThemeSkeletonPreviewCardsProps> = ({ o
                                 onThemeSelect(item.id);
                             }
                         }}
-                        className={`relative group flex min-w-0 cursor-pointer select-none flex-col justify-between rounded-2xl text-start transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#bef264] p-3 md:p-4 [@media(max-height:400px)]:py-1.5 ${
+                        className={`relative group flex min-w-0 cursor-pointer select-none flex-col justify-between rounded-2xl text-start transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#bef264] p-2.5 sm:p-3 md:p-4 [@media(max-height:400px)]:py-1.5 ${
                             isSelected
                                 ? currentTheme === 'bento'
                                     ? 'bg-white text-black border-[3px] border-black shadow-[6px_6px_0px_#000]'
@@ -75,22 +75,22 @@ const ThemeSkeletonPreviewCards: React.FC<ThemeSkeletonPreviewCardsProps> = ({ o
                                     : 'bg-[#141210] hover:bg-[#1c1917] text-[#f5f3ec] border border-[#f5f3ec]/10 hover:border-[#f5f3ec]/22 hover:shadow-md hover:-translate-y-0.5'
                         }`}
                     >
-                        <div className="grid grid-cols-[minmax(0,1fr)_3.5rem] items-center gap-x-2.5 md:block">
+                        <div className="grid grid-cols-[minmax(0,1fr)_3rem] items-center gap-x-2 md:block">
                             {/* Header Info */}
                             <div className="flex min-w-0 items-center justify-between gap-1.5 md:mb-2.5">
                                 <div className="flex min-w-0 items-center gap-2">
-                                    <div className={`w-8 h-8 shrink-0 rounded-xl flex items-center justify-center transition-transform group-hover:scale-105 ${
+                                    <div className={`w-7 h-7 sm:w-8 sm:h-8 shrink-0 rounded-xl flex items-center justify-center transition-transform group-hover:scale-105 ${
                                         isCardDark
                                             ? 'bg-[#1c1917] text-[#bef264] border border-[#bef264]/35'
                                             : 'bg-[#fde047] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]'
                                     }`}>
-                                        <Icon className="w-4 h-4" />
+                                        <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                                     </div>
-                                    <div>
-                                        <h4 className="text-sm font-black tracking-tight leading-tight">
+                                    <div className="min-w-0">
+                                        <h4 className="text-xs sm:text-sm font-black tracking-tight leading-tight truncate">
                                             {tx(item.title, item.arTitle)}
                                         </h4>
-                                        <span className="text-[10px] uppercase font-bold opacity-70 tracking-wider block leading-tight [@media(max-height:350px)]:hidden">
+                                        <span className="text-[10px] uppercase font-bold opacity-70 tracking-wider block leading-tight truncate [@media(max-height:350px)]:hidden">
                                             {tx(item.tag, item.arTag)}
                                         </span>
                                     </div>

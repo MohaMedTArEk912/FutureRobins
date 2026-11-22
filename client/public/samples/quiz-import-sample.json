@@ -1,125 +1,245 @@
-[
-  {
-    "id": "sample-advanced-mastery",
-    "title": "Full-Featured Advanced Mastery Assessment",
-    "description": "Comprehensive evaluation covering all supported question types, LaTeX math notation, code execution snippets, media lectures, and proctoring controls.",
-    "category": "Computer Science",
-    "difficulty": "hard",
-    "timeLimit": 30,
-    "passingScore": 75,
-    "xpReward": 250,
-    "coinReward": 100,
-    "quizType": "quiz",
-    "isQuestionPool": false,
-    "questionsPerAttempt": 7,
-    "shuffleQuestions": true,
-    "isProctored": true,
-    "requireFullscreen": true,
-    "disableCopyPaste": true,
-    "strictTabSwitchLimit": 3,
-    "reviewMode": true,
-    "questions": [
-      {
-        "id": "q1_mcq_math",
-        "question": "What is the tight asymptotic upper bound of binary search on a sorted array of size $N$, and what is $\\lim_{N \\to \\infty} \\frac{\\log_2 N}{N}$?",
-        "text": "What is the tight asymptotic upper bound of binary search on a sorted array of size $N$, and what is $\\lim_{N \\to \\infty} \\frac{\\log_2 N}{N}$?",
-        "type": "multiple-choice",
-        "points": 10,
-        "options": [
-          "Bound: $O(\\log N)$, Limit: $0$",
-          "Bound: $O(N)$, Limit: $1$",
-          "Bound: $O(N \\log N)$, Limit: $\\infty$",
-          "Bound: $O(1)$, Limit: $0$"
-        ],
-        "correctAnswer": 0,
-        "explanation": "Binary search divides the problem space by 2 at each step, yielding $O(\\log N)$ time. As $N$ approaches infinity, $\\frac{\\log N}{N} \\to 0$.",
-        "shuffleOptions": true,
-        "imageUrl": "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&w=800&q=80"
+{
+  "_aiPrompt": {
+    "version": "2.0",
+    "targetPlatform": "Quiz Platform",
+    "templateType": "quiz-import",
+    "howToUse": [
+      "1. Attach or paste your lecture slides (PDF/PPTX), notes, code files, or subject syllabus along with this JSON file into your AI assistant (ChatGPT, Claude, Gemini, etc.).",
+      "2. Instruct the AI: 'Follow _aiPrompt strictly to generate a complete quiz based on my attached material using this exact JSON structure.'",
+      "3. Copy or save the raw JSON returned by the AI (without _aiPrompt) and upload it in Quiz Manager -> Import JSON."
+    ],
+    "prompt": "You are an expert educator, psychometric assessment designer, and strict JSON generator for Quiz Platform. Using ONLY the attached slides, notes, syllabus, or specified subject, generate a high-rigor, deeply engaging assessment in strict JSON format matching the schema below.\n\nSOURCE GROUNDING & PEDAGOGICAL QUALITY:\n- Anchor 100% of questions directly in concepts, definitions, formulas, diagrams, edge cases, comparisons, and code examples present in the provided slides or subject. Never invent unrelated trivia.\n- Progress difficulty thoughtfully across Bloom's taxonomy (concept recall -> comprehension -> code/process tracing -> edge-case analysis & synthesis).\n- Craft 4 plausible options for multiple-choice questions that are parallel in grammar and similar in length (do NOT make the correct option noticeably longer or more detailed). Each distractor must reflect a realistic student misconception.\n- Write concise, teaching-focused explanations (1-3 sentences) explaining WHY the correct answer works AND why the main trap option is wrong.\n\nPLATFORM FEATURE UTILIZATION:\n- Actively mix supported question types where they fit the content: 'multiple-choice', 'code-output' (both with 4 terminal options and free-text stdout prediction), 'text' (short answer with accepted aliases array), 'ordering' (process/execution/hierarchy sequences), 'matching' (term-to-definition pairs), and 'compiler' (for coding topics, ALWAYS set BOTH type='compiler' AND isCompiler=true with complete working referenceCode).\n- Group questions logically using the 'part' field (e.g., 'Part 1: Core Concepts', 'Part 2: Tracing & Analysis', 'Part 3: Applied Engineering').\n- Scale 'points' by cognitive demand (10 = recall, 15 = trace/short-answer, 20 = ordering/matching, 25 = coding challenge).\n\nUI & TEXT RENDERING RULES (CRITICAL):\n- Question text, options, orderingItems, matchingPairs, and explanation are rendered by KaTeX-aware plain text (MathRenderer). Wrap math, Big-O, and formulas in KaTeX delimiters ($...$ inline or $$...$$ display, escaping backslashes in JSON like \\\\log, \\\\frac).\n- NEVER put Markdown syntax (**bold**, *italic*, ### headings, ```code blocks```, or `inline backticks`) in question, options, orderingItems, matchingPairs, or explanation—raw backticks and asterisks appear literally in the UI!\n- Put code snippets strictly inside 'codeSnippet' (for 'code-output') or 'compilerConfig' (for 'compiler'), using properly escaped \\n newlines.\n- Store 'orderingItems' in the EXACT CORRECT target sequence (up to 5-6 concise items <= 65 chars each); the platform shuffles them automatically.\n- Store 'matchingPairs' with concise 'left' terms (<= 35 chars) and crisp 'right' definitions (<= 65 chars); 4 pairs is ideal.\n- For 'text' questions, prefer short canonical answers (1-3 words) and optionally provide a string array of accepted variations (e.g. [\"len\", \"len()\"]). Remember the platform grades text answers with 70% fuzzy matching.\n\nSTRICT JSON OUTPUT:\n- Return ONLY valid raw JSON matching { \"quizzes\": [ { ... } ] }. Do NOT include '_aiPrompt', comments, trailing commas, or prose outside the JSON.",
+    "strictJsonContract": {
+      "rootObject": {
+        "quizzes": "QuizObject[] (1 or more quiz objects; omitting _aiPrompt)"
       },
-      {
-        "id": "q2_code_output",
-        "question": "Predict the exact terminal output when executing this Python snippet:",
-        "text": "Predict the exact terminal output when executing this Python snippet:",
-        "type": "code-output",
-        "points": 15,
-        "codeSnippet": "data = [i ** 2 for i in range(5) if i % 2 == 1]\nprint('-'.join(map(str, data)))",
-        "correctAnswer": "1-9",
-        "explanation": "Range(5) odd numbers are 1 and 3. Their squares are 1 and 9. Joining them with '-' results in '1-9'."
+      "QuizObject": {
+        "id": "string (optional lowercase kebab-case slug; auto-generated if omitted)",
+        "title": "string (required, concise clear assessment title)",
+        "description": "string (required, 1-2 sentences describing topic coverage)",
+        "category": "string (required, e.g. 'Web Development', 'Python', 'Algorithms', 'Databases')",
+        "difficulty": "enum: 'Beginner' | 'Intermediate' | 'Advanced'",
+        "icon": "enum: 'Code2' | 'BookOpen' | 'Brain' | 'Target' | 'Trophy' | 'Lightbulb' | 'Award' | 'Rocket' | 'Monitor' | 'FlaskConical' | 'Zap' | 'Wrench'",
+        "timeLimit": "number (minutes; 0 = unlimited)",
+        "passingScore": "number (percentage 0-100, typically 70-80)",
+        "xpReward": "number (integer XP reward, e.g. 150-350)",
+        "coinsReward": "number (integer coin reward, e.g. 50-150)",
+        "quizType": "enum: 'quiz' | 'exam' | 'pool' (use 'quiz' or 'exam' here)",
+        "isQuestionPool": "boolean (false for standard quizzes)",
+        "questionsPerAttempt": "number (set equal to questions.length for full quiz)",
+        "shuffleQuestions": "boolean (true)",
+        "isVisible": "boolean (true)",
+        "isProctored": "boolean (true for formal exams, false for practice)",
+        "requireFullscreen": "boolean",
+        "disableCopyPaste": "boolean",
+        "strictTabSwitchLimit": "number (0 = unlimited, e.g. 2-3 for proctored exams)",
+        "reviewMode": "boolean (true shows immediate feedback after each question)",
+        "questions": "QuestionObject[] (recommended 8-15 questions tailored to slide count)"
       },
-      {
-        "id": "q3_text_fill",
-        "question": "In Python, which built-in function returns the total number of items in a list, string, or dictionary?",
-        "text": "In Python, which built-in function returns the total number of items in a list, string, or dictionary?",
-        "type": "text",
-        "points": 10,
-        "correctAnswer": "len",
-        "explanation": "The `len()` built-in function computes the length or cardinality of a collection or sequence."
-      },
-      {
-        "id": "q4_ordering",
-        "question": "Sort the OSI reference model layers from lowest physical abstraction (Layer 1) to highest application layer (Layer 7):",
-        "text": "Sort the OSI reference model layers from lowest physical abstraction (Layer 1) to highest application layer (Layer 7):",
-        "type": "ordering",
-        "points": 20,
-        "orderingItems": [
-          "Physical Layer (Layer 1)",
-          "Data Link Layer (Layer 2)",
-          "Network Layer (Layer 3)",
-          "Transport Layer (Layer 4)",
-          "Application Layer (Layer 7)"
-        ],
-        "explanation": "The standard bottom-up OSI hierarchy proceeds from Physical (1) to Data Link (2), Network (3), Transport (4), Session (5), Presentation (6), to Application (7)."
-      },
-      {
-        "id": "q5_matching",
-        "question": "Match each HTTP response status code with its standard semantic classification:",
-        "text": "Match each HTTP response status code with its standard semantic classification:",
-        "type": "matching",
-        "points": 20,
-        "matchingPairs": [
-          { "left": "201", "right": "Created" },
-          { "left": "304", "right": "Not Modified" },
-          { "left": "403", "right": "Forbidden" },
-          { "left": "503", "right": "Service Unavailable" }
-        ],
-        "explanation": "201 signifies successful resource creation, 304 indicates cached freshness, 403 signals unauthorized/forbidden access, and 503 denotes server overload or downtime."
-      },
-      {
-        "id": "q6_compiler",
-        "question": "Implement a function `sum_evens(nums)` that returns the cumulative sum of all even integers in the provided array.",
-        "text": "Implement a function `sum_evens(nums)` that returns the cumulative sum of all even integers in the provided array.",
-        "type": "multiple-choice",
-        "points": 25,
-        "isCompiler": true,
+      "QuestionObject": {
+        "id": "number (required sequential integer: 1, 2, 3, ...)",
+        "type": "enum: 'multiple-choice' | 'code-output' | 'text' | 'ordering' | 'matching' | 'compiler'",
+        "part": "string (section grouping label, e.g. 'Part 1: Foundations')",
+        "question": "string (required, clean prompt text + optional $KaTeX$; NO raw markdown ** or ``` or `)",
+        "points": "number (10 | 15 | 20 | 25)",
+        "explanation": "string (clear explanation of why correct answer is right and distractors fail)",
+        "shuffleOptions": "boolean (true)",
+        "options": "string[] (required for multiple-choice [4 options]; optional 4 choices for code-output MCQ mode)",
+        "correctAnswer": "number (0-based index for MCQ / code-output-with-options) | string (exact stdout for free code-output or text) | string[] (accepted synonyms for text)",
+        "codeSnippet": "string (required for code-output; valid runnable/traceable snippet with \\n)",
+        "orderingItems": "string[] (required for ordering; MUST be in the exact correct order top-to-bottom)",
+        "matchingPairs": "{ left: string, right: string }[] (required for matching; 3-5 clean pairs)",
+        "isCompiler": "boolean (MUST be true when type === 'compiler')",
         "compilerConfig": {
-          "language": "python",
-          "allowedLanguages": ["python", "javascript", "cpp"],
-          "initialCode": "def sum_evens(nums):\n    # Write your solution here\n    pass\n\n# Example test:\nprint(sum_evens([1, 2, 3, 4, 5, 6])) # Expected: 12",
-          "testCases": [
-            { "input": "[1, 2, 3, 4, 5, 6]", "expectedOutput": "12", "isHidden": false },
-            { "input": "[7, 11, 13]", "expectedOutput": "0", "isHidden": false },
-            { "input": "[2, 4, 6, 8, 10]", "expectedOutput": "30", "isHidden": true }
-          ]
+          "language": "enum: 'python' | 'javascript' | 'typescript' | 'java' | 'cpp'",
+          "allowedLanguages": "string[] (subset of supported languages)",
+          "initialCode": "string (clean starter stub)",
+          "referenceCode": "string (REQUIRED complete working solution when isCompiler is true)",
+          "testCases": "{ input: string, expectedOutput: string, isHidden: boolean }[]"
         },
-        "explanation": "Iterate through the array and accumulate values satisfying `n % 2 == 0`."
-      },
-      {
-        "id": "q7_video_lecture",
-        "question": "Watch the lecture segment and identify what fundamental property distinguishes asynchronous I/O from synchronous blocking I/O:",
-        "text": "Watch the lecture segment and identify what fundamental property distinguishes asynchronous I/O from synchronous blocking I/O:",
-        "type": "multiple-choice",
-        "points": 15,
-        "videoUrl": "https://www.youtube.com/watch?v=8aGhZQkoFbQ",
-        "videoTimestamp": 135,
-        "options": [
-          "Non-blocking thread execution allowing the event loop to service other tasks",
-          "Faster CPU clock cycles and multi-core core pinning",
-          "Automatic GPU offloading of mathematical routines",
-          "Elimination of all network latency overhead"
-        ],
-        "correctAnswer": 0,
-        "explanation": "Asynchronous I/O returns execution flow back to the event loop immediately while operations await I/O completion in the background."
+        "imageUrl": "string (optional valid https image URL ONLY if you have a real diagram/image URL)",
+        "videoUrl": "string (optional valid YouTube/MP4 URL ONLY if referencing an actual lecture video)",
+        "videoTimestamp": "number (optional start second if videoUrl is set)"
       }
-    ]
-  }
-]
+    },
+    "recommendedCountsFromSlides": {
+      "shortDeck_1_to_10_slides": "8-10 mixed questions covering every slide section",
+      "standardDeck_11_to_25_slides": "12-16 questions across all sections with multiple parts",
+      "fullUnit_26_plus_slides": "18-25 questions with balanced recall, tracing, ordering, matching & coding"
+    }
+  },
+  "quizzes": [
+    {
+      "id": "sample-cs-algorithms-mastery",
+      "title": "Algorithms, Data Structures & Complexity Mastery",
+      "description": "Balanced multi-format assessment covering asymptotic analysis, Python runtime behavior, networking layers, HTTP semantics, and practical coding.",
+      "category": "Computer Science",
+      "difficulty": "Intermediate",
+      "icon": "Brain",
+      "timeLimit": 25,
+      "passingScore": 75,
+      "xpReward": 250,
+      "coinsReward": 100,
+      "quizType": "quiz",
+      "isQuestionPool": false,
+      "questionsPerAttempt": 8,
+      "shuffleQuestions": true,
+      "isVisible": true,
+      "isProctored": false,
+      "requireFullscreen": false,
+      "disableCopyPaste": false,
+      "strictTabSwitchLimit": 0,
+      "reviewMode": true,
+      "questions": [
+        {
+          "id": 1,
+          "part": "Part 1: Algorithmic Complexity",
+          "type": "multiple-choice",
+          "question": "On a sorted array of size $N$, what is the tight worst-case time complexity of binary search, and what is $\\lim_{N \\to \\infty} \\frac{\\log_2 N}{N}$?",
+          "points": 10,
+          "options": [
+            "Time: $O(\\log N)$, Limit: $0$",
+            "Time: $O(N)$, Limit: $1$",
+            "Time: $O(N \\log N)$, Limit: $\\infty$",
+            "Time: $O(1)$, Limit: $0$"
+          ],
+          "correctAnswer": 0,
+          "explanation": "Binary search halves the remaining search interval at each comparison, giving $O(\\log N)$ time. Because $N$ grows strictly faster than $\\log_2 N$, their ratio approaches $0$ as $N \\to \\infty$.",
+          "shuffleOptions": true
+        },
+        {
+          "id": 2,
+          "part": "Part 2: Code Tracing & Output",
+          "type": "code-output",
+          "question": "Predict the exact stdout printed by this Python comprehension and string join snippet:",
+          "points": 15,
+          "codeSnippet": "data = [i ** 2 for i in range(6) if i % 2 == 1]\nprint('-'.join(map(str, data)))",
+          "correctAnswer": "1-9-25",
+          "explanation": "In range(6), the odd values are 1, 3, and 5. Squaring each produces [1, 9, 25], and joining them with '-' prints 1-9-25."
+        },
+        {
+          "id": 3,
+          "part": "Part 2: Code Tracing & Output",
+          "type": "code-output",
+          "question": "What does this Python list-aliasing snippet print? Choose the exact terminal output:",
+          "points": 15,
+          "codeSnippet": "items = [10, 20, 30]\ncopy_ref = items\nitems = items + [40]\nprint(len(copy_ref), len(items))",
+          "options": [
+            "3 4",
+            "4 4",
+            "3 3",
+            "4 3"
+          ],
+          "correctAnswer": 0,
+          "explanation": "Reassigning items = items + [40] creates a new 4-element list bound to items, while copy_ref continues pointing to the original 3-element list (unlike .append(), which mutates in place).",
+          "shuffleOptions": true
+        },
+        {
+          "id": 4,
+          "part": "Part 1: Core Concepts",
+          "type": "text",
+          "question": "Which built-in Python function returns the number of elements inside a list, string, tuple, or dictionary?",
+          "points": 10,
+          "correctAnswer": [
+            "len",
+            "len()"
+          ],
+          "explanation": "Calling len(collection) returns the integer count of items in constant $O(1)$ time for Python built-in containers."
+        },
+        {
+          "id": 5,
+          "part": "Part 3: Architecture & Protocols",
+          "type": "ordering",
+          "question": "Order these OSI reference model layers from lowest physical layer (Layer 1) to highest application layer (Layer 7):",
+          "points": 20,
+          "orderingItems": [
+            "1. Physical Layer (Bit transmission)",
+            "2. Data Link Layer (Frames & MAC)",
+            "3. Network Layer (IP Routing)",
+            "4. Transport Layer (TCP/UDP Segments)",
+            "5. Application Layer (HTTP & DNS)"
+          ],
+          "explanation": "Bottom-up encapsulation moves from bits (Physical) to frames (Data Link), packets (Network), segments (Transport), and finally user-facing protocols (Application)."
+        },
+        {
+          "id": 6,
+          "part": "Part 3: Architecture & Protocols",
+          "type": "matching",
+          "question": "Match each HTTP response status code with its standard meaning:",
+          "points": 20,
+          "matchingPairs": [
+            {
+              "left": "201 Created",
+              "right": "New server resource created successfully"
+            },
+            {
+              "left": "304 Not Modified",
+              "right": "Client cached copy is still fresh"
+            },
+            {
+              "left": "403 Forbidden",
+              "right": "Authenticated client lacks permission"
+            },
+            {
+              "left": "503 Service Unavailable",
+              "right": "Server temporarily overloaded or down"
+            }
+          ],
+          "explanation": "2xx confirms success, 3xx directs caching/redirects, 4xx flags client authorization or request errors (403 is forbidden even when known), and 5xx indicates server failures."
+        },
+        {
+          "id": 7,
+          "part": "Part 4: Applied Coding Challenge",
+          "type": "compiler",
+          "isCompiler": true,
+          "question": "Implement sum_evens(nums) so it returns the sum of all even integers in the input list nums (including negative even numbers and 0).",
+          "points": 25,
+          "compilerConfig": {
+            "language": "python",
+            "allowedLanguages": [
+              "python",
+              "javascript",
+              "typescript"
+            ],
+            "initialCode": "def sum_evens(nums):\n    # Write your solution here\n    pass\n\nprint(sum_evens([1, 2, 3, 4, 5, 6]))\n",
+            "referenceCode": "def sum_evens(nums):\n    return sum(n for n in nums if n % 2 == 0)\n\nprint(sum_evens([1, 2, 3, 4, 5, 6]))\n",
+            "testCases": [
+              {
+                "input": "[1, 2, 3, 4, 5, 6]",
+                "expectedOutput": "12",
+                "isHidden": false
+              },
+              {
+                "input": "[7, 11, 13]",
+                "expectedOutput": "0",
+                "isHidden": false
+              },
+              {
+                "input": "[-4, -1, 0, 2, 8]",
+                "expectedOutput": "6",
+                "isHidden": true
+              }
+            ]
+          },
+          "explanation": "Filter numbers where n % 2 == 0 and sum them. Using a generator expression runs in $O(N)$ time and $O(1)$ extra space."
+        },
+        {
+          "id": 8,
+          "part": "Part 3: Architecture & Protocols",
+          "type": "multiple-choice",
+          "question": "What key advantage distinguishes non-blocking asynchronous I/O from synchronous blocking I/O on a single-threaded event loop?",
+          "points": 15,
+          "options": [
+            "Pending I/O operations yield control back to the event loop so other tasks run meanwhile",
+            "Every I/O request spawns an isolated hardware CPU core automatically",
+            "Network round-trip physical latency drops to zero milliseconds",
+            "The runtime disables garbage collection until all sockets close"
+          ],
+          "correctAnswer": 0,
+          "explanation": "Async I/O does not reduce physical network latency or allocate extra CPU cores; instead it frees the thread from waiting idle while the OS notifies the event loop upon completion.",
+          "shuffleOptions": true
+        }
+      ]
+    }
+  ]
+}

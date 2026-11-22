@@ -166,28 +166,8 @@ const Footer: React.FC = () => {
                 behavior: 'smooth'
             });
         } else {
-            navigate(path);
-            window.scrollTo({
-                top: 0,
-                left: 0,
-                behavior: 'smooth'
-            });
-
-            // Extra safety tick after router re-renders destination view
-            setTimeout(() => {
-                if (targetId) {
-                    const el = document.getElementById(targetId);
-                    if (el) {
-                        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        return;
-                    }
-                }
-                window.scrollTo({
-                    top: 0,
-                    left: 0,
-                    behavior: 'smooth'
-                });
-            }, 60);
+            // Route change is animated by SpatialRouteStage; ScrollToTop resets scroll instantly.
+            navigate(path, { state: { spatial: 'drop' } });
         }
     };
 
@@ -370,18 +350,6 @@ const Footer: React.FC = () => {
                             <div className="flex flex-wrap items-center gap-2 pt-0.5">
                                 <button
                                     type="button"
-                                    onClick={() => setActiveModal('support')}
-                                    className={`logo-btn inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold transition-colors cursor-pointer ${
-                                        isBento
-                                            ? 'bg-[#bae6fd] text-black border-[1.5px] border-black shadow-[2px_2px_0px_#000] hover:bg-[#7dd3fc]'
-                                            : 'bg-slate-800 hover:bg-slate-700 dark:bg-[#171512] dark:hover:bg-[#1f1c18] text-slate-200 dark:text-[#f5f3ec] border border-slate-700 dark:border-[#2e2924]'
-                                    }`}
-                                >
-                                    <LifeBuoy className={`w-3 h-3 ${isBento ? 'text-black' : 'text-indigo-400 dark:text-[#bae6fd]'}`} />
-                                    <span>{tx('Need Help?', 'محتاج مساعدة؟')}</span>
-                                </button>
-                                <button
-                                    type="button"
                                     onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                                     className={`logo-btn inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold transition-colors cursor-pointer ${
                                         isBento
@@ -410,7 +378,7 @@ const Footer: React.FC = () => {
                                 {[
                                     { path: '/', label: tx('Home Dashboard', 'لوحة التحكم') },
                                     { path: '/tracks', label: tx('Skill Tracks', 'مسارات التعلم') },
-                                    { path: '/tournaments', label: tx('Tournaments', 'البطولات') },
+                                    { path: '/tournaments', label: tx('Arenas & Cups', 'الساحات والكؤوس') },
                                     { path: '/daily', label: tx('Daily Challenge', 'التحدي اليومي') }
                                 ].map((item) => (
                                     <li key={item.path}>
@@ -442,10 +410,11 @@ const Footer: React.FC = () => {
                             </h4>
                             <ul className="space-y-1.5 text-xs">
                                 {[
-                                    { path: '/leaderboard', label: tx('Global Rankings', 'الترتيب العالمي') },
-                                    { path: '/clans', label: tx('Clans & Guilds', 'الكلانات والفرق') },
-                                    { path: '/social', label: tx('1v1 Live Duels', 'مواجهات 1 ضد 1') },
-                                    { path: '/shop', label: tx('Power-Up Shop', 'متجر المساعدات') }
+                                    { path: '/leaderboard', label: tx('Rankings', 'الترتيب') },
+                                    { path: '/classes', label: tx('Classes', 'الفصول') },
+                                    { path: '/live-arena', label: tx('Live Arena', 'الساحة المباشرة') },
+                                    { path: '/social', label: tx('Social Hub', 'المركز الاجتماعي') },
+                                    { path: '/shop', label: tx('Reward Shop', 'متجر المكافآت') }
                                 ].map((item) => (
                                     <li key={item.path}>
                                         <button

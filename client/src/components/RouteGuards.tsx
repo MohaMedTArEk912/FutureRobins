@@ -32,3 +32,10 @@ export const AdminRoute: React.FC<{ children: ReactNode }> = ({ children }) => {
     if (!currentUser || !isAdmin) return <Navigate to="/" replace />; // Redirect non-admins to dashboard
     return <>{children}</>;
 };
+
+export const StaffRoute: React.FC<{ children: ReactNode }> = ({ children }) => {
+    const { currentUser, isAdmin, isTeacher, isLoading } = useAuth();
+    if (isLoading) return <PageLoader />;
+    if (!currentUser || (!isAdmin && !isTeacher)) return <Navigate to="/" replace />;
+    return <>{children}</>;
+};

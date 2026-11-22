@@ -2845,6 +2845,68 @@ export const api = {
             throw new Error(data.message || 'Failed to sync arcade XP');
         }
         return data;
+    },
+
+    async refineJsonWithAi(
+        payload: {
+            jsonContent: string;
+            contentType?: string;
+            keepInstructions?: string;
+            preserveFlags?: Record<string, boolean>;
+            upgradeGoals?: string;
+            sourceContext?: string;
+            sourceFile?: File | null;
+        },
+        userId?: string
+    ): Promise<{
+        success: boolean;
+        model: string;
+        detectedType: string;
+        originalNormalized: unknown;
+        refined: unknown;
+        auditIssues: Array<{ severity: 'error' | 'warning' | 'tip'; path: string; message: string }>;
+        summary: string;
+        improvements: string[];
+    }> {
+        let response: Response;
+        if (payload.sourceFile) {
+            const formData = new FormData();
+            formData.append('jsonContent', payload.jsonContent);
+            formData.append('contentType', payload.contentType || 'auto');
+            formData.append('keepInstructions', payload.keepInstructions || '');
+            formData.append('preserveFlags', JSON.stringify(payload.preserveFlags || {}));
+            formData.append('upgradeGoals', payload.upgradeGoals || '');
+            formData.append('sourceContext', payload.sourceContext || '');
+            formData.append('sourceFile', payload.sourceFile);
+
+            const headers = getHeaders(userId);
+            delete headers['Content-Type'];
+
+            response = await fetchWithFallback('/ai/refine-json', {
+                method: 'POST',
+                headers,
+                body: formData
+            });
+        } else {
+            response = await fetchWithFallback('/ai/refine-json', {
+                method: 'POST',
+                headers: getHeaders(userId),
+                body: JSON.stringify({
+                    jsonContent: payload.jsonContent,
+                    contentType: payload.contentType || 'auto',
+                    keepInstructions: payload.keepInstructions || '',
+                    preserveFlags: payload.preserveFlags || {},
+                    upgradeGoals: payload.upgradeGoals || '',
+                    sourceContext: payload.sourceContext || ''
+                })
+            });
+        }
+
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            throw new Error(data.message || 'Failed to refine JSON with AI');
+        }
+        return data;
     }
 };
 

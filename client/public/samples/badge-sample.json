@@ -1,92 +1,155 @@
-[
-  {
-    "name": "Speed Demon",
-    "description": "Complete a quiz in under 60 seconds with high accuracy",
-    "icon": "⚡",
-    "rarity": "rare",
-    "color": "#3B82F6",
-    "rewards": {
-      "xp": 150,
-      "coins": 100,
-      "powerUps": [
-        { "type": "time_freeze", "quantity": 2 },
-        { "type": "fifty_fifty", "quantity": 1 }
-      ]
-    },
-    "unlockCriteria": [
-      {
-        "type": "speed_demon",
-        "threshold": 60,
-        "operator": "<="
-      }
+{
+  "_aiPrompt": {
+    "version": "2.0",
+    "targetPlatform": "Quiz Platform",
+    "templateType": "badge-collection",
+    "howToUse": [
+      "1. Provide your course name, skill track milestones, or topic themes along with this JSON template.",
+      "2. Instruct the AI: 'Follow _aiPrompt strictly to generate a progression set of achievement badges using exact platform enums.'",
+      "3. Upload the returned JSON in Badge Management -> Upload Badges JSON (1 badge opens in the editor; multiple badges bulk-import directly!)."
     ],
-    "trees": ["general-skills", "speedrun-track"]
+    "prompt": "You are a Gamification System Designer and strict JSON generator for Quiz Platform. Using the provided course, track, or theme, design a cohesive progression of achievement badges with balanced rewards and valid unlock rules.\n\nDESIGN & PROGRESSION RULES:\n- Span multiple rarities ('common' -> 'rare' -> 'epic' -> 'legendary' -> 'mythic') with scaling XP, coins, and strategic powerUps.\n- Give every badge a unique kebab-case 'badgeId', evocative 'name', equippable 'title' honorific, crisp 1-sentence 'description', matching single emoji 'icon', and distinct vibrant hex 'color'.\n- Pick 'category' from the exact allowed enum list and pick 'unlockCriteria[].type' STRICTLY from the allowed enum list in strictJsonContract.\n- NEVER put raw Markdown syntax (**bold**, ```) inside descriptions or titles.\n\nSTRICT JSON OUTPUT:\n- Return ONLY valid raw JSON matching { \"badges\": [ ... ] }. Omit '_aiPrompt'.",
+    "strictJsonContract": {
+      "rootObject": {
+        "badges": "BadgeNode[] (omit _aiPrompt)"
+      },
+      "BadgeNode": {
+        "badgeId": "string (required unique slug, e.g. 'python-loop-master')",
+        "name": "string (required short badge name)",
+        "title": "string (optional equippable student profile honorific, e.g. 'Loop Architect')",
+        "description": "string (required 1 clear sentence explaining how to earn it)",
+        "icon": "string (required emoji)",
+        "category": "enum: 'milestones' | 'perfection' | 'streaks' | 'speed' | 'xp' | 'skills' | 'social' | 'arena' | 'other'",
+        "rarity": "enum: 'common' | 'rare' | 'epic' | 'legendary' | 'mythic'",
+        "color": "string (hex color like '#3B82F6', '#10B981', '#F97316', '#EAB308', '#EF4444')",
+        "rewards": {
+          "xp": "number (>= 0)",
+          "coins": "number (>= 0)",
+          "powerUps": "{ type: 'time_freeze' | 'fifty_fifty' | 'double_xp' | 'second_chance', quantity: number }[]"
+        },
+        "unlockCriteria": [
+          {
+            "type": "enum: 'total_attempts' | 'total_score' | 'streak' | 'level' | 'perfect_score' | 'speed_demon' | 'quiz_completion' | 'exam_pass' | 'tournament_win' | 'tournament_participate' | 'track_completion' | 'module_completion' | 'friend_count' | 'challenge_wins' | 'manual' | 'clans' | 'clan_contribution' | 'track_started' | 'track_modules' | 'challenges'",
+            "threshold": "number (target numeric value)",
+            "operator": "enum: '>=' | '>' | '=' | '<' | '<='",
+            "quizId": "string (optional filter)",
+            "trackId": "string (optional filter)",
+            "tournamentId": "string (optional filter)"
+          }
+        ],
+        "trees": "string[] (optional badge tree slugs, e.g. ['general-skills'])"
+      }
+    }
   },
-  {
-    "name": "Streak Master",
-    "description": "Maintain a 7-day continuous learning streak",
-    "icon": "🔥",
-    "rarity": "epic",
-    "color": "#F97316",
-    "rewards": {
-      "xp": 300,
-      "coins": 200,
-      "powerUps": [
-        { "type": "double_xp", "quantity": 2 }
-      ]
+  "badges": [
+    {
+      "badgeId": "first-spark",
+      "name": "First Spark",
+      "title": "Initiate",
+      "description": "Complete your very first quiz attempt on the platform.",
+      "icon": "✨",
+      "category": "milestones",
+      "rarity": "common",
+      "color": "#38BDF8",
+      "rewards": {
+        "xp": 75,
+        "coins": 40,
+        "powerUps": [
+          { "type": "fifty_fifty", "quantity": 1 }
+        ]
+      },
+      "unlockCriteria": [
+        { "type": "total_attempts", "threshold": 1, "operator": ">=" }
+      ],
+      "trees": ["general-skills"]
     },
-    "unlockCriteria": [
-      {
-        "type": "streak",
-        "threshold": 7,
-        "operator": ">="
-      }
-    ],
-    "trees": ["consistency-track"]
-  },
-  {
-    "name": "Quiz Veteran",
-    "description": "Successfully finish 50 quizzes across any category",
-    "icon": "🎖️",
-    "rarity": "rare",
-    "color": "#8B5CF6",
-    "rewards": {
-      "xp": 500,
-      "coins": 250,
-      "powerUps": [
-        { "type": "time_freeze", "quantity": 3 }
-      ]
+    {
+      "badgeId": "speed-demon-60",
+      "name": "Speed Demon",
+      "title": "Flash Solver",
+      "description": "Finish a qualifying quiz in 60 seconds or less with high accuracy.",
+      "icon": "⚡",
+      "category": "speed",
+      "rarity": "rare",
+      "color": "#14B8A6",
+      "rewards": {
+        "xp": 180,
+        "coins": 120,
+        "powerUps": [
+          { "type": "time_freeze", "quantity": 2 },
+          { "type": "fifty_fifty", "quantity": 1 }
+        ]
+      },
+      "unlockCriteria": [
+        { "type": "speed_demon", "threshold": 60, "operator": "<=" }
+      ],
+      "trees": ["general-skills", "speedrun-track"]
     },
-    "unlockCriteria": [
-      {
-        "type": "quiz_completion",
-        "threshold": 50,
-        "operator": ">="
-      }
-    ],
-    "trees": ["general-skills"]
-  },
-  {
-    "name": "Grand Champion",
-    "description": "Win first place in an official competitive tournament",
-    "icon": "👑",
-    "rarity": "legendary",
-    "color": "#EAB308",
-    "rewards": {
-      "xp": 1000,
-      "coins": 500,
-      "powerUps": [
-        { "type": "time_freeze", "quantity": 5 },
-        { "type": "second_chance", "quantity": 3 }
-      ]
+    {
+      "badgeId": "streak-sentinel-7",
+      "name": "Streak Sentinel",
+      "title": "Relentless",
+      "description": "Maintain an unbroken 7-day daily study and challenge streak.",
+      "icon": "🔥",
+      "category": "streaks",
+      "rarity": "epic",
+      "color": "#F97316",
+      "rewards": {
+        "xp": 350,
+        "coins": 220,
+        "powerUps": [
+          { "type": "double_xp", "quantity": 2 }
+        ]
+      },
+      "unlockCriteria": [
+        { "type": "streak", "threshold": 7, "operator": ">=" }
+      ],
+      "trees": ["consistency-track"]
     },
-    "unlockCriteria": [
-      {
-        "type": "tournament_win",
-        "threshold": 1,
-        "operator": ">="
-      }
-    ],
-    "trees": ["tournaments"]
-  }
-]
+    {
+      "badgeId": "track-sovereign",
+      "name": "Track Sovereign",
+      "title": "Roadmap Master",
+      "description": "Complete an entire Skill Track and achieve perfection across key evaluations.",
+      "icon": "🗺️",
+      "category": "skills",
+      "rarity": "legendary",
+      "color": "#EAB308",
+      "rewards": {
+        "xp": 750,
+        "coins": 400,
+        "powerUps": [
+          { "type": "second_chance", "quantity": 2 },
+          { "type": "double_xp", "quantity": 2 }
+        ]
+      },
+      "unlockCriteria": [
+        { "type": "track_completion", "threshold": 1, "operator": ">=" },
+        { "type": "perfect_score", "threshold": 3, "operator": ">=" }
+      ],
+      "trees": ["roadmap-mastery"]
+    },
+    {
+      "badgeId": "arena-grand-champion",
+      "name": "Arena Sovereign",
+      "title": "Grand Champion",
+      "description": "Claim first place in an official proctored platform tournament.",
+      "icon": "👑",
+      "category": "arena",
+      "rarity": "mythic",
+      "color": "#FB7185",
+      "rewards": {
+        "xp": 1200,
+        "coins": 600,
+        "powerUps": [
+          { "type": "time_freeze", "quantity": 4 },
+          { "type": "second_chance", "quantity": 3 }
+        ]
+      },
+      "unlockCriteria": [
+        { "type": "tournament_win", "threshold": 1, "operator": ">=" }
+      ],
+      "trees": ["tournaments"]
+    }
+  ]
+}

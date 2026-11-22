@@ -84,23 +84,66 @@ const BadgeManagement: React.FC<BadgeManagementProps> = ({ adminId, onNotificati
         if (!file) return;
 
         const reader = new FileReader();
-        reader.onload = (e) => {
+        reader.onload = async (e) => {
             try {
                 const json = JSON.parse(e.target?.result as string);
-                const badgeData = Array.isArray(json) ? json[0] : json;
-                setEditingBadge({
-                    badgeId: '', // Generate new ID on save
-                    name: badgeData.name || '',
-                    description: badgeData.description || '',
-                    icon: badgeData.icon || '🏆',
-                    rarity: badgeData.rarity || 'common',
-                    color: badgeData.color || '#3B82F6',
-                    unlockCriteria: Array.isArray(badgeData.unlockCriteria) ? badgeData.unlockCriteria : [],
-                    rewards: badgeData.rewards || { xp: 0, coins: 0, powerUps: [] },
-                    trees: badgeData.trees || []
+                const rawList: Array<Record<string, unknown>> = Array.isArray(json)
+                    ? json
+                    : json && typeof json === 'object' && Array.isArray((json as { badges?: unknown }).badges)
+                        ? ((json as { badges: Array<Record<string, unknown>> }).badges)
+                        : json && typeof json === 'object' && (json as { name?: unknown }).name
+                            ? [json as Record<string, unknown>]
+                            : [];
+
+                const badgesList = rawList.filter(
+                    (b): b is Record<string, unknown> => Boolean(b && typeof b === 'object' && typeof b.name === 'string' && b.name.trim())
+                );
+
+                if (badgesList.length === 0) {
+                    onNotification('error', 'No valid badges found in JSON file. Ensure objects include a "name" field.');
+                    if (fileInputRef.current) fileInputRef.current.value = '';
+                    return;
+                }
+
+                const toBadgePayload = (badgeData: Record<string, unknown>): Partial<BadgeNode> => ({
+                    badgeId: typeof badgeData.badgeId === 'string' ? badgeData.badgeId.trim() : '',
+                    name: String(badgeData.name || ''),
+                    title: typeof badgeData.title === 'string' ? badgeData.title : '',
+                    category: (typeof badgeData.category === 'string' ? badgeData.category : 'milestones') as BadgeNode['category'],
+                    description: typeof badgeData.description === 'string' ? badgeData.description : '',
+                    icon: typeof badgeData.icon === 'string' ? badgeData.icon : '🏆',
+                    rarity: (typeof badgeData.rarity === 'string' ? badgeData.rarity : 'common') as BadgeNode['rarity'],
+                    color: typeof badgeData.color === 'string' ? badgeData.color : '#3B82F6',
+                    unlockCriteria: Array.isArray(badgeData.unlockCriteria) ? (badgeData.unlockCriteria as BadgeNode['unlockCriteria']) : [],
+                    rewards: (badgeData.rewards && typeof badgeData.rewards === 'object'
+                        ? badgeData.rewards
+                        : { xp: 0, coins: 0, powerUps: [] }) as BadgeNode['rewards'],
+                    trees: Array.isArray(badgeData.trees) ? badgeData.trees.map(String) : []
                 });
-                setShowBadgeEditor(true);
-                onNotification('success', 'Badge loaded from JSON. Please review and save.');
+
+                if (badgesList.length === 1) {
+                    setEditingBadge(toBadgePayload(badgesList[0]));
+                    setShowBadgeEditor(true);
+                    onNotification('success', 'Badge loaded from JSON. Please review and save.');
+                } else {
+                    let importedCount = 0;
+                    for (const item of badgesList) {
+                        try {
+                            await api.createBadgeNode(toBadgePayload(item), adminId);
+                            importedCount++;
+                        } catch (err) {
+                            console.error('Failed to import badge item:', item.name, err);
+                        }
+                    }
+                    await loadData();
+                    if (importedCount === badgesList.length) {
+                        onNotification('success', `Imported ${importedCount} of ${badgesList.length} badges from JSON!`);
+                    } else if (importedCount > 0) {
+                        onNotification('success', `Imported ${importedCount} of ${badgesList.length} badges (${badgesList.length - importedCount} skipped or duplicate).`);
+                    } else {
+                        onNotification('error', 'Failed to import badges from JSON (they may already exist).');
+                    }
+                }
             } catch (error) {
                 console.error('Failed to parse JSON:', error);
                 onNotification('error', 'Invalid JSON file');

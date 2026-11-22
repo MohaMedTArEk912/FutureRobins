@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Download,
     Upload,
@@ -12,7 +13,8 @@ import {
     Square,
     X,
     Check,
-    Pencil
+    Pencil,
+    Sparkles
 } from 'lucide-react';
 import type {
     MotionPresentation,
@@ -48,6 +50,7 @@ export const PresentationLibraryManager: React.FC<PresentationLibraryManagerProp
     initialUploadModuleId = '',
     onChanged
 }) => {
+    const navigate = useNavigate();
     const { theme } = useTheme();
     const styles = useMemo(() => getTeacherThemeStyles(theme), [theme]);
     const { showNotification } = useNotification();
@@ -164,7 +167,22 @@ export const PresentationLibraryManager: React.FC<PresentationLibraryManagerProp
             }, currentUser.userId);
 
             const presData = converted.presentation;
-            const jsonPayload = rawUploadedText.trim() || JSON.stringify(presData, null, 2);
+            let cleanUploadedJson = '';
+            if (rawUploadedText.trim()) {
+                try {
+                    const parsedRaw = JSON.parse(rawUploadedText) as Record<string, unknown>;
+                    if (parsedRaw && typeof parsedRaw === 'object' && !Array.isArray(parsedRaw) && '_aiPrompt' in parsedRaw) {
+                        const stripped = { ...parsedRaw };
+                        delete stripped._aiPrompt;
+                        cleanUploadedJson = JSON.stringify(stripped, null, 2);
+                    } else {
+                        cleanUploadedJson = rawUploadedText.trim();
+                    }
+                } catch {
+                    cleanUploadedJson = rawUploadedText.trim();
+                }
+            }
+            const jsonPayload = cleanUploadedJson || JSON.stringify(presData, null, 2);
             const saved = await api.savePresentation({
                 title: presData.title || uploadFile.name.replace(/\.[^.]+$/, '') || 'Uploaded Presentation',
                 description: presData.description || '',
@@ -301,14 +319,24 @@ export const PresentationLibraryManager: React.FC<PresentationLibraryManagerProp
                         </div>
                     </div>
 
-                    <button
-                        type="button"
-                        onClick={handleDownloadSample}
-                        className={`px-4 py-2.5 rounded-xl text-xs uppercase flex items-center gap-2 cursor-pointer shrink-0 ${styles.secondaryBtn}`}
-                    >
-                        <Download className="w-4 h-4 shrink-0" />
-                        <span>Download Sample JSON</span>
-                    </button>
+                    <div className="flex flex-wrap items-center gap-2 shrink-0">
+                        <button
+                            type="button"
+                            onClick={() => navigate('/admin/json-studio?type=presentation')}
+                            className={`px-3.5 py-2.5 rounded-xl text-xs uppercase flex items-center gap-2 cursor-pointer shrink-0 font-black ${styles.primaryBtn}`}
+                        >
+                            <Sparkles className="w-4 h-4 shrink-0" />
+                            <span>AI Upgrade JSON</span>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleDownloadSample}
+                            className={`px-4 py-2.5 rounded-xl text-xs uppercase flex items-center gap-2 cursor-pointer shrink-0 ${styles.secondaryBtn}`}
+                        >
+                            <Download className="w-4 h-4 shrink-0" />
+                            <span>Download Sample JSON</span>
+                        </button>
+                    </div>
                 </div>
 
                 {initialUploadTrackId && initialUploadModuleId && (

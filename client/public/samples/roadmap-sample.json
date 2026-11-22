@@ -1,56 +1,87 @@
 {
+  "_aiPrompt": {
+    "version": "2.0",
+    "targetPlatform": "Quiz Platform",
+    "templateType": "roadmap-track",
+    "howToUse": [
+      "1. Attach your course outline, multi-session slide syllabus, or target subject alongside this JSON file.",
+      "2. Instruct the AI: 'Follow _aiPrompt strictly to design a complete prerequisite learning roadmap DAG matching my course structure.'",
+      "3. Upload or paste the returned JSON in Roadmap Management -> Import JSON -> Text Editor or Upload File."
+    ],
+    "prompt": "You are an expert Curriculum Architect and strict JSON generator for Quiz Platform. Transform the attached syllabus, slide outline, or subject into a clear, motivating, acyclic learning roadmap (Directed Acyclic Graph) in strict JSON format.\n\nCURRICULUM & GRAPH DESIGN RULES:\n- Sequence modules cleanly from foundational (level 0) to intermediate, specialization branches, practical project/exam gates, and final achievement milestone.\n- ONLY level 0 starter modules should have 'status': 'available' and 'prerequisites': []. Every dependent module MUST have 'status': 'locked' and list valid 'prerequisites' referencing existing 'moduleId' values from strictly earlier levels (NO cycles, NO broken IDs).\n- Break each core/optional/project module into 3-5 concrete, bite-sized 'subModules' reflecting exact lessons or slides from the source material.\n- Set the first subModule of a level-0 module to 'state': 'available', and subsequent subModules to 'state': 'locked'.\n- Assign non-overlapping DAG node 'coordinates': increment 'x' cleanly by 220 per level (100, 320, 540, 760, 980, ...), place main spine at 'y': 160, and offset optional/parallel branches at 'y': 60 or 'y': 300 so edges never cross messily.\n- Scale 'xpReward' meaningfully (100-180 for core modules, 250-350 for projects, 400-500 for exams, 800-1000 for final milestones).\n\nUI & TEXT QUALITY:\n- Use crisp, motivating titles (<= 5 words) and clear 1-sentence descriptions explaining what the student will actually build or master.\n- No raw Markdown (**bold**, ```) inside titles or descriptions.\n\nSTRICT JSON OUTPUT:\n- Return ONLY valid raw JSON with keys: title, description, icon, category, isVisible, modules. Omit '_aiPrompt'. Strictly follow the exact enum values in strictJsonContract.",
+    "strictJsonContract": {
+      "rootObject": {
+        "title": "string (required track title)",
+        "description": "string (1-2 sentence track overview)",
+        "icon": "string (single relevant emoji, e.g. '🚀', '🐍', '🗄️')",
+        "category": "string (e.g. 'Web Development', 'Python', 'Algorithms')",
+        "isVisible": "boolean (true)",
+        "modules": "SkillModule[] (ordered DAG nodes; omit _aiPrompt)"
+      },
+      "SkillModule": {
+        "moduleId": "string (required unique snake_case ID, e.g. 'mod_http_basics')",
+        "title": "string (required)",
+        "description": "string (plain text lesson scope)",
+        "level": "number (integer >= 0 matching prerequisite depth)",
+        "type": "enum: 'core' | 'optional' | 'quiz' | 'project' | 'exam' | 'milestone' | 'achievement'",
+        "status": "enum: 'available' | 'locked' (level 0 = 'available', others = 'locked')",
+        "xpReward": "number (integer > 0)",
+        "coordinates": "{ x: number, y: number } (required; grid spacing x += 220 per level)",
+        "prerequisites": "string[] (existing moduleId values from strictly lower levels)",
+        "subModules": "SubModule[] (3-5 lesson steps per learning module)",
+        "quizIds": "string[] (optional linked quiz IDs)",
+        "badgeId": "string (optional badgeId unlocked on exam/milestone)"
+      },
+      "SubModule": {
+        "id": "string (unique snake_case ID)",
+        "title": "string (concise lesson topic)",
+        "state": "enum: 'available' | 'locked'",
+        "xp": "number (typically 25-60 per sub-module)",
+        "quizId": "string (optional)",
+        "videoUrl": "string (optional valid YouTube/video URL)"
+      }
+    }
+  },
   "title": "Full-Stack Web Development Track",
-  "description": "Comprehensive pathway covering modern web engineering, algorithms, and cloud deployment",
+  "description": "Structured pathway covering web architecture, modern JavaScript, React systems, TypeScript safety, testing, and production deployment.",
   "icon": "🚀",
+  "category": "Web Development",
+  "isVisible": true,
   "modules": [
     {
-      "moduleId": "mod_internet_fundamentals",
-      "title": "Web & Internet Fundamentals",
-      "description": "Understand HTTP/HTTPS, DNS, browsers, and the client-server model",
+      "moduleId": "mod_web_foundations",
+      "title": "Web & HTTP Foundations",
+      "description": "Master the client-server request lifecycle, DNS resolution, HTTP methods, and semantic HTML page structure.",
       "level": 0,
       "type": "core",
       "status": "available",
       "xpReward": 120,
-      "icon": "🌐",
-      "coordinates": { "x": 100, "y": 150 },
-      "resources": [
-        {
-          "id": "res_http_guide",
-          "title": "MDN: How the Web Works",
-          "url": "https://developer.mozilla.org/en-US/docs/Learn/Getting_started_with_the_web/How_the_Web_works",
-          "type": "article"
-        },
-        {
-          "id": "res_dns_video",
-          "title": "Crash Course: DNS Explained",
-          "url": "https://www.youtube.com/watch?v=72snZ46Tx30",
-          "type": "video"
-        }
-      ],
+      "coordinates": { "x": 100, "y": 160 },
+      "prerequisites": [],
+      "quizIds": ["quiz_web_foundations"],
       "subModules": [
         {
-          "id": "sub_http",
-          "title": "HTTP Methods & Status Codes",
+          "id": "sub_client_server",
+          "title": "Client-Server & DNS Lifecycle",
           "state": "available",
           "xp": 30,
-          "quizId": "quiz_http_basics",
-          "videoUrl": "https://www.youtube.com/watch?v=iYM2zFP3Zn0"
+          "quizId": "quiz_http_basics"
         },
         {
-          "id": "sub_dns",
-          "title": "Domain Names & IP Addressing",
+          "id": "sub_http_methods",
+          "title": "HTTP Verbs, Headers & Status Codes",
           "state": "locked",
           "xp": 30
         },
         {
-          "id": "sub_client_server",
-          "title": "Client-Server Architecture",
+          "id": "sub_semantic_html",
+          "title": "Semantic Landmarks & Accessibility",
           "state": "locked",
           "xp": 30
         },
         {
-          "id": "sub_browser_engine",
-          "title": "Browser Rendering Pipeline",
+          "id": "sub_css_layout",
+          "title": "Responsive Flexbox & CSS Grid Systems",
           "state": "locked",
           "xp": 30
         }
@@ -59,125 +90,190 @@
     {
       "moduleId": "mod_modern_javascript",
       "title": "Modern JavaScript (ES6+)",
-      "description": "Deep dive into async/await, closures, prototypes, and functional array methods",
+      "description": "Build fluency in lexical scope, closures, event-loop async/await flows, and immutable data transformations.",
       "level": 1,
       "type": "core",
       "status": "locked",
       "xpReward": 160,
-      "icon": "⚡",
-      "coordinates": { "x": 300, "y": 150 },
-      "prerequisites": ["mod_internet_fundamentals"],
-      "unlockRule": {
-        "type": "ALL",
-        "nodes": ["mod_internet_fundamentals"]
-      },
+      "coordinates": { "x": 320, "y": 160 },
+      "prerequisites": ["mod_web_foundations"],
       "quizIds": ["quiz_js_core"],
-      "resources": [
-        {
-          "id": "res_js_info",
-          "title": "JavaScript.info Deep Dive",
-          "url": "https://javascript.info",
-          "type": "article"
-        }
-      ],
       "subModules": [
-        { "id": "sub_js_vars", "title": "Scope, Hoisting & Closures", "state": "locked", "xp": 40 },
-        { "id": "sub_js_async", "title": "Promises & Async/Await", "state": "locked", "xp": 40, "quizId": "quiz_js_async" },
-        { "id": "sub_js_arrays", "title": "Higher Order Functions (map, filter, reduce)", "state": "locked", "xp": 40 },
-        { "id": "sub_js_modules", "title": "ES Modules & Bundling", "state": "locked", "xp": 40 }
+        {
+          "id": "sub_js_closures",
+          "title": "Execution Context, Scope & Closures",
+          "state": "locked",
+          "xp": 40
+        },
+        {
+          "id": "sub_js_async",
+          "title": "Event Loop, Promises & Async/Await",
+          "state": "locked",
+          "xp": 40,
+          "quizId": "quiz_js_async"
+        },
+        {
+          "id": "sub_js_arrays",
+          "title": "Functional Transforms (map, filter, reduce)",
+          "state": "locked",
+          "xp": 40
+        },
+        {
+          "id": "sub_js_modules",
+          "title": "ES Modules & State Immutability",
+          "state": "locked",
+          "xp": 40
+        }
       ]
     },
     {
-      "moduleId": "mod_react_ecosystem",
-      "title": "React & Component Architecture",
-      "description": "Hooks, state management, memoization, and custom hooks",
+      "moduleId": "mod_react_architecture",
+      "title": "React & Component State",
+      "description": "Design composable UI components with React Hooks, derived state, custom hooks, and render performance guards.",
       "level": 2,
       "type": "core",
       "status": "locked",
       "xpReward": 200,
-      "icon": "⚛️",
-      "coordinates": { "x": 500, "y": 100 },
+      "coordinates": { "x": 540, "y": 90 },
       "prerequisites": ["mod_modern_javascript"],
-      "unlockRule": {
-        "type": "ALL",
-        "nodes": ["mod_modern_javascript"]
-      },
       "quizIds": ["quiz_react_essentials"],
       "subModules": [
-        { "id": "sub_hooks", "title": "useState, useEffect, useMemo", "state": "locked", "xp": 50 },
-        { "id": "sub_custom_hooks", "title": "Designing Resilient Custom Hooks", "state": "locked", "xp": 50 },
-        { "id": "sub_context", "title": "Context API & State Trees", "state": "locked", "xp": 50 }
+        {
+          "id": "sub_react_hooks",
+          "title": "useState, useEffect & Effect Cleanup",
+          "state": "locked",
+          "xp": 50
+        },
+        {
+          "id": "sub_custom_hooks",
+          "title": "Extracting Reusable Custom Hooks",
+          "state": "locked",
+          "xp": 50
+        },
+        {
+          "id": "sub_state_lifting",
+          "title": "State Colocation, Context & Memoization",
+          "state": "locked",
+          "xp": 50
+        },
+        {
+          "id": "sub_api_fetching",
+          "title": "Async Fetching, Loading & Error Boundaries",
+          "state": "locked",
+          "xp": 50
+        }
       ]
     },
     {
-      "moduleId": "mod_typescript_adv",
-      "title": "TypeScript Mastery",
-      "description": "Generics, conditional types, utility types, and strict type safety",
+      "moduleId": "mod_typescript_safety",
+      "title": "TypeScript Type Systems",
+      "description": "Eliminate runtime bugs using discriminated unions, strict generics, type narrowing, and utility types.",
       "level": 2,
       "type": "optional",
       "status": "locked",
-      "xpReward": 150,
-      "icon": "🔷",
-      "coordinates": { "x": 500, "y": 250 },
+      "xpReward": 160,
+      "coordinates": { "x": 540, "y": 270 },
       "prerequisites": ["mod_modern_javascript"],
-      "resources": [
-        {
-          "id": "res_ts_handbook",
-          "title": "TypeScript Official Handbook",
-          "url": "https://www.typescriptlang.org/docs/handbook/intro.html",
-          "type": "article"
-        }
-      ],
       "subModules": [
-        { "id": "sub_ts_generics", "title": "Type Constraints & Generics", "state": "locked", "xp": 50 },
-        { "id": "sub_ts_narrowing", "title": "Discriminated Unions & Type Guards", "state": "locked", "xp": 50 }
+        {
+          "id": "sub_ts_unions",
+          "title": "Discriminated Unions & Exhaustiveness",
+          "state": "locked",
+          "xp": 55
+        },
+        {
+          "id": "sub_ts_generics",
+          "title": "Generic Constraints & Keyof Inference",
+          "state": "locked",
+          "xp": 55
+        },
+        {
+          "id": "sub_ts_contracts",
+          "title": "Strict API DTO Validation",
+          "state": "locked",
+          "xp": 50
+        }
+      ]
+    },
+    {
+      "moduleId": "mod_backend_checkpoint",
+      "title": "Full-Stack Integration Quiz",
+      "description": "Scenario-based checkpoint verifying REST contracts, auth flows, and state synchronization before capstone build.",
+      "level": 3,
+      "type": "quiz",
+      "status": "locked",
+      "xpReward": 220,
+      "coordinates": { "x": 760, "y": 160 },
+      "prerequisites": ["mod_react_architecture", "mod_typescript_safety"],
+      "quizIds": ["quiz_fullstack_checkpoint"],
+      "subModules": [
+        {
+          "id": "sub_rest_design",
+          "title": "REST Endpoints & Status Contracts",
+          "state": "locked",
+          "xp": 110
+        },
+        {
+          "id": "sub_auth_security",
+          "title": "JWT Sessions, CORS & Input Validation",
+          "state": "locked",
+          "xp": 110
+        }
       ]
     },
     {
       "moduleId": "mod_capstone_project",
-      "title": "Interactive Web Platform Project",
-      "description": "Build a production-grade responsive web application with real-time state and testing",
-      "level": 3,
+      "title": "Interactive Platform Capstone",
+      "description": "Architect, test, and deploy a responsive full-stack web application with real-time updates and automated checks.",
+      "level": 4,
       "type": "project",
       "status": "locked",
       "xpReward": 350,
-      "icon": "🛠️",
-      "coordinates": { "x": 700, "y": 150 },
-      "prerequisites": ["mod_react_ecosystem"],
+      "coordinates": { "x": 980, "y": 160 },
+      "prerequisites": ["mod_backend_checkpoint"],
       "subModules": [
-        { "id": "sub_proj_setup", "title": "Project Architecture & CI Setup", "state": "locked", "xp": 100 },
-        { "id": "sub_proj_impl", "title": "Full Feature Implementation", "state": "locked", "xp": 150 },
-        { "id": "sub_proj_tests", "title": "Unit & Integration Testing Suite", "state": "locked", "xp": 100 }
+        {
+          "id": "sub_proj_schema",
+          "title": "Database Modeling & API Routes",
+          "state": "locked",
+          "xp": 100
+        },
+        {
+          "id": "sub_proj_ui",
+          "title": "Responsive Component System",
+          "state": "locked",
+          "xp": 150
+        },
+        {
+          "id": "sub_proj_qa",
+          "title": "Type Checks, Lint & Production Build",
+          "state": "locked",
+          "xp": 100
+        }
       ]
     },
     {
       "moduleId": "mod_fullstack_exam",
       "title": "Full-Stack Certification Exam",
-      "description": "Comprehensive proctored assessment testing full curriculum competencies",
-      "level": 4,
+      "description": "Comprehensive proctored exam validating end-to-end engineering competency across frontend, backend, and debugging.",
+      "level": 5,
       "type": "exam",
       "status": "locked",
       "xpReward": 500,
-      "icon": "🎓",
-      "coordinates": { "x": 900, "y": 150 },
+      "coordinates": { "x": 1200, "y": 160 },
       "prerequisites": ["mod_capstone_project"],
       "quizIds": ["exam_fullstack_cert"],
-      "badgeId": "badge_fullstack_architect",
-      "unlockRule": {
-        "type": "ALL",
-        "nodes": ["mod_capstone_project"]
-      }
+      "badgeId": "badge_fullstack_architect"
     },
     {
-      "moduleId": "mod_milestone_graduate",
-      "title": "Mastery Milestone Achieved!",
-      "description": "Congratulations! You have completed the Full-Stack Web Development roadmap.",
-      "level": 5,
+      "moduleId": "mod_graduate_milestone",
+      "title": "Full-Stack Architect Graduate",
+      "description": "Track mastery unlocked! Showcase your certified badge and advance to system design specializations.",
+      "level": 6,
       "type": "achievement",
       "status": "locked",
       "xpReward": 1000,
-      "icon": "🏆",
-      "coordinates": { "x": 1100, "y": 150 },
+      "coordinates": { "x": 1420, "y": 160 },
       "prerequisites": ["mod_fullstack_exam"],
       "badgeId": "badge_fullstack_master"
     }

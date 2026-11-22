@@ -105,10 +105,10 @@ export const RoadmapJsonImporter: React.FC<RoadmapJsonImporterProps> = ({ isOpen
                 throw new Error('JSON structure invalid: Root must contain a "modules" array.');
             }
 
-            if (parsed.modules.length > 0) {
-                const sample = parsed.modules[0];
-                if (!sample.moduleId || !sample.title) {
-                    throw new Error('Invalid Module: Each module must have "moduleId" and "title".');
+            for (let i = 0; i < parsed.modules.length; i++) {
+                const mod = parsed.modules[i];
+                if (!mod || !mod.moduleId || !mod.title) {
+                    throw new Error(`Invalid Module at index ${i}: Each module must have "moduleId" and "title".`);
                 }
             }
 
@@ -120,7 +120,9 @@ export const RoadmapJsonImporter: React.FC<RoadmapJsonImporterProps> = ({ isOpen
                     track: {
                         title: parsed.title,
                         description: parsed.description,
-                        icon: parsed.icon
+                        icon: parsed.icon,
+                        ...(typeof parsed.category === 'string' && parsed.category.trim() ? { category: parsed.category.trim() } : {}),
+                        ...(typeof parsed.isVisible === 'boolean' ? { isVisible: parsed.isVisible } : {})
                     },
                     modules: parsed.modules
                 })
