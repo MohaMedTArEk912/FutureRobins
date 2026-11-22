@@ -112,6 +112,8 @@ export const NoirSnakeGameOverlay: React.FC = () => {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const engineRef = useRef<NoirSnakeEngine | null>(null);
     const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+    const touchHoldBoostTimerRef = useRef<number | null>(null);
+    const lastTouchTapRef = useRef<{ time: number; x: number; y: number }>({ time: 0, x: 0, y: 0 });
     const levelBannerTimerRef = useRef<number | null>(null);
     const lastBannerLevelRef = useRef<number>(1);
     const lockdownTimerRef = useRef<number | null>(null);
@@ -315,6 +317,9 @@ export const NoirSnakeGameOverlay: React.FC = () => {
             if (lockdownTimerRef.current !== null) {
                 window.clearTimeout(lockdownTimerRef.current);
             }
+            if (touchHoldBoostTimerRef.current !== null) {
+                window.clearTimeout(touchHoldBoostTimerRef.current);
+            }
             engine.destroy();
             engineRef.current = null;
         };
@@ -448,11 +453,57 @@ export const NoirSnakeGameOverlay: React.FC = () => {
         };
     }, [hud.status, hud.mode, startMode, exitSecretGame]);
 
-    // Touch swipe recognition on canvas stage
+    // Touch swipe + gesture recognition on canvas stage (Steer, Hold/2-Finger Boost, Double-Tap Fire Weapon)
+    const clearTouchHoldBoostTimer = () => {
+        if (touchHoldBoostTimerRef.current !== null) {
+            window.clearTimeout(touchHoldBoostTimerRef.current);
+            touchHoldBoostTimerRef.current = null;
+        }
+    };
+
+    const armTouchHoldBoostTimer = () => {
+        clearTouchHoldBoostTimer();
+        if (hud.mode !== 'hunt' || hud.status !== 'playing') return;
+        touchHoldBoostTimerRef.current = window.setTimeout(() => {
+            engineRef.current?.setBoost(true);
+            touchHoldBoostTimerRef.current = null;
+        }, 185);
+    };
+
     const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
         if (hud.status !== 'playing' || e.touches.length === 0) return;
+
+        // 2+ fingers on screen in Hunt mode = instant Boost
+        if (hud.mode === 'hunt' && e.touches.length >= 2) {
+            clearTouchHoldBoostTimer();
+            engineRef.current?.setBoost(true);
+            return;
+        }
+
         const t = e.touches[0];
         touchStartRef.current = { x: t.clientX, y: t.clientY };
+
+        if (hud.mode === 'hunt') {
+            const now = performance.now();
+            const prev = lastTouchTapRef.current;
+            const dt = now - prev.time;
+            const dist = Math.hypot(t.clientX - prev.x, t.clientY - prev.y);
+
+            // Double-tap anywhere on canvas fires held weapon (or bursts boost if no weapon)
+            if (dt < 290 && dist < 56) {
+                clearTouchHoldBoostTimer();
+                if (hud.heldWeapon) {
+                    engineRef.current?.fireWeapon();
+                } else {
+                    engineRef.current?.setBoost(true);
+                }
+                lastTouchTapRef.current = { time: 0, x: 0, y: 0 };
+                return;
+            }
+
+            lastTouchTapRef.current = { time: now, x: t.clientX, y: t.clientY };
+            armTouchHoldBoostTimer();
+        }
     };
 
     const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
@@ -469,12 +520,24 @@ export const NoirSnakeGameOverlay: React.FC = () => {
         } else {
             engineRef.current?.queueDirection(dy > 0 ? 'DOWN' : 'UP');
         }
-        // Reset origin so continuous dragging chains turns effortlessly!
+        // Reset origin so continuous dragging chains turns effortlessly, and re-arm hold-to-boost after turn
         touchStartRef.current = { x: t.clientX, y: t.clientY };
+        if (hud.mode === 'hunt' && e.touches.length === 1) {
+            armTouchHoldBoostTimer();
+        }
     };
 
-    const handleTouchEnd = () => {
-        touchStartRef.current = null;
+    const handleTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
+        clearTouchHoldBoostTimer();
+        if (e.touches.length === 0) {
+            touchStartRef.current = null;
+            if (hud.mode === 'hunt') {
+                engineRef.current?.setBoost(false);
+            }
+        } else if (e.touches.length === 1 && hud.mode === 'hunt') {
+            const t = e.touches[0];
+            touchStartRef.current = { x: t.clientX, y: t.clientY };
+        }
     };
 
     const [hasEnteredFrame, setHasEnteredFrame] = useState(false);
@@ -900,6 +963,7 @@ export const NoirSnakeGameOverlay: React.FC = () => {
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
+                onTouchCancel={handleTouchEnd}
                 className="relative flex-1 min-h-0 w-full overflow-hidden touch-none"
             >
                 <canvas ref={canvasRef} className="block w-full h-full" />
@@ -993,16 +1057,30 @@ export const NoirSnakeGameOverlay: React.FC = () => {
                     </div>
                 )}
 
-                {/* Hunt Mode Subtle Boost + Armed Weapon Pill on Small Screens */}
+                {/* Hunt Mode Subtle Boost + Armed Weapon Pill on Small Screens (Interactive even without D-Pad) */}
                 {hud.status === 'playing' && hud.mode === 'hunt' && (
                     <div className="lg:hidden absolute top-2.5 left-2.5 z-10 flex items-center gap-1.5 pointer-events-none">
-                        <div
-                            className={`md:hidden flex items-center gap-1.5 px-2 py-1 rounded bg-[#0a0908]/85 border ${
-                                hud.boostOverheated
-                                    ? 'border-[#fb7185]/70'
-                                    : hud.boostCooldownSec > 0
-                                        ? 'border-[#fde047]/65'
-                                        : 'border-[#2e2924]'
+                        <button
+                            type="button"
+                            onPointerDown={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                engineRef.current?.setBoost(true);
+                            }}
+                            onPointerUp={(e) => {
+                                e.stopPropagation();
+                                engineRef.current?.setBoost(false);
+                            }}
+                            onPointerCancel={() => engineRef.current?.setBoost(false)}
+                            onPointerLeave={() => engineRef.current?.setBoost(false)}
+                            className={`pointer-events-auto md:hidden flex items-center gap-1.5 px-2 py-1 rounded bg-[#0a0908]/85 border touch-manipulation ${
+                                hud.isBoosting
+                                    ? 'border-[#bae6fd] bg-[#bae6fd]/15'
+                                    : hud.boostOverheated
+                                        ? 'border-[#fb7185]/70'
+                                        : hud.boostCooldownSec > 0
+                                            ? 'border-[#fde047]/65'
+                                            : 'border-[#2e2924]'
                             }`}
                         >
                             <Zap
@@ -1041,7 +1119,7 @@ export const NoirSnakeGameOverlay: React.FC = () => {
                                     {hud.boostCooldownSec.toFixed(1)}s
                                 </span>
                             )}
-                        </div>
+                        </button>
                         {hud.heldWeapon && (
                             <button
                                 type="button"
@@ -1444,75 +1522,85 @@ export const NoirSnakeGameOverlay: React.FC = () => {
                     </div>
                 )}
 
-                {/* RESPONSIVE ON-SCREEN TOUCH D-PAD + BOOST (Mobile/Tablet or toggled) */}
-                {hud.status === 'playing' && showTouchPad && (
+                {/* RESPONSIVE ON-SCREEN TOUCH D-PAD + PERSISTENT HUNT ACTION BUTTONS (Works with or without D-Pad on mobile) */}
+                {hud.status === 'playing' && (showTouchPad || (hud.mode === 'hunt' && isTouchDevice)) && (
                     <div
                         dir="ltr"
                         onTouchStart={(e) => e.stopPropagation()}
                         onTouchMove={(e) => e.stopPropagation()}
                         className={`absolute inset-x-0 bottom-0 z-20 px-4 pb-3 pt-2 flex items-end pointer-events-none ${
-                            hud.mode === 'harvest' ? 'justify-center' : 'justify-between'
+                            !showTouchPad
+                                ? 'justify-between'
+                                : hud.mode === 'harvest'
+                                    ? 'justify-center'
+                                    : 'justify-between'
                         }`}
                         style={{ paddingBottom: 'max(10px, env(safe-area-inset-bottom))' }}
                     >
-                        {/* Left/Center Ergonomic D-Pad */}
-                        <div className="pointer-events-auto grid grid-cols-3 grid-rows-3 gap-1.5 w-[124px] h-[124px] sm:w-[132px] sm:h-[132px]">
-                            <div />
-                            <button
-                                type="button"
-                                onPointerDown={(e) => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    engineRef.current?.queueDirection('UP');
-                                }}
-                                aria-label="Up"
-                                className="rounded-xl bg-[#141210]/90 active:bg-[#bef264] border border-[#2e2924] active:border-[#bef264] text-[#f5f3ec] active:text-[#0a0908] flex items-center justify-center touch-manipulation"
-                            >
-                                <ChevronUp className="w-5 h-5" />
-                            </button>
-                            <div />
+                        {/* Left/Center Ergonomic D-Pad (Only when D-Pad is toggled ON; otherwise show gesture hint in Hunt mode) */}
+                        {showTouchPad ? (
+                            <div className="pointer-events-auto grid grid-cols-3 grid-rows-3 gap-1.5 w-[124px] h-[124px] sm:w-[132px] sm:h-[132px]">
+                                <div />
+                                <button
+                                    type="button"
+                                    onPointerDown={(e) => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        engineRef.current?.queueDirection('UP');
+                                    }}
+                                    aria-label="Up"
+                                    className="rounded-xl bg-[#141210]/90 active:bg-[#bef264] border border-[#2e2924] active:border-[#bef264] text-[#f5f3ec] active:text-[#0a0908] flex items-center justify-center touch-manipulation"
+                                >
+                                    <ChevronUp className="w-5 h-5" />
+                                </button>
+                                <div />
 
-                            <button
-                                type="button"
-                                onPointerDown={(e) => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    engineRef.current?.queueDirection('LEFT');
-                                }}
-                                aria-label="Left"
-                                className="rounded-xl bg-[#141210]/90 active:bg-[#bef264] border border-[#2e2924] active:border-[#bef264] text-[#f5f3ec] active:text-[#0a0908] flex items-center justify-center touch-manipulation"
-                            >
-                                <ChevronLeft className="w-5 h-5" />
-                            </button>
-                            <div className="rounded-xl bg-[#0e0d0b]/60 border border-[#23201c]" />
-                            <button
-                                type="button"
-                                onPointerDown={(e) => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    engineRef.current?.queueDirection('RIGHT');
-                                }}
-                                aria-label="Right"
-                                className="rounded-xl bg-[#141210]/90 active:bg-[#bef264] border border-[#2e2924] active:border-[#bef264] text-[#f5f3ec] active:text-[#0a0908] flex items-center justify-center touch-manipulation"
-                            >
-                                <ChevronRight className="w-5 h-5" />
-                            </button>
+                                <button
+                                    type="button"
+                                    onPointerDown={(e) => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        engineRef.current?.queueDirection('LEFT');
+                                    }}
+                                    aria-label="Left"
+                                    className="rounded-xl bg-[#141210]/90 active:bg-[#bef264] border border-[#2e2924] active:border-[#bef264] text-[#f5f3ec] active:text-[#0a0908] flex items-center justify-center touch-manipulation"
+                                >
+                                    <ChevronLeft className="w-5 h-5" />
+                                </button>
+                                <div className="rounded-xl bg-[#0e0d0b]/60 border border-[#23201c]" />
+                                <button
+                                    type="button"
+                                    onPointerDown={(e) => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        engineRef.current?.queueDirection('RIGHT');
+                                    }}
+                                    aria-label="Right"
+                                    className="rounded-xl bg-[#141210]/90 active:bg-[#bef264] border border-[#2e2924] active:border-[#bef264] text-[#f5f3ec] active:text-[#0a0908] flex items-center justify-center touch-manipulation"
+                                >
+                                    <ChevronRight className="w-5 h-5" />
+                                </button>
 
-                            <div />
-                            <button
-                                type="button"
-                                onPointerDown={(e) => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    engineRef.current?.queueDirection('DOWN');
-                                }}
-                                aria-label="Down"
-                                className="rounded-xl bg-[#141210]/90 active:bg-[#bef264] border border-[#2e2924] active:border-[#bef264] text-[#f5f3ec] active:text-[#0a0908] flex items-center justify-center touch-manipulation"
-                            >
-                                <ChevronDown className="w-5 h-5" />
-                            </button>
-                            <div />
-                        </div>
+                                <div />
+                                <button
+                                    type="button"
+                                    onPointerDown={(e) => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        engineRef.current?.queueDirection('DOWN');
+                                    }}
+                                    aria-label="Down"
+                                    className="rounded-xl bg-[#141210]/90 active:bg-[#bef264] border border-[#2e2924] active:border-[#bef264] text-[#f5f3ec] active:text-[#0a0908] flex items-center justify-center touch-manipulation"
+                                >
+                                    <ChevronDown className="w-5 h-5" />
+                                </button>
+                                <div />
+                            </div>
+                        ) : (
+                            <div className="pointer-events-none px-2.5 py-1.5 rounded-lg bg-[#0a0908]/80 border border-[#2e2924] font-mono text-[9px] text-[#a8a29e] uppercase tracking-wider leading-tight">
+                                {tx('SWIPE: STEER • HOLD: BOOST • 2×TAP: FIRE', 'اسحب: توجيه • مطول: اندفاع • ضغطتين: سلاح')}
+                            </div>
+                        )}
 
                         {/* Right: One-Time Weapon Fire + Hold-to-Boost Buttons (Hunt Mode) */}
                         {hud.mode === 'hunt' && (
