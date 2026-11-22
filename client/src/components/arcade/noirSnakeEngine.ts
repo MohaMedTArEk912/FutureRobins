@@ -3,6 +3,7 @@ import {
     DIR_VECTORS,
     OPPOSITE_DIR,
     WEAPON_META,
+    HARVEST_SHAPES,
     computeRunLevelProgress,
     pointKey,
     type ContainmentAlert,
@@ -12,6 +13,8 @@ import {
     type FloatingPopup,
     type FoodNode,
     type GridPoint,
+    type HarvestShapeId,
+    type HarvestShapeMeta,
     type HudSnapshot,
     type HunterSnake,
     type LevelPulseRing,
@@ -91,12 +94,27 @@ export class NoirSnakeEngine {
     private camX = 0;
     private camY = 0;
 
-    // Bounded Harvest board geometry
+    // Bounded Harvest board geometry & dynamic morphing shapes
     private boardCols = 24;
     private boardRows = 16;
-    private boardOriginX = 0;
-    private boardOriginY = 0;
     private harvestFoodEatenCount = 0;
+    private harvestNormalCellSize = 38;
+    private harvestMasterCellSize = 26;
+    private harvestNormalCols = 18;
+    private harvestNormalRows = 12;
+    private harvestNormMinX = 3;
+    private harvestNormMaxX = 20;
+    private harvestNormMinY = 2;
+    private harvestNormMaxY = 13;
+    private harvestShape: HarvestShapeMeta = HARVEST_SHAPES.standard;
+    private harvestNextShape: HarvestShapeMeta = HARVEST_SHAPES.diamond;
+    private harvestShapeDurationMs = 26000;
+    private harvestShapeRemainingMs = 26000;
+    private harvestIsShiftWarning = false;
+    private harvestLastWarningBeepStep = 0;
+    private harvestRenderZoom = 1.42;
+    private harvestTargetZoom = 1.42;
+    private harvestMorphFlashMs = 0;
 
     // Entities
     private hunters: HunterSnake[] = [];
@@ -219,16 +237,388 @@ export class NoirSnakeEngine {
         const padTop = this.width < 520 ? 12 : 20;
         const padBottom = (this.width < 520 ? 12 : 20) + this.bottomSafeInset;
 
-        const availW = Math.max(this.cellSize * 12, this.width - padX * 2);
-        const availH = Math.max(this.cellSize * 12, this.height - padTop - padBottom);
+        const availW = Math.max(280, this.width - padX * 2);
+        const availH = Math.max(280, this.height - padTop - padBottom);
 
-        this.boardCols = Math.max(12, Math.floor(availW / this.cellSize));
-        this.boardRows = Math.max(12, Math.floor(availH / this.cellSize));
+        const minDim = Math.min(this.width, this.height);
+        const baseCell = minDim < 440 ? 24 : minDim < 680 ? 32 : 44;
+        const megaCell = Math.max(14, Math.floor(baseCell * 0.70));
+        this.harvestNormalCellSize = baseCell;
+        this.harvestMasterCellSize = megaCell;
 
-        const boardPxW = this.boardCols * this.cellSize;
-        const boardPxH = this.boardRows * this.cellSize;
-        this.boardOriginX = Math.floor((this.width - boardPxW) / 2);
-        this.boardOriginY = Math.floor(padTop + (availH - boardPxH) / 2);
+        // Master grid dimensions (used for full coordinates & megagrid expansion)
+        this.boardCols = Math.max(18, Math.floor(availW / megaCell));
+        this.boardRows = Math.max(14, Math.floor(availH / megaCell));
+
+        // When in Harvest mode, master cell size is megaCell
+        if (this.mode === 'harvest') {
+            this.cellSize = megaCell;
+        }
+
+        // Normal shape dimensions centered within master grid
+        this.harvestNormalCols = Math.max(12, Math.min(this.boardCols - 2, Math.floor(availW / baseCell)));
+        this.harvestNormalRows = Math.max(10, Math.min(this.boardRows - 2, Math.floor(availH / baseCell)));
+
+        this.harvestNormMinX = Math.floor((this.boardCols - this.harvestNormalCols) / 2);
+        this.harvestNormMaxX = this.harvestNormMinX + this.harvestNormalCols - 1;
+        this.harvestNormMinY = Math.floor((this.boardRows - this.harvestNormalRows) / 2);
+        this.harvestNormMaxY = this.harvestNormMinY + this.harvestNormalRows - 1;
+
+        this.updateHarvestTargetZoom();
+    }
+
+    private updateHarvestTargetZoom() {
+        const normalRatio = this.harvestNormalCellSize / this.harvestMasterCellSize;
+        if (this.harvestShape.id === 'megagrid') {
+            this.harvestTargetZoom = 1.0;
+        } else if (this.harvestShape.id === 'letterbox') {
+            this.harvestTargetZoom = normalRatio * 1.08;
+        } else {
+            this.harvestTargetZoom = normalRatio;
+        }
+    }
+
+    public isHarvestCellWalkable(x: number, y: number, shape = this.harvestShape): boolean {
+        if (x < 0 || x >= this.boardCols || y < 0 || y >= this.boardRows) {
+            return false;
+        }
+
+        if (shape.id === 'megagrid') {
+            return true;
+        }
+
+        // All non-megagrid shapes are bounded inside normal sub-arena
+        if (
+            x < this.harvestNormMinX ||
+            x > this.harvestNormMaxX ||
+            y < this.harvestNormMinY ||
+            y > this.harvestNormMaxY
+        ) {
+            return false;
+        }
+
+        const lx = x - this.harvestNormMinX;
+        const ly = y - this.harvestNormMinY;
+        const cols = this.harvestNormalCols;
+        const rows = this.harvestNormalRows;
+
+        switch (shape.id) {
+            case 'standard':
+                return true;
+
+            case 'cross': {
+                const cutW = Math.max(2, Math.floor(cols * 0.28));
+                const cutH = Math.max(2, Math.floor(rows * 0.28));
+                const inLeft = lx < cutW;
+                const inRight = lx >= cols - cutW;
+                const inTop = ly < cutH;
+                const inBottom = ly >= rows - cutH;
+                if ((inLeft || inRight) && (inTop || inBottom)) {
+                    return false;
+                }
+                return true;
+            }
+
+            case 'donut': {
+                const centerW = Math.max(2, Math.floor(cols * 0.38));
+                const centerH = Math.max(2, Math.floor(rows * 0.38));
+                const startX = Math.floor((cols - centerW) / 2);
+                const startY = Math.floor((rows - centerH) / 2);
+                if (lx >= startX && lx < startX + centerW && ly >= startY && ly < startY + centerH) {
+                    return false;
+                }
+                return true;
+            }
+
+            case 'letterbox': {
+                const slitH = Math.max(5, Math.floor(rows * 0.44));
+                const startY = Math.floor((rows - slitH) / 2);
+                if (ly < startY || ly >= startY + slitH) {
+                    return false;
+                }
+                return true;
+            }
+
+            case 'trench': {
+                const barW = Math.max(2, Math.floor(cols * 0.22));
+                const startX = Math.floor((cols - barW) / 2);
+                if (lx >= startX && lx < startX + barW) {
+                    const isTopBridge = ly >= 2 && ly <= 4;
+                    const midY = Math.floor(rows / 2);
+                    const isMidBridge = ly >= midY - 1 && ly <= midY + 1;
+                    const isBottomBridge = ly >= rows - 5 && ly <= rows - 3;
+                    if (!isTopBridge && !isMidBridge && !isBottomBridge) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            case 'pillars': {
+                const pW = Math.max(2, Math.floor(cols * 0.15));
+                const pH = Math.max(2, Math.floor(rows * 0.15));
+                const p1X = Math.floor(cols * 0.25 - pW / 2);
+                const p1Y = Math.floor(rows * 0.25 - pH / 2);
+                const p2X = Math.floor(cols * 0.75 - pW / 2);
+                const p2Y = Math.floor(rows * 0.25 - pH / 2);
+                const p3X = Math.floor(cols * 0.25 - pW / 2);
+                const p3Y = Math.floor(rows * 0.75 - pH / 2);
+                const p4X = Math.floor(cols * 0.75 - pW / 2);
+                const p4Y = Math.floor(rows * 0.75 - pH / 2);
+
+                if (
+                    (lx >= p1X && lx < p1X + pW && ly >= p1Y && ly < p1Y + pH) ||
+                    (lx >= p2X && lx < p2X + pW && ly >= p2Y && ly < p2Y + pH) ||
+                    (lx >= p3X && lx < p3X + pW && ly >= p3Y && ly < p3Y + pH) ||
+                    (lx >= p4X && lx < p4X + pW && ly >= p4Y && ly < p4Y + pH)
+                ) {
+                    return false;
+                }
+                return true;
+            }
+
+            case 'diamond': {
+                const chamfer = Math.max(2, Math.floor(Math.min(cols, rows) * 0.28));
+                if (lx + ly < chamfer) return false;
+                if ((cols - 1 - lx) + ly < chamfer) return false;
+                if (lx + (rows - 1 - ly) < chamfer) return false;
+                if ((cols - 1 - lx) + (rows - 1 - ly) < chamfer) return false;
+                return true;
+            }
+
+            case 'hourglass': {
+                const midY = (rows - 1) / 2;
+                const distRatio = Math.abs(ly - midY) / Math.max(1, midY);
+                const pinchW = Math.floor(cols * 0.32 * (1 - distRatio));
+                if (lx < pinchW || lx >= cols - pinchW) {
+                    return false;
+                }
+                return true;
+            }
+
+            case 'letter-s': {
+                const barH = Math.max(3, Math.floor(rows * 0.22));
+                const midBarY = Math.floor((rows - barH) / 2);
+                const botBarY = rows - barH;
+                const chuteW = Math.max(3, Math.floor(cols * 0.30));
+
+                // Upper left void (under top bar, left of right chute)
+                if (lx < cols - chuteW && ly >= barH && ly < midBarY) {
+                    return false;
+                }
+                // Lower right void (under middle bar, right of left chute)
+                if (lx >= chuteW && ly >= midBarY + barH && ly < botBarY) {
+                    return false;
+                }
+                return true;
+            }
+
+            case 'letter-h': {
+                const colW = Math.max(3, Math.floor(cols * 0.28));
+                const bridgeH = Math.max(3, Math.floor(rows * 0.28));
+                const bridgeY = Math.floor((rows - bridgeH) / 2);
+
+                // Cut out top-center and bottom-center between the twin columns
+                if (lx >= colW && lx < cols - colW) {
+                    if (ly < bridgeY || ly >= bridgeY + bridgeH) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            case 'letter-c': {
+                const spineW = Math.max(3, Math.floor(cols * 0.28));
+                const armH = Math.max(3, Math.floor(rows * 0.28));
+
+                // Open eastern bay cutout
+                if (lx >= spineW && ly >= armH && ly < rows - armH) {
+                    return false;
+                }
+                return true;
+            }
+
+            case 'letter-t': {
+                const roofH = Math.max(3, Math.floor(rows * 0.30));
+                const stemW = Math.max(4, Math.floor(cols * 0.34));
+                const stemX = Math.floor((cols - stemW) / 2);
+
+                // Cut out bottom-left and bottom-right void quadrants
+                if (ly >= roofH && (lx < stemX || lx >= stemX + stemW)) {
+                    return false;
+                }
+                return true;
+            }
+
+            case 'letter-x': {
+                const diag1Dist = Math.abs(lx / cols - ly / rows);
+                const diag2Dist = Math.abs(lx / cols - (1 - ly / rows));
+                // Walkable if within either diagonal corridor band
+                if (diag1Dist <= 0.24 || diag2Dist <= 0.24) {
+                    return true;
+                }
+                return false;
+            }
+
+            default:
+                return true;
+        }
+    }
+
+    private getHarvestShapeDuration(shape: HarvestShapeMeta): number {
+        const levelReductionSec = Math.min(6, (this.runLevel - 1) * 0.8);
+        const durationSec = Math.max(8, shape.baseDurationSec - levelReductionSec);
+        return Math.round(durationSec * 1000);
+    }
+
+    private pickNextHarvestShape(excludeId?: HarvestShapeId): HarvestShapeMeta {
+        let pool: HarvestShapeId[];
+        if (this.runLevel <= 1) {
+            pool = ['standard', 'diamond', 'letter-t', 'letter-c', 'pillars', 'cross'];
+        } else if (this.runLevel === 2) {
+            pool = ['cross', 'donut', 'letter-h', 'letter-c', 'diamond', 'pillars', 'megagrid'];
+        } else {
+            pool = [
+                'cross',
+                'donut',
+                'letter-s',
+                'letter-h',
+                'letter-t',
+                'letter-x',
+                'letterbox',
+                'trench',
+                'pillars',
+                'diamond',
+                'hourglass',
+                'megagrid'
+            ];
+        }
+        const filtered = pool.filter((id) => id !== excludeId);
+        const candidateList = filtered.length > 0 ? filtered : pool;
+        const chosenId = candidateList[Math.floor(Math.random() * candidateList.length)];
+        return HARVEST_SHAPES[chosenId];
+    }
+
+    private initHarvestShapeSystem() {
+        this.harvestShape = HARVEST_SHAPES.standard;
+        this.harvestNextShape = this.pickNextHarvestShape('standard');
+        this.harvestShapeDurationMs = this.getHarvestShapeDuration(this.harvestShape);
+        this.harvestShapeRemainingMs = this.harvestShapeDurationMs;
+        this.harvestIsShiftWarning = false;
+        this.harvestLastWarningBeepStep = 0;
+        this.updateHarvestTargetZoom();
+        this.harvestRenderZoom = this.harvestTargetZoom;
+        this.harvestMorphFlashMs = 0;
+    }
+
+    private transitionHarvestShape(nextShape: HarvestShapeMeta, now: number) {
+        this.harvestShape = nextShape;
+        this.harvestNextShape = this.pickNextHarvestShape(nextShape.id);
+        this.harvestShapeDurationMs = this.getHarvestShapeDuration(this.harvestShape);
+        this.harvestShapeRemainingMs = this.harvestShapeDurationMs;
+        this.harvestIsShiftWarning = false;
+        this.harvestLastWarningBeepStep = 0;
+        this.updateHarvestTargetZoom();
+        this.harvestMorphFlashMs = 450;
+        this.screenShakeMs = 280;
+        this.screenShakeMag = 6;
+
+        noirSnakeAudio.playSectorMorph();
+
+        const head = this.playerSegments[0];
+        if (head) {
+            const pos = this.gridToWorldCenter(head.x, head.y);
+            this.pulseRings.push({
+                id: this.nextEntityId++,
+                worldX: pos.x,
+                worldY: pos.y,
+                createdAt: now,
+                duration: 850,
+                color: nextShape.accentColor,
+                label: nextShape.name
+            });
+            this.spawnBurst(pos.x, pos.y, nextShape.accentColor, 18);
+        }
+
+        // Safety safeguards: ensure player and foods are in walkable cells
+        this.ensurePlayerInSafeCells();
+
+        for (const food of this.foods) {
+            if (!this.isHarvestCellWalkable(food.x, food.y)) {
+                const safeCell = this.findNearestWalkableCell(food.x, food.y);
+                if (safeCell) {
+                    food.x = safeCell.x;
+                    food.y = safeCell.y;
+                }
+            }
+        }
+
+        this.emitHud(true);
+    }
+
+    private ensurePlayerInSafeCells() {
+        const head = this.playerSegments[0];
+        if (!head) return;
+
+        let headWasRelocated = false;
+        if (!this.isHarvestCellWalkable(head.x, head.y)) {
+            const safeHead = this.findNearestWalkableCell(head.x, head.y);
+            if (safeHead) {
+                head.x = safeHead.x;
+                head.y = safeHead.y;
+                headWasRelocated = true;
+            }
+        }
+
+        for (let i = 1; i < this.playerSegments.length; i++) {
+            const seg = this.playerSegments[i];
+            if (!this.isHarvestCellWalkable(seg.x, seg.y)) {
+                const safeCell = this.findNearestWalkableCell(seg.x, seg.y);
+                if (safeCell) {
+                    seg.x = safeCell.x;
+                    seg.y = safeCell.y;
+                }
+            }
+        }
+
+        if (headWasRelocated) {
+            const vec = DIR_VECTORS[this.playerDir];
+            if (!this.isHarvestCellWalkable(head.x + vec.x, head.y + vec.y)) {
+                for (const d of ALL_DIRS) {
+                    const testVec = DIR_VECTORS[d];
+                    if (this.isHarvestCellWalkable(head.x + testVec.x, head.y + testVec.y)) {
+                        this.playerDir = d;
+                        break;
+                    }
+                }
+            }
+            const pos = this.gridToWorldCenter(head.x, head.y);
+            this.spawnPopup(pos.x, pos.y, 'WARP SAFEGUARD', '#bef264');
+        }
+    }
+
+    private findNearestWalkableCell(startX: number, startY: number): GridPoint | null {
+        const visited = new Set<string>();
+        const queue: GridPoint[] = [{ x: startX, y: startY }];
+        visited.add(pointKey(startX, startY));
+
+        while (queue.length > 0) {
+            const curr = queue.shift()!;
+            if (this.isHarvestCellWalkable(curr.x, curr.y)) {
+                return curr;
+            }
+            for (const dir of ALL_DIRS) {
+                const vec = DIR_VECTORS[dir];
+                const nx = curr.x + vec.x;
+                const ny = curr.y + vec.y;
+                const key = pointKey(nx, ny);
+                if (!visited.has(key) && nx >= 0 && nx < this.boardCols && ny >= 0 && ny < this.boardRows) {
+                    visited.add(key);
+                    queue.push({ x: nx, y: ny });
+                }
+            }
+        }
+        return null;
     }
 
     private initMenuDemoSnake() {
@@ -342,6 +732,8 @@ export class NoirSnakeEngine {
             this.spawnHunter();
         } else {
             this.playerBaseTickMs = 122;
+            this.recalculateHarvestBoard();
+            this.initHarvestShapeSystem();
             const cx = Math.floor(this.boardCols / 2);
             const cy = Math.floor(this.boardRows / 2);
             this.playerDir = 'RIGHT';
@@ -610,6 +1002,11 @@ export class NoirSnakeEngine {
             comboCount: comboActive ? this.comboCount : 0,
             comboMultiplier,
             comboTimeRatio,
+            harvestShape: this.harvestShape,
+            harvestNextShape: this.harvestNextShape,
+            harvestShapeRemainingSec: Math.max(0, Math.ceil(this.harvestShapeRemainingMs / 100) / 10),
+            harvestShapeDurationSec: Math.round(this.harvestShapeDurationMs / 1000),
+            harvestIsShiftWarning: this.harvestIsShiftWarning,
             levelUpNotice: this.levelUpNotice,
             deathReason: this.deathReason,
             pauseReason: this.pauseReason
@@ -642,6 +1039,11 @@ export class NoirSnakeEngine {
 
         if (nextProg.level > prevLevel) {
             this.runLevel = nextProg.level;
+            // In Harvest mode, level-up accelerates sector shift!
+            if (this.mode === 'harvest' && this.harvestShapeRemainingMs > 4200) {
+                this.harvestShapeRemainingMs = 4000;
+                this.harvestIsShiftWarning = true;
+            }
             const now = performance.now();
             this.levelUpNotice = { level: this.runLevel, timestamp: now };
             noirSnakeAudio.playLevelUp();
@@ -808,7 +1210,7 @@ export class NoirSnakeEngine {
         if (this.mode === 'hunt') {
             this.updateHuntMode(dt, now);
         } else {
-            this.updateHarvestMode(now);
+            this.updateHarvestMode(dt, now);
         }
 
         this.emitHud(false);
@@ -880,12 +1282,7 @@ export class NoirSnakeEngine {
 
         // 1. Border collision check (Harvest mode only; Hunt mode is infinite!)
         if (this.mode === 'harvest') {
-            if (
-                nextHead.x < 0 ||
-                nextHead.x >= this.boardCols ||
-                nextHead.y < 0 ||
-                nextHead.y >= this.boardRows
-            ) {
+            if (!this.isHarvestCellWalkable(nextHead.x, nextHead.y)) {
                 this.triggerGameOver('border');
                 return;
             }
@@ -1787,7 +2184,47 @@ export class NoirSnakeEngine {
         }
     }
 
-    private updateHarvestMode(now: number) {
+    private updateHarvestMode(dt: number, now: number) {
+        if (this.harvestMorphFlashMs > 0) {
+            this.harvestMorphFlashMs = Math.max(0, this.harvestMorphFlashMs - dt);
+        }
+
+        // Smooth camera zoom interpolation
+        const zoomLerp = 1 - Math.exp(-6.5 * (dt / 1000));
+        this.harvestRenderZoom += (this.harvestTargetZoom - this.harvestRenderZoom) * zoomLerp;
+
+        // Countdown active shape timer
+        this.harvestShapeRemainingMs = Math.max(0, this.harvestShapeRemainingMs - dt);
+
+        if (this.harvestShapeRemainingMs <= 4000) {
+            this.harvestIsShiftWarning = true;
+            const remainingSec = Math.max(1, Math.ceil(this.harvestShapeRemainingMs / 1000));
+            if (remainingSec <= 3 && this.harvestLastWarningBeepStep !== remainingSec) {
+                this.harvestLastWarningBeepStep = remainingSec;
+                noirSnakeAudio.playSectorShiftWarning(remainingSec);
+                const arenaCenter = this.gridToWorldCenter(
+                    Math.floor(this.boardCols / 2),
+                    Math.floor(this.boardRows / 2)
+                );
+                this.pulseRings.push({
+                    id: this.nextEntityId++,
+                    worldX: arenaCenter.x,
+                    worldY: arenaCenter.y,
+                    createdAt: now,
+                    duration: 480,
+                    color: this.harvestNextShape.accentColor,
+                    label: `SHIFT ${remainingSec}s`
+                });
+            }
+        } else {
+            this.harvestIsShiftWarning = false;
+        }
+
+        // Trigger shape transition when timer expires
+        if (this.harvestShapeRemainingMs <= 0) {
+            this.transitionHarvestShape(this.harvestNextShape, now);
+        }
+
         if (!this.foods.some((f) => f.kind === 'standard')) {
             this.spawnHarvestFood('standard', now);
         }
@@ -1801,7 +2238,7 @@ export class NoirSnakeEngine {
         const freeCells: GridPoint[] = [];
         for (let y = 0; y < this.boardRows; y++) {
             for (let x = 0; x < this.boardCols; x++) {
-                if (!occupied.has(pointKey(x, y))) {
+                if (this.isHarvestCellWalkable(x, y) && !occupied.has(pointKey(x, y))) {
                     freeCells.push({ x, y });
                 }
             }
@@ -2026,94 +2463,158 @@ export class NoirSnakeEngine {
     private renderHarvestScene(now: number) {
         const ctx = this.ctx;
         const cell = this.cellSize;
-        const ox = this.boardOriginX;
-        const oy = this.boardOriginY;
         const bw = this.boardCols * cell;
         const bh = this.boardRows * cell;
+        const padTop = this.width < 520 ? 12 : 20;
+        const padBottom = (this.width < 520 ? 12 : 20) + this.bottomSafeInset;
+        const availH = Math.max(280, this.height - padTop - padBottom);
 
-        // Subtle muted outer frame fill
-        ctx.fillStyle = '#070605';
+        // Subtle dark outer frame fill
+        ctx.fillStyle = '#060504';
         ctx.fillRect(0, 0, this.width, this.height);
 
-        // Playable arena obsidian surface
-        ctx.fillStyle = NOIR_BG;
-        ctx.fillRect(ox, oy, bw, bh);
+        // Smooth camera centering and dynamic zoom scale
+        const screenCenterX = Math.floor(this.width / 2);
+        const screenCenterY = Math.floor(padTop + availH / 2);
+        const arenaCenterLocalX = bw / 2;
+        const arenaCenterLocalY = bh / 2;
 
-        // Arena grid lines (matching Noir Studio 2-cell major spacing)
-        ctx.lineWidth = 1;
-        for (let c = 0; c <= this.boardCols; c++) {
-            const sx = ox + c * cell + 0.5;
-            ctx.strokeStyle = c % 2 === 0 ? GRID_MAJOR : GRID_LINE;
-            ctx.beginPath();
-            ctx.moveTo(sx, oy);
-            ctx.lineTo(sx, oy + bh);
-            ctx.stroke();
-        }
-        for (let r = 0; r <= this.boardRows; r++) {
-            const sy = oy + r * cell + 0.5;
-            ctx.strokeStyle = r % 2 === 0 ? GRID_MAJOR : GRID_LINE;
-            ctx.beginPath();
-            ctx.moveTo(ox, sy);
-            ctx.lineTo(ox + bw, sy);
-            ctx.stroke();
-        }
+        ctx.save();
+        ctx.translate(screenCenterX, screenCenterY);
+        ctx.scale(this.harvestRenderZoom, this.harvestRenderZoom);
+        ctx.translate(-arenaCenterLocalX, -arenaCenterLocalY);
 
-        // Crosshairs every 2 cells inside bounded Harvest grid
-        ctx.strokeStyle = CROSSHAIR;
-        for (let c = 0; c <= this.boardCols; c += 2) {
-            const sx = ox + c * cell + 0.5;
-            for (let r = 0; r <= this.boardRows; r += 2) {
-                const sy = oy + r * cell + 0.5;
-                ctx.beginPath();
-                ctx.moveTo(sx - 4, sy);
-                ctx.lineTo(sx + 4, sy);
-                ctx.moveTo(sx, sy - 4);
-                ctx.lineTo(sx, sy + 4);
-                ctx.stroke();
+        // 1. Playable Arena Floor & Voided Sector Cells
+        for (let y = 0; y < this.boardRows; y++) {
+            for (let x = 0; x < this.boardCols; x++) {
+                const isWalkable = this.isHarvestCellWalkable(x, y);
+                const px = x * cell;
+                const py = y * cell;
+
+                if (isWalkable) {
+                    // Playable obsidian floor
+                    ctx.fillStyle = NOIR_BG;
+                    ctx.fillRect(px, py, cell, cell);
+
+                    // Grid line
+                    ctx.strokeStyle = GRID_LINE;
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(px + 0.5, py + 0.5, cell - 1, cell - 1);
+
+                    // Crosshairs on even coordinates
+                    if (x % 2 === 0 && y % 2 === 0) {
+                        ctx.strokeStyle = CROSSHAIR;
+                        ctx.beginPath();
+                        ctx.moveTo(px - 3, py);
+                        ctx.lineTo(px + 3, py);
+                        ctx.moveTo(px, py - 3);
+                        ctx.lineTo(px, py + 3);
+                        ctx.stroke();
+                    }
+
+                    // Shift telegraph: if this tile will soon become VOID in nextShape, flash danger hatch!
+                    if (this.harvestIsShiftWarning && !this.isHarvestCellWalkable(x, y, this.harvestNextShape)) {
+                        const pulse = 0.35 + 0.25 * Math.sin(now * 0.012 + (x + y) * 0.3);
+                        ctx.fillStyle = `rgba(251, 113, 133, ${pulse * 0.38})`;
+                        ctx.fillRect(px, py, cell, cell);
+
+                        ctx.strokeStyle = `rgba(251, 113, 133, ${pulse})`;
+                        ctx.lineWidth = 1.5;
+                        ctx.beginPath();
+                        ctx.moveTo(px, py);
+                        ctx.lineTo(px + cell, py + cell);
+                        ctx.moveTo(px, py + cell);
+                        ctx.lineTo(px + cell, py);
+                        ctx.stroke();
+                    }
+                } else {
+                    // Void / Barrier tile: Deep dark with subtle architectural diagonal hatch
+                    ctx.fillStyle = '#050404';
+                    ctx.fillRect(px, py, cell, cell);
+
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.035)';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(px, py + cell);
+                    ctx.lineTo(px + cell, py);
+                    ctx.stroke();
+                }
             }
         }
 
-        // Proximity wall warning detection
+        // 2. Active Shape Perimeter Rails & Head Proximity Warnings
         const head = this.playerSegments[0];
-        const nearWall =
-            head &&
-            (head.x <= 1 ||
-                head.x >= this.boardCols - 2 ||
-                head.y <= 1 ||
-                head.y >= this.boardRows - 2);
+        const shapeAccent = this.harvestShape.accentColor;
 
-        // Crisp Noir Studio Border Rail
-        ctx.strokeStyle = nearWall ? 'rgba(251, 113, 133, 0.72)' : '#2e2924';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(ox - 1, oy - 1, bw + 2, bh + 2);
-
-        // Corner architectural L-brackets
-        const brk = 14;
-        ctx.strokeStyle = nearWall ? ROSE_ACCENT : PLAYER_LIME;
         ctx.lineWidth = 2.5;
+        for (let y = 0; y < this.boardRows; y++) {
+            for (let x = 0; x < this.boardCols; x++) {
+                if (!this.isHarvestCellWalkable(x, y)) continue;
+
+                const px = x * cell;
+                const py = y * cell;
+                const isNearHead = head && Math.abs(head.x - x) <= 1 && Math.abs(head.y - y) <= 1;
+                const railColor = isNearHead ? ROSE_ACCENT : shapeAccent;
+
+                // Top rail
+                if (!this.isHarvestCellWalkable(x, y - 1)) {
+                    ctx.strokeStyle = railColor;
+                    ctx.beginPath();
+                    ctx.moveTo(px, py + 0.5);
+                    ctx.lineTo(px + cell, py + 0.5);
+                    ctx.stroke();
+                }
+                // Bottom rail
+                if (!this.isHarvestCellWalkable(x, y + 1)) {
+                    ctx.strokeStyle = railColor;
+                    ctx.beginPath();
+                    ctx.moveTo(px, py + cell - 0.5);
+                    ctx.lineTo(px + cell, py + cell - 0.5);
+                    ctx.stroke();
+                }
+                // Left rail
+                if (!this.isHarvestCellWalkable(x - 1, y)) {
+                    ctx.strokeStyle = railColor;
+                    ctx.beginPath();
+                    ctx.moveTo(px + 0.5, py);
+                    ctx.lineTo(px + 0.5, py + cell);
+                    ctx.stroke();
+                }
+                // Right rail
+                if (!this.isHarvestCellWalkable(x + 1, y)) {
+                    ctx.strokeStyle = railColor;
+                    ctx.beginPath();
+                    ctx.moveTo(px + cell - 0.5, py);
+                    ctx.lineTo(px + cell - 0.5, py + cell);
+                    ctx.stroke();
+                }
+            }
+        }
+
+        // Corner architectural brackets on outer master frame
+        const brk = 14;
+        ctx.strokeStyle = shapeAccent;
+        ctx.lineWidth = 2;
         ctx.beginPath();
         // Top-left
-        ctx.moveTo(ox - 1, oy + brk);
-        ctx.lineTo(ox - 1, oy - 1);
-        ctx.lineTo(ox + brk, oy - 1);
+        ctx.moveTo(0, brk);
+        ctx.lineTo(0, 0);
+        ctx.lineTo(brk, 0);
         // Top-right
-        ctx.moveTo(ox + bw - brk, oy - 1);
-        ctx.lineTo(ox + bw + 1, oy - 1);
-        ctx.lineTo(ox + bw + 1, oy + brk);
+        ctx.moveTo(bw - brk, 0);
+        ctx.lineTo(bw, 0);
+        ctx.lineTo(bw, brk);
         // Bottom-left
-        ctx.moveTo(ox - 1, oy + bh - brk);
-        ctx.lineTo(ox - 1, oy + bh + 1);
-        ctx.lineTo(ox + brk, oy + bh + 1);
+        ctx.moveTo(0, bh - brk);
+        ctx.lineTo(0, bh);
+        ctx.lineTo(brk, bh);
         // Bottom-right
-        ctx.moveTo(ox + bw - brk, oy + bh + 1);
-        ctx.lineTo(ox + bw + 1, oy + bh + 1);
-        ctx.lineTo(ox + bw + 1, oy + bh - brk);
+        ctx.moveTo(bw - brk, bh);
+        ctx.lineTo(bw, bh);
+        ctx.lineTo(bw, bh - brk);
         ctx.stroke();
 
-        // Draw entities in board-local coordinates
-        ctx.save();
-        ctx.translate(ox, oy);
-
+        // 3. Draw Entities in Arena Local Coordinates
         for (const f of this.foods) {
             this.drawFoodNode(f, now);
         }
@@ -2133,6 +2634,48 @@ export class NoirSnakeEngine {
 
         this.drawParticles(now);
         this.drawPopups(now);
+
+        // 4. In-Arena Sector Shift Warning Telegraph Overlay
+        if (this.harvestIsShiftWarning) {
+            const remainingSec = Math.max(0, this.harvestShapeRemainingMs / 1000);
+            const warningText = `SECTOR SHIFT IN ${remainingSec.toFixed(1)}s`;
+            const nextText = `NEXT: ${this.harvestNextShape.name} [${this.harvestNextShape.difficulty.toUpperCase()}]`;
+
+            ctx.save();
+            ctx.font = '900 12px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            const bannerY = 16;
+            const bannerW = Math.min(bw - 24, 300);
+            const bannerH = 34;
+            const bannerX = arenaCenterLocalX - bannerW / 2;
+
+            ctx.fillStyle = 'rgba(10, 9, 8, 0.90)';
+            ctx.strokeStyle = this.harvestNextShape.accentColor;
+            ctx.lineWidth = 1.5;
+
+            ctx.fillRect(bannerX, bannerY, bannerW, bannerH);
+            ctx.strokeRect(bannerX, bannerY, bannerW, bannerH);
+
+            ctx.fillStyle = this.harvestNextShape.accentColor;
+            ctx.fillText(warningText, arenaCenterLocalX, bannerY + 11);
+
+            ctx.font = '700 10px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace';
+            ctx.fillStyle = '#f5f3ec';
+            ctx.fillText(nextText, arenaCenterLocalX, bannerY + 23);
+
+            ctx.restore();
+        }
+
+        // 5. Morph Visual Flash Burst
+        if (this.harvestMorphFlashMs > 0) {
+            const flashRatio = this.harvestMorphFlashMs / 450;
+            ctx.fillStyle = this.harvestShape.accentColor;
+            ctx.globalAlpha = flashRatio * 0.28;
+            ctx.fillRect(0, 0, bw, bh);
+            ctx.globalAlpha = 1.0;
+        }
 
         ctx.restore();
     }

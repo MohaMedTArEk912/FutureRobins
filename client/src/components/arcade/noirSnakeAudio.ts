@@ -131,6 +131,18 @@ class NoirSnakeAudio {
         this.playTone(165, 0.16, 'sawtooth', 0.065, 0, 82);
         this.playTone(110, 0.14, 'square', 0.045, 0.04, 65);
     }
+
+    public playSectorShiftWarning(step = 3) {
+        const freq = step === 1 ? 987.77 : step === 2 ? 880 : 783.99;
+        this.playTone(freq, 0.07, 'square', 0.045, 0);
+        this.playTone(freq * 1.5, 0.09, 'triangle', 0.05, 0.04);
+    }
+
+    public playSectorMorph() {
+        this.playTone(220, 0.28, 'sawtooth', 0.08, 0, 88);
+        this.playTone(440, 0.22, 'triangle', 0.07, 0.03, 1760);
+        this.playTone(880, 0.18, 'sine', 0.05, 0.08, 220);
+    }
 }
 
 export const noirSnakeAudio = new NoirSnakeAudio();

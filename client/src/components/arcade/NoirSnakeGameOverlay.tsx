@@ -27,6 +27,7 @@ import { NoirSnakeEngine } from './noirSnakeEngine';
 import { noirSnakeAudio } from './noirSnakeAudio';
 import {
     WEAPON_META,
+    HARVEST_SHAPES,
     getArcadeRankInfo,
     loadArcadeProfile,
     saveArcadeProfile,
@@ -63,6 +64,11 @@ const INITIAL_HUD: HudSnapshot = {
     comboCount: 0,
     comboMultiplier: 1,
     comboTimeRatio: 0,
+    harvestShape: HARVEST_SHAPES.standard,
+    harvestNextShape: HARVEST_SHAPES.diamond,
+    harvestShapeRemainingSec: 26,
+    harvestShapeDurationSec: 26,
+    harvestIsShiftWarning: false,
     levelUpNotice: null,
     deathReason: null,
     pauseReason: null
@@ -692,6 +698,46 @@ export const NoirSnakeGameOverlay: React.FC = () => {
                                             </div>
                                         </div>
                                     )}
+                                    {/* Active Sector Shape & Countdown Timer */}
+                                    <div
+                                        className={`flex flex-col gap-0.5 px-2 py-1 rounded-md border min-w-[130px] ${
+                                            hud.harvestIsShiftWarning ? 'animate-pulse' : ''
+                                        }`}
+                                        style={{
+                                            backgroundColor: `${hud.harvestShape.accentColor}12`,
+                                            borderColor: `${hud.harvestShape.accentColor}50`
+                                        }}
+                                    >
+                                        <div className="flex items-center justify-between text-[9px] font-mono font-black uppercase">
+                                            <span
+                                                className="truncate max-w-[85px]"
+                                                style={{ color: hud.harvestShape.accentColor }}
+                                                title={hud.harvestShape.name}
+                                            >
+                                                {hud.harvestShape.name}
+                                            </span>
+                                            <span className="font-mono tabular-nums text-[#f5f3ec]">
+                                                {hud.harvestShapeRemainingSec.toFixed(1)}s
+                                            </span>
+                                        </div>
+                                        <div className="h-1 w-full bg-[#1c1917] overflow-hidden rounded-full">
+                                            <div
+                                                className="h-full transition-all duration-100"
+                                                style={{
+                                                    backgroundColor: hud.harvestShape.accentColor,
+                                                    width: `${Math.min(
+                                                        100,
+                                                        Math.max(
+                                                            0,
+                                                            (hud.harvestShapeRemainingSec /
+                                                                Math.max(1, hud.harvestShapeDurationSec)) *
+                                                                100
+                                                        )
+                                                    )}%`
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
                                 </>
                             )}
 
@@ -811,6 +857,23 @@ export const NoirSnakeGameOverlay: React.FC = () => {
                                             ×{hud.comboMultiplier}
                                         </span>
                                     )}
+                                    {/* Mobile Sector Chip */}
+                                    <div
+                                        className={`flex items-center gap-1 px-1.5 py-0.5 rounded border text-[9px] font-mono font-black uppercase whitespace-nowrap shrink-0 ${
+                                            hud.harvestIsShiftWarning ? 'animate-pulse' : ''
+                                        }`}
+                                        style={{
+                                            borderColor: `${hud.harvestShape.accentColor}60`,
+                                            backgroundColor: `${hud.harvestShape.accentColor}18`,
+                                            color: hud.harvestShape.accentColor
+                                        }}
+                                    >
+                                        <span>{hud.harvestShape.name.split(' ')[0]}</span>
+                                        <span className="text-[#a8a29e]">•</span>
+                                        <span className="tabular-nums font-bold">
+                                            {hud.harvestShapeRemainingSec.toFixed(1)}s
+                                        </span>
+                                    </div>
                                 </>
                             )}
                         </div>
@@ -848,6 +911,51 @@ export const NoirSnakeGameOverlay: React.FC = () => {
                             <Sparkles className="w-4 h-4 text-[#fde047]" />
                             <span className="font-mono text-xs sm:text-sm font-black tracking-widest uppercase text-[#fde047]">
                                 {tx(`LEVEL UP // LV.${showLevelBanner}`, `ترقية // مستوى ${showLevelBanner}`)}
+                            </span>
+                        </div>
+                    </div>
+                )}
+
+                {/* Floating Harvest Sector Shift Countdown Warning */}
+                {hud.status === 'playing' && hud.mode === 'harvest' && hud.harvestIsShiftWarning && (
+                    <div
+                        className={`pointer-events-none absolute left-1/2 -translate-x-1/2 z-20 animate-in zoom-in-95 fade-in duration-150 ${
+                            showLevelBanner !== null ? 'top-16' : 'top-4'
+                        }`}
+                    >
+                        <div
+                            className="px-3 sm:px-4 py-1.5 rounded-lg border-2 shadow-[0_4px_0_#050504] flex items-center gap-2 max-w-[94vw] backdrop-blur-md animate-pulse"
+                            style={{
+                                backgroundColor: 'rgba(15, 12, 10, 0.94)',
+                                borderColor: hud.harvestNextShape.accentColor,
+                                color: hud.harvestNextShape.accentColor
+                            }}
+                        >
+                            <ShieldAlert className="w-4 h-4 shrink-0 animate-bounce" />
+                            <div className="flex flex-col min-w-0 leading-tight">
+                                <span className="font-mono text-[10px] sm:text-xs font-black tracking-wider uppercase truncate">
+                                    {tx(
+                                        `SECTOR SHIFT: ${hud.harvestNextShape.name} IN ${hud.harvestShapeRemainingSec.toFixed(1)}s`,
+                                        `تغيير القطاع: ${hud.harvestNextShape.arName} خلال ${hud.harvestShapeRemainingSec.toFixed(1)} ث`
+                                    )}
+                                </span>
+                                <span className="font-mono text-[8px] sm:text-[9px] text-[#a8a29e] uppercase">
+                                    {tx(
+                                        `DIFFICULTY: ${hud.harvestNextShape.difficulty.toUpperCase()} • CLEAR HAZARD TILES`,
+                                        `الصعوبة: ${hud.harvestNextShape.difficulty.toUpperCase()} • تجنب مناطق الخطر`
+                                    )}
+                                </span>
+                            </div>
+                            <span
+                                className={`px-1.5 py-0.5 rounded text-[8px] font-mono font-bold uppercase shrink-0 border ${
+                                    hud.harvestNextShape.difficulty === 'hard'
+                                        ? 'bg-[#fb7185]/20 text-[#fb7185] border-[#fb7185]/50'
+                                        : hud.harvestNextShape.difficulty === 'medium'
+                                          ? 'bg-[#fde047]/20 text-[#fde047] border-[#fde047]/50'
+                                          : 'bg-[#bef264]/20 text-[#bef264] border-[#bef264]/50'
+                                }`}
+                            >
+                                {hud.harvestNextShape.difficulty}
                             </span>
                         </div>
                     </div>
@@ -1070,27 +1178,41 @@ export const NoirSnakeGameOverlay: React.FC = () => {
                                         <div className="relative w-full aspect-[16/9] rounded-lg overflow-hidden border border-[#2e2924] group-hover:border-[#bef264]/60 bg-[#0a0908] mb-3 transition-colors">
                                             <img
                                                 src="/images/arcade/noir-harvest.jpg"
-                                                alt={tx('Grid Harvest gameplay preview', 'معاينة وضع حصاد الشبكة')}
+                                                alt={tx('Sector Harvest gameplay preview', 'معاينة وضع حصاد القطاعات')}
                                                 className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
                                                 loading="eager"
                                             />
-                                            <span className="absolute top-2 end-2 font-mono text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-[#0a0908]/90 text-[#bef264] border border-[#bef264]/60">
-                                                {tx('SCREEN BORDER', 'حدود الشاشة')}
+                                            <span className="absolute top-2 end-2 font-mono text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-[#0a0908]/90 text-[#bef264] border border-[#bef264]/60 flex items-center gap-1.5 shadow-sm">
+                                                <span className="w-1.5 h-1.5 rounded-full bg-[#bef264] animate-pulse" />
+                                                {tx('MORPHING SECTORS', 'قطاعات متغيرة')}
                                             </span>
+                                            <div className="absolute bottom-2 start-2 flex items-center gap-1">
+                                                <span className="font-mono text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#0a0908]/90 text-[#bae6fd] border border-[#bae6fd]/40">
+                                                    {tx('14 SHAPES & LETTERS', '14 شكلاً وحرفاً')}
+                                                </span>
+                                                <span className="font-mono text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#0a0908]/90 text-[#fde047] border border-[#fde047]/40">
+                                                    {tx('ZOOM MATRIX', 'تكبير المصفوفة')}
+                                                </span>
+                                            </div>
                                         </div>
 
                                         <div className="flex items-center gap-2 mb-1">
                                             <div className="w-7 h-7 rounded-lg bg-[#192211] border border-[#bef264]/45 text-[#bef264] flex items-center justify-center shrink-0">
                                                 <Grid3X3 className="w-3.5 h-3.5" />
                                             </div>
-                                            <h3 className="text-base font-black text-[#f5f3ec] group-hover:text-[#bef264] transition-colors">
-                                                {tx('Grid Harvest', 'حصاد الشبكة')}
-                                            </h3>
+                                            <div className="flex items-baseline gap-2 min-w-0">
+                                                <h3 className="text-base font-black text-[#f5f3ec] group-hover:text-[#bef264] transition-colors truncate">
+                                                    {tx('Sector Harvest', 'حصاد القطاعات')}
+                                                </h3>
+                                                <span className="text-[9px] font-mono font-bold text-[#bef264] uppercase tracking-wider px-1.5 py-0.2 rounded bg-[#bef264]/10 border border-[#bef264]/30">
+                                                    {tx('DYNAMIC', 'متحول')}
+                                                </span>
+                                            </div>
                                         </div>
                                         <p className="text-xs text-[#a8a29e] leading-relaxed">
                                             {tx(
-                                                'Pure classic snake locked inside crisp screen borders. Chain quick pickups for ×3 XP combos, snatch timed golden Overcharge nodes, and level up as speed climbs.',
-                                                'وضع كلاسيكي نقي داخل حدود الشاشة. اجمع الطعام بسرعة لمضاعفة الكومبو حتى ×3 XP، التقط النقاط الذهبية المؤقتة، وارفع مستواك مع زيادة السرعة.'
+                                                'Dynamic tactical snake in morphing geometric & letter-shaped sectors (S, H, C, T, X). Boundaries, chokepoints, and camera zoom shift with countdown timers as you gain XP and level up. Chain pickups for ×3 combos and survive tight letter glyphs.',
+                                                'ثعبان تكتيكي في قطاعات هندسية وأحرف متحولة (S، H، C، T، X). تتغير الحدود وممرات الاختناق وزوم الكاميرا مع عد تنازلي كلما اكتسبت XP وارتقيت. اجمع الطعام لمضاعفات ×3 وتجاوز مسارات الحروف الصعبة.'
                                             )}
                                         </p>
                                     </div>

@@ -27,6 +27,193 @@ export interface HunterSnake {
 
 export type FoodKind = 'standard' | 'overcharge' | 'debris';
 
+export type HarvestShapeId =
+    | 'standard'
+    | 'cross'
+    | 'donut'
+    | 'letterbox'
+    | 'trench'
+    | 'pillars'
+    | 'diamond'
+    | 'hourglass'
+    | 'megagrid'
+    | 'letter-s'
+    | 'letter-h'
+    | 'letter-c'
+    | 'letter-t'
+    | 'letter-x';
+
+export type HarvestShapeDifficulty = 'easy' | 'medium' | 'hard';
+
+export interface HarvestShapeMeta {
+    id: HarvestShapeId;
+    name: string;
+    arName: string;
+    difficulty: HarvestShapeDifficulty;
+    baseDurationSec: number;
+    targetZoom: number;
+    accentColor: string;
+    description: string;
+    arDescription: string;
+}
+
+export const HARVEST_SHAPES: Record<HarvestShapeId, HarvestShapeMeta> = {
+    standard: {
+        id: 'standard',
+        name: 'OPEN MATRIX',
+        arName: 'المصفوفة المفتوحة',
+        difficulty: 'easy',
+        baseDurationSec: 26,
+        targetZoom: 1.42,
+        accentColor: '#bef264',
+        description: 'Standard rectangular perimeter',
+        arDescription: 'محيط مستطيل قياسي'
+    },
+    cross: {
+        id: 'cross',
+        name: 'CRUX QUADRANTS',
+        arName: 'المحاور المتقاطعة',
+        difficulty: 'medium',
+        baseDurationSec: 18,
+        targetZoom: 1.42,
+        accentColor: '#fde047',
+        description: 'Voided corner quadrants form a tactical plus cross',
+        arDescription: 'زوايا محجوبة تشكل صليباً تكتيكياً'
+    },
+    donut: {
+        id: 'donut',
+        name: 'CORE SANCTUARY',
+        arName: 'الحلقة المجوفة',
+        difficulty: 'medium',
+        baseDurationSec: 16,
+        targetZoom: 1.42,
+        accentColor: '#38bdf8',
+        description: 'Hollow central barrier turns the grid into an orbital loop',
+        arDescription: 'حاجز مركزي يحول الساحة إلى مدار دائري'
+    },
+    letterbox: {
+        id: 'letterbox',
+        name: 'LETTERBOX SLIT',
+        arName: 'الشريط العريض',
+        difficulty: 'hard',
+        baseDurationSec: 13,
+        targetZoom: 1.54,
+        accentColor: '#fb7185',
+        description: 'Constricted vertical clearance testing horizontal reflexes',
+        arDescription: 'ارتفاع ضيق ومضغوط يختبر السرعة الأفقية'
+    },
+    trench: {
+        id: 'trench',
+        name: 'TWIN TRENCHES',
+        arName: 'الخندقان التوأمان',
+        difficulty: 'hard',
+        baseDurationSec: 14,
+        targetZoom: 1.42,
+        accentColor: '#f43f5e',
+        description: 'Dual vertical channels linked by narrow crossover bridges',
+        arDescription: 'ممران رأسيان يربطهما جسور عبور ضيقة'
+    },
+    pillars: {
+        id: 'pillars',
+        name: 'FOUR MONOLITHS',
+        arName: 'الأعمدة الأربعة',
+        difficulty: 'medium',
+        baseDurationSec: 17,
+        targetZoom: 1.42,
+        accentColor: '#e879f9',
+        description: 'Four monolithic pylons create chicane chokepoints',
+        arDescription: 'أربعة أعمدة ضخمة تصنع اختناقات حركية'
+    },
+    diamond: {
+        id: 'diamond',
+        name: 'OCTAGON VAULT',
+        arName: 'القبة الثمانية',
+        difficulty: 'medium',
+        baseDurationSec: 16,
+        targetZoom: 1.42,
+        accentColor: '#34d399',
+        description: 'Chamfered diagonal corners create a high-speed ring',
+        arDescription: 'زوايا مشطوفة مائلة تمنح تدفقاً سريعاً'
+    },
+    hourglass: {
+        id: 'hourglass',
+        name: 'HOURGLASS CHOKE',
+        arName: 'عنق الزجاجة',
+        difficulty: 'hard',
+        baseDurationSec: 12,
+        targetZoom: 1.42,
+        accentColor: '#f97316',
+        description: 'Narrow center waist between two spacious chambers',
+        arDescription: 'ممر وسطي ضيق يربط بين غرفتين واسعتين'
+    },
+    megagrid: {
+        id: 'megagrid',
+        name: 'MEGA EXPANSION',
+        arName: 'التوسع العملاق',
+        difficulty: 'hard',
+        baseDurationSec: 24,
+        targetZoom: 1.0,
+        accentColor: '#a78bfa',
+        description: 'Camera zooms out to reveal a sprawling high-capacity matrix',
+        arDescription: 'زووم واسع يكشف مصفوفة هائلة على الشاشة كاملة'
+    },
+    'letter-s': {
+        id: 'letter-s',
+        name: 'GLYPH [S] // SERPENTINE',
+        arName: 'حرف S // المسار الأفعواني',
+        difficulty: 'hard',
+        baseDurationSec: 14,
+        targetZoom: 1.42,
+        accentColor: '#10b981',
+        description: 'Letter-S winding raceway with alternating corner chutes',
+        arDescription: 'مسار متعرج على شكل حرف S بممرات تبادلية'
+    },
+    'letter-h': {
+        id: 'letter-h',
+        name: 'GLYPH [H] // TWIN TOWERS',
+        arName: 'حرف H // البرجان التوأمان',
+        difficulty: 'medium',
+        baseDurationSec: 17,
+        targetZoom: 1.42,
+        accentColor: '#06b6d4',
+        description: 'Letter-H dual columns connected by a central crossover bridge',
+        arDescription: 'عمودان رأسيان متصلان بجسر أوسط على شكل حرف H'
+    },
+    'letter-c': {
+        id: 'letter-c',
+        name: 'GLYPH [C] // HORSESHOE',
+        arName: 'حرف C // حدوة الفرس',
+        difficulty: 'medium',
+        baseDurationSec: 16,
+        targetZoom: 1.42,
+        accentColor: '#f59e0b',
+        description: 'Letter-C arena with wide open right bay and perimeter loop',
+        arDescription: 'محيط على شكل حرف C مع مدخل شرقي مفتوح'
+    },
+    'letter-t': {
+        id: 'letter-t',
+        name: 'GLYPH [T] // MONOLITH',
+        arName: 'حرف T // العمود T',
+        difficulty: 'medium',
+        baseDurationSec: 16,
+        targetZoom: 1.42,
+        accentColor: '#ec4899',
+        description: 'Letter-T crossbar roof with descending center vertical trunk',
+        arDescription: 'سقف أفقي عريض مع جذع رأسي نازل على شكل حرف T'
+    },
+    'letter-x': {
+        id: 'letter-x',
+        name: 'GLYPH [X] // CROSS-NEXUS',
+        arName: 'حرف X // التقاطع المتقاطع',
+        difficulty: 'hard',
+        baseDurationSec: 13,
+        targetZoom: 1.42,
+        accentColor: '#8b5cf6',
+        description: 'Letter-X intersecting diagonal channels with 4 void notches',
+        arDescription: 'قنوات قطرية متقاطعة في المركز على شكل حرف X'
+    }
+};
+
 export type WeaponKind = 'railgun' | 'nova' | 'bolt';
 
 export interface WeaponMeta {
@@ -189,6 +376,11 @@ export interface HudSnapshot {
     comboCount: number;
     comboMultiplier: number;
     comboTimeRatio: number; // 0..1
+    harvestShape: HarvestShapeMeta;
+    harvestNextShape: HarvestShapeMeta;
+    harvestShapeRemainingSec: number;
+    harvestShapeDurationSec: number;
+    harvestIsShiftWarning: boolean;
     // Level-up banner flash
     levelUpNotice: { level: number; timestamp: number } | null;
     deathReason: 'hunter' | 'self' | 'border' | 'wall' | null;

@@ -1,255 +1,200 @@
-# 🎯 Quiz Platform — Next-Gen Gamified Learning & Assessment Ecosystem
+# Quiz Platform
 
-[![Tech Stack](https://img.shields.io/badge/Stack-MERN%20%2B%20TypeScript-61DAFB.svg)](https://reactjs.org/)
-[![AI Powered](https://img.shields.io/badge/AI-Groq%20LLaMA%203.3%20%26%20Mixtral-F05A28.svg)](https://groq.com/)
-[![Real-Time](https://img.shields.io/badge/Real--Time-WebSockets%20%2F%20Socket.IO-010101.svg)](https://socket.io/)
-[![Styling](https://img.shields.io/badge/Styling-TailwindCSS%20v4-38B2AC.svg)](https://tailwindcss.com/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+Quiz Platform is a learning and assessment app for students, teachers, and learning communities. It combines structured quizzes and exams with guided skill tracks, classroom tools, social competition, and progress rewards. Learners can practice independently, join a teacher-led class, or challenge other players; educators can organize learning material and follow student progress.
 
----
+## The story
 
-## 📚 Overview
+Learning often gets split between static course material, disconnected tests, and progress reports that arrive too late to help. Quiz Platform brings those pieces into one place. A learner starts with a subject or skill track, works through quizzes and challenges, reviews results, and sees progress build over time through experience points, levels, streaks, badges, and leaderboard standing. Teachers can organize classes, assign work, and use the same activity and progress data to guide the next lesson. Live classrooms and head-to-head games add a shared, real-time way to practice.
 
-**Quiz Platform** is a full-featured, enterprise-grade learning and assessment ecosystem built on the **MERN stack (MongoDB, Express, React 19, Node.js)** and **TypeScript**. 
+The goal is to make assessment part of the learning journey: practice, understand the result, identify what to work on next, and keep going.
 
-It transcends conventional question-and-answer apps by unifying **AI-driven quiz extraction/generation**, **live real-time multiplayer duels**, **interactive code compilation & Blockly visual programming**, **RPG-style skill trees**, **social clans**, and a **deep administrative analytics suite**.
+## Features
 
-Whether you are an educational institution hosting formal exams, a coding bootcamp tracking student mastery, or a community of competitive learners, this platform delivers unmatched engagement, deep analytics, and gamified motivation.
+### Learning and assessment
 
----
+- Browse available quizzes and subjects from the dashboard.
+- Take quizzes and exams with timed or untimed settings, shuffled questions, passing scores, and optional immediate feedback.
+- Use several question formats: multiple choice, short text answers, code-output questions, ordering, matching, compiler questions, and Blockly-style block questions.
+- Work through question pools that select a smaller, non-repeating set of questions for each attempt.
+- Review completed attempts and results, including answers, scores, and explanations where provided.
+- Render mathematical notation in learning content.
+- Follow skill tracks made up of modules and submodules, with track and module progress.
 
-## 🌟 Comprehensive Feature Matrix
+### Teacher and classroom tools
 
-### 🧮 1. LaTeX & Rich Mathematical Formula Support
-* **KaTeX Rendering Engine**:
-  * Seamless mathematical typesetting for inline equations (`$...$`) and multiline block math (`$$...$$`).
-  * Live equation previewing in question editor, attempt inspector, and result reviews.
-  * Resilient fallback rendering for complex scientific notations, Greek symbols, matrices, and fractions.
+- Create and manage classes, invite learners, and organize students into a shared learning space.
+- Assign quizzes, homework, and exams, then view class activity and performance data.
+- Use teacher tools for quiz revision and AI-assisted learning content workflows.
+- Host live classroom quiz sessions. Participants can join a room using its PIN or invite link, and answer as the host runs the session.
+- Review learner attempts and, where enabled, inspect exam integrity telemetry.
 
----
+### Games, community, and motivation
 
-### 🛡️ 2. Exam Integrity & Anti-Cheating Telemetry
-* **Enforced Fullscreen Lock**:
-  * Proctored exam mode requires fullscreen locking before commencing.
-  * Real-time penalty deductions and instant warning alerts on fullscreen exit.
-* **Copy-Paste & Right-Click Disabling**:
-  * Intercepts and blocks context menu right-clicks and clipboard copy/paste attempts.
-* **Rapid Guessing Detection**:
-  * Detects rushed responses submitted under 1.8 seconds on non-trivial questions and flags suspicious rush patterns.
-* **Multi-Factor Integrity Gauge & Audit Trail**:
-  * 0–100% composite score rating (*Pristine*, *Moderate Caution*, *High Suspicion*).
-  * Timestamped security incident logs in the admin attempt inspector.
+- Earn experience points, levels, coins, streaks, and achievement badges through platform activity.
+- Compare progress on leaderboards and build a learner profile.
+- Take daily challenges, spend coins in the shop, and use supported power-ups.
+- Join tournaments and asynchronous challenges, or play real-time versus quiz games.
+- Connect with other learners through friends, direct chat, clans, and notifications.
+- Use the platform's arcade activities for an additional way to earn progress.
 
----
+### Content creation and insights
 
-### 🎮 3. Live Classroom Arena & Multiplayer Host Mode
-* **Kahoot/Quizizz-Style Host Broadcasting**:
-  * Host room generator with 6-digit game PIN and QR code join link.
-  * Live connected players lobby with real-time avatar arrival animations.
-  * Synchronized 30-second question timer with tick audio and speed-accuracy scoring ($Score = Base + SpeedBonus$).
-  * Real-time student answer distribution bar charts.
-  * Top-5 Podium Leaderboard and championship confetti celebration.
-* **Mobile Gamepad Controller (`LivePlayerController`)**:
-  * Responsive 4-shape gamepad interface (Red ▲, Blue ◆, Yellow ●, Green ■) with haptic feedback.
+- Generate or refine quizzes and learning material with the AI tools when a Groq API key is configured.
+- Import and export supported quiz, track, tournament, and badge data using the JSON templates in [`client/public/samples`](client/public/samples).
+- Use presentations and teaching tools to connect lesson material with quizzes and class activity.
+- View learner analytics and staff-facing quiz, attempt, and class insights.
+- Export supported result reports as PDF or CSV from the relevant views.
 
----
+### Exams and accessibility
 
-### 🔥 4. Daily Login Streak Rewards & Mythic Mystery Loot Box
-* **7-Day Streak Calendar**:
-  * Escalating daily coin and XP multipliers.
-  * Day 7 awards the **Mythic Mystery Loot Box**!
-* **Interactive 3D Mystery Chest Unboxing**:
-  * Shaking chest animation with sparkling aura, particle explosions, sound fanfares, and rare/epic/legendary loot cards (Coins, XP, Power-Ups).
+- Configure exams with optional fullscreen requirements, clipboard restrictions, and tab-switch limits.
+- Record supported focus, tab-switch, and copy/paste events as attempt telemetry for review.
+- Use keyboard navigation and responsive layouts in supported quiz flows.
+- Install the frontend as a Progressive Web App where the browser supports it. Some client state can use local storage; the app still relies on the API for shared accounts, quizzes, classes, and saved results.
 
----
+## Application areas
 
-### 🎵 5. Zero-Latency Web Audio & Haptics Engine
-* **Synthesized Web Audio API**:
-  * Zero external sound asset load times with 100% offline support.
-  * Harmonious arpeggios for correct answers, low buzzers for wrong choices, escalating streak pitch multipliers, clock ticks, and level-up fanfares.
-  * Device vibration & haptic feedback integration (`navigator.vibrate`).
-  * Persistent mute toggle in user settings.
+| Area | Route |
+| --- | --- |
+| Dashboard and quiz browsing | `/` or `/quizzes` |
+| Sign in / create account | `/login` / `/register` |
+| Skill tracks | `/tracks` |
+| Leaderboard | `/leaderboard` |
+| Tournaments | `/tournaments` |
+| Live classroom | `/live-arena` or `/classroom` |
+| Profile | `/profile` |
+| Daily challenge | `/daily` |
+| Social and clans | `/social` / `/clans` |
+| Analytics | `/analytics` |
+| Shop | `/shop` |
+| Administration | `/admin` |
+| AI JSON Studio | `/json-studio` (staff access) |
 
----
+Some routes require a signed-in account; administrative and staff tools require the appropriate role.
 
-### 📄 6. PDF & Excel / CSV Export Engine
-* **Branded PDF Reports**:
-  * Multi-page assessment breakdown reports generated directly in the browser via `jsPDF`.
-* **Excel-Compatible CSV Exports**:
-  * UTF-8 BOM CSV exports for individual attempt logs and question error diagnostics.
+## Technology
 
----
+| Layer | Main technologies |
+| --- | --- |
+| Frontend | React 19, TypeScript, Vite, Tailwind CSS 4, React Router |
+| API | Node.js, Express 5, Mongoose |
+| Data | MongoDB |
+| Real-time features | Socket.IO |
+| AI features | Groq SDK (optional; configured with `GROQ_API_KEY`) |
+| Authentication | JWT, bcrypt, optional Google OAuth client |
+| Coding questions | Judge0-compatible API configuration; AI evaluation is also used in supported flows |
+| PWA and reports | `vite-plugin-pwa`, jsPDF, CSV exports |
 
-### ⚡ 7. Performance, Offline PWA & Accessibility
-* **Full Keyboard Hotkeys**:
-  * Select options via `[1-4]` or `[A-D]`, confirm with `Enter`, navigate questions with `←/→`, and press `?` to open the shortcuts modal.
-* **Offline-First Outbox Sync**:
-  * Automatically stores completed attempts in a local outbox if disconnected and seamlessly syncs to the server when connection resumes.
-* **WAI-ARIA Accessibility**:
-  * Semantic `role="radiogroup"`, `role="radio"`, `aria-live` dynamic announcements, and high-contrast indicators.
+## Getting started
 
----
+### Requirements
 
-### 📊 8. Admin Control Center, Cohort Intelligence & Live Proctoring
-* **Real-Time Live Proctoring Monitor (`LiveProctoringManagement`)**:
-  * Live exam surveillance grid with auto-refresh every 15s.
-  * Live risk filters (*All*, *High Risk*, *Moderate*, *Pristine*) with instant telemetry counts.
-* **Cohort & Tier Analytics (`CohortAnalyticsManagement`)**:
-  * Performance tiers (*High Performers ≥80%*, *Proficient 60-79%*, *Needs Attention <60%*).
-  * Experience cohorts (*Novice*, *Adept*, *Master*) and topic mastery matrices.
-* **Question Misconception & Error Diagnostics (`QuestionAnalyticsManagement`)**:
-  * Failure rate rankings and top distractor identification with one-click CSV export.
-* **Deep Attempt Inspector (`AttemptDetailsModal`)**:
-  * Detailed student response breakdown, correct answer comparisons, security telemetry pills, and PDF/CSV export.
-  * Progressive Web App support with service workers, install prompts, and responsive mobile-first layouts.
-* **Theme System**:
-  * Dynamic dark/light mode with ambient reactive gradients.
+- Node.js 20 or newer and npm.
+- A running MongoDB instance or MongoDB Atlas database.
+- Optional: Groq API credentials for AI features, Google OAuth credentials for Google sign-in, and Judge0 credentials for remote code execution.
 
----
+### Install
 
-## 🛠️ Technology Stack
-
-| Layer | Technologies |
-| :--- | :--- |
-| **Frontend** | React 19, TypeScript, Vite, Tailwind CSS v4, Lucide Icons, Blockly, Canvas Confetti |
-| **Backend** | Node.js (ES Modules), Express.js, Socket.IO, Mongoose |
-| **Database** | MongoDB Atlas / Local MongoDB |
-| **AI Inference** | Groq SDK (`llama-3.3-70b-versatile`, `llama-3.2-90b`, `mixtral-8x7b-32768`) |
-| **Security & Auth** | JWT (JSON Web Tokens), Bcrypt.js, Express-Rate-Limit, CORS |
-| **Document Parsing**| `pdf-parse`, `office-text-extractor` |
-
----
-
-## 📦 Project Structure
-
-```
-Quiz-Platform/
-├── client/                     # Frontend Application (React + Vite + TS)
-│   ├── public/                 # Static assets, icons, manifest
-│   └── src/
-│       ├── components/
-│       │   ├── admin/          # Admin CMS, InspectorPanel, AttemptDetailsModal, Analytics
-│       │   ├── badges/         # Badge nodes & skill progression UI
-│       │   ├── chat/           # Global and direct messaging windows
-│       │   ├── common/         # Modals, SearchBars, EmptyStates
-│       │   ├── engage/         # DailyChallenge, Shop, Tournaments
-│       │   ├── multiplayer/    # Real-time WebSocket 1v1 VS Game
-│       │   ├── question-types/ # Compiler & Blockly question renderers
-│       │   ├── quizzes/        # Quiz cards, editor modals, question editors
-│       │   ├── social/         # ClanHub, FriendList, DirectChat
-│       │   └── tracks/         # Skill trees & roadmap visualizers
-│       ├── context/            # AuthContext, ThemeContext, NotificationContext
-│       ├── lib/                # API client, Socket instance, sound utils
-│       ├── pages/              # App route views (Dashboard, Quizzes, Clans, Admin, etc.)
-│       └── types/              # Full TypeScript interface definitions
-│
-├── server/                     # Backend API & WebSocket Server
-│   ├── config/                 # DB connection and CORS configuration
-│   ├── controllers/            # Route business logic (AI, Quizzes, Clans, Attempts, etc.)
-│   ├── middleware/             # Auth, Admin validation, error handlers, rate limiters
-│   ├── models/                 # Mongoose schemas (User, Quiz, Attempt, Clan, Badge, etc.)
-│   ├── routes/                 # Express API routes
-│   ├── services/               # Compiler evaluation, progress tracking services
-│   ├── utils/                  # Token optimizers, AI limiter, XP sync
-│   └── index.js                # Server entry point & Socket.IO initialization
-│
-├── package.json                # Root package & monorepo scripts
-└── vercel.json                 # Vercel deployment configuration
-```
-
----
-
-## 🚀 Quick Start Guide
-
-### Prerequisites
-* **Node.js**: v20.18+ or v22.0+
-* **npm** or **yarn** / **pnpm**
-* **MongoDB**: Local MongoDB server or a free MongoDB Atlas cluster
-
-### 1. Clone & Install Dependencies
 ```bash
-git clone https://github.com/MohaMedTArEk912/Quiz-Platform.git
-cd Quiz-Platform
-
-# Install root dependencies
+git clone <repository-url>
+cd "Quiz Platform"
 npm install
-
-# Install client dependencies
-cd client && npm install && cd ..
+npm --prefix client install
 ```
 
-### 2. Environment Variables Setup
-Create a `.env` file in the root directory:
+### Configure environment
+
+Copy `.env.example` to `.env` in the repository root. At minimum, configure a database URI and a JWT secret for local development:
 
 ```env
-# Server Configuration
 PORT=5000
 NODE_ENV=development
-
-# Database
-MONGODB_URI=mongodb://localhost:27017/quiz-platform
-
-# Security & JWT
-JWT_SECRET=your_super_secret_jwt_key_here
-JWT_EXPIRE=30d
-
-# Client / Server URLs
 CLIENT_URL=http://localhost:5173
-VITE_API_URL=http://localhost:5000/api
-VITE_SOCKET_URL=http://localhost:5000
-VITE_ENABLE_SOCKET=true
-
-# AI Quiz Studio (Optional, powered by Groq)
-GROQ_API_KEY=your_groq_api_key_here
+VITE_API_URL=/api
+MONGODB_URI=mongodb://127.0.0.1:27017/quiz-platform
+JWT_SECRET=use-a-long-random-development-secret
 ```
 
-### 3. Running Locally
-Run both client and server concurrently:
+The app can start in development without optional integrations, but features that depend on those services will not work until configured. Common optional variables include:
+
+| Variable | Used for |
+| --- | --- |
+| `GROQ_API_KEY`, `GROQ_MODEL` | AI quiz, content, and supported answer-evaluation workflows |
+| `VITE_GOOGLE_CLIENT_ID` | Google sign-in in the frontend |
+| `JUDGE0_API_KEY`, `JUDGE0_API_URL`, `JUDGE0_API_HOST` | Remote code execution for supported compiler questions |
+| `VITE_SOCKET_URL`, `VITE_ENABLE_SOCKET` | Socket.IO connection settings for live features |
+| `GMAIL_USER`, `GMAIL_APP_PASSWORD` or `SMTP_*` | Transactional email delivery |
+| `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` | Optional client-side Supabase integration |
+
+See [`.env.example`](.env.example) for the full list and notes. Do not commit `.env` or real credentials.
+
+### Run locally
+
+Start the API and Vite frontend together:
+
 ```bash
 npm run dev
 ```
 
-* **Client UI**: [http://localhost:5173](http://localhost:5173)
-* **Backend API**: [http://localhost:5000/api](http://localhost:5000/api)
+Open the frontend at <http://localhost:5173>. The API listens on port 5000 by default. You can also start each process separately:
 
-To run them in separate terminals:
 ```bash
-# Terminal 1: Backend Server
 npm run server
-
-# Terminal 2: Frontend Client
 npm run client
 ```
 
----
+### Seed data
 
-## 🌐 Production Deployment
+Seed commands are available for development databases. Configure the database connection before running them, and review the seed scripts before using them against a shared database.
 
-This project is configured for split deployment:
+```bash
+npm run seed:local   # local development data
+npm run seed         # database seed data
+npm run seed:admin   # initial admin account, configured through .env
+```
 
-### 1. Backend (Koyeb / Render / Railway)
-* Point deployment to `server/index.js`.
-* Set environment variables: `MONGODB_URI`, `JWT_SECRET`, `NODE_ENV=production`, `PORT=5000`, `CLIENT_URL=https://your-frontend.vercel.app`, and `GROQ_API_KEY`.
+## Project layout
 
-### 2. Frontend (Vercel)
-* Connect repository and set root or `client` as directory.
-* Framework Preset: **Vite**.
-* Build Command: `npm run build`
-* Output Directory: `dist`
-* **⚠️ IMPORTANT - Environment Variables**:
-  - Go to **Settings → Environment Variables** and add these for **Production, Preview, and Development**:
-  - `VITE_API_URL`: `/api` (for Vercel serverless) OR `https://your-backend.example.com/api` (for external backend)
-  - `SITE_URL`: Optional HTTPS origin for canonical URLs, share previews, and the sitemap. Defaults to `https://quiz-platform-dun.vercel.app`. For Docker, set it as a build argument.
-  - `VITE_GOOGLE_CLIENT_ID`: Your Google OAuth Client ID
-  - `VITE_CONVEX_URL`: Your Convex URL (if using)
-  - **Note**: Vercel does NOT load the local `.env` file automatically - all vars must be set in the dashboard!
-  - See [DEPLOYMENT_TROUBLESHOOTING.md](DEPLOYMENT_TROUBLESHOOTING.md) for common deployment issues.
+```text
+.
+├── api/                 # Serverless API entry point
+├── client/
+│   ├── public/samples/  # Import templates and sample learning data
+│   └── src/
+│       ├── components/ # Quiz, teacher, social, admin, and game UI
+│       ├── context/    # Authentication, data, notifications, sockets
+│       ├── pages/      # Routed application screens
+│       ├── lib/        # API, OAuth, and integration helpers
+│       └── types/      # Shared frontend types
+├── scripts/             # Database seed and maintenance scripts
+└── server/
+    ├── controllers/    # API business logic
+    ├── middleware/     # Auth, validation, and database middleware
+    ├── models/         # MongoDB/Mongoose schemas
+    ├── routes/         # Express API routes
+    └── services/       # Progress, email, badge, and evaluation services
+```
 
----
+## Useful commands
 
-## 📄 License
-This project is licensed under the [MIT License](LICENSE).
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Run the API and frontend for development |
+| `npm start` | Start the Node.js server |
+| `npm run build` | Type-check and build the frontend |
+| `npm run lint` | Run ESLint across the repository |
+| `npm run preview` | Preview the production frontend build |
+| `npm run seed:local` | Seed local development data |
 
----
+## Deployment notes
 
-Made with ❤️ by the **Quiz Platform Team** for learners, educators, and developers worldwide.
+The repository includes a Vercel configuration and a serverless API entry point, while the server can also run as a persistent Node.js process. Configure the deployment target with the database URI, a strong `JWT_SECRET`, the frontend/API origin settings, and credentials for any optional integrations you enable. Socket.IO live sessions require a persistent server that supports WebSocket connections; configure `VITE_SOCKET_URL` to point the client to that server. Check the hosting platform's current build and routing requirements when deploying.
+
+## Contributing
+
+1. Create a focused branch for your change.
+2. Install dependencies and configure a development database.
+3. Keep UI, API validation, and data-model changes consistent when adding features.
+4. Run the relevant build or lint command before opening a pull request.
+
+Please avoid including secrets, user data, or production database content in commits or sample files.
