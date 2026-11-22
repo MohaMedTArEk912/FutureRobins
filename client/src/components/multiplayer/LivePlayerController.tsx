@@ -334,7 +334,7 @@ export const LivePlayerController: React.FC<LivePlayerControllerProps> = ({
                     className={`app-dialog-panel app-dialog-panel--padded relative w-full max-w-md p-6 rounded-2xl transition-all animate-in zoom-in-95 duration-200 ${
                         isBento
                             ? 'bg-white text-black border-[3px] border-black shadow-[6px_6px_0_#000]'
-                            : 'bg-white dark:bg-[#141210] text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 shadow-2xl'
+                            : 'bg-[#141210] text-[#f5f3ec] border-[1.5px] border-[#2e2924] shadow-[0_8px_0_#050504,0_24px_60px_rgba(0,0,0,0.78)]'
                     }`}
                     onClick={(e) => e.stopPropagation()}
                 >
@@ -344,7 +344,7 @@ export const LivePlayerController: React.FC<LivePlayerControllerProps> = ({
                         className={`btn-unstyled absolute top-4 right-4 w-8 h-8 rounded-xl flex items-center justify-center cursor-pointer transition active:scale-95 ${
                             isBento
                                 ? 'bg-[#fecdd3] hover:bg-rose-300 text-black border-2 border-black shadow-[2px_2px_0_#000]'
-                                : 'bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/20 text-slate-600 dark:text-slate-300'
+                                : 'bg-[#1a1714] border border-[#2e2924] hover:border-[#bef264]/50 text-[#a8a29e] hover:text-[#f5f3ec]'
                         }`}
                         title="Close"
                     >
@@ -354,26 +354,30 @@ export const LivePlayerController: React.FC<LivePlayerControllerProps> = ({
                     <div className="text-center space-y-2 mb-5">
                         <div className={`w-12 h-12 rounded-2xl mx-auto flex items-center justify-center ${
                             isBento
-                                ? 'bg-[#93c5fd] text-black border-2 border-black shadow-[3px_3px_0_#000]'
-                                : 'bg-indigo-500/15 text-indigo-600 dark:text-indigo-400'
+                                ? 'bg-[#bae6fd] text-black border-2 border-black shadow-[3px_3px_0_#000]'
+                                : 'bg-[#1c2317] text-[#bef264] border border-[#bef264]/35'
                         }`}>
                             <Gamepad2 className="w-6 h-6 stroke-[2.5]" />
                         </div>
                         <h2 className="text-2xl font-black uppercase tracking-tight">{tx('Join Live Arena', 'ادخل الساحة المباشرة')}</h2>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                        <p className={`text-xs ${isBento ? 'text-neutral-600' : 'text-[#a8a29e]'}`}>
                             {tx('Enter the 6-digit PIN shared by your teacher or host.', 'اكتب كود الغرفة المكون من 6 أرقام اللي بعته المدرس أو المضيف.')}
                         </p>
                     </div>
 
                     {(joinError || syncError) && (
-                        <div className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs font-bold text-rose-600 dark:text-rose-400 text-center">
+                        <div className={`mb-4 p-3 rounded-xl text-xs font-bold text-center ${
+                            isBento
+                                ? 'bg-[#fecdd3] border-2 border-black text-black'
+                                : 'bg-[#251317] border border-[#fb7185]/35 text-[#fda4af]'
+                        }`}>
                             {joinError || syncError}
                         </div>
                     )}
 
                     {joining ? (
                         <div className="py-8 flex flex-col items-center gap-2">
-                            <Loader2 className="w-7 h-7 animate-spin text-indigo-500" />
+                            <Loader2 className={`w-7 h-7 animate-spin ${isBento ? 'text-black' : 'text-[#bef264]'}`} />
                             <span className="text-xs font-black uppercase tracking-wider">{tx('Joining Live Room...', 'بندخلك الغرفة...')}</span>
                         </div>
                     ) : (
@@ -389,10 +393,10 @@ export const LivePlayerController: React.FC<LivePlayerControllerProps> = ({
                                     placeholder={tx('e.g. 482910', 'مثال: 482910')}
                                     value={pinInput}
                                     onChange={(e) => setPinInput(e.target.value.replace(/\D/g, ''))}
-                                    className={`w-full p-3 rounded-xl text-center text-xl font-mono font-black tracking-widest ${
+                                    className={`w-full p-3 rounded-xl text-center text-xl font-mono font-black tracking-widest outline-none ${
                                         isBento
-                                            ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0_#000] focus:bg-[#fef9c3] focus:outline-none'
-                                            : 'bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-500'
+                                            ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0_#000] focus:bg-[#fef9c3]'
+                                            : 'bg-[#0e0d0b] text-[#f5f3ec] border border-[#2e2924] focus:border-[#bef264]'
                                     }`}
                                 />
                             </div>
@@ -407,10 +411,10 @@ export const LivePlayerController: React.FC<LivePlayerControllerProps> = ({
                                     placeholder={tx('Enter your name', 'اكتب اسمك')}
                                     value={nickname}
                                     onChange={(e) => setNickname(e.target.value)}
-                                    className={`w-full p-3 rounded-xl text-center text-sm font-bold ${
+                                    className={`w-full p-3 rounded-xl text-center text-sm font-bold outline-none ${
                                         isBento
-                                            ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0_#000] focus:outline-none'
-                                            : 'bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-500'
+                                            ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0_#000]'
+                                            : 'bg-[#0e0d0b] text-[#f5f3ec] border border-[#2e2924] focus:border-[#bef264]'
                                     }`}
                                 />
                             </div>
@@ -420,8 +424,8 @@ export const LivePlayerController: React.FC<LivePlayerControllerProps> = ({
                                 disabled={pinInput.trim().length < 4 || !nickname.trim() || joining}
                                 className={`btn-unstyled w-full py-3.5 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 cursor-pointer transition ${
                                     isBento
-                                        ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[3px_3px_0_#000] disabled:bg-slate-100 disabled:text-slate-400 disabled:border-slate-300 disabled:shadow-none disabled:cursor-not-allowed'
-                                        : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed'
+                                        ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[3px_3px_0_#000] disabled:bg-neutral-100 disabled:text-neutral-400 disabled:border-neutral-300 disabled:shadow-none disabled:cursor-not-allowed'
+                                        : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908] disabled:opacity-50 disabled:cursor-not-allowed'
                                 }`}
                             >
                                 <span>{tx('Enter Live Room', 'ادخل الغرفة المباشرة')}</span>

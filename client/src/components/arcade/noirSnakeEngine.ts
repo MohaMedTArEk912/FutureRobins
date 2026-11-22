@@ -2,9 +2,13 @@ import {
     ALL_DIRS,
     DIR_VECTORS,
     OPPOSITE_DIR,
+    WEAPON_META,
     computeRunLevelProgress,
     pointKey,
+    type ContainmentAlert,
+    type ContainmentWall,
     type Direction,
+    type EscapePatternKind,
     type FloatingPopup,
     type FoodNode,
     type GridPoint,
@@ -12,13 +16,21 @@ import {
     type HunterSnake,
     type LevelPulseRing,
     type ParticleBurst,
-    type SnakeGameMode
+    type SnakeGameMode,
+    type WeaponBeamEffect,
+    type WeaponDrop,
+    type WeaponKind,
+    type WeaponProjectile
 } from './noirSnakeTypes';
 import {
+    buildContainmentWallCells,
     computeHuntEscalation,
+    createAmbushHunterSnake,
     createHunterSnake,
     decideHunterDirection,
-    getHunterTickInterval
+    evaluateEscapePattern,
+    getHunterTickInterval,
+    type PlayerStepRecord
 } from './noirSnakeAI';
 import { noirSnakeAudio } from './noirSnakeAudio';
 
@@ -53,7 +65,7 @@ export class NoirSnakeEngine {
     private mode: SnakeGameMode = 'hunt';
     private status: 'menu' | 'playing' | 'paused' | 'gameover' = 'menu';
     private pauseReason: 'manual' | 'resize' | 'blur' | null = null;
-    private deathReason: 'hunter' | 'self' | 'border' | null = null;
+    private deathReason: 'hunter' | 'self' | 'border' | 'wall' | null = null;
 
     // Player snake
     private playerSegments: GridPoint[] = [];
@@ -64,10 +76,16 @@ export class NoirSnakeEngine {
     private playerTickAcc = 0;
     private playerBaseTickMs = 112;
 
-    // Boost (Hunt mode)
+    // Boost & Cooldown (Hunt mode)
     private boostEnergy = 100;
     private boostRequested = false;
     private isBoosting = false;
+    private boostCooldownMs = 0;
+    private boostCooldownMaxMs = 0;
+    private boostOverheated = false;
+    private readonly BOOST_RELEASE_COOLDOWN_MS = 1800;
+    private readonly BOOST_OVERHEAT_COOLDOWN_MS = 4500;
+    private readonly BOOST_MIN_START_ENERGY = 20;
 
     // Camera (world pixel coordinates of screen center)
     private camX = 0;
@@ -83,16 +101,33 @@ export class NoirSnakeEngine {
     // Entities
     private hunters: HunterSnake[] = [];
     private foods: FoodNode[] = [];
+    private weaponDrops: WeaponDrop[] = [];
+    private heldWeapon: WeaponKind | null = null;
+    private weaponBeams: WeaponBeamEffect[] = [];
+    private projectiles: WeaponProjectile[] = [];
+    private containmentWalls: ContainmentWall[] = [];
     private popups: FloatingPopup[] = [];
     private particles: ParticleBurst[] = [];
     private pulseRings: LevelPulseRing[] = [];
     private nextEntityId = 1;
+
+    // Anti-escape & Defect Detection (Hunt mode)
+    private playerStepHistory: PlayerStepRecord[] = [];
+    private straightSteps = 0;
+    private boostStraightSteps = 0;
+    private lastRecordedDir: Direction = 'RIGHT';
+    private escapeRisk = 0; // 0..100
+    private containmentCooldownMs = 0;
+    private containmentAlert: ContainmentAlert | null = null;
+    private recentManualPauses: number[] = [];
+    private pendingPausePenalty = false;
 
     // Scoring, Combo & XP
     private score = 0;
     private elapsedMs = 0;
     private survivalXpAccMs = 0;
     private hunterSpawnAccMs = 0;
+    private weaponSpawnAccMs = 0;
     private lastGrazeAtMs = -5000;
     private runXp = 0;
     private runLevel = 1;
@@ -218,6 +253,22 @@ export class NoirSnakeEngine {
         this.deathReason = null;
         this.boostRequested = false;
         this.isBoosting = false;
+        this.boostCooldownMs = 0;
+        this.boostCooldownMaxMs = 0;
+        this.boostOverheated = false;
+        this.weaponDrops = [];
+        this.heldWeapon = null;
+        this.weaponBeams = [];
+        this.projectiles = [];
+        this.containmentWalls = [];
+        this.playerStepHistory = [];
+        this.straightSteps = 0;
+        this.boostStraightSteps = 0;
+        this.escapeRisk = 0;
+        this.containmentCooldownMs = 0;
+        this.containmentAlert = null;
+        this.recentManualPauses = [];
+        this.pendingPausePenalty = false;
         this.initMenuDemoSnake();
         this.emitHud(true);
     }
@@ -231,6 +282,7 @@ export class NoirSnakeEngine {
         this.elapsedMs = 0;
         this.survivalXpAccMs = 0;
         this.hunterSpawnAccMs = 2400; // First hunter arrives quickly (~2s)
+        this.weaponSpawnAccMs = 9500; // First field weapon drops ~5s into the run
         this.lastGrazeAtMs = -5000;
         this.runXp = 0;
         this.runLevel = 1;
@@ -240,11 +292,28 @@ export class NoirSnakeEngine {
         this.boostEnergy = 100;
         this.boostRequested = false;
         this.isBoosting = false;
+        this.boostCooldownMs = 0;
+        this.boostCooldownMaxMs = 0;
+        this.boostOverheated = false;
         this.comboCount = 0;
         this.comboExpiresAt = 0;
         this.harvestFoodEatenCount = 0;
         this.hunters = [];
         this.foods = [];
+        this.weaponDrops = [];
+        this.heldWeapon = null;
+        this.weaponBeams = [];
+        this.projectiles = [];
+        this.containmentWalls = [];
+        this.playerStepHistory = [];
+        this.straightSteps = 0;
+        this.boostStraightSteps = 0;
+        this.lastRecordedDir = 'RIGHT';
+        this.escapeRisk = 0;
+        this.containmentCooldownMs = 3000; // Grace window at run start before first lockdown can fire
+        this.containmentAlert = null;
+        this.recentManualPauses = [];
+        this.pendingPausePenalty = false;
         this.popups = [];
         this.particles = [];
         this.pulseRings = [];
@@ -296,6 +365,15 @@ export class NoirSnakeEngine {
         this.pauseReason = reason;
         this.boostRequested = false;
         this.isBoosting = false;
+        if (reason === 'manual' && this.mode === 'hunt') {
+            const now = performance.now();
+            this.recentManualPauses = this.recentManualPauses.filter((t) => now - t < 10000);
+            this.recentManualPauses.push(now);
+            if (this.recentManualPauses.length >= 4) {
+                this.pendingPausePenalty = true;
+                this.recentManualPauses = [];
+            }
+        }
         this.emitHud(true);
     }
 
@@ -348,6 +426,153 @@ export class NoirSnakeEngine {
         this.boostRequested = active;
     }
 
+    /**
+     * Fires the player's currently held one-time weapon (Hunt mode only).
+     * Strictly single-use: consumes the weapon immediately upon firing.
+     */
+    public fireWeapon(): boolean {
+        if (this.status !== 'playing' || this.mode !== 'hunt' || !this.heldWeapon) {
+            return false;
+        }
+        const head = this.playerSegments[0];
+        if (!head) return false;
+
+        const weapon = this.heldWeapon;
+        this.heldWeapon = null; // One-time use: consume immediately
+        const now = performance.now();
+        const headWorld = this.gridToWorldCenter(head.x, head.y);
+        const vec = DIR_VECTORS[this.playerDir];
+
+        if (weapon === 'railgun') {
+            const rangeCells = 18;
+            const endGridX = head.x + vec.x * rangeCells;
+            const endGridY = head.y + vec.y * rangeCells;
+            const endWorld = this.gridToWorldCenter(endGridX, endGridY);
+
+            this.weaponBeams.push({
+                id: this.nextEntityId++,
+                startX: headWorld.x,
+                startY: headWorld.y,
+                endX: endWorld.x,
+                endY: endWorld.y,
+                color: WEAPON_META.railgun.color,
+                createdAt: now,
+                duration: 380
+            });
+
+            const deadIds = new Set<number>();
+            for (const hunter of this.hunters) {
+                const hit = hunter.segments.some((seg) => {
+                    const dx = seg.x - head.x;
+                    const dy = seg.y - head.y;
+                    const forward = dx * vec.x + dy * vec.y;
+                    const perp = Math.abs(dx * vec.y - dy * vec.x);
+                    return forward >= 0 && forward <= rangeCells && perp <= 1;
+                });
+                if (hit) {
+                    this.shatterHunter(hunter, deadIds, now, true, 'RAIL KILL', true, head);
+                }
+            }
+            const breachedRail = this.breachContainmentWalls((cell) => {
+                const dx = cell.x - head.x;
+                const dy = cell.y - head.y;
+                const forward = dx * vec.x + dy * vec.y;
+                const perp = Math.abs(dx * vec.y - dy * vec.x);
+                return forward >= 0 && forward <= rangeCells && perp <= 1;
+            });
+            if (deadIds.size > 0) {
+                this.hunters = this.hunters.filter((h) => !deadIds.has(h.id));
+                if (deadIds.size >= 2) {
+                    const multiXp = deadIds.size * 35;
+                    this.score += deadIds.size * 90;
+                    this.awardRunXp(multiXp, headWorld.x, headWorld.y - 22, `MULTI ×${deadIds.size}`, GOLD_ACCENT);
+                }
+            } else if (breachedRail > 0) {
+                this.spawnPopup(headWorld.x, headWorld.y - 12, 'WALL BREACHED', WEAPON_META.railgun.color);
+            } else {
+                this.spawnPopup(headWorld.x, headWorld.y - 12, 'RAIL FIRED', WEAPON_META.railgun.color);
+            }
+
+            this.spawnBurst(headWorld.x + vec.x * this.cellSize * 0.6, headWorld.y + vec.y * this.cellSize * 0.6, WEAPON_META.railgun.color, 12);
+            this.screenShakeMs = 200;
+            this.screenShakeMag = 7;
+            noirSnakeAudio.playWeaponRailgun();
+        } else if (weapon === 'nova') {
+            const radiusCells = 8.2;
+            const deadIds = new Set<number>();
+            for (const hunter of this.hunters) {
+                const hit = hunter.segments.some(
+                    (seg) => Math.hypot(seg.x - head.x, seg.y - head.y) <= radiusCells
+                );
+                if (hit) {
+                    this.shatterHunter(hunter, deadIds, now, true, 'NOVA KILL', true, head);
+                }
+            }
+            const breachedNova = this.breachContainmentWalls(
+                (cell) => Math.hypot(cell.x - head.x, cell.y - head.y) <= radiusCells
+            );
+            if (deadIds.size > 0) {
+                this.hunters = this.hunters.filter((h) => !deadIds.has(h.id));
+                if (deadIds.size >= 2) {
+                    const multiXp = deadIds.size * 35;
+                    this.score += deadIds.size * 90;
+                    this.awardRunXp(multiXp, headWorld.x, headWorld.y - 22, `NOVA ×${deadIds.size}`, GOLD_ACCENT);
+                }
+            } else if (breachedNova > 0) {
+                this.spawnPopup(headWorld.x, headWorld.y - 12, 'WALL SHATTERED', WEAPON_META.nova.color);
+            } else {
+                this.spawnPopup(headWorld.x, headWorld.y - 12, 'EMP NOVA', WEAPON_META.nova.color);
+            }
+
+            this.pulseRings.push(
+                {
+                    id: this.nextEntityId++,
+                    worldX: headWorld.x,
+                    worldY: headWorld.y,
+                    createdAt: now,
+                    duration: 540,
+                    color: GOLD_ACCENT,
+                    maxRadiusCells: 8.2
+                },
+                {
+                    id: this.nextEntityId++,
+                    worldX: headWorld.x,
+                    worldY: headWorld.y,
+                    createdAt: now,
+                    duration: 420,
+                    color: ROSE_ACCENT,
+                    maxRadiusCells: 5.8
+                }
+            );
+            this.spawnBurst(headWorld.x, headWorld.y, GOLD_ACCENT, 22);
+            this.screenShakeMs = 220;
+            this.screenShakeMag = 7.5;
+            noirSnakeAudio.playWeaponNova();
+        } else {
+            // 'bolt' — High-velocity piercing Plasma Lance projectile
+            const startX = headWorld.x + vec.x * this.cellSize * 0.45;
+            const startY = headWorld.y + vec.y * this.cellSize * 0.45;
+            this.projectiles.push({
+                id: this.nextEntityId++,
+                worldX: startX,
+                worldY: startY,
+                dir: this.playerDir,
+                speedCellsPerSec: 30,
+                remainingCells: 24,
+                color: WEAPON_META.bolt.color,
+                hitHunterIds: new Set<number>(),
+                trail: [{ x: startX, y: startY }]
+            });
+            this.spawnBurst(startX, startY, WEAPON_META.bolt.color, 10);
+            this.screenShakeMs = 110;
+            this.screenShakeMag = 4;
+            noirSnakeAudio.playWeaponBolt();
+        }
+
+        this.emitHud(true);
+        return true;
+    }
+
     public getSnapshot(): HudSnapshot {
         const prog = computeRunLevelProgress(this.runXp);
         const now = performance.now();
@@ -372,6 +597,16 @@ export class NoirSnakeEngine {
             takedowns: this.takedowns,
             boostEnergy: Math.round(this.boostEnergy),
             isBoosting: this.isBoosting,
+            boostCooldownSec: this.boostCooldownMs > 0 ? Math.ceil(this.boostCooldownMs / 100) / 10 : 0,
+            boostCooldownRatio:
+                this.boostCooldownMs > 0 && this.boostCooldownMaxMs > 0
+                    ? Math.max(0, Math.min(1, this.boostCooldownMs / this.boostCooldownMaxMs))
+                    : 0,
+            boostOverheated: this.boostOverheated,
+            heldWeapon: this.heldWeapon,
+            weaponDropsOnMap: this.weaponDrops.length,
+            escapeRisk: Math.round(this.escapeRisk),
+            containmentAlert: this.containmentAlert,
             comboCount: comboActive ? this.comboCount : 0,
             comboMultiplier,
             comboTimeRatio,
@@ -425,11 +660,34 @@ export class NoirSnakeEngine {
                 });
                 this.spawnBurst(pos.x, pos.y, GOLD_ACCENT, 14);
             }
-            // Refill a burst of Boost energy on Level Up in Hunt mode!
+            // Refill Boost energy & shave active cooldown on Level Up in Hunt mode!
             if (this.mode === 'hunt') {
-                this.boostEnergy = Math.min(100, this.boostEnergy + 35);
+                this.boostEnergy = Math.min(100, this.boostEnergy + 30);
+                if (this.boostCooldownMs > 0) {
+                    this.boostCooldownMs = Math.max(0, this.boostCooldownMs - 1500);
+                    if (this.boostCooldownMs === 0) {
+                        this.boostOverheated = false;
+                        this.boostCooldownMaxMs = 0;
+                    }
+                }
             }
         }
+    }
+
+    private triggerBoostOverheat() {
+        this.isBoosting = false;
+        this.boostEnergy = 0;
+        this.boostCooldownMs = this.BOOST_OVERHEAT_COOLDOWN_MS;
+        this.boostCooldownMaxMs = this.BOOST_OVERHEAT_COOLDOWN_MS;
+        this.boostOverheated = true;
+        noirSnakeAudio.playBoostOverheat();
+        const head = this.playerSegments[0];
+        if (head) {
+            const pos = this.gridToWorldCenter(head.x, head.y);
+            this.spawnPopup(pos.x, pos.y - 14, 'OVERHEAT', ROSE_ACCENT);
+            this.spawnBurst(pos.x, pos.y, ROSE_ACCENT, 8);
+        }
+        this.emitHud(true);
     }
 
     private spawnPopup(worldX: number, worldY: number, text: string, color: string) {
@@ -496,17 +754,43 @@ export class NoirSnakeEngine {
             this.comboCount = 0;
         }
 
-        // Hunt mode boost energy management
+        // Hunt mode boost energy + cooldown / overheat management
         if (this.mode === 'hunt') {
-            if (this.boostRequested && this.boostEnergy > 4) {
+            if (this.boostCooldownMs > 0) {
+                this.boostCooldownMs = Math.max(0, this.boostCooldownMs - dt);
+                if (this.boostOverheated) {
+                    // Steadily recover partial energy during overheat lockout so boost is usable on unlock
+                    this.boostEnergy = Math.min(45, this.boostEnergy + (dt / 1000) * 10);
+                }
+                if (this.boostCooldownMs === 0) {
+                    this.boostOverheated = false;
+                    this.boostCooldownMaxMs = 0;
+                    noirSnakeAudio.playBoostReady();
+                    this.emitHud(true);
+                }
+            }
+
+            const canStartBoost = this.boostCooldownMs <= 0 && this.boostEnergy >= this.BOOST_MIN_START_ENERGY;
+            const canSustainBoost = this.isBoosting && this.boostCooldownMs <= 0 && this.boostEnergy > 0;
+
+            if (this.boostRequested && (canStartBoost || canSustainBoost)) {
                 this.isBoosting = true;
-                this.boostEnergy = Math.max(0, this.boostEnergy - (dt / 1000) * 34);
-                if (this.boostEnergy <= 1) {
-                    this.isBoosting = false;
+                this.boostEnergy = Math.max(0, this.boostEnergy - (dt / 1000) * 40);
+                if (this.boostEnergy <= 0.5) {
+                    this.triggerBoostOverheat();
                 }
             } else {
+                if (this.isBoosting && this.boostCooldownMs <= 0) {
+                    // Stopping a boost triggers a brief tactical cooldown before re-ignition
+                    this.boostCooldownMs = this.BOOST_RELEASE_COOLDOWN_MS;
+                    this.boostCooldownMaxMs = this.BOOST_RELEASE_COOLDOWN_MS;
+                    this.boostOverheated = false;
+                    this.emitHud(true);
+                }
                 this.isBoosting = false;
-                this.boostEnergy = Math.min(100, this.boostEnergy + (dt / 1000) * 9.5);
+                if (this.boostCooldownMs <= 0) {
+                    this.boostEnergy = Math.min(100, this.boostEnergy + (dt / 1000) * 11);
+                }
             }
         }
 
@@ -571,6 +855,7 @@ export class NoirSnakeEngine {
         const dtSec = dt / 1000;
         this.popups = this.popups.filter((p) => now - p.createdAt < p.duration);
         this.pulseRings = this.pulseRings.filter((r) => now - r.createdAt < r.duration);
+        this.weaponBeams = this.weaponBeams.filter((b) => now - b.createdAt < b.duration);
         this.particles = this.particles.filter((p) => {
             p.worldX += p.vx * dtSec;
             p.worldY += p.vy * dtSec;
@@ -616,13 +901,56 @@ export class NoirSnakeEngine {
             }
         }
 
-        // 3. Hunter body/head collision check (Hunt mode)
+        // 2b. Armed Containment Wall collision check (Hunt mode — deadly even while boosting!)
+        if (this.mode === 'hunt' && this.containmentWalls.length > 0) {
+            for (const wall of this.containmentWalls) {
+                if (now < wall.armAt) continue; // Fair telegraph window: still materializing
+                if (wall.cells.some((c) => c.x === nextHead.x && c.y === nextHead.y)) {
+                    this.triggerGameOver('wall');
+                    return;
+                }
+            }
+        }
+
+        // 3. Hunter combat / collision check (Hunt mode)
+        // Player can actively KILL hunters by slicing their body/tail OR boost-ramming any segment (even head-on)!
+        // Only an unboosted head-to-head collision is fatal to the player.
         if (this.mode === 'hunt') {
+            const killedHunters = new Set<number>();
+            let hitFatalHunterHead = false;
+
             for (const hunter of this.hunters) {
-                for (const hSeg of hunter.segments) {
+                for (let i = 0; i < hunter.segments.length; i++) {
+                    const hSeg = hunter.segments[i];
                     if (hSeg.x === nextHead.x && hSeg.y === nextHead.y) {
-                        this.triggerGameOver('hunter');
-                        return;
+                        if (this.isBoosting || i >= 1) {
+                            killedHunters.add(hunter.id);
+                        } else {
+                            hitFatalHunterHead = true;
+                        }
+                        break;
+                    }
+                }
+            }
+
+            if (hitFatalHunterHead && !this.isBoosting) {
+                this.triggerGameOver('hunter');
+                return;
+            }
+
+            if (killedHunters.size > 0) {
+                const deadIds = new Set<number>();
+                const killLabel = this.isBoosting ? 'BOOST KILL' : 'SLICE KILL';
+                for (const hunter of this.hunters) {
+                    if (killedHunters.has(hunter.id)) {
+                        this.shatterHunter(hunter, deadIds, now, true, killLabel, true, nextHead);
+                    }
+                }
+                this.hunters = this.hunters.filter((h) => !deadIds.has(h.id));
+                if (this.isBoosting) {
+                    this.boostEnergy = Math.max(0, this.boostEnergy - 20);
+                    if (this.boostEnergy <= 0.5) {
+                        this.triggerBoostOverheat();
                     }
                 }
             }
@@ -645,6 +973,38 @@ export class NoirSnakeEngine {
             this.handleFoodEaten(eaten, now);
         }
 
+        // 4b. One-time dropped weapon pickup check (Hunt mode)
+        if (this.mode === 'hunt') {
+            const dropIdx = this.weaponDrops.findIndex((w) => w.x === nextHead.x && w.y === nextHead.y);
+            if (dropIdx !== -1) {
+                const drop = this.weaponDrops[dropIdx];
+                this.weaponDrops.splice(dropIdx, 1);
+                const hadWeapon = this.heldWeapon !== null;
+                this.heldWeapon = drop.kind;
+                const meta = WEAPON_META[drop.kind];
+                const pos = this.gridToWorldCenter(drop.x, drop.y);
+                noirSnakeAudio.playWeaponPickup();
+                this.spawnBurst(pos.x, pos.y, meta.color, 14);
+                this.pulseRings.push({
+                    id: this.nextEntityId++,
+                    worldX: pos.x,
+                    worldY: pos.y,
+                    createdAt: now,
+                    duration: 480,
+                    color: meta.color,
+                    maxRadiusCells: 2.5
+                });
+                if (hadWeapon) {
+                    this.score += 50;
+                    this.awardRunXp(25, pos.x, pos.y, `${meta.shortTag} [1×]`, meta.color);
+                } else {
+                    this.score += 35;
+                    this.spawnPopup(pos.x, pos.y - 6, `${meta.name} [1×]`, meta.color);
+                }
+                this.emitHud(true);
+            }
+        }
+
         // 5. Hunt mode close-call graze bonus (near a hunter head without colliding!)
         if (this.mode === 'hunt' && now - this.lastGrazeAtMs > 2500) {
             const grazed = this.hunters.some((h) => {
@@ -657,6 +1017,55 @@ export class NoirSnakeEngine {
                 this.score += 35;
                 const pos = this.gridToWorldCenter(nextHead.x, nextHead.y);
                 this.awardRunXp(15, pos.x, pos.y - 12, 'GRAZE', PLAYER_BOOST);
+            }
+        }
+
+        // 6. Anti-Escape & Defect Detection telemetry (Hunt mode)
+        if (this.mode === 'hunt') {
+            if (this.playerDir === this.lastRecordedDir) {
+                this.straightSteps += 1;
+                this.boostStraightSteps = this.isBoosting
+                    ? this.boostStraightSteps + 1
+                    : Math.max(0, this.boostStraightSteps - 1);
+            } else {
+                this.straightSteps = 1;
+                this.boostStraightSteps = this.isBoosting ? 1 : 0;
+                this.lastRecordedDir = this.playerDir;
+            }
+
+            this.playerStepHistory.push({
+                x: nextHead.x,
+                y: nextHead.y,
+                dir: this.playerDir,
+                boosting: this.isBoosting
+            });
+            if (this.playerStepHistory.length > 30) {
+                this.playerStepHistory.shift();
+            }
+
+            const evaluation = evaluateEscapePattern({
+                history: this.playerStepHistory,
+                straightSteps: this.straightSteps,
+                boostStraightSteps: this.boostStraightSteps
+            });
+
+            this.escapeRisk = Math.max(0, Math.min(100, this.escapeRisk + evaluation.riskDelta));
+
+            if (
+                this.containmentCooldownMs <= 0 &&
+                evaluation.detectedPattern !== null &&
+                this.escapeRisk >= 68
+            ) {
+                this.deployContainmentLockdown(
+                    evaluation.detectedPattern,
+                    now,
+                    evaluation.diagonalSign,
+                    evaluation.loopCenter
+                );
+                this.escapeRisk = 16;
+                this.straightSteps = 0;
+                this.boostStraightSteps = 0;
+                this.containmentCooldownMs = Math.max(4600, 7200 - this.threatLevel * 280);
             }
         }
     }
@@ -709,8 +1118,17 @@ export class NoirSnakeEngine {
                 this.pendingGrowth += 1;
             }
             this.score += food.scoreValue;
-            const boostRefill = food.kind === 'overcharge' ? 38 : food.kind === 'debris' ? 28 : 20;
+            const boostRefill = food.kind === 'overcharge' ? 30 : food.kind === 'debris' ? 20 : 14;
             this.boostEnergy = Math.min(100, this.boostEnergy + boostRefill);
+            if (this.boostCooldownMs > 0) {
+                const cdShave = food.kind === 'overcharge' ? 900 : food.kind === 'debris' ? 500 : 350;
+                this.boostCooldownMs = Math.max(0, this.boostCooldownMs - cdShave);
+                if (this.boostCooldownMs === 0) {
+                    this.boostOverheated = false;
+                    this.boostCooldownMaxMs = 0;
+                    noirSnakeAudio.playBoostReady();
+                }
+            }
 
             const color = food.kind === 'standard' ? PLAYER_LIME : GOLD_ACCENT;
             this.spawnBurst(pos.x, pos.y, color, food.kind === 'standard' ? 8 : 12);
@@ -765,12 +1183,24 @@ export class NoirSnakeEngine {
                     color: GOLD_ACCENT,
                     label: `LV.${this.runLevel}`
                 });
-                this.boostEnergy = Math.min(100, this.boostEnergy + 35);
+                this.boostEnergy = Math.min(100, this.boostEnergy + 30);
+                if (this.boostCooldownMs > 0) {
+                    this.boostCooldownMs = Math.max(0, this.boostCooldownMs - 1500);
+                    if (this.boostCooldownMs === 0) {
+                        this.boostOverheated = false;
+                        this.boostCooldownMaxMs = 0;
+                    }
+                }
             }
         }
 
-        // Maintain nearby infinite-world food nodes
+        // Maintain nearby infinite-world food nodes, weapon drops, and anti-escape containment walls
         this.maintainHuntFoodField(now);
+        this.maintainHuntWeaponDrops(dt, now);
+        this.maintainContainmentWalls(dt, now);
+
+        // Advance active plasma lance projectiles
+        this.updateProjectiles(dt, now);
 
         // Spawn escalating hunter waves up to dynamic maxHunters
         this.hunterSpawnAccMs += dt;
@@ -780,6 +1210,7 @@ export class NoirSnakeEngine {
         }
 
         // Step each hunter snake on its own speed tick
+        const armedWallKeys = this.getArmedWallKeySet(now);
         const deadHunterIds = new Set<number>();
         for (const hunter of this.hunters) {
             if (deadHunterIds.has(hunter.id)) continue;
@@ -798,7 +1229,7 @@ export class NoirSnakeEngine {
 
             while (hunter.tickAccumulator >= hunter.tickInterval && this.status === 'playing' && !deadHunterIds.has(hunter.id)) {
                 hunter.tickAccumulator -= hunter.tickInterval;
-                this.stepHunter(hunter, deadHunterIds, now);
+                this.stepHunter(hunter, deadHunterIds, now, armedWallKeys);
             }
         }
 
@@ -807,13 +1238,19 @@ export class NoirSnakeEngine {
         }
     }
 
-    private stepHunter(hunter: HunterSnake, deadHunterIds: Set<number>, now: number) {
+    private stepHunter(
+        hunter: HunterSnake,
+        deadHunterIds: Set<number>,
+        now: number,
+        armedWallKeys: Set<string>
+    ) {
         const aliveHunters = this.hunters.filter((h) => !deadHunterIds.has(h.id));
         const nextDir = decideHunterDirection({
             hunter,
             playerSegments: this.playerSegments,
             playerDir: this.playerDir,
-            allHunters: aliveHunters
+            allHunters: aliveHunters,
+            blockedWallKeys: armedWallKeys
         });
 
         hunter.dir = nextDir;
@@ -822,11 +1259,25 @@ export class NoirSnakeEngine {
         const vec = DIR_VECTORS[nextDir];
         const nextHead: GridPoint = { x: head.x + vec.x, y: head.y + vec.y };
 
-        // Check if hunter strikes the PLAYER'S HEAD -> Game Over!
+        // Check if hunter strikes the PLAYER'S HEAD -> Boost Strike kills hunter; unboosted is Game Over!
         const playerHead = this.playerSegments[0];
         if (nextHead.x === playerHead.x && nextHead.y === playerHead.y) {
+            if (this.isBoosting) {
+                this.shatterHunter(hunter, deadHunterIds, now, true, 'BOOST KILL', true, playerHead);
+                this.boostEnergy = Math.max(0, this.boostEnergy - 20);
+                if (this.boostEnergy <= 0.5) {
+                    this.triggerBoostOverheat();
+                }
+                return;
+            }
             hunter.segments = [nextHead, ...hunter.segments.slice(0, -1)];
             this.triggerGameOver('hunter');
+            return;
+        }
+
+        // Check if hunter crashes into an armed Containment Wall -> WALL TRAP takedown!
+        if (armedWallKeys.has(pointKey(nextHead.x, nextHead.y))) {
+            this.shatterHunter(hunter, deadHunterIds, now, true, 'WALL TRAP', true, playerHead);
             return;
         }
 
@@ -834,7 +1285,7 @@ export class NoirSnakeEngine {
         for (let i = 1; i < this.playerSegments.length; i++) {
             const pSeg = this.playerSegments[i];
             if (pSeg.x === nextHead.x && pSeg.y === nextHead.y) {
-                this.shatterHunter(hunter, deadHunterIds, now, true);
+                this.shatterHunter(hunter, deadHunterIds, now, true, 'TAIL TRAP', true, playerHead);
                 return;
             }
         }
@@ -845,7 +1296,7 @@ export class NoirSnakeEngine {
             for (let i = startIdx; i < other.segments.length - 1; i++) {
                 const oSeg = other.segments[i];
                 if (oSeg.x === nextHead.x && oSeg.y === nextHead.y) {
-                    this.shatterHunter(hunter, deadHunterIds, now, true);
+                    this.shatterHunter(hunter, deadHunterIds, now, true, 'TAKEDOWN', true, playerHead);
                     return;
                 }
             }
@@ -854,20 +1305,57 @@ export class NoirSnakeEngine {
         hunter.segments = [nextHead, ...hunter.segments.slice(0, -1)];
     }
 
-    private shatterHunter(hunter: HunterSnake, deadHunterIds: Set<number>, now: number, creditPlayer: boolean) {
+    private shatterHunter(
+        hunter: HunterSnake,
+        deadHunterIds: Set<number>,
+        now: number,
+        creditPlayer: boolean,
+        killLabel = 'TAKEDOWN',
+        allowWeaponDrop = true,
+        avoidCell?: GridPoint
+    ) {
         deadHunterIds.add(hunter.id);
         const head = hunter.segments[0];
         const pos = this.gridToWorldCenter(head.x, head.y);
 
         this.spawnBurst(pos.x, pos.y, hunter.accent, 16);
-        this.screenShakeMs = 150;
-        this.screenShakeMag = 5;
+        this.screenShakeMs = Math.max(this.screenShakeMs, 150);
+        this.screenShakeMag = Math.max(this.screenShakeMag, 5);
+
+        let weaponDropCell: GridPoint | null = null;
+        if (creditPlayer) {
+            this.takedowns += 1;
+            this.escapeRisk = Math.max(0, this.escapeRisk - 28);
+            const bonusXp = 50 + hunter.tier * 15;
+            this.score += 120 + hunter.tier * 40;
+            noirSnakeAudio.playTakedown();
+            this.awardRunXp(bonusXp, pos.x, pos.y, killLabel, GOLD_ACCENT);
+
+            // Chance to drop a one-time weapon from the defeated hunter (guaranteed on first kill if unarmed!)
+            if (allowWeaponDrop && this.weaponDrops.length < 2) {
+                const guaranteedFirst =
+                    this.takedowns === 1 && this.heldWeapon === null && this.weaponDrops.length === 0;
+                if (guaranteedFirst || Math.random() < 0.45) {
+                    const candidate =
+                        hunter.segments.find(
+                            (seg) =>
+                                (!avoidCell || seg.x !== avoidCell.x || seg.y !== avoidCell.y) &&
+                                !this.weaponDrops.some((w) => w.x === seg.x && w.y === seg.y)
+                        ) || head;
+                    if (!this.weaponDrops.some((w) => w.x === candidate.x && w.y === candidate.y)) {
+                        this.spawnWeaponDropAt(candidate.x, candidate.y, now, true);
+                        weaponDropCell = candidate;
+                    }
+                }
+            }
+        }
 
         // Drop up to 3 collectible golden debris XP orbs along the shattered hunter's body
         const stride = Math.max(1, Math.floor(hunter.segments.length / 3));
         let dropped = 0;
         for (let i = 0; i < hunter.segments.length && dropped < 3; i += stride) {
             const seg = hunter.segments[i];
+            if (weaponDropCell && seg.x === weaponDropCell.x && seg.y === weaponDropCell.y) continue;
             if (!this.foods.some((f) => f.x === seg.x && f.y === seg.y)) {
                 this.foods.push({
                     id: this.nextEntityId++,
@@ -882,14 +1370,340 @@ export class NoirSnakeEngine {
                 dropped += 1;
             }
         }
+    }
 
-        if (creditPlayer) {
-            this.takedowns += 1;
-            const bonusXp = 50 + hunter.tier * 15;
-            this.score += 120 + hunter.tier * 40;
-            noirSnakeAudio.playTakedown();
-            this.awardRunXp(bonusXp, pos.x, pos.y, 'TAKEDOWN', GOLD_ACCENT);
+    private pickRandomWeaponKind(): WeaponKind {
+        const pool: WeaponKind[] = ['railgun', 'nova', 'bolt'];
+        if (this.heldWeapon) {
+            const others = pool.filter((k) => k !== this.heldWeapon);
+            return others[Math.floor(Math.random() * others.length)];
         }
+        return pool[Math.floor(Math.random() * pool.length)];
+    }
+
+    private spawnWeaponDropAt(x: number, y: number, now: number, announce = false) {
+        const kind = this.pickRandomWeaponKind();
+        const meta = WEAPON_META[kind];
+        this.weaponDrops.push({
+            id: this.nextEntityId++,
+            x,
+            y,
+            kind,
+            createdAt: now,
+            expiresAt: now + 28000
+        });
+        const pos = this.gridToWorldCenter(x, y);
+        this.pulseRings.push({
+            id: this.nextEntityId++,
+            worldX: pos.x,
+            worldY: pos.y,
+            createdAt: now,
+            duration: 550,
+            color: meta.color,
+            maxRadiusCells: 2.2
+        });
+        if (announce) {
+            this.spawnPopup(pos.x, pos.y - 16, `DROP: ${meta.shortTag}`, meta.color);
+        }
+    }
+
+    private maintainHuntWeaponDrops(dt: number, now: number) {
+        const head = this.playerSegments[0];
+        if (!head) return;
+
+        // Expire old or very distant drops
+        this.weaponDrops = this.weaponDrops.filter((w) => {
+            if (now >= w.expiresAt) return false;
+            const dist = Math.abs(w.x - head.x) + Math.abs(w.y - head.y);
+            return dist <= 42;
+        });
+
+        this.weaponSpawnAccMs += dt;
+        const spawnIntervalMs = 14500;
+        if (this.weaponDrops.length >= 2 || this.weaponSpawnAccMs < spawnIntervalMs) {
+            return;
+        }
+
+        const occupied = new Set<string>();
+        for (const s of this.playerSegments) occupied.add(pointKey(s.x, s.y));
+        for (const f of this.foods) occupied.add(pointKey(f.x, f.y));
+        for (const w of this.weaponDrops) occupied.add(pointKey(w.x, w.y));
+        for (const h of this.hunters) {
+            for (const s of h.segments) occupied.add(pointKey(s.x, s.y));
+        }
+        for (const cw of this.containmentWalls) {
+            for (const c of cw.cells) occupied.add(pointKey(c.x, c.y));
+        }
+
+        const dirVec = DIR_VECTORS[this.playerDir];
+        for (let attempt = 0; attempt < 30; attempt++) {
+            // Bias slightly in front of player's heading so supply drops feel discoverable
+            const ox = Math.floor((Math.random() * 2 - 1) * 14) + dirVec.x * 4;
+            const oy = Math.floor((Math.random() * 2 - 1) * 14) + dirVec.y * 4;
+            const dist = Math.abs(ox) + Math.abs(oy);
+            if (dist < 6 || dist > 18) continue;
+            const wx = head.x + ox;
+            const wy = head.y + oy;
+            if (occupied.has(pointKey(wx, wy))) continue;
+
+            this.weaponSpawnAccMs = 0;
+            this.spawnWeaponDropAt(wx, wy, now, true);
+            break;
+        }
+    }
+
+    private updateProjectiles(dt: number, now: number) {
+        if (this.projectiles.length === 0) return;
+        const dtSec = dt / 1000;
+        const deadIds = new Set<number>();
+        const head = this.playerSegments[0];
+
+        this.projectiles = this.projectiles.filter((proj) => {
+            const vec = DIR_VECTORS[proj.dir];
+            const stepCells = proj.speedCellsPerSec * dtSec;
+            proj.worldX += vec.x * stepCells * this.cellSize;
+            proj.worldY += vec.y * stepCells * this.cellSize;
+            proj.remainingCells -= stepCells;
+
+            // Gentle magnetic lock toward hunters slightly off-axis ahead of the lance
+            let steerX = 0;
+            let steerY = 0;
+            let bestForward = Infinity;
+            for (const hunter of this.hunters) {
+                if (deadIds.has(hunter.id) || proj.hitHunterIds.has(hunter.id)) continue;
+                const hPos = this.gridToWorldCenter(hunter.segments[0].x, hunter.segments[0].y);
+                const dx = (hPos.x - proj.worldX) / this.cellSize;
+                const dy = (hPos.y - proj.worldY) / this.cellSize;
+                const forward = dx * vec.x + dy * vec.y;
+                const perp = dx * -vec.y + dy * vec.x;
+                if (forward > 0 && forward < 9 && Math.abs(perp) <= 2.4 && forward < bestForward) {
+                    bestForward = forward;
+                    const pull = Math.sign(perp) * Math.min(Math.abs(perp), stepCells * 0.42) * this.cellSize;
+                    steerX = -vec.y * pull;
+                    steerY = vec.x * pull;
+                }
+            }
+            proj.worldX += steerX;
+            proj.worldY += steerY;
+
+            proj.trail.push({ x: proj.worldX, y: proj.worldY });
+            if (proj.trail.length > 9) {
+                proj.trail.shift();
+            }
+
+            // Check impact against every alive hunter segment (pierces multiple hunters!)
+            const hitRadiusPx = this.cellSize * 1.25;
+            for (const hunter of this.hunters) {
+                if (deadIds.has(hunter.id) || proj.hitHunterIds.has(hunter.id)) continue;
+                const struck = hunter.segments.some((seg) => {
+                    const sPos = this.gridToWorldCenter(seg.x, seg.y);
+                    return Math.hypot(sPos.x - proj.worldX, sPos.y - proj.worldY) <= hitRadiusPx;
+                });
+                if (struck) {
+                    proj.hitHunterIds.add(hunter.id);
+                    this.shatterHunter(hunter, deadIds, now, true, 'LANCE KILL', true, head);
+                }
+            }
+
+            // Plasma lance also breaches containment wall blocks along its path!
+            this.breachContainmentWalls((cell) => {
+                const cPos = this.gridToWorldCenter(cell.x, cell.y);
+                return Math.hypot(cPos.x - proj.worldX, cPos.y - proj.worldY) <= this.cellSize * 1.1;
+            });
+
+            return proj.remainingCells > 0;
+        });
+
+        if (deadIds.size > 0) {
+            this.hunters = this.hunters.filter((h) => !deadIds.has(h.id));
+        }
+    }
+
+    private getArmedWallKeySet(now: number): Set<string> {
+        const keys = new Set<string>();
+        for (const wall of this.containmentWalls) {
+            if (now < wall.armAt) continue;
+            for (const c of wall.cells) {
+                keys.add(pointKey(c.x, c.y));
+            }
+        }
+        return keys;
+    }
+
+    private breachContainmentWalls(predicate: (cell: GridPoint) => boolean): number {
+        let removedCount = 0;
+        for (const wall of this.containmentWalls) {
+            const kept: GridPoint[] = [];
+            for (const cell of wall.cells) {
+                if (predicate(cell)) {
+                    removedCount += 1;
+                    const pos = this.gridToWorldCenter(cell.x, cell.y);
+                    this.spawnBurst(pos.x, pos.y, ROSE_ACCENT, 5);
+                } else {
+                    kept.push(cell);
+                }
+            }
+            wall.cells = kept;
+        }
+        if (removedCount > 0) {
+            this.containmentWalls = this.containmentWalls.filter((w) => w.cells.length > 0);
+        }
+        return removedCount;
+    }
+
+    private maintainContainmentWalls(dt: number, now: number) {
+        if (this.containmentCooldownMs > 0) {
+            this.containmentCooldownMs = Math.max(0, this.containmentCooldownMs - dt);
+        }
+
+        // Trigger anti-pause-spam penalty right after resuming from repeated rapid pauses
+        if (this.pendingPausePenalty) {
+            this.pendingPausePenalty = false;
+            this.deployContainmentLockdown('pause-abuse', now);
+            this.containmentCooldownMs = 5500;
+        }
+
+        const head = this.playerSegments[0];
+        if (!head || this.containmentWalls.length === 0) return;
+
+        this.containmentWalls = this.containmentWalls.filter((wall) => {
+            if (now >= wall.expiresAt || wall.cells.length === 0) return false;
+            if (now >= wall.armAt && !wall.armedSoundPlayed) {
+                wall.armedSoundPlayed = true;
+                noirSnakeAudio.playLockdownArm();
+            }
+            // Keep wall if any cell is within 48 Manhattan cells of player
+            return wall.cells.some((c) => Math.abs(c.x - head.x) + Math.abs(c.y - head.y) <= 48);
+        });
+    }
+
+    private deployContainmentLockdown(
+        pattern: EscapePatternKind,
+        now: number,
+        diagonalSign?: { dx: number; dy: number },
+        loopCenter?: GridPoint
+    ) {
+        const head = this.playerSegments[0];
+        if (!head) return;
+
+        const occupied = new Set<string>();
+        for (const s of this.playerSegments) occupied.add(pointKey(s.x, s.y));
+        for (const h of this.hunters) {
+            for (const s of h.segments) occupied.add(pointKey(s.x, s.y));
+        }
+        for (const w of this.containmentWalls) {
+            for (const c of w.cells) occupied.add(pointKey(c.x, c.y));
+        }
+
+        const wallCells = buildContainmentWallCells({
+            pattern,
+            playerHead: head,
+            playerDir: this.playerDir,
+            occupied,
+            diagonalSign,
+            loopCenter
+        });
+
+        if (wallCells.length > 0) {
+            const telegraphMs = pattern === 'straight-boost' ? 580 : 650;
+            this.containmentWalls.push({
+                id: this.nextEntityId++,
+                cells: wallCells,
+                pattern,
+                createdAt: now,
+                armAt: now + telegraphMs,
+                expiresAt: now + 12500,
+                armedSoundPlayed: false
+            });
+            // Keep at most 3 simultaneous walls so the grid stays readable
+            if (this.containmentWalls.length > 3) {
+                this.containmentWalls.shift();
+            }
+            for (const c of wallCells) {
+                occupied.add(pointKey(c.x, c.y));
+            }
+            // Visual pulse at wall center
+            const mid = wallCells[Math.floor(wallCells.length / 2)];
+            const midWorld = this.gridToWorldCenter(mid.x, mid.y);
+            this.pulseRings.push({
+                id: this.nextEntityId++,
+                worldX: midWorld.x,
+                worldY: midWorld.y,
+                createdAt: now,
+                duration: 600,
+                color: ROSE_ACCENT,
+                maxRadiusCells: 3.4
+            });
+        }
+
+        // Simultaneously deploy an Ambush Interceptor Hunter Snake flanking the wall's escape lane!
+        if (this.hunters.length < 9) {
+            const firstSign: 1 | -1 = Math.random() < 0.5 ? 1 : -1;
+            const ambush = createAmbushHunterSnake({
+                id: this.nextEntityId++,
+                playerHead: head,
+                playerDir: this.playerDir,
+                threatLevel: this.threatLevel,
+                occupied,
+                preferFlankSign: firstSign
+            });
+            if (ambush) {
+                this.hunters.push(ambush);
+                for (const s of ambush.segments) occupied.add(pointKey(s.x, s.y));
+            }
+
+            // On high-threat straight-boost escapes, deploy a second pincer snake on the opposite wing!
+            if (pattern === 'straight-boost' && this.threatLevel >= 3 && this.hunters.length < 9) {
+                const secondAmbush = createAmbushHunterSnake({
+                    id: this.nextEntityId++,
+                    playerHead: head,
+                    playerDir: this.playerDir,
+                    threatLevel: this.threatLevel,
+                    occupied,
+                    preferFlankSign: (firstSign * -1) as 1 | -1
+                });
+                if (secondAmbush) {
+                    this.hunters.push(secondAmbush);
+                }
+            }
+        }
+
+        const alertCopy: Record<EscapePatternKind, { title: string; arTitle: string }> = {
+            'straight-boost': {
+                title: 'BOOST ESCAPE DETECTED — WALL + AMBUSH',
+                arTitle: 'تم رصد هروب بالاندفاع — جدار + كمين'
+            },
+            'straight-run': {
+                title: 'ESCAPE LINE BLOCKED — INTERCEPTING',
+                arTitle: 'تم إغلاق مسار الهروب — اعتراض نشط'
+            },
+            'diagonal-kite': {
+                title: 'ZIG-ZAG KITE DETECTED — CORNER SEALED',
+                arTitle: 'تم رصد مراوغة متكررة — إغلاق الزاوية'
+            },
+            'loop-stall': {
+                title: 'LOOP STALLING DETECTED — CAGE DEPLOYED',
+                arTitle: 'تم رصد الدوران المستمر — نشر قفص احتواء'
+            },
+            'pause-abuse': {
+                title: 'DEFECT GUARD — PAUSE ABUSE PENALTY',
+                arTitle: 'حماية الغش — عقوبة تكرار الإيقاف'
+            }
+        };
+
+        this.containmentAlert = {
+            pattern,
+            title: alertCopy[pattern].title,
+            arTitle: alertCopy[pattern].arTitle,
+            timestamp: now
+        };
+
+        const headPos = this.gridToWorldCenter(head.x, head.y);
+        this.spawnPopup(headPos.x, headPos.y - 18, 'LOCKDOWN!', ROSE_ACCENT);
+        this.screenShakeMs = Math.max(this.screenShakeMs, 140);
+        this.screenShakeMag = Math.max(this.screenShakeMag, 4.5);
+        noirSnakeAudio.playLockdownWarning();
+        this.emitHud(true);
     }
 
     private spawnHunter() {
@@ -900,6 +1714,9 @@ export class NoirSnakeEngine {
         for (const s of this.playerSegments) occupied.add(pointKey(s.x, s.y));
         for (const h of this.hunters) {
             for (const s of h.segments) occupied.add(pointKey(s.x, s.y));
+        }
+        for (const w of this.containmentWalls) {
+            for (const c of w.cells) occupied.add(pointKey(c.x, c.y));
         }
 
         const halfCols = Math.ceil(this.width / this.cellSize / 2);
@@ -938,6 +1755,9 @@ export class NoirSnakeEngine {
         for (const f of this.foods) occupied.add(pointKey(f.x, f.y));
         for (const h of this.hunters) {
             for (const s of h.segments) occupied.add(pointKey(s.x, s.y));
+        }
+        for (const w of this.containmentWalls) {
+            for (const c of w.cells) occupied.add(pointKey(c.x, c.y));
         }
 
         const radius = 20;
@@ -1000,7 +1820,7 @@ export class NoirSnakeEngine {
         });
     }
 
-    private triggerGameOver(reason: 'hunter' | 'self' | 'border') {
+    private triggerGameOver(reason: 'hunter' | 'self' | 'border' | 'wall') {
         this.status = 'gameover';
         this.deathReason = reason;
         this.boostRequested = false;
@@ -1137,7 +1957,15 @@ export class NoirSnakeEngine {
             this.drawFoodNode(f, now);
         }
 
-        // Draw level-up geometric pulse rings
+        // Draw collectible one-time dropped weapons
+        for (const w of this.weaponDrops) {
+            this.drawWeaponDrop(w, now);
+        }
+
+        // Draw anti-escape Containment Walls (telegraph blueprint -> solid armored barrier)
+        this.drawContainmentWalls(now);
+
+        // Draw level-up & EMP Nova geometric pulse rings
         this.drawPulseRings(now);
 
         // Draw AI Hunter Snakes
@@ -1167,6 +1995,20 @@ export class NoirSnakeEngine {
             playerColor,
             false
         );
+
+        // Draw armed weapon reticle around player head when holding a one-time weapon
+        if (this.heldWeapon) {
+            this.drawArmedPlayerIndicator(pAlpha, now);
+        }
+
+        // Draw micro boost cooldown bar right beneath player head while cooling down
+        if (this.boostCooldownMs > 0) {
+            this.drawBoostCooldownIndicator(pAlpha);
+        }
+
+        // Draw active railgun beams & piercing plasma lances
+        this.drawWeaponBeams(now);
+        this.drawProjectiles();
 
         // Draw particles & floating XP popups in world space
         this.drawParticles(now);
@@ -1441,13 +2283,322 @@ export class NoirSnakeEngine {
         ctx.restore();
     }
 
+    private drawContainmentWalls(now: number) {
+        if (this.containmentWalls.length === 0) return;
+        const ctx = this.ctx;
+        const cell = this.cellSize;
+
+        for (const wall of this.containmentWalls) {
+            const isArmed = now >= wall.armAt;
+            const remainingMs = wall.expiresAt - now;
+            const fadeOut = remainingMs < 1400 ? Math.max(0.15, remainingMs / 1400) : 1;
+
+            ctx.save();
+            if (!isArmed) {
+                // Fair flashing telegraph blueprint before barrier snaps solid
+                const blink = 0.45 + Math.sin(now * 0.032) * 0.4;
+                const progress = Math.max(0, Math.min(1, (now - wall.createdAt) / Math.max(1, wall.armAt - wall.createdAt)));
+                ctx.globalAlpha = blink;
+                ctx.setLineDash([4, 3]);
+                ctx.strokeStyle = progress > 0.72 ? ROSE_ACCENT : GOLD_ACCENT;
+                ctx.lineWidth = 2;
+
+                for (const c of wall.cells) {
+                    const x = c.x * cell + 2;
+                    const y = c.y * cell + 2;
+                    const s = cell - 4;
+                    ctx.fillStyle = 'rgba(251, 113, 133, 0.12)';
+                    ctx.fillRect(x, y, s, s);
+                    ctx.strokeRect(x, y, s, s);
+                }
+
+                // Crisp LOCKING label over middle wall segment
+                const mid = wall.cells[Math.floor(wall.cells.length / 2)];
+                if (mid) {
+                    ctx.setLineDash([]);
+                    ctx.globalAlpha = 0.95;
+                    ctx.font = '900 9px ui-monospace, SFMono-Regular, Menlo, monospace';
+                    ctx.textAlign = 'center';
+                    ctx.fillStyle = GOLD_ACCENT;
+                    ctx.fillText('LOCKING', (mid.x + 0.5) * cell, mid.y * cell - 4);
+                }
+            } else {
+                // Solid deadly Noir armored containment wall with diagonal hazard stripes
+                ctx.globalAlpha = fadeOut;
+                for (const c of wall.cells) {
+                    const x = c.x * cell + 1.5;
+                    const y = c.y * cell + 1.5;
+                    const s = cell - 3;
+
+                    ctx.fillStyle = '#2a1418';
+                    ctx.fillRect(x, y, s, s);
+
+                    // Crisp diagonal hazard stripe inside block
+                    ctx.strokeStyle = 'rgba(251, 113, 133, 0.45)';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(x + 3, y + s - 3);
+                    ctx.lineTo(x + s - 3, y + 3);
+                    ctx.stroke();
+
+                    // Armored crimson outer frame
+                    ctx.strokeStyle = ROSE_ACCENT;
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(x, y, s, s);
+
+                    // Inner core rivet dot
+                    ctx.fillStyle = ROSE_ACCENT;
+                    ctx.fillRect(x + s / 2 - 2, y + s / 2 - 2, 4, 4);
+                }
+            }
+            ctx.restore();
+        }
+    }
+
+    private drawWeaponDrop(drop: WeaponDrop, now: number) {
+        const ctx = this.ctx;
+        const cx = (drop.x + 0.5) * this.cellSize;
+        const cy = (drop.y + 0.5) * this.cellSize;
+        const meta = WEAPON_META[drop.kind];
+        const pulse = 1 + Math.sin(now * 0.009 + drop.id) * 0.08;
+        const box = this.cellSize * 0.42 * pulse;
+
+        ctx.save();
+        ctx.translate(cx, cy);
+
+        // Countdown timer arc around drop
+        const totalLife = Math.max(1, drop.expiresAt - drop.createdAt);
+        const remaining = Math.max(0, (drop.expiresAt - now) / totalLife);
+        ctx.strokeStyle = meta.color;
+        ctx.globalAlpha = 0.45;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(0, 0, this.cellSize * 0.56, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * remaining);
+        ctx.stroke();
+
+        // Tactical crate square with bold Noir border
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = '#141210';
+        ctx.fillRect(-box, -box, box * 2, box * 2);
+        ctx.strokeStyle = meta.color;
+        ctx.lineWidth = 2.2;
+        ctx.strokeRect(-box, -box, box * 2, box * 2);
+
+        // Inner geometric emblem per weapon type
+        ctx.strokeStyle = meta.color;
+        ctx.fillStyle = meta.color;
+        ctx.lineWidth = 2;
+        if (drop.kind === 'railgun') {
+            // Piercing horizontal beam bars
+            ctx.fillRect(-box * 0.62, -2, box * 1.24, 4);
+            ctx.fillStyle = '#f5f3ec';
+            ctx.fillRect(-box * 0.46, -0.8, box * 0.92, 1.6);
+        } else if (drop.kind === 'nova') {
+            // Concentric shockwave diamond
+            ctx.save();
+            ctx.rotate(Math.PI / 4);
+            const r = box * 0.52;
+            ctx.strokeRect(-r, -r, r * 2, r * 2);
+            ctx.fillRect(-r * 0.38, -r * 0.38, r * 0.76, r * 0.76);
+            ctx.restore();
+        } else {
+            // Plasma lance chevron arrow
+            ctx.beginPath();
+            ctx.moveTo(box * 0.58, 0);
+            ctx.lineTo(-box * 0.38, -box * 0.44);
+            ctx.lineTo(-box * 0.12, 0);
+            ctx.lineTo(-box * 0.38, box * 0.44);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        // Crisp micro monospace label below crate
+        ctx.font = '900 9px ui-monospace, SFMono-Regular, Menlo, monospace';
+        ctx.textAlign = 'center';
+        ctx.fillStyle = NOIR_BG;
+        ctx.fillText(`${meta.shortTag} 1×`, 1, this.cellSize * 0.8 + 1);
+        ctx.fillStyle = meta.color;
+        ctx.fillText(`${meta.shortTag} 1×`, 0, this.cellSize * 0.8);
+
+        ctx.restore();
+    }
+
+    private drawArmedPlayerIndicator(alpha: number, now: number) {
+        if (!this.heldWeapon || this.playerSegments.length === 0) return;
+        const ctx = this.ctx;
+        const meta = WEAPON_META[this.heldWeapon];
+        const seg = this.playerSegments[0];
+        const prev = this.playerPrevSegments[0] || seg;
+        const hx = (prev.x + (seg.x - prev.x) * alpha + 0.5) * this.cellSize;
+        const hy = (prev.y + (seg.y - prev.y) * alpha + 0.5) * this.cellSize;
+        const pulse = 0.72 + Math.sin(now * 0.014) * 0.28;
+        const half = this.cellSize * 0.52;
+        const tick = this.cellSize * 0.18;
+
+        ctx.save();
+        ctx.translate(hx, hy);
+        ctx.strokeStyle = meta.color;
+        ctx.globalAlpha = pulse;
+        ctx.lineWidth = 2;
+
+        // 4 crisp corner target brackets around player head
+        ctx.beginPath();
+        ctx.moveTo(-half, -half + tick);
+        ctx.lineTo(-half, -half);
+        ctx.lineTo(-half + tick, -half);
+
+        ctx.moveTo(half - tick, -half);
+        ctx.lineTo(half, -half);
+        ctx.lineTo(half, -half + tick);
+
+        ctx.moveTo(-half, half - tick);
+        ctx.lineTo(-half, half);
+        ctx.lineTo(-half + tick, half);
+
+        ctx.moveTo(half - tick, half);
+        ctx.lineTo(half, half);
+        ctx.lineTo(half, half - tick);
+        ctx.stroke();
+
+        // Forward aim sightline pip for directional weapons (Rail Beam / Plasma Lance)
+        if (this.heldWeapon === 'railgun' || this.heldWeapon === 'bolt') {
+            const vec = DIR_VECTORS[this.playerDir];
+            const aimX = vec.x * this.cellSize * 1.15;
+            const aimY = vec.y * this.cellSize * 1.15;
+            ctx.fillStyle = meta.color;
+            ctx.fillRect(aimX - 3, aimY - 3, 6, 6);
+        }
+
+        ctx.restore();
+    }
+
+    private drawBoostCooldownIndicator(alpha: number) {
+        if (this.boostCooldownMs <= 0 || this.boostCooldownMaxMs <= 0 || this.playerSegments.length === 0) return;
+        const ctx = this.ctx;
+        const seg = this.playerSegments[0];
+        const prev = this.playerPrevSegments[0] || seg;
+        const hx = (prev.x + (seg.x - prev.x) * alpha + 0.5) * this.cellSize;
+        const hy = (prev.y + (seg.y - prev.y) * alpha + 0.5) * this.cellSize;
+        const ratio = Math.max(0, Math.min(1, this.boostCooldownMs / this.boostCooldownMaxMs));
+
+        const barW = Math.max(22, this.cellSize * 0.85);
+        const barH = 3.5;
+        const bx = hx - barW / 2;
+        const by = hy + this.cellSize * 0.52;
+
+        ctx.save();
+        ctx.fillStyle = '#0a0908';
+        ctx.fillRect(bx - 1, by - 1, barW + 2, barH + 2);
+        ctx.fillStyle = '#2e2924';
+        ctx.fillRect(bx, by, barW, barH);
+        ctx.fillStyle = this.boostOverheated ? ROSE_ACCENT : GOLD_ACCENT;
+        ctx.fillRect(bx, by, barW * ratio, barH);
+        ctx.restore();
+    }
+
+    private drawWeaponBeams(now: number) {
+        if (this.weaponBeams.length === 0) return;
+        const ctx = this.ctx;
+
+        for (const beam of this.weaponBeams) {
+            const t = (now - beam.createdAt) / beam.duration;
+            if (t < 0 || t > 1) continue;
+            const fade = 1 - t;
+
+            ctx.save();
+            ctx.lineCap = 'square';
+
+            // Outer corridor glow rail (flat solid opacity)
+            ctx.strokeStyle = beam.color;
+            ctx.globalAlpha = fade * 0.32;
+            ctx.lineWidth = this.cellSize * (1.8 - t * 0.7);
+            ctx.beginPath();
+            ctx.moveTo(beam.startX, beam.startY);
+            ctx.lineTo(beam.endX, beam.endY);
+            ctx.stroke();
+
+            // Main Noir laser body
+            ctx.globalAlpha = fade * 0.92;
+            ctx.lineWidth = this.cellSize * (0.56 - t * 0.28);
+            ctx.beginPath();
+            ctx.moveTo(beam.startX, beam.startY);
+            ctx.lineTo(beam.endX, beam.endY);
+            ctx.stroke();
+
+            // Crisp ivory center rail
+            ctx.strokeStyle = '#f5f3ec';
+            ctx.globalAlpha = fade;
+            ctx.lineWidth = Math.max(2, this.cellSize * (0.18 - t * 0.1));
+            ctx.beginPath();
+            ctx.moveTo(beam.startX, beam.startY);
+            ctx.lineTo(beam.endX, beam.endY);
+            ctx.stroke();
+
+            ctx.restore();
+        }
+    }
+
+    private drawProjectiles() {
+        if (this.projectiles.length === 0) return;
+        const ctx = this.ctx;
+
+        for (const proj of this.projectiles) {
+            ctx.save();
+
+            // Geometric afterimage trail
+            if (proj.trail.length > 1) {
+                ctx.strokeStyle = proj.color;
+                ctx.lineWidth = Math.max(3, this.cellSize * 0.2);
+                ctx.lineCap = 'square';
+                ctx.globalAlpha = 0.55;
+                ctx.beginPath();
+                for (let i = 0; i < proj.trail.length; i++) {
+                    const pt = proj.trail[i];
+                    if (i === 0) ctx.moveTo(pt.x, pt.y);
+                    else ctx.lineTo(pt.x, pt.y);
+                }
+                ctx.stroke();
+            }
+
+            // Sharp diamond-tipped vector lance head
+            const angle =
+                proj.dir === 'RIGHT'
+                    ? 0
+                    : proj.dir === 'DOWN'
+                        ? Math.PI / 2
+                        : proj.dir === 'LEFT'
+                            ? Math.PI
+                            : -Math.PI / 2;
+            const len = this.cellSize * 0.64;
+            const wid = this.cellSize * 0.3;
+
+            ctx.translate(proj.worldX, proj.worldY);
+            ctx.rotate(angle);
+            ctx.globalAlpha = 1;
+            ctx.fillStyle = proj.color;
+            ctx.beginPath();
+            ctx.moveTo(len, 0);
+            ctx.lineTo(-len * 0.45, -wid);
+            ctx.lineTo(-len * 0.2, 0);
+            ctx.lineTo(-len * 0.45, wid);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.fillStyle = '#f5f3ec';
+            ctx.fillRect(-2, -2, len * 0.55, 4);
+
+            ctx.restore();
+        }
+    }
+
     private drawPulseRings(now: number) {
         const ctx = this.ctx;
         for (const ring of this.pulseRings) {
             const t = (now - ring.createdAt) / ring.duration;
             if (t < 0 || t > 1) continue;
             const eased = 1 - Math.pow(1 - t, 3);
-            const half = this.cellSize * (0.6 + eased * 4.2);
+            const maxCells = ring.maxRadiusCells ?? 4.2;
+            const half = this.cellSize * (0.6 + eased * maxCells);
 
             ctx.save();
             ctx.strokeStyle = ring.color;
@@ -1524,6 +2675,33 @@ export class NoirSnakeEngine {
             ctx.fill();
             ctx.restore();
         }
+
+        // Off-screen dropped weapon beacons when player is unarmed
+        if (this.heldWeapon === null) {
+            for (const drop of this.weaponDrops) {
+                const sx = (drop.x + 0.5) * this.cellSize - this.camX + this.width / 2;
+                const sy = (drop.y + 0.5) * this.cellSize - this.camY + this.height / 2;
+                if (sx >= 14 && sx <= this.width - 14 && sy >= 14 && sy <= this.height - 14) {
+                    continue;
+                }
+                const clampedX = Math.max(margin, Math.min(this.width - margin, sx));
+                const clampedY = Math.max(margin, Math.min(this.height - margin - this.bottomSafeInset, sy));
+                const meta = WEAPON_META[drop.kind];
+
+                ctx.save();
+                ctx.translate(clampedX, clampedY);
+                ctx.rotate(Math.PI / 4);
+                ctx.globalAlpha = pulse;
+                ctx.fillStyle = '#141210';
+                ctx.fillRect(-6, -6, 12, 12);
+                ctx.strokeStyle = meta.color;
+                ctx.lineWidth = 2;
+                ctx.strokeRect(-6, -6, 12, 12);
+                ctx.fillStyle = meta.color;
+                ctx.fillRect(-2.5, -2.5, 5, 5);
+                ctx.restore();
+            }
+        }
     }
 
     private drawHuntRadar(now: number) {
@@ -1567,8 +2745,39 @@ export class NoirSnakeEngine {
             ctx.fillRect(centerX + dx * scale - 1, centerY + dy * scale - 1, 2, 2);
         }
 
-        // Hunter blips
+        // Containment Wall blips on radar
+        for (const wall of this.containmentWalls) {
+            const armed = now >= wall.armAt;
+            ctx.fillStyle = armed ? ROSE_ACCENT : GOLD_ACCENT;
+            ctx.globalAlpha = armed ? 0.92 : 0.6;
+            for (const c of wall.cells) {
+                const dx = c.x - head.x;
+                const dy = c.y - head.y;
+                if (Math.abs(dx) > radarRadiusCells || Math.abs(dy) > radarRadiusCells) continue;
+                ctx.fillRect(centerX + dx * scale - 1.5, centerY + dy * scale - 1.5, 3, 3);
+            }
+        }
+        ctx.globalAlpha = 1;
+
+        // Dropped weapon cross blips on radar
         const blink = 0.75 + Math.sin(now * 0.012) * 0.25;
+        for (const w of this.weaponDrops) {
+            const dx = Math.max(-radarRadiusCells, Math.min(radarRadiusCells, w.x - head.x));
+            const dy = Math.max(-radarRadiusCells, Math.min(radarRadiusCells, w.y - head.y));
+            const wx = centerX + dx * scale;
+            const wy = centerY + dy * scale;
+            ctx.strokeStyle = WEAPON_META[w.kind].color;
+            ctx.globalAlpha = 0.95;
+            ctx.lineWidth = 1.6;
+            ctx.beginPath();
+            ctx.moveTo(wx - 3.5, wy);
+            ctx.lineTo(wx + 3.5, wy);
+            ctx.moveTo(wx, wy - 3.5);
+            ctx.lineTo(wx, wy + 3.5);
+            ctx.stroke();
+        }
+
+        // Hunter blips
         for (const h of this.hunters) {
             const hh = h.segments[0];
             const dx = Math.max(-radarRadiusCells, Math.min(radarRadiusCells, hh.x - head.x));

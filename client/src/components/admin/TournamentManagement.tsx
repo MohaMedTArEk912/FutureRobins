@@ -2356,7 +2356,7 @@ const TournamentManagement: React.FC<TournamentManagementProps> = ({
                                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                                         <div>
                                             <h3 className={`text-sm font-black uppercase tracking-wider flex items-center gap-2 ${isBento ? 'text-black font-mono' : 'text-gray-900 dark:text-white'}`}>
-                                                <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${isBento ? 'bg-[#fdba74] text-black border-2 border-black' : 'bg-amber-500/10 text-amber-500'}`}>
+                                                <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${isBento ? 'bg-[#60a5fa] text-black border-2 border-black' : 'bg-blue-500/15 text-blue-400 border border-blue-500/35'}`}>
                                                     <UserCheck className="w-4 h-4" />
                                                 </div>
                                                 Pending Join Requests ({pending.length})
@@ -2427,7 +2427,7 @@ const TournamentManagement: React.FC<TournamentManagementProps> = ({
                                                 >
                                                     <div className="flex items-center gap-3">
                                                         <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm ${
-                                                            isBento ? 'bg-[#fde047] text-black border-2 border-black' : 'bg-amber-500/10 text-amber-600'
+                                                            isBento ? 'bg-[#60a5fa] text-black border-2 border-black' : 'bg-blue-500/15 text-blue-400 border border-blue-500/35'
                                                         }`}>
                                                             {p.userName?.[0] || 'U'}
                                                         </div>
@@ -2478,7 +2478,7 @@ const TournamentManagement: React.FC<TournamentManagementProps> = ({
                                         : 'bg-white/70 dark:bg-[#1c1917]/70 backdrop-blur-xl border border-gray-200/80 dark:border-white/10 shadow-sm'
                                 }`}>
                                     <h3 className={`text-sm font-black uppercase tracking-wider flex items-center gap-2 ${isBento ? 'text-black font-mono' : 'text-gray-900 dark:text-white'}`}>
-                                        <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${isBento ? 'bg-[#bef264] text-black border-2 border-black' : 'bg-emerald-500/10 text-emerald-500'}`}>
+                                        <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${isBento ? 'bg-[#4ade80] text-black border-2 border-black' : 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/35'}`}>
                                             <CheckCircle2 className="w-4 h-4" />
                                         </div>
                                         Approved Participants ({approved.length})

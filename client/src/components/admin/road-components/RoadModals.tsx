@@ -68,33 +68,50 @@ const RoadModals: React.FC<RoadModalsProps> = ({
             {/* Create Modal */}
             {isCreateModalOpen && (
                 <div className="app-dialog-overlay fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
-                    <div className="app-dialog-panel app-dialog-panel--padded bg-white dark:bg-[#1c1917] rounded-3xl w-full max-w-lg shadow-2xl p-8 border border-white/20 dark:border-white/5 scale-100 animate-in zoom-in-95 duration-200 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-bl-full -mr-16 -mt-16 pointer-events-none" />
-
+                    <div className={`app-dialog-panel app-dialog-panel--padded rounded-2xl w-full max-w-lg p-8 scale-100 animate-in zoom-in-95 duration-200 relative overflow-hidden ${
+                        isBento
+                            ? 'bg-white text-black border-[3px] border-black shadow-[6px_6px_0px_#000]'
+                            : 'bg-[#141210] text-[#f5f3ec] border-[1.5px] border-[#2e2924] shadow-[0_8px_0_#050504]'
+                    }`}>
                         <div className="flex justify-between items-center mb-8 relative z-10">
-                            <h3 className="text-2xl font-black text-gray-900 dark:text-white">Create New Road</h3>
-                            <button onClick={onCreateClose} className="p-2 hover:bg-gray-100 dark:hover:bg-white/10 rounded-xl transition-colors">
-                                <X className="w-5 h-5 text-gray-500" />
+                            <h3 className={`text-2xl font-black ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>Create New Road</h3>
+                            <button
+                                onClick={onCreateClose}
+                                className={`p-2 rounded-xl transition-colors cursor-pointer ${
+                                    isBento
+                                        ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#fde047]'
+                                        : 'bg-[#1c1917] border border-[#2e2924] text-[#a8a29e] hover:border-[#bef264] hover:text-[#f5f3ec]'
+                                }`}
+                            >
+                                <X className="w-5 h-5" />
                             </button>
                         </div>
                         <form onSubmit={handleCreateSubmit} className="space-y-6 relative z-10">
                             <div>
-                                <label className="block text-sm font-black text-gray-700 dark:text-gray-300 mb-2">Title</label>
+                                <label className={`block text-xs uppercase tracking-wider font-black mb-2 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>Title</label>
                                 <input
                                     type="text"
                                     required
                                     value={title}
                                     onChange={(e) => setTitle(e.target.value)}
-                                    className="w-full p-4 rounded-xl bg-gray-50 dark:bg-black/20 border-2 border-transparent focus:border-indigo-500 dark:focus:border-indigo-400 outline-none transition-all font-bold text-gray-900 dark:text-white"
+                                    className={`w-full p-4 rounded-xl outline-none transition-all font-bold ${
+                                        isBento
+                                            ? 'bg-white border-2 border-black text-black shadow-[2px_2px_0px_#000]'
+                                            : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] focus:border-[#bef264]'
+                                    }`}
                                     placeholder="e.g., Mathematics 101"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-black text-gray-700 dark:text-gray-300 mb-2">Description</label>
+                                <label className={`block text-xs uppercase tracking-wider font-black mb-2 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>Description</label>
                                 <textarea
                                     value={description}
                                     onChange={(e) => setDescription(e.target.value)}
-                                    className="w-full p-4 rounded-xl bg-gray-50 dark:bg-black/20 border-2 border-transparent focus:border-indigo-500 dark:focus:border-indigo-400 outline-none transition-all font-medium text-gray-900 dark:text-white h-32 resize-none"
+                                    className={`w-full p-4 rounded-xl outline-none transition-all font-medium h-32 resize-none ${
+                                        isBento
+                                            ? 'bg-white border-2 border-black text-black shadow-[2px_2px_0px_#000]'
+                                            : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] focus:border-[#bef264]'
+                                    }`}
                                     placeholder="What is this road about?"
                                 />
                             </div>
@@ -102,18 +119,22 @@ const RoadModals: React.FC<RoadModalsProps> = ({
                                 <button
                                     type="button"
                                     onClick={onCreateClose}
-                                    className="px-6 py-3 rounded-xl text-gray-600 dark:text-gray-400 font-bold hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
+                                    className={`px-6 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-colors cursor-pointer ${
+                                        isBento
+                                            ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-gray-100'
+                                            : 'bg-[#1c1917] text-[#d6d0c7] border border-[#2e2924] hover:bg-[#24201c]'
+                                    }`}
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={isSubmitting}
-                                    className={`px-6 py-3 rounded-xl font-bold transition-all flex items-center gap-2 cursor-pointer ${
-    isBento
-        ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:shadow-[4px_4px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 font-mono'
-        : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/30'
-}`}
+                                    className={`px-6 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer ${
+                                        isBento
+                                            ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:shadow-[4px_4px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 font-mono'
+                                            : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908] shadow-[0_3px_0_#050504]'
+                                    }`}
                                 >
                                     {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Create Road'}
                                 </button>
@@ -126,50 +147,71 @@ const RoadModals: React.FC<RoadModalsProps> = ({
             {/* Edit Modal */}
             {isEditModalOpen && (
                 <div className="app-dialog-overlay fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
-                    <div className="app-dialog-panel app-dialog-panel--padded bg-white dark:bg-[#1c1917] rounded-3xl w-full max-w-lg shadow-2xl p-8 border border-white/20 dark:border-white/5 scale-100 animate-in zoom-in-95 duration-200 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-bl-full -mr-16 -mt-16 pointer-events-none" />
-
+                    <div className={`app-dialog-panel app-dialog-panel--padded rounded-2xl w-full max-w-lg p-8 scale-100 animate-in zoom-in-95 duration-200 relative overflow-hidden ${
+                        isBento
+                            ? 'bg-white text-black border-[3px] border-black shadow-[6px_6px_0px_#000]'
+                            : 'bg-[#141210] text-[#f5f3ec] border-[1.5px] border-[#2e2924] shadow-[0_8px_0_#050504]'
+                    }`}>
                         <div className="flex justify-between items-center mb-8 relative z-10">
-                            <h3 className="text-2xl font-black text-gray-900 dark:text-white">Edit Road</h3>
-                            <button onClick={onEditClose} className="p-2 hover:bg-gray-100 dark:hover:bg-white/10 rounded-xl transition-colors">
-                                <X className="w-5 h-5 text-gray-500" />
+                            <h3 className={`text-2xl font-black ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>Edit Road</h3>
+                            <button
+                                onClick={onEditClose}
+                                className={`p-2 rounded-xl transition-colors cursor-pointer ${
+                                    isBento
+                                        ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#fde047]'
+                                        : 'bg-[#1c1917] border border-[#2e2924] text-[#a8a29e] hover:border-[#bef264] hover:text-[#f5f3ec]'
+                                }`}
+                            >
+                                <X className="w-5 h-5" />
                             </button>
                         </div>
                         <form onSubmit={handleUpdateSubmit} className="space-y-6 relative z-10">
                             <div>
-                                <label className="block text-sm font-black text-gray-700 dark:text-gray-300 mb-2">Title</label>
+                                <label className={`block text-xs uppercase tracking-wider font-black mb-2 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>Title</label>
                                 <input
                                     type="text"
                                     required
                                     value={title}
                                     onChange={(e) => setTitle(e.target.value)}
-                                    className="w-full p-4 rounded-xl bg-gray-50 dark:bg-black/20 border-2 border-transparent focus:border-indigo-500 dark:focus:border-indigo-400 outline-none transition-all font-bold text-gray-900 dark:text-white"
+                                    className={`w-full p-4 rounded-xl outline-none transition-all font-bold ${
+                                        isBento
+                                            ? 'bg-white border-2 border-black text-black shadow-[2px_2px_0px_#000]'
+                                            : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] focus:border-[#bef264]'
+                                    }`}
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-black text-gray-700 dark:text-gray-300 mb-2">Description</label>
+                                <label className={`block text-xs uppercase tracking-wider font-black mb-2 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>Description</label>
                                 <textarea
                                     value={description}
                                     onChange={(e) => setDescription(e.target.value)}
-                                    className="w-full p-4 rounded-xl bg-gray-50 dark:bg-black/20 border-2 border-transparent focus:border-indigo-500 dark:focus:border-indigo-400 outline-none transition-all font-medium text-gray-900 dark:text-white h-32 resize-none"
+                                    className={`w-full p-4 rounded-xl outline-none transition-all font-medium h-32 resize-none ${
+                                        isBento
+                                            ? 'bg-white border-2 border-black text-black shadow-[2px_2px_0px_#000]'
+                                            : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] focus:border-[#bef264]'
+                                    }`}
                                 />
                             </div>
                             <div className="flex justify-end gap-3 pt-4">
                                 <button
                                     type="button"
                                     onClick={onEditClose}
-                                    className="px-6 py-3 rounded-xl text-gray-600 dark:text-gray-400 font-bold hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
+                                    className={`px-6 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-colors cursor-pointer ${
+                                        isBento
+                                            ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-gray-100'
+                                            : 'bg-[#1c1917] text-[#d6d0c7] border border-[#2e2924] hover:bg-[#24201c]'
+                                    }`}
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={isSubmitting}
-                                    className={`px-6 py-3 rounded-xl font-bold transition-all flex items-center gap-2 cursor-pointer ${
-    isBento
-        ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:shadow-[4px_4px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 font-mono'
-        : 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/30'
-}`}
+                                    className={`px-6 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer ${
+                                        isBento
+                                            ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:shadow-[4px_4px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 font-mono'
+                                            : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908] shadow-[0_3px_0_#050504]'
+                                    }`}
                                 >
                                     {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Save Changes'}
                                 </button>

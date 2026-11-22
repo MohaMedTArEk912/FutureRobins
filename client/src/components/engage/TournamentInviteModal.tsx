@@ -179,7 +179,7 @@ export const TournamentInviteModal: React.FC<TournamentInviteModalProps> = ({
         className={`app-dialog-panel app-dialog-panel--padded relative z-10 w-full max-w-lg rounded-3xl p-6 space-y-5 animate-in zoom-in-95 duration-150 ${
           isBento
             ? 'bg-white text-black border-[3px] border-black shadow-[8px_8px_0px_#000]'
-            : 'bg-white dark:bg-[#141210] text-gray-900 dark:text-white border border-gray-200 dark:border-white/10 shadow-2xl'
+            : 'bg-[#141210] text-[#f5f3ec] border-[1.5px] border-[#2e2924] shadow-[0_8px_0_#050504,0_24px_60px_rgba(0,0,0,0.78)]'
         }`}
       >
         {/* Header */}
@@ -189,14 +189,14 @@ export const TournamentInviteModal: React.FC<TournamentInviteModalProps> = ({
               className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 ${
                 isBento
                   ? 'bg-[#fde047] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                  : 'bg-amber-500/15 text-amber-500 border border-amber-500/20'
+                  : 'bg-[#231f14] text-[#fde047] border border-[#fde047]/35'
               }`}
             >
               <Trophy className="w-5 h-5" />
             </div>
             <div>
               <h3 className="text-lg font-black uppercase tracking-tight">Invite to Tournament</h3>
-              <p className={`text-xs font-bold truncate max-w-[280px] sm:max-w-[340px] ${isBento ? 'text-slate-600' : 'text-gray-500 dark:text-gray-400'}`}>
+              <p className={`text-xs font-bold truncate max-w-[280px] sm:max-w-[340px] ${isBento ? 'text-neutral-700' : 'text-[#a8a29e]'}`}>
                 {tournament.name} • {formatLocalizedTournamentDateTime(tournament.startsAt, false)}
               </p>
             </div>
@@ -209,7 +209,7 @@ export const TournamentInviteModal: React.FC<TournamentInviteModalProps> = ({
             className={`p-2 rounded-xl transition-all cursor-pointer ${
               isBento
                 ? 'bg-white text-black border-2 border-black hover:bg-[#fde047] shadow-[2px_2px_0px_#000]'
-                : 'hover:bg-gray-100 dark:hover:bg-white/10 text-gray-500'
+                : 'bg-[#1a1714] border border-[#2e2924] hover:border-[#bef264]/50 text-[#a8a29e] hover:text-[#f5f3ec]'
             }`}
           >
             <X className="w-4 h-4" />
@@ -220,12 +220,12 @@ export const TournamentInviteModal: React.FC<TournamentInviteModalProps> = ({
         <div
           className={`p-4 rounded-2xl space-y-2.5 ${
             isBento
-              ? 'bg-slate-50 border-2 border-black'
-              : 'bg-gray-50 dark:bg-white/[0.03] border border-gray-200 dark:border-white/10'
+              ? 'bg-[#f5f3ec] border-2 border-black'
+              : 'bg-[#1a1714] border border-[#2e2924]'
           }`}
         >
           <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider">
-            <Link2 className="w-4 h-4 text-indigo-500" />
+            <Link2 className={`w-4 h-4 ${isBento ? 'text-black' : 'text-[#bef264]'}`} />
             <span>Direct Invite Link</span>
           </div>
           <div className="flex items-center gap-2">
@@ -237,7 +237,7 @@ export const TournamentInviteModal: React.FC<TournamentInviteModalProps> = ({
               className={`flex-1 px-3 py-2 rounded-xl text-xs font-mono font-semibold truncate outline-none ${
                 isBento
                   ? 'bg-white text-black border-2 border-black'
-                  : 'bg-white dark:bg-black/30 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-white/10'
+                  : 'bg-[#0e0d0b] text-[#f5f3ec] border border-[#2e2924]'
               }`}
             />
             <button
@@ -247,10 +247,10 @@ export const TournamentInviteModal: React.FC<TournamentInviteModalProps> = ({
                 copied
                   ? isBento
                     ? 'bg-[#bef264] !text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                    : 'bg-emerald-500 text-white'
+                    : 'bg-[#d2fa8a] text-[#0a0908]'
                   : isBento
                     ? 'bg-[#fde047] !text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:-translate-y-0.5'
-                    : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm'
+                    : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908]'
               }`}
             >
               {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
@@ -263,25 +263,25 @@ export const TournamentInviteModal: React.FC<TournamentInviteModalProps> = ({
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider">
-              <Bell className="w-4 h-4 text-amber-500" />
+              <Bell className={`w-4 h-4 ${isBento ? 'text-black' : 'text-[#fde047]'}`} />
               <span>Send Notification Invite</span>
             </div>
             {selectedUsers.length > 0 && (
-              <span className="text-[11px] font-black text-emerald-600 dark:text-emerald-400">
+              <span className={`text-[11px] font-black ${isBento ? 'text-black' : 'text-[#bef264]'}`}>
                 {selectedUsers.length} selected
               </span>
             )}
           </div>
 
           {!currentUserId && !isAdmin ? (
-            <p className="text-xs font-semibold text-amber-600 dark:text-amber-400">
+            <p className={`text-xs font-semibold ${isBento ? 'text-black' : 'text-[#fde047]'}`}>
               Sign in to search and send in-app notification invites to other players.
             </p>
           ) : (
             <>
               {/* Search Users */}
               <div className="relative">
-                <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <Search className={`w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none ${isBento ? 'text-black' : 'text-[#78716c]'}`} />
                 <input
                   type="text"
                   value={searchQuery}
@@ -289,12 +289,12 @@ export const TournamentInviteModal: React.FC<TournamentInviteModalProps> = ({
                   placeholder="Search user by name or email (min 3 chars)..."
                   className={`w-full pl-10 pr-9 py-2.5 rounded-xl text-xs font-semibold outline-none ${
                     isBento
-                      ? 'bg-white text-black border-2 border-black placeholder:text-slate-400'
-                      : 'bg-gray-50 dark:bg-white/5 text-gray-900 dark:text-white border border-gray-200 dark:border-white/10'
+                      ? 'bg-white text-black border-2 border-black placeholder:text-neutral-500'
+                      : 'bg-[#0e0d0b] text-[#f5f3ec] border border-[#2e2924] focus:border-[#bef264] placeholder:text-[#78716c]'
                   }`}
                 />
                 {searching && (
-                  <Loader2 className="w-4 h-4 text-indigo-500 animate-spin absolute right-3 top-1/2 -translate-y-1/2" />
+                  <Loader2 className={`w-4 h-4 animate-spin absolute right-3 top-1/2 -translate-y-1/2 ${isBento ? 'text-black' : 'text-[#bef264]'}`} />
                 )}
               </div>
 
@@ -307,7 +307,7 @@ export const TournamentInviteModal: React.FC<TournamentInviteModalProps> = ({
                       className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold ${
                         isBento
                           ? 'bg-[#fed7aa] text-black border border-black'
-                          : 'bg-indigo-500/15 text-indigo-600 dark:text-indigo-300 border border-indigo-500/20'
+                          : 'bg-[#1c2317] text-[#bef264] border border-[#bef264]/35'
                       }`}
                     >
                       <span>{u.name}</span>
@@ -329,12 +329,12 @@ export const TournamentInviteModal: React.FC<TournamentInviteModalProps> = ({
                 <div
                   className={`max-h-40 overflow-y-auto rounded-xl divide-y ${
                     isBento
-                      ? 'border-2 border-black divide-black/10 bg-slate-50'
-                      : 'border border-gray-200 dark:border-white/10 divide-gray-100 dark:divide-white/5 bg-gray-50/70 dark:bg-black/20'
+                      ? 'border-2 border-black divide-black/15 bg-[#f5f3ec]'
+                      : 'border border-[#2e2924] divide-[#2e2924] bg-[#0e0d0b]'
                   }`}
                 >
                   {searchResults.length === 0 && !searching ? (
-                    <div className="p-3 text-center text-xs font-semibold text-gray-500">
+                    <div className={`p-3 text-center text-xs font-semibold ${isBento ? 'text-neutral-600' : 'text-[#a8a29e]'}`}>
                       No matching users found.
                     </div>
                   ) : (
@@ -348,17 +348,17 @@ export const TournamentInviteModal: React.FC<TournamentInviteModalProps> = ({
                           className={`w-full px-3 py-2 flex items-center justify-between text-left text-xs transition-colors cursor-pointer ${
                             isSelected
                               ? isBento
-                                ? 'bg-[#bef264]/40 !text-black'
-                                : 'bg-indigo-500/10'
+                                ? 'bg-[#bef264]/50 !text-black'
+                                : 'bg-[#1c2317] text-[#f5f3ec]'
                               : isBento
                                 ? 'hover:bg-white !text-black'
-                                : 'hover:bg-white dark:hover:bg-white/5'
+                                : 'hover:bg-[#1a1714] text-[#f5f3ec]'
                           }`}
                         >
                           <div className="min-w-0">
                             <div className="font-bold truncate">{u.name}</div>
                             {u.email && (
-                              <div className="text-[10px] text-gray-500 dark:text-gray-400 truncate">
+                              <div className={`text-[10px] truncate ${isBento ? 'text-neutral-600' : 'text-[#a8a29e]'}`}>
                                 {u.email}
                               </div>
                             )}
@@ -368,10 +368,10 @@ export const TournamentInviteModal: React.FC<TournamentInviteModalProps> = ({
                               isSelected
                                 ? isBento
                                   ? 'bg-[#bef264] text-black border border-black'
-                                  : 'bg-indigo-600 text-white'
+                                  : 'bg-[#bef264] text-[#0a0908]'
                                 : isBento
                                   ? 'bg-white text-black border border-black'
-                                  : 'bg-gray-200 dark:bg-white/10 text-gray-700 dark:text-gray-300'
+                                  : 'bg-[#1a1714] border border-[#2e2924] text-[#d6d0c7]'
                             }`}
                           >
                             {isSelected ? 'Selected' : 'Select'}
@@ -392,8 +392,8 @@ export const TournamentInviteModal: React.FC<TournamentInviteModalProps> = ({
                 placeholder="Optional note (e.g. Join this arena before kickoff!)"
                 className={`w-full px-3.5 py-2 rounded-xl text-xs font-semibold outline-none ${
                   isBento
-                    ? 'bg-white text-black border-2 border-black placeholder:text-slate-400'
-                    : 'bg-gray-50 dark:bg-white/5 text-gray-900 dark:text-white border border-gray-200 dark:border-white/10'
+                    ? 'bg-white text-black border-2 border-black placeholder:text-neutral-500'
+                    : 'bg-[#0e0d0b] text-[#f5f3ec] border border-[#2e2924] focus:border-[#bef264] placeholder:text-[#78716c]'
                 }`}
               />
 
@@ -403,14 +403,14 @@ export const TournamentInviteModal: React.FC<TournamentInviteModalProps> = ({
                   sendEmail
                     ? isBento
                       ? 'bg-[#fef08a] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                      : 'bg-indigo-500/10 border border-indigo-500/30 text-indigo-700 dark:text-indigo-200'
+                      : 'bg-[#1c2317] border border-[#bef264]/45 text-[#f5f3ec]'
                     : isBento
-                      ? 'bg-slate-50 text-black border-2 border-black/40 hover:border-black'
-                      : 'bg-gray-50 dark:bg-white/[0.03] border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300'
+                      ? 'bg-[#f5f3ec] text-black border-2 border-black/40 hover:border-black'
+                      : 'bg-[#1a1714] border border-[#2e2924] text-[#d6d0c7] hover:border-[#3a332c]'
                 }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <Mail className={`w-4 h-4 shrink-0 ${sendEmail ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-400'}`} />
+                  <Mail className={`w-4 h-4 shrink-0 ${sendEmail ? (isBento ? 'text-black' : 'text-[#bef264]') : (isBento ? 'text-neutral-600' : 'text-[#78716c]')}`} />
                   <div>
                     <div className="text-xs font-black">Also send Email notification</div>
                     <div className="text-[10px] font-semibold opacity-75">
@@ -422,7 +422,7 @@ export const TournamentInviteModal: React.FC<TournamentInviteModalProps> = ({
                   type="checkbox"
                   checked={sendEmail}
                   onChange={(e) => setSendEmail(e.target.checked)}
-                  className="w-4 h-4 accent-black rounded cursor-pointer shrink-0"
+                  className={`w-4 h-4 rounded cursor-pointer shrink-0 ${isBento ? 'accent-black' : 'accent-[#bef264]'}`}
                 />
               </label>
 
@@ -435,7 +435,7 @@ export const TournamentInviteModal: React.FC<TournamentInviteModalProps> = ({
                   className={`flex-1 py-2.5 px-4 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed ${
                     isBento
                       ? 'bg-[#bef264] !text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:-translate-y-0.5'
-                      : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-md'
+                      : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908]'
                   }`}
                 >
                   {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
@@ -454,7 +454,7 @@ export const TournamentInviteModal: React.FC<TournamentInviteModalProps> = ({
                     className={`py-2.5 px-4 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed ${
                       isBento
                         ? 'bg-[#fde047] !text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:-translate-y-0.5'
-                        : 'bg-amber-500 hover:bg-amber-400 text-white shadow-md'
+                        : 'bg-[#fde047] hover:bg-[#fef08a] text-[#0a0908]'
                     }`}
                   >
                     {broadcasting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Megaphone className="w-4 h-4" />}

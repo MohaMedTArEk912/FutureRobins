@@ -88,6 +88,49 @@ class NoirSnakeAudio {
         this.playTone(330, 0.08, 'triangle', 0.06, 0);
         this.playTone(493.88, 0.12, 'triangle', 0.065, 0.06);
     }
+
+    public playWeaponPickup() {
+        this.playTone(523.25, 0.07, 'square', 0.045, 0);
+        this.playTone(783.99, 0.09, 'triangle', 0.065, 0.055);
+        this.playTone(1046.5, 0.12, 'triangle', 0.065, 0.11);
+    }
+
+    public playWeaponRailgun() {
+        this.playTone(980, 0.2, 'sawtooth', 0.075, 0, 140);
+        this.playTone(320, 0.24, 'square', 0.055, 0.02, 70);
+    }
+
+    public playWeaponNova() {
+        this.playTone(190, 0.28, 'sawtooth', 0.08, 0, 52);
+        this.playTone(420, 0.18, 'triangle', 0.065, 0.03, 120);
+        this.playTone(840, 0.14, 'sine', 0.045, 0.08, 220);
+    }
+
+    public playWeaponBolt() {
+        this.playTone(760, 0.12, 'triangle', 0.07, 0, 1320);
+        this.playTone(480, 0.16, 'sawtooth', 0.05, 0.03, 210);
+    }
+
+    public playBoostOverheat() {
+        this.playTone(300, 0.16, 'sawtooth', 0.055, 0, 120);
+        this.playTone(170, 0.22, 'triangle', 0.05, 0.08, 85);
+    }
+
+    public playBoostReady() {
+        this.playTone(660, 0.06, 'triangle', 0.045, 0);
+        this.playTone(990, 0.08, 'triangle', 0.05, 0.055);
+    }
+
+    public playLockdownWarning() {
+        this.playTone(880, 0.08, 'square', 0.05, 0);
+        this.playTone(660, 0.08, 'square', 0.05, 0.09);
+        this.playTone(880, 0.1, 'square', 0.055, 0.18);
+    }
+
+    public playLockdownArm() {
+        this.playTone(165, 0.16, 'sawtooth', 0.065, 0, 82);
+        this.playTone(110, 0.14, 'square', 0.045, 0.04, 65);
+    }
 }
 
 export const noirSnakeAudio = new NoirSnakeAudio();

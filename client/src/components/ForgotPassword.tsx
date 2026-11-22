@@ -4,6 +4,7 @@ import { api } from '../lib/api';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 import { AmbientBackground } from './AmbientBackground';
+import { AuthThemeButton } from './common/AuthThemeButton';
 
 interface ForgotPasswordProps {
     onBack: () => void;
@@ -251,13 +252,16 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
     );
 
     return (
-        <div className={`min-h-dvh flex items-center justify-center p-3 sm:p-5 relative overflow-x-hidden transition-colors duration-300 p-safe ${
+        <div className={`min-h-dvh flex items-center justify-center p-3 pt-16 sm:p-5 relative overflow-x-hidden transition-colors duration-300 p-safe ${
             isBento
                 ? 'bg-[#f5f3ec]'
                 : 'bg-slate-50 dark:bg-[#0a0908]'
         }`}>
             {/* Ambient Background */}
             <AmbientBackground />
+
+            {/* Top End Change Theme */}
+            <AuthThemeButton />
 
             <div className={`forgot-password-card relative z-10 w-full max-w-4xl overflow-hidden grid grid-cols-1 md:grid-cols-12 transition-all duration-300 ${
                 isBento

@@ -27,6 +27,96 @@ export interface HunterSnake {
 
 export type FoodKind = 'standard' | 'overcharge' | 'debris';
 
+export type WeaponKind = 'railgun' | 'nova' | 'bolt';
+
+export interface WeaponMeta {
+    kind: WeaponKind;
+    name: string;
+    arName: string;
+    shortTag: string;
+    color: string;
+}
+
+export const WEAPON_META: Record<WeaponKind, WeaponMeta> = {
+    railgun: {
+        kind: 'railgun',
+        name: 'RAIL BEAM',
+        arName: 'شعاع ليزر',
+        shortTag: 'RAIL',
+        color: '#fb7185'
+    },
+    nova: {
+        kind: 'nova',
+        name: 'EMP NOVA',
+        arName: 'موجة صدمة',
+        shortTag: 'NOVA',
+        color: '#fde047'
+    },
+    bolt: {
+        kind: 'bolt',
+        name: 'PLASMA LANCE',
+        arName: 'رمح بلازما',
+        shortTag: 'LANCE',
+        color: '#bae6fd'
+    }
+};
+
+export interface WeaponDrop {
+    id: number;
+    x: number;
+    y: number;
+    kind: WeaponKind;
+    createdAt: number;
+    expiresAt: number;
+}
+
+export interface WeaponBeamEffect {
+    id: number;
+    startX: number;
+    startY: number;
+    endX: number;
+    endY: number;
+    color: string;
+    createdAt: number;
+    duration: number;
+}
+
+export interface WeaponProjectile {
+    id: number;
+    worldX: number;
+    worldY: number;
+    dir: Direction;
+    speedCellsPerSec: number;
+    remainingCells: number;
+    color: string;
+    hitHunterIds: Set<number>;
+    trail: Array<{ x: number; y: number }>;
+}
+
+export type EscapePatternKind =
+    | 'straight-boost'
+    | 'straight-run'
+    | 'diagonal-kite'
+    | 'loop-stall'
+    | 'pause-abuse';
+
+export interface ContainmentWall {
+    id: number;
+    cells: GridPoint[];
+    pattern: EscapePatternKind;
+    createdAt: number;
+    armAt: number; // Telegraph warning until armAt, solid deadly barrier afterwards
+    expiresAt: number;
+    armedSoundPlayed: boolean;
+}
+
+export interface ContainmentAlert {
+    pattern: EscapePatternKind;
+    title: string;
+    arTitle: string;
+    timestamp: number;
+}
+
 export interface FoodNode {
     id: number;
     x: number;
@@ -68,6 +158,7 @@ export interface LevelPulseRing {
     duration: number;
     color: string;
     label?: string;
+    maxRadiusCells?: number;
 }
 
 export interface HudSnapshot {
@@ -87,13 +178,20 @@ export interface HudSnapshot {
     takedowns: number;
     boostEnergy: number; // 0..100
     isBoosting: boolean;
+    boostCooldownSec: number; // Remaining cooldown in seconds (0 = ready)
+    boostCooldownRatio: number; // 0..1 (1 = full cooldown remaining)
+    boostOverheated: boolean; // True during full burnout lockout
+    heldWeapon: WeaponKind | null;
+    weaponDropsOnMap: number;
+    escapeRisk: number; // 0..100 anti-escape containment detection meter
+    containmentAlert: ContainmentAlert | null;
     // Harvest-specific
     comboCount: number;
     comboMultiplier: number;
     comboTimeRatio: number; // 0..1
     // Level-up banner flash
     levelUpNotice: { level: number; timestamp: number } | null;
-    deathReason: 'hunter' | 'self' | 'border' | null;
+    deathReason: 'hunter' | 'self' | 'border' | 'wall' | null;
     pauseReason: 'manual' | 'resize' | 'blur' | null;
 }
 
@@ -117,7 +215,7 @@ export interface RunSummary {
     runLevel: number;
     runXpEarned: number;
     isNewBest: boolean;
-    deathReason: 'hunter' | 'self' | 'border' | null;
+    deathReason: 'hunter' | 'self' | 'border' | 'wall' | null;
     previousTotalXp: number;
     newTotalXp: number;
 }

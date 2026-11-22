@@ -119,25 +119,30 @@ export const StreakRewardModal: React.FC<StreakRewardModalProps> = ({
                 title="Daily Login Streak Calendar"
                 description="Keep your streak alive to unlock escalating rewards and Day 7 Mystery Boxes!"
                 maxWidth="max-w-2xl"
-                icon={<Flame className="w-6 h-6 text-orange-500" />}
+                icon={<Flame className={`w-6 h-6 ${isBento ? 'text-black' : 'text-[#fde047]'}`} />}
+                iconContainerClassName={
+                    isBento
+                        ? 'bg-[#fde047] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                        : 'bg-[#fde047]/15 text-[#fde047] border border-[#fde047]/35'
+                }
                 footer={
                     <div className="flex items-center justify-between gap-3 w-full">
-                        <span className={`text-xs font-bold ${isBento ? 'text-black' : 'text-gray-500'}`}>
-                            Current Streak: <span className="text-orange-500 font-black">{streak} Day{streak !== 1 ? 's' : ''}</span>
+                        <span className={`text-xs font-bold ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>
+                            Current Streak: <span className={`font-black ${isBento ? 'text-black' : 'text-[#fde047]'}`}>{streak} Day{streak !== 1 ? 's' : ''}</span>
                         </span>
 
                         <button
                             type="button"
                             onClick={handleClaimToday}
                             disabled={isClaimedToday}
-                            className={`px-5 py-2.5 rounded-lg font-black text-xs uppercase tracking-wider transition-all cursor-pointer ${
+                            className={`px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all cursor-pointer ${
                                 isBento
                                     ? isClaimedToday
                                         ? 'bg-gray-100 text-gray-500 border-2 border-black/30 cursor-default shadow-none'
                                         : 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[3px_3px_0px_#000] active:translate-x-0.5 active:translate-y-0.5'
                                     : isClaimedToday
-                                        ? 'bg-gray-200 dark:bg-white/10 text-gray-400 cursor-default shadow-none'
-                                        : 'bg-orange-500 hover:bg-orange-600 text-white shadow-md shadow-orange-500/25'
+                                        ? 'bg-[#1c1917] text-[#78716c] border border-[#2e2924] cursor-default'
+                                        : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908] shadow-[0_3px_0_#050504]'
                             }`}
                         >
                             {isClaimedToday ? '✓ Claimed Today' : 'Claim Day Reward'}
@@ -150,24 +155,24 @@ export const StreakRewardModal: React.FC<StreakRewardModalProps> = ({
                     <div className={`p-4 rounded-xl flex items-center justify-between ${
                         isBento
                             ? 'bg-[#fff7ed] border-2 border-black shadow-[3px_3px_0px_#000]'
-                            : 'bg-orange-500/10 border border-orange-500/20'
+                            : 'bg-[#1e1b13] border border-[#fde047]/35'
                     }`}>
                         <div className="flex items-center gap-3">
                             <div className={`w-10 h-10 rounded-lg flex items-center justify-center font-black text-lg ${
                                 isBento
                                     ? 'bg-[#fed7aa] border-2 border-black text-black shadow-[1.5px_1.5px_0px_#000]'
-                                    : 'bg-orange-500/20 text-orange-500'
+                                    : 'bg-[#fde047]/15 border border-[#fde047]/35 text-[#fde047]'
                             }`}>
                                 🔥
                             </div>
                             <div>
                                 <h3 className={`text-sm sm:text-base font-black uppercase tracking-tight ${
-                                    isBento ? 'text-black' : 'text-gray-900 dark:text-white'
+                                    isBento ? 'text-black' : 'text-[#f5f3ec]'
                                 }`}>
                                     {streak} Day Streak!
                                 </h3>
                                 <p className={`text-xs font-medium ${
-                                    isBento ? 'text-gray-700' : 'text-gray-500 dark:text-gray-400'
+                                    isBento ? 'text-gray-700' : 'text-[#a8a29e]'
                                 }`}>
                                     Log in every day to claim all 7 rewards without resetting.
                                 </p>
@@ -178,7 +183,7 @@ export const StreakRewardModal: React.FC<StreakRewardModalProps> = ({
                             <span className={`px-2.5 py-1 rounded-md font-black text-[11px] uppercase tracking-wider ${
                                 isBento
                                     ? 'bg-black text-[#bef264] border-2 border-black shadow-[1.5px_1.5px_0px_#000]'
-                                    : 'bg-orange-500 text-white'
+                                    : 'bg-[#fde047] text-[#0a0908]'
                             }`}>
                                 Day {currentStreakDay} / 7
                             </span>
@@ -194,44 +199,44 @@ export const StreakRewardModal: React.FC<StreakRewardModalProps> = ({
                             return (
                                 <div
                                     key={d.day}
-                                    className={`p-3 rounded-lg flex flex-col items-center justify-between text-center transition-all min-h-[110px] ${
+                                    className={`p-3 rounded-xl flex flex-col items-center justify-between text-center transition-all min-h-[110px] ${
                                         isToday
                                             ? isBento
                                                 ? 'bg-[#fed7aa] border-2 border-black shadow-[3px_3px_0px_#000] z-10 text-black'
-                                                : 'bg-orange-500/20 border-2 border-orange-500 ring-2 ring-orange-500/40 shadow-md shadow-orange-500/20 z-10'
+                                                : 'bg-[#1e1b13] border-2 border-[#fde047] z-10'
                                             : isPast
                                                 ? isBento
                                                     ? 'bg-[#dcfce7] border-2 border-black shadow-[2px_2px_0px_#000] text-black'
-                                                    : 'bg-emerald-500/10 border border-emerald-500/30 dark:bg-emerald-950/20'
+                                                    : 'bg-[#171d14] border border-[#bef264]/40'
                                                 : isBento
                                                     ? 'bg-white border-2 border-black/40 text-black/70'
-                                                    : 'bg-white/60 dark:bg-black/20 border border-gray-200 dark:border-white/5 opacity-70'
+                                                    : 'bg-[#1a1714] border border-[#2e2924] opacity-75'
                                     }`}
                                 >
                                     <span className={`text-[10px] font-black uppercase tracking-wider ${
                                         isToday
-                                            ? isBento ? 'text-black' : 'text-orange-600 dark:text-orange-400'
+                                            ? isBento ? 'text-black' : 'text-[#fde047]'
                                             : isPast
-                                                ? isBento ? 'text-emerald-800' : 'text-emerald-600 dark:text-emerald-400'
-                                                : isBento ? 'text-gray-500' : 'text-gray-400'
+                                                ? isBento ? 'text-black' : 'text-[#bef264]'
+                                                : isBento ? 'text-gray-500' : 'text-[#a8a29e]'
                                     }`}>
                                         Day {d.day}
                                     </span>
 
                                     <div className="text-3xl my-1.5">{d.icon}</div>
 
-                                    <div className={`text-[10px] font-black leading-tight ${isBento ? 'text-black' : 'text-gray-800 dark:text-gray-200'}`}>
+                                    <div className={`text-[10px] font-black leading-tight ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>
                                         {d.label}
                                     </div>
 
                                     {isPast && (
-                                        <div className={`mt-1 flex items-center gap-0.5 text-[9px] font-black uppercase ${isBento ? 'text-emerald-800' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                                        <div className={`mt-1 flex items-center gap-0.5 text-[9px] font-black uppercase ${isBento ? 'text-black' : 'text-[#bef264]'}`}>
                                             <Check className="w-2.5 h-2.5" /> Claimed
                                         </div>
                                     )}
 
                                     {isToday && (
-                                        <div className={`mt-1 text-[9px] font-black uppercase ${isBento ? 'text-black' : 'text-orange-600 dark:text-orange-400'}`}>
+                                        <div className={`mt-1 text-[9px] font-black uppercase ${isBento ? 'text-black' : 'text-[#fde047]'}`}>
                                             {isClaimedToday ? '✓ Done' : '🎁 Today'}
                                         </div>
                                     )}

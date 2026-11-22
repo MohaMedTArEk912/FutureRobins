@@ -128,18 +128,18 @@ function ClassEmblemStudio({
     const imageUrl = getImageUrl(logo.customUrl || '');
     const isUploadedImage = logo.customUrl?.startsWith('data:image/');
     const isBusy = isSaving || isReadingFile;
-    const border = isBento ? 'border-black' : 'border-slate-200 dark:border-white/10';
-    const mutedText = isBento ? 'text-slate-700' : 'text-slate-600 dark:text-slate-300';
-    const panel = isBento ? 'bg-[#f8fafc]' : 'bg-slate-50 dark:bg-white/[0.04]';
+    const border = isBento ? 'border-black' : 'border-[#2e2924]';
+    const mutedText = isBento ? 'text-slate-700' : 'text-[#a8a29e]';
+    const panel = isBento ? 'bg-[#f5f3ec]' : 'bg-[#1a1714]';
     const primary = isBento
         ? 'border-2 border-black bg-[#bef264] text-black shadow-[2px_2px_0px_#000] hover:bg-lime-300'
-        : 'border border-sky-600 bg-sky-600 text-white hover:bg-sky-700';
+        : 'border border-[#bef264] bg-[#bef264] text-[#0a0908] hover:bg-[#d2fa8a] shadow-[0_2px_0_#050504]';
     const secondary = isBento
         ? 'border-2 border-black bg-white text-black hover:bg-slate-100'
-        : 'border border-slate-300 bg-white text-slate-800 hover:bg-slate-100 dark:border-white/15 dark:bg-white/5 dark:text-white dark:hover:bg-white/10';
+        : 'border border-[#2e2924] bg-[#0e0d0b] text-[#f5f3ec] hover:border-[#bef264] hover:bg-[#1c1917]';
     const selected = isBento
         ? 'border-black bg-[#bef264] text-black ring-1 ring-black'
-        : 'border-sky-500 bg-sky-100 text-sky-950 dark:bg-sky-500/20 dark:text-sky-100';
+        : 'border-[#bef264] bg-[#bef264]/15 text-[#bef264]';
     const optionButton = 'min-h-11 min-w-0 rounded-lg border cursor-pointer transition-colors';
     const actionButton = 'inline-flex min-h-10 min-w-0 items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-black cursor-pointer disabled:opacity-50';
 
@@ -206,7 +206,7 @@ function ClassEmblemStudio({
             className={`@container/studio relative min-w-0 w-full rounded-2xl ${inline ? '' : 'app-dialog-panel app-dialog-panel--structured flex max-w-4xl flex-col'} ${
                 isBento
                     ? 'border-[3px] border-black bg-white text-black shadow-[4px_4px_0px_#000]'
-                    : 'border border-slate-200 bg-white text-slate-900 shadow-lg dark:border-white/10 dark:bg-[#121623] dark:text-white'
+                    : 'border-[1.5px] border-[#2e2924] bg-[#141210] text-[#f5f3ec] shadow-[0_8px_0_#050504]'
             }`}
             onClick={e => { if (!inline) e.stopPropagation(); }}
         >
@@ -273,7 +273,7 @@ function ClassEmblemStudio({
                                         ? mutedText
                                         : isBento
                                             ? 'bg-black text-white'
-                                            : 'bg-sky-600 text-white'
+                                            : 'bg-[#bef264] text-[#0a0908]'
                                 }`}
                             >
                                 <Icon aria-hidden="true" className="h-4 w-4 shrink-0" />

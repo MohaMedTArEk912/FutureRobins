@@ -23,7 +23,36 @@
 }
 
 .dark .app-dialog-panel {
-  box-shadow: 0 8px 0 #050504, 0 24px 60px rgb(0 0 0 / 75%);
+  background-color: #141210;
+  border-color: #2e2924;
+  color: #f5f3ec;
+  box-shadow: 0 8px 0 #050504, 0 24px 60px rgb(0 0 0 / 78%);
+}
+
+.dark .app-dialog-panel:not(.app-dialog-panel--accent) {
+  background-color: #141210 !important;
+  border-color: #2e2924 !important;
+  color: #f5f3ec;
+}
+
+.dark .app-dialog-header {
+  background-color: #1a1714 !important;
+  border-bottom-color: #2e2924 !important;
+}
+
+.dark .app-dialog-toolbar {
+  background-color: #161411 !important;
+  border-bottom-color: #2e2924 !important;
+}
+
+.dark .app-dialog-footer {
+  background-color: #11100e !important;
+  border-top-color: #2e2924 !important;
+}
+
+.dark .app-dialog-panel select option {
+  background-color: #141210;
+  color: #f5f3ec;
 }
 
 /* A nested dialog keeps the page locked after another dialog closes. */

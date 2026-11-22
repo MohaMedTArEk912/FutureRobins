@@ -96,15 +96,15 @@ const ManageUserTracksModal: React.FC<{
             title="Manage Track Permissions"
             description={`Configure accessible learning roads for ${user.name || user.userId}`}
             maxWidth="max-w-xl"
-            icon={<Route className="w-6 h-6 text-indigo-500" />}
+            icon={<Route className={`w-6 h-6 ${isBento ? 'text-black' : 'text-[#bef264]'}`} />}
             footer={
                 <>
                     <button
                         onClick={onClose}
                         className={`flex-1 py-3 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-colors cursor-pointer ${
                             isBento
-                                ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-neutral-100 font-mono'
-                                : 'bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10'
+                                ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#f5f3ec] font-mono'
+                                : 'bg-[#1a1714] border border-[#2e2924] text-[#d6d0c7] hover:bg-[#24201c] hover:text-[#f5f3ec]'
                         }`}
                     >
                         Cancel
@@ -115,7 +115,7 @@ const ManageUserTracksModal: React.FC<{
                         className={`flex-[2] py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 ${
                             isBento
                                 ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:shadow-[4px_4px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 font-mono'
-                                : 'bg-teal-600 hover:bg-teal-700 text-white shadow-xl shadow-teal-600/30 hover:scale-105 active:scale-95'
+                                : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908] active:scale-95'
                         }`}
                     >
                         {saving ? 'Saving...' : 'Save Permissions'}
@@ -124,12 +124,12 @@ const ManageUserTracksModal: React.FC<{
             }
         >
             <div className="space-y-4">
-                <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                <p className={`text-xs font-medium ${isBento ? 'text-neutral-700' : 'text-[#a8a29e]'}`}>
                     Checked roads are unlocked and accessible for this student. Unchecked roads will appear blurred and locked.
                 </p>
 
                 {loading ? (
-                    <div className="py-8 text-center text-xs text-gray-400">Loading tracks...</div>
+                    <div className="py-8 text-center text-xs text-[#a8a29e]">Loading tracks...</div>
                 ) : (
                     <div className="space-y-2 max-h-80 overflow-y-auto custom-scrollbar pr-1">
                         {subjects.map(subject => {
@@ -142,24 +142,36 @@ const ManageUserTracksModal: React.FC<{
                                     onClick={() => toggleTrack(subject._id)}
                                     className={`flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${
                                         isChecked
-                                            ? 'bg-indigo-500/10 border-indigo-500/40 text-gray-900 dark:text-white'
-                                            : 'bg-gray-50/50 dark:bg-black/20 border-gray-200/60 dark:border-white/5 opacity-60'
+                                            ? isBento
+                                                ? 'bg-[#bef264]/35 border-2 border-black text-black'
+                                                : 'bg-[#1c2317] border-[#bef264]/45 text-[#f5f3ec]'
+                                            : isBento
+                                                ? 'bg-[#f5f3ec] border-2 border-black/30 text-black/65'
+                                                : 'bg-[#1a1714] border-[#2e2924] text-[#a8a29e] opacity-70'
                                     }`}
                                 >
                                     <div className="flex items-center gap-3 min-w-0">
-                                        <div className={`p-2.5 rounded-xl ${isChecked ? 'bg-indigo-600 text-white shadow-md' : 'bg-gray-200 dark:bg-white/5 text-gray-400'}`}>
+                                        <div className={`p-2.5 rounded-xl ${
+                                            isChecked
+                                                ? isBento ? 'bg-black text-[#bef264]' : 'bg-[#bef264] text-[#0a0908]'
+                                                : isBento ? 'bg-white border border-black/30 text-black/60' : 'bg-[#0e0d0b] border border-[#2e2924] text-[#78716c]'
+                                        }`}>
                                             <Route className="w-4 h-4" />
                                         </div>
                                         <div className="min-w-0">
                                             <div className="text-sm font-black uppercase tracking-tight truncate flex items-center gap-2">
                                                 <span>{subject.title}</span>
                                                 {isPrimary && (
-                                                    <span className="px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-500 text-[9px] font-black tracking-wider uppercase border border-amber-500/30">
+                                                    <span className={`px-2 py-0.5 rounded-md text-[9px] font-black tracking-wider uppercase ${
+                                                        isBento
+                                                            ? 'bg-[#fde047] text-black border border-black'
+                                                            : 'bg-[#231f14] text-[#fde047] border border-[#fde047]/35'
+                                                    }`}>
                                                         Primary Track
                                                     </span>
                                                 )}
                                             </div>
-                                            <div className="text-[11px] text-gray-400 font-mono truncate">{subject._id}</div>
+                                            <div className={`text-[11px] font-mono truncate ${isBento ? 'text-neutral-600' : 'text-[#78716c]'}`}>{subject._id}</div>
                                         </div>
                                     </div>
 
@@ -173,8 +185,8 @@ const ManageUserTracksModal: React.FC<{
                                                 }}
                                                 className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all cursor-pointer ${
                                                     isPrimary
-                                                        ? 'bg-amber-500 text-white shadow-sm'
-                                                        : 'bg-white/40 dark:bg-white/10 text-gray-400 hover:text-amber-500'
+                                                        ? isBento ? 'bg-[#fde047] text-black border border-black' : 'bg-[#fde047] text-[#0a0908]'
+                                                        : isBento ? 'bg-white text-black border border-black hover:bg-[#fde047]' : 'bg-[#141210] border border-[#2e2924] text-[#a8a29e] hover:text-[#fde047]'
                                                 }`}
                                                 title="Set as primary track"
                                             >
@@ -182,7 +194,9 @@ const ManageUserTracksModal: React.FC<{
                                             </button>
                                         )}
                                         <div className={`w-6 h-6 rounded-lg flex items-center justify-center border-2 transition-all ${
-                                            isChecked ? 'bg-indigo-600 border-indigo-600 text-white' : 'border-gray-300 dark:border-white/20'
+                                            isChecked
+                                                ? isBento ? 'bg-black border-black text-[#bef264]' : 'bg-[#bef264] border-[#bef264] text-[#0a0908]'
+                                                : isBento ? 'border-black/40 bg-white' : 'border-[#3a332c]'
                                         }`}>
                                             {isChecked && <CheckCircle className="w-4 h-4" />}
                                         </div>
@@ -192,7 +206,7 @@ const ManageUserTracksModal: React.FC<{
                         })}
 
                         {subjects.length === 0 && (
-                            <div className="py-8 text-center text-gray-400 font-bold text-xs">
+                            <div className="py-8 text-center text-[#a8a29e] font-bold text-xs">
                                 No tracks found
                             </div>
                         )}
@@ -225,15 +239,19 @@ const RoadmapEditorModal: React.FC<{
         api.getSkillTracks().then(setTracks).catch(console.error);
     }, []);
 
-    useEffect(() => {
-        if (!selectedTrack) return;
-        setLoading(true);
+    const handleSelectTrack = (nextTrackId: string) => {
+        setSelectedTrack(nextTrackId);
         setSelectedModuleIds(new Set());
-        api.getUserRoadmapProgress(user.userId, selectedTrack, currentUser.userId)
+        if (!nextTrackId) {
+            setLoading(false);
+            return;
+        }
+        setLoading(true);
+        api.getUserRoadmapProgress(user.userId, nextTrackId, currentUser.userId)
             .then(p => setProgress({ completedModules: p.completedModules || [], unlockedModules: p.unlockedModules || [] }))
             .catch(() => onNotification('error', 'Failed to load progress'))
             .finally(() => setLoading(false));
-    }, [selectedTrack, user.userId, currentUser.userId, onNotification]);
+    };
 
     const track = useMemo(() => tracks.find(t => t.trackId === selectedTrack), [tracks, selectedTrack]);
 
@@ -249,18 +267,15 @@ const RoadmapEditorModal: React.FC<{
             map.get(lvl)!.push(m);
         });
         return map;
-    }, [track?.modules]);
+    }, [track]);
 
     const sortedLevels = useMemo(() => {
         return Array.from(modulesByLevel.keys()).sort((a, b) => a - b);
     }, [modulesByLevel]);
 
-    // Update default target level when sortedLevels changes
-    useEffect(() => {
-        if (sortedLevels.length > 0 && !sortedLevels.includes(quickLevelTarget)) {
-            setQuickLevelTarget(sortedLevels[0]);
-        }
-    }, [sortedLevels, quickLevelTarget]);
+    const activeQuickLevel = sortedLevels.length > 0 && !sortedLevels.includes(quickLevelTarget)
+        ? sortedLevels[0]
+        : quickLevelTarget;
 
     // Total counts
     const totalStats = useMemo(() => {
@@ -271,7 +286,7 @@ const RoadmapEditorModal: React.FC<{
         const openTotal = completed + unlockedOnly;
         const locked = total - openTotal;
         return { total, unlocked: openTotal, completed, locked };
-    }, [track?.modules, progress]);
+    }, [track, progress]);
 
     // 1. Open/Unlock all modules on a level
     const handleOpenLevel = (level: number) => {
@@ -594,10 +609,10 @@ const RoadmapEditorModal: React.FC<{
             maxWidth="max-w-4xl"
             footer={
                 <div className="flex flex-col sm:flex-row items-center justify-between w-full gap-3">
-                    <div className="text-xs font-bold text-gray-500">
+                    <div className={`text-xs font-bold ${isBento ? 'text-neutral-700' : 'text-[#a8a29e]'}`}>
                         {totalStats.total > 0 && (
                             <span>
-                                Status: <strong className="text-indigo-600 dark:text-indigo-400">{totalStats.unlocked} Open</strong>, <strong className="text-emerald-600 dark:text-emerald-400">{totalStats.completed} Completed</strong>, <strong className="text-gray-400">{totalStats.locked} Locked</strong>
+                                Status: <strong className={isBento ? 'text-black' : 'text-[#bef264]'}>{totalStats.unlocked} Open</strong>, <strong className={isBento ? 'text-black' : 'text-[#fde047]'}>{totalStats.completed} Completed</strong>, <strong className={isBento ? 'text-neutral-600' : 'text-[#78716c]'}>{totalStats.locked} Locked</strong>
                             </span>
                         )}
                     </div>
@@ -607,8 +622,8 @@ const RoadmapEditorModal: React.FC<{
                             onClick={onClose}
                             className={`px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer ${
                                 isBento
-                                    ? 'bg-white text-black border-2 border-black hover:bg-neutral-100 shadow-[2px_2px_0px_#000]'
-                                    : 'bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/10'
+                                    ? 'bg-white text-black border-2 border-black hover:bg-[#f5f3ec] shadow-[2px_2px_0px_#000]'
+                                    : 'bg-[#1a1714] border border-[#2e2924] text-[#d6d0c7] hover:bg-[#24201c] hover:text-[#f5f3ec]'
                             }`}
                         >
                             Cancel
@@ -619,7 +634,7 @@ const RoadmapEditorModal: React.FC<{
                             className={`px-7 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all cursor-pointer active:scale-95 ${
                                 isBento
                                     ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:shadow-[4px_4px_0px_#000] hover:-translate-y-0.5'
-                                    : 'bg-teal-600 hover:bg-teal-700 text-white shadow-lg hover:shadow-teal-500/25 hover:-translate-y-0.5'
+                                    : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908]'
                             }`}
                         >
                             Save Changes
@@ -631,7 +646,7 @@ const RoadmapEditorModal: React.FC<{
             <div className="space-y-5 max-h-[75vh] overflow-y-auto pr-1 custom-scrollbar">
                 {/* 1. Track Selector */}
                 <div>
-                    <label className="block text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    <label className={`block text-xs font-black uppercase tracking-wider mb-2 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>
                         Select Roadmap Track
                     </label>
                     <div className="relative">
@@ -639,22 +654,22 @@ const RoadmapEditorModal: React.FC<{
                             className={`w-full p-3.5 rounded-xl appearance-none focus:outline-none cursor-pointer font-bold text-sm ${
                                 isBento
                                     ? 'bg-white text-black border-2 border-black shadow-[3px_3px_0px_#000]'
-                                    : 'bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/10 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500/50'
+                                    : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] focus:border-[#bef264]'
                             }`}
                             value={selectedTrack}
-                            onChange={e => setSelectedTrack(e.target.value)}
+                            onChange={e => handleSelectTrack(e.target.value)}
                         >
                             <option value="">Select a Roadmap...</option>
                             {tracks.map(t => <option key={t.trackId} value={t.trackId}>{t.title} ({t.modules?.length || 0} modules)</option>)}
                         </select>
-                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
+                        <div className={`absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>
                             ▼
                         </div>
                     </div>
                 </div>
 
                 {loading && (
-                    <div className="py-12 text-center text-xs font-bold text-gray-400 animate-pulse">
+                    <div className="py-12 text-center text-xs font-bold text-[#a8a29e] animate-pulse">
                         Loading student roadmap progress...
                     </div>
                 )}
@@ -665,30 +680,30 @@ const RoadmapEditorModal: React.FC<{
                         <div className={`p-4 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 ${
                             isBento
                                 ? 'bg-white text-black border-2 border-black shadow-[3px_3px_0px_#000]'
-                                : 'bg-slate-50 dark:bg-white/[0.03] border border-gray-200 dark:border-white/10 shadow-sm'
+                                : 'bg-[#1a1714] border border-[#2e2924]'
                         }`}>
                             {/* Stat Chips */}
                             <div className="flex items-center gap-2 flex-wrap">
                                 <span className={`px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 ${
-                                    isBento ? 'bg-[#fed7aa] text-black border border-black' : 'bg-indigo-500/10 text-indigo-500'
+                                    isBento ? 'bg-[#fed7aa] text-black border border-black' : 'bg-[#151e24] border border-[#bae6fd]/30 text-[#bae6fd]'
                                 }`}>
                                     <Layers className="w-3.5 h-3.5" />
                                     <span>{totalStats.total} Total Modules</span>
                                 </span>
                                 <span className={`px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 ${
-                                    isBento ? 'bg-[#bef264] text-black border border-black' : 'bg-emerald-500/10 text-emerald-500'
+                                    isBento ? 'bg-[#bef264] text-black border border-black' : 'bg-[#1c2317] border border-[#bef264]/35 text-[#bef264]'
                                 }`}>
                                     <Unlock className="w-3.5 h-3.5" />
                                     <span>{totalStats.unlocked} Open to User</span>
                                 </span>
                                 <span className={`px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 ${
-                                    isBento ? 'bg-[#fde047] text-black border border-black' : 'bg-amber-500/10 text-amber-500'
+                                    isBento ? 'bg-[#fde047] text-black border border-black' : 'bg-[#231f14] border border-[#fde047]/35 text-[#fde047]'
                                 }`}>
                                     <CheckCircle className="w-3.5 h-3.5" />
                                     <span>{totalStats.completed} Completed</span>
                                 </span>
                                 <span className={`px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 ${
-                                    isBento ? 'bg-neutral-200 text-black border border-black' : 'bg-gray-500/10 text-gray-400'
+                                    isBento ? 'bg-[#f5f3ec] text-black border border-black' : 'bg-[#0e0d0b] border border-[#2e2924] text-[#a8a29e]'
                                 }`}>
                                     <Lock className="w-3.5 h-3.5" />
                                     <span>{totalStats.locked} Locked</span>
@@ -703,7 +718,7 @@ const RoadmapEditorModal: React.FC<{
                                     className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer active:scale-95 ${
                                         isBento
                                             ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#a3e635]'
-                                            : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm'
+                                            : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908]'
                                     }`}
                                     title="Unlock all modules in this roadmap for the user"
                                 >
@@ -716,7 +731,7 @@ const RoadmapEditorModal: React.FC<{
                                     className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer active:scale-95 ${
                                         isBento
                                             ? 'bg-[#fde047] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-yellow-300'
-                                            : 'bg-amber-500 hover:bg-amber-400 text-white shadow-sm'
+                                            : 'bg-[#fde047] hover:bg-[#fef08a] text-[#0a0908]'
                                     }`}
                                     title="Mark all modules complete"
                                 >
@@ -728,8 +743,8 @@ const RoadmapEditorModal: React.FC<{
                                     onClick={handleLockAllLevels}
                                     className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer active:scale-95 ${
                                         isBento
-                                            ? 'bg-neutral-100 text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-neutral-200'
-                                            : 'bg-gray-200 dark:bg-white/10 text-gray-700 dark:text-gray-300 hover:bg-gray-300'
+                                            ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#f5f3ec]'
+                                            : 'bg-[#141210] border border-[#2e2924] text-[#d6d0c7] hover:bg-[#24201c]'
                                     }`}
                                     title="Lock all modules"
                                 >
@@ -743,20 +758,20 @@ const RoadmapEditorModal: React.FC<{
                         <div className={`p-4 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-3 ${
                             isBento
                                 ? 'bg-[#fef9c3] text-black border-2 border-black shadow-[3px_3px_0px_#000]'
-                                : 'bg-indigo-500/10 border border-indigo-500/20 text-gray-900 dark:text-white'
+                                : 'bg-[#1c2317] border border-[#bef264]/35 text-[#f5f3ec]'
                         }`}>
                             <div className="flex items-center gap-2">
-                                <Sparkles className="w-4 h-4 text-amber-500" />
+                                <Sparkles className={`w-4 h-4 ${isBento ? 'text-black' : 'text-[#fde047]'}`} />
                                 <span className="font-black text-xs uppercase tracking-wider">
                                     Quick Level Selector:
                                 </span>
                                 <select
-                                    value={quickLevelTarget}
+                                    value={activeQuickLevel}
                                     onChange={e => setQuickLevelTarget(Number(e.target.value))}
-                                    className={`px-3 py-1.5 rounded-xl text-xs font-black cursor-pointer ${
+                                    className={`px-3 py-1.5 rounded-xl text-xs font-black cursor-pointer outline-none ${
                                         isBento
                                             ? 'bg-white text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]'
-                                            : 'bg-white dark:bg-[#1c1917] border border-gray-300 dark:border-white/20 text-gray-900 dark:text-white'
+                                            : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec]'
                                     }`}
                                 >
                                     {sortedLevels.map(lvl => (
@@ -770,39 +785,39 @@ const RoadmapEditorModal: React.FC<{
                             <div className="flex items-center gap-2 flex-wrap">
                                 <button
                                     type="button"
-                                    onClick={() => handleOpenLevel(quickLevelTarget)}
+                                    onClick={() => handleOpenLevel(activeQuickLevel)}
                                     className={`px-3.5 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer active:scale-95 ${
                                         isBento
                                             ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#a3e635]'
-                                            : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm'
+                                            : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908]'
                                     }`}
-                                    title={`Unlock all modules on Level ${quickLevelTarget} for user`}
+                                    title={`Unlock all modules on Level ${activeQuickLevel} for user`}
                                 >
                                     <Unlock className="w-3.5 h-3.5" />
-                                    <span>Open Level {quickLevelTarget}</span>
+                                    <span>Open Level {activeQuickLevel}</span>
                                 </button>
                                 <button
                                     type="button"
-                                    onClick={() => handleCompleteLevel(quickLevelTarget)}
+                                    onClick={() => handleCompleteLevel(activeQuickLevel)}
                                     className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer active:scale-95 ${
                                         isBento
                                             ? 'bg-[#fde047] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                            : 'bg-amber-500 hover:bg-amber-400 text-white shadow-sm'
+                                            : 'bg-[#fde047] hover:bg-[#fef08a] text-[#0a0908]'
                                     }`}
-                                    title={`Complete all modules on Level ${quickLevelTarget}`}
+                                    title={`Complete all modules on Level ${activeQuickLevel}`}
                                 >
                                     <CheckCircle className="w-3.5 h-3.5" />
                                     <span>Complete Level</span>
                                 </button>
                                 <button
                                     type="button"
-                                    onClick={() => handleLockLevel(quickLevelTarget)}
+                                    onClick={() => handleLockLevel(activeQuickLevel)}
                                     className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer active:scale-95 ${
                                         isBento
                                             ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                            : 'bg-gray-200 dark:bg-white/10 text-gray-700 dark:text-gray-300'
+                                            : 'bg-[#141210] border border-[#2e2924] text-[#d6d0c7] hover:bg-[#24201c]'
                                     }`}
-                                    title={`Lock all modules on Level ${quickLevelTarget}`}
+                                    title={`Lock all modules on Level ${activeQuickLevel}`}
                                 >
                                     <Lock className="w-3.5 h-3.5" />
                                     <span>Lock Level</span>
@@ -819,8 +834,8 @@ const RoadmapEditorModal: React.FC<{
                                     onClick={() => setSelectedLevelFilter('all')}
                                     className={`px-3 py-1.5 rounded-xl text-xs font-black shrink-0 transition-all cursor-pointer ${
                                         selectedLevelFilter === 'all'
-                                            ? (isBento ? 'bg-black text-white' : 'bg-indigo-600 text-white shadow')
-                                            : (isBento ? 'bg-neutral-100 hover:bg-neutral-200 text-black border border-black' : 'bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-300')
+                                            ? (isBento ? 'bg-black text-[#bef264]' : 'bg-[#bef264] text-[#0a0908]')
+                                            : (isBento ? 'bg-[#f5f3ec] hover:bg-neutral-200 text-black border border-black' : 'bg-[#1a1714] border border-[#2e2924] text-[#a8a29e] hover:text-[#f5f3ec]')
                                     }`}
                                 >
                                     All Levels ({totalStats.total})
@@ -835,8 +850,8 @@ const RoadmapEditorModal: React.FC<{
                                             onClick={() => setSelectedLevelFilter(lvl)}
                                             className={`px-3 py-1.5 rounded-xl text-xs font-black shrink-0 transition-all cursor-pointer ${
                                                 isSelected
-                                                    ? (isBento ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000]' : 'bg-indigo-600 text-white shadow')
-                                                    : (isBento ? 'bg-white text-black border border-black hover:bg-neutral-100' : 'bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-300')
+                                                    ? (isBento ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000]' : 'bg-[#bef264] text-[#0a0908]')
+                                                    : (isBento ? 'bg-white text-black border border-black hover:bg-[#f5f3ec]' : 'bg-[#1a1714] border border-[#2e2924] text-[#a8a29e] hover:text-[#f5f3ec]')
                                             }`}
                                         >
                                             Level {lvl} ({mods.length})
@@ -847,7 +862,7 @@ const RoadmapEditorModal: React.FC<{
 
                             {/* Search Box */}
                             <div className="relative min-w-[200px]">
-                                <Search className="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                                <Search className={`w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none ${isBento ? 'text-black' : 'text-[#78716c]'}`} />
                                 <input
                                     type="text"
                                     value={searchQuery}
@@ -856,7 +871,7 @@ const RoadmapEditorModal: React.FC<{
                                     className={`w-full pl-8 pr-3 py-1.5 rounded-xl text-xs font-bold outline-none ${
                                         isBento
                                             ? 'bg-white text-black border-2 border-black'
-                                            : 'bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white'
+                                            : 'bg-[#0e0d0b] border border-[#2e2924] focus:border-[#bef264] text-[#f5f3ec] placeholder:text-[#78716c]'
                                     }`}
                                 />
                             </div>
@@ -867,10 +882,10 @@ const RoadmapEditorModal: React.FC<{
                             <div className={`p-3 rounded-2xl flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2 duration-150 ${
                                 isBento
                                     ? 'bg-[#fed7aa] text-black border-2 border-black shadow-[3px_3px_0px_#000]'
-                                    : 'bg-indigo-600 text-white shadow-lg'
+                                    : 'bg-[#1c2317] text-[#f5f3ec] border border-[#bef264]/45'
                             }`}>
                                 <div className="flex items-center gap-2 text-xs font-black">
-                                    <ListChecks className="w-4 h-4" />
+                                    <ListChecks className={`w-4 h-4 ${isBento ? 'text-black' : 'text-[#bef264]'}`} />
                                     <span>{selectedModuleIds.size} Module{selectedModuleIds.size > 1 ? 's' : ''} Selected</span>
                                 </div>
                                 <div className="flex items-center gap-2 flex-wrap">
@@ -878,7 +893,7 @@ const RoadmapEditorModal: React.FC<{
                                         type="button"
                                         onClick={handleOpenSelected}
                                         className={`px-3 py-1 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1 transition-all cursor-pointer active:scale-95 ${
-                                            isBento ? 'bg-[#bef264] text-black border border-black shadow-[1px_1px_0px_#000]' : 'bg-white text-indigo-700 shadow-sm'
+                                            isBento ? 'bg-[#bef264] text-black border border-black shadow-[1px_1px_0px_#000]' : 'bg-[#bef264] text-[#0a0908]'
                                         }`}
                                     >
                                         <Unlock className="w-3.5 h-3.5" />
@@ -888,7 +903,7 @@ const RoadmapEditorModal: React.FC<{
                                         type="button"
                                         onClick={handleCompleteSelected}
                                         className={`px-3 py-1 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1 transition-all cursor-pointer active:scale-95 ${
-                                            isBento ? 'bg-[#fde047] text-black border border-black shadow-[1px_1px_0px_#000]' : 'bg-amber-400 text-black shadow-sm'
+                                            isBento ? 'bg-[#fde047] text-black border border-black shadow-[1px_1px_0px_#000]' : 'bg-[#fde047] text-[#0a0908]'
                                         }`}
                                     >
                                         <CheckCircle className="w-3.5 h-3.5" />
@@ -898,7 +913,7 @@ const RoadmapEditorModal: React.FC<{
                                         type="button"
                                         onClick={handleLockSelected}
                                         className={`px-3 py-1 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1 transition-all cursor-pointer active:scale-95 ${
-                                            isBento ? 'bg-white text-black border border-black shadow-[1px_1px_0px_#000]' : 'bg-black/20 text-white hover:bg-black/30'
+                                            isBento ? 'bg-white text-black border border-black shadow-[1px_1px_0px_#000]' : 'bg-[#141210] border border-[#2e2924] text-[#d6d0c7] hover:bg-[#24201c]'
                                         }`}
                                     >
                                         <Lock className="w-3.5 h-3.5" />
@@ -942,14 +957,14 @@ const RoadmapEditorModal: React.FC<{
                                             className={`rounded-2xl overflow-hidden transition-all ${
                                                 isBento
                                                     ? 'bg-white border-2 border-black shadow-[3px_3px_0px_#000]'
-                                                    : 'bg-white dark:bg-[#141210] border border-gray-200 dark:border-white/10 shadow-sm'
+                                                    : 'bg-[#141210] border border-[#2e2924]'
                                             }`}
                                         >
                                             {/* Level Header Bar with Direct Level Controls */}
                                             <div className={`p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b select-none ${
                                                 isBento
-                                                    ? (isAllOpen ? 'bg-[#ecfccb] border-b-2 border-black' : 'bg-neutral-100 border-b-2 border-black')
-                                                    : (isAllOpen ? 'bg-emerald-500/10 dark:bg-emerald-950/20 border-b border-gray-200 dark:border-white/10' : 'bg-gray-50 dark:bg-white/[0.03] border-b border-gray-200 dark:border-white/10')
+                                                    ? (isAllOpen ? 'bg-[#ecfccb] border-b-2 border-black' : 'bg-[#f5f3ec] border-b-2 border-black')
+                                                    : (isAllOpen ? 'bg-[#1c2317] border-b border-[#2e2924]' : 'bg-[#1a1714] border-b border-[#2e2924]')
                                             }`}>
                                                 {/* Left: Checkbox & Level Title */}
                                                 <div className="flex items-center gap-2.5">
@@ -957,14 +972,14 @@ const RoadmapEditorModal: React.FC<{
                                                         type="button"
                                                         onClick={() => handleToggleSelectLevel(lvl)}
                                                         className={`p-1 rounded-lg cursor-pointer transition-colors ${
-                                                            isBento ? 'hover:bg-black/10' : 'hover:bg-gray-200 dark:hover:bg-white/10'
+                                                            isBento ? 'hover:bg-black/10' : 'hover:bg-[#24201c]'
                                                         }`}
                                                         title={isAllSelected ? "Deselect all modules on this level" : "Select all modules on this level"}
                                                     >
                                                         {isAllSelected ? (
-                                                            <CheckSquare className="w-5 h-5 text-indigo-600" />
+                                                            <CheckSquare className={`w-5 h-5 ${isBento ? 'text-black' : 'text-[#bef264]'}`} />
                                                         ) : (
-                                                            <Square className="w-5 h-5 text-gray-400" />
+                                                            <Square className={`w-5 h-5 ${isBento ? 'text-neutral-600' : 'text-[#78716c]'}`} />
                                                         )}
                                                     </button>
 
@@ -973,25 +988,25 @@ const RoadmapEditorModal: React.FC<{
                                                         onClick={() => toggleCollapseLevel(lvl)}
                                                         className="flex items-center gap-2 text-left cursor-pointer group"
                                                     >
-                                                        <div className="flex items-center gap-1.5 font-black text-sm uppercase tracking-tight text-gray-900 dark:text-white">
-                                                            <Layers className="w-4 h-4 text-indigo-500" />
+                                                        <div className={`flex items-center gap-1.5 font-black text-sm uppercase tracking-tight ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>
+                                                            <Layers className={`w-4 h-4 ${isBento ? 'text-black' : 'text-[#bef264]'}`} />
                                                             <span>Level {lvl}</span>
                                                         </div>
                                                         <span className={`px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider ${
-                                                            isBento ? 'bg-black text-white' : 'bg-gray-200 dark:bg-white/10 text-gray-600 dark:text-gray-300'
+                                                            isBento ? 'bg-black text-white' : 'bg-[#0e0d0b] border border-[#2e2924] text-[#d6d0c7]'
                                                         }`}>
                                                             {levelMods.length} Modules
                                                         </span>
                                                         <span className={`px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider ${
                                                             isAllOpen
-                                                                ? (isBento ? 'bg-[#bef264] text-black border border-black' : 'bg-emerald-500 text-white')
+                                                                ? (isBento ? 'bg-[#bef264] text-black border border-black' : 'bg-[#bef264] text-[#0a0908]')
                                                                 : (levelOpenCount > 0
-                                                                    ? (isBento ? 'bg-[#fde047] text-black border border-black' : 'bg-amber-500/20 text-amber-500')
-                                                                    : 'bg-gray-100 dark:bg-white/5 text-gray-400')
+                                                                    ? (isBento ? 'bg-[#fde047] text-black border border-black' : 'bg-[#231f14] text-[#fde047] border border-[#fde047]/35')
+                                                                    : isBento ? 'bg-white text-neutral-600 border border-black/30' : 'bg-[#0e0d0b] text-[#78716c]')
                                                         }`}>
                                                             {levelOpenCount}/{levelMods.length} Open{levelCompletedCount > 0 ? ` (${levelCompletedCount} done)` : ''}
                                                         </span>
-                                                        {isCollapsed ? <ChevronRight className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
+                                                        {isCollapsed ? <ChevronRight className="w-4 h-4 text-[#a8a29e]" /> : <ChevronDown className="w-4 h-4 text-[#a8a29e]" />}
                                                     </button>
                                                 </div>
 
@@ -1003,7 +1018,7 @@ const RoadmapEditorModal: React.FC<{
                                                         className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer active:scale-95 ${
                                                             isBento
                                                                 ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#a3e635]'
-                                                                : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm'
+                                                                : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908]'
                                                         }`}
                                                         title={`Open / Unlock all modules on Level ${lvl} for ${user.name || 'user'}`}
                                                     >
@@ -1016,7 +1031,7 @@ const RoadmapEditorModal: React.FC<{
                                                         className={`px-2.5 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1 transition-all cursor-pointer active:scale-95 ${
                                                             isBento
                                                                 ? 'bg-[#fde047] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000] hover:bg-yellow-300'
-                                                                : 'bg-amber-500 hover:bg-amber-400 text-white shadow-sm'
+                                                                : 'bg-[#fde047] hover:bg-[#fef08a] text-[#0a0908]'
                                                         }`}
                                                         title={`Mark all modules on Level ${lvl} complete`}
                                                     >
@@ -1028,8 +1043,8 @@ const RoadmapEditorModal: React.FC<{
                                                         onClick={() => handleLockLevel(lvl)}
                                                         className={`px-2.5 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1 transition-all cursor-pointer active:scale-95 ${
                                                             isBento
-                                                                ? 'bg-white text-black border border-black hover:bg-neutral-100'
-                                                                : 'bg-gray-200 dark:bg-white/10 text-gray-700 dark:text-gray-300'
+                                                                ? 'bg-white text-black border border-black hover:bg-[#f5f3ec]'
+                                                                : 'bg-[#141210] border border-[#2e2924] text-[#d6d0c7] hover:bg-[#24201c]'
                                                         }`}
                                                         title={`Lock all modules on Level ${lvl}`}
                                                     >
@@ -1048,26 +1063,26 @@ const RoadmapEditorModal: React.FC<{
                                                         const isSelected = selectedModuleIds.has(m.moduleId);
 
                                                         let statusLabel = 'Locked';
-                                                        let statusColor = 'text-gray-400';
+                                                        let statusColor = isBento ? 'text-neutral-600' : 'text-[#78716c]';
                                                         let icon = <Lock size={15} />;
                                                         let borderBgClass = isBento
                                                             ? 'bg-white border-2 border-black/30 hover:border-black'
-                                                            : 'bg-gray-50/70 dark:bg-white/[0.02] border-gray-200/80 dark:border-white/5';
+                                                            : 'bg-[#1a1714] border-[#2e2924]';
 
                                                         if (isComp) {
                                                             statusLabel = 'Completed';
-                                                            statusColor = 'text-emerald-500';
+                                                            statusColor = isBento ? 'text-black' : 'text-[#fde047]';
                                                             icon = <CheckCircle size={15} />;
                                                             borderBgClass = isBento
-                                                                ? 'bg-[#f0fdf4] border-2 border-emerald-600'
-                                                                : 'bg-emerald-500/10 border-emerald-500/30';
+                                                                ? 'bg-[#fef9c3] border-2 border-black'
+                                                                : 'bg-[#231f14] border-[#fde047]/35';
                                                         } else if (isUnl) {
                                                             statusLabel = 'Unlocked (Open)';
-                                                            statusColor = 'text-indigo-500 font-bold';
+                                                            statusColor = isBento ? 'text-black font-bold' : 'text-[#bef264] font-bold';
                                                             icon = <Unlock size={15} />;
                                                             borderBgClass = isBento
-                                                                ? 'bg-[#fff7ed] border-2 border-indigo-600'
-                                                                : 'bg-indigo-500/10 border-indigo-500/30';
+                                                                ? 'bg-[#ecfccb] border-2 border-black'
+                                                                : 'bg-[#1c2317] border-[#bef264]/35';
                                                         }
 
                                                         return (
@@ -1075,7 +1090,7 @@ const RoadmapEditorModal: React.FC<{
                                                                 key={m.moduleId}
                                                                 onClick={() => toggleModule(m.moduleId)}
                                                                 className={`p-3 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer transition-all ${borderBgClass} ${
-                                                                    isSelected ? 'ring-2 ring-indigo-500' : ''
+                                                                    isSelected ? (isBento ? 'ring-2 ring-black' : 'ring-2 ring-[#bef264]') : ''
                                                                 }`}
                                                             >
                                                                 {/* Module Left Info */}
@@ -1086,31 +1101,35 @@ const RoadmapEditorModal: React.FC<{
                                                                         title="Select module"
                                                                     >
                                                                         {isSelected ? (
-                                                                            <CheckSquare className="w-4 h-4 text-indigo-600" />
+                                                                            <CheckSquare className={`w-4 h-4 ${isBento ? 'text-black' : 'text-[#bef264]'}`} />
                                                                         ) : (
-                                                                            <Square className="w-4 h-4 text-gray-400" />
+                                                                            <Square className={`w-4 h-4 ${isBento ? 'text-neutral-600' : 'text-[#78716c]'}`} />
                                                                         )}
                                                                     </div>
 
-                                                                    <div className={`p-2 rounded-xl shrink-0 ${statusColor} bg-white dark:bg-black/30 shadow-xs border border-black/5`}>
+                                                                    <div className={`p-2 rounded-xl shrink-0 ${statusColor} ${isBento ? 'bg-white border border-black' : 'bg-[#0e0d0b] border border-[#2e2924]'}`}>
                                                                         {icon}
                                                                     </div>
 
                                                                     <div className="min-w-0">
                                                                         <div className="flex items-center gap-2 flex-wrap">
-                                                                            <span className="text-xs sm:text-sm font-black text-gray-900 dark:text-gray-100 truncate">
+                                                                            <span className={`text-xs sm:text-sm font-black truncate ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>
                                                                                 {m.title}
                                                                             </span>
                                                                             <span className="text-[10px] font-mono opacity-60">
                                                                                 {m.moduleId}
                                                                             </span>
                                                                             <span className={`text-[9px] px-1.5 py-0.5 rounded-md font-black uppercase tracking-wider ${
-                                                                                isComp ? 'bg-emerald-500/15 text-emerald-600' : isUnl ? 'bg-indigo-500/15 text-indigo-600' : 'bg-gray-200 dark:bg-white/10 text-gray-500'
+                                                                                isComp
+                                                                                    ? (isBento ? 'bg-[#fde047] text-black border border-black' : 'bg-[#231f14] text-[#fde047] border border-[#fde047]/35')
+                                                                                    : isUnl
+                                                                                        ? (isBento ? 'bg-[#bef264] text-black border border-black' : 'bg-[#1c2317] text-[#bef264] border border-[#bef264]/35')
+                                                                                        : (isBento ? 'bg-[#f5f3ec] text-neutral-700 border border-black/25' : 'bg-[#0e0d0b] text-[#78716c]')
                                                                             }`}>
                                                                                 {statusLabel}
                                                                             </span>
                                                                         </div>
-                                                                        <div className="flex items-center gap-2 mt-0.5 text-[11px] text-gray-500 font-semibold">
+                                                                        <div className={`flex items-center gap-2 mt-0.5 text-[11px] font-semibold ${isBento ? 'text-neutral-700' : 'text-[#a8a29e]'}`}>
                                                                             <span>{m.quizIds?.length || 0} Quiz{m.quizIds?.length === 1 ? '' : 'zes'}</span>
                                                                             {m.subModules && m.subModules.length > 0 && (
                                                                                 <>
@@ -1125,14 +1144,14 @@ const RoadmapEditorModal: React.FC<{
                                                                 {/* Module Right Controls */}
                                                                 <div className="flex items-center gap-2 shrink-0 self-end sm:self-center" onClick={e => e.stopPropagation()}>
                                                                     {/* 3 Quick State Switcher Buttons */}
-                                                                    <div className="flex items-center bg-black/5 dark:bg-white/5 p-1 rounded-xl gap-1">
+                                                                    <div className={`flex items-center p-1 rounded-xl gap-1 ${isBento ? 'bg-black/10' : 'bg-[#0e0d0b] border border-[#2e2924]'}`}>
                                                                         <button
                                                                             type="button"
                                                                             onClick={() => setModuleState(m.moduleId, 'locked')}
                                                                             className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer ${
                                                                                 !isUnl && !isComp
-                                                                                    ? (isBento ? 'bg-neutral-800 text-white font-black' : 'bg-gray-700 text-white')
-                                                                                    : 'text-gray-400 hover:text-gray-700 dark:hover:text-white'
+                                                                                    ? (isBento ? 'bg-black text-white font-black' : 'bg-[#2e2924] text-[#f5f3ec]')
+                                                                                    : (isBento ? 'text-neutral-700 hover:text-black' : 'text-[#78716c] hover:text-[#f5f3ec]')
                                                                             }`}
                                                                             title="Lock module for user"
                                                                         >
@@ -1143,8 +1162,8 @@ const RoadmapEditorModal: React.FC<{
                                                                             onClick={() => setModuleState(m.moduleId, 'unlocked')}
                                                                             className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer ${
                                                                                 isUnl && !isComp
-                                                                                    ? (isBento ? 'bg-[#bef264] text-black border border-black' : 'bg-indigo-600 text-white shadow')
-                                                                                    : 'text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400'
+                                                                                    ? (isBento ? 'bg-[#bef264] text-black border border-black' : 'bg-[#bef264] text-[#0a0908]')
+                                                                                    : (isBento ? 'text-neutral-700 hover:text-black' : 'text-[#78716c] hover:text-[#bef264]')
                                                                             }`}
                                                                             title="Unlock / Open module for user"
                                                                         >
@@ -1155,8 +1174,8 @@ const RoadmapEditorModal: React.FC<{
                                                                             onClick={() => setModuleState(m.moduleId, 'completed')}
                                                                             className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer ${
                                                                                 isComp
-                                                                                    ? (isBento ? 'bg-[#fde047] text-black border border-black' : 'bg-emerald-600 text-white shadow')
-                                                                                    : 'text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400'
+                                                                                    ? (isBento ? 'bg-[#fde047] text-black border border-black' : 'bg-[#fde047] text-[#0a0908]')
+                                                                                    : (isBento ? 'text-neutral-700 hover:text-black' : 'text-[#78716c] hover:text-[#fde047]')
                                                                             }`}
                                                                             title="Mark module complete"
                                                                         >
@@ -1237,15 +1256,15 @@ const CreateUserModal: React.FC<{
             title="Create Identity"
             description="Initialize a new agent profile"
             maxWidth="max-w-lg"
-            icon={<Users className="w-6 h-6 text-indigo-500" />}
+            icon={<Users className={`w-6 h-6 ${isBento ? 'text-black' : 'text-[#bef264]'}`} />}
             footer={
                 <>
                     <button
                         onClick={onClose}
                         className={`flex-1 py-3 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-colors cursor-pointer ${
                             isBento
-                                ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-neutral-100 font-mono'
-                                : 'bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10'
+                                ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#f5f3ec] font-mono'
+                                : 'bg-[#1a1714] border border-[#2e2924] text-[#d6d0c7] hover:bg-[#24201c] hover:text-[#f5f3ec]'
                         }`}
                     >
                         Cancel
@@ -1253,10 +1272,10 @@ const CreateUserModal: React.FC<{
                     <button
                         onClick={handleSubmit}
                         disabled={isLoading}
-                        className={`flex-[2] py-3 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all transform cursor-pointer disabled:opacity-50 ${
+                        className={`flex-[2] py-3 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all cursor-pointer disabled:opacity-50 ${
                             isBento
                                 ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:shadow-[4px_4px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 font-mono'
-                                : 'bg-teal-600 hover:bg-teal-700 text-white shadow-xl shadow-teal-600/30 hover:shadow-teal-600/50 hover:-translate-y-1'
+                                : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908]'
                         }`}
                     >
                         {isLoading ? 'Processing...' : 'Create Identity'}
@@ -1266,40 +1285,52 @@ const CreateUserModal: React.FC<{
         >
             <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">Agent Name</label>
+                    <label className={`text-[10px] font-black uppercase tracking-widest ml-1 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>Agent Name</label>
                     <input
                         placeholder="e.g. Neo Anderson"
                         value={name}
                         onChange={e => setName(e.target.value)}
-                        className="w-full bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/10 focus:ring-2 focus:ring-indigo-500/50 rounded-xl px-5 py-4 text-gray-900 dark:text-white font-bold outline-none transition-all placeholder:text-gray-400"
+                        className={`w-full rounded-xl px-5 py-4 font-bold outline-none transition-all ${
+                            isBento
+                                ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] placeholder:text-neutral-500'
+                                : 'bg-[#0e0d0b] border border-[#2e2924] focus:border-[#bef264] text-[#f5f3ec] placeholder:text-[#78716c]'
+                        }`}
                     />
                 </div>
 
                 <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">Email Identity</label>
+                    <label className={`text-[10px] font-black uppercase tracking-widest ml-1 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>Email Identity</label>
                     <input
                         type="email"
                         placeholder="e.g. neo@matrix.com"
                         value={email}
                         onChange={e => setEmail(e.target.value)}
-                        className="w-full bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/10 focus:ring-2 focus:ring-indigo-500/50 rounded-xl px-5 py-4 text-gray-900 dark:text-white font-bold outline-none transition-all placeholder:text-gray-400"
+                        className={`w-full rounded-xl px-5 py-4 font-bold outline-none transition-all ${
+                            isBento
+                                ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] placeholder:text-neutral-500'
+                                : 'bg-[#0e0d0b] border border-[#2e2924] focus:border-[#bef264] text-[#f5f3ec] placeholder:text-[#78716c]'
+                        }`}
                     />
                 </div>
 
                 <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">Access Key</label>
+                    <label className={`text-[10px] font-black uppercase tracking-widest ml-1 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>Access Key</label>
                     <div className="relative">
                         <input
                             type={showPassword ? 'text' : 'password'}
                             placeholder="Secure code (min. 6 chars)"
                             value={password}
                             onChange={e => setPassword(e.target.value)}
-                            className="w-full bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/10 focus:ring-2 focus:ring-indigo-500/50 rounded-xl px-5 py-4 text-gray-900 dark:text-white font-bold outline-none transition-all pr-14 placeholder:text-gray-400"
+                            className={`w-full rounded-xl px-5 py-4 font-bold outline-none transition-all pr-14 ${
+                                isBento
+                                    ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] placeholder:text-neutral-500'
+                                    : 'bg-[#0e0d0b] border border-[#2e2924] focus:border-[#bef264] text-[#f5f3ec] placeholder:text-[#78716c]'
+                            }`}
                         />
                         <button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-indigo-500 transition-colors"
+                            className={`absolute right-4 top-1/2 -translate-y-1/2 p-2 transition-colors cursor-pointer ${isBento ? 'text-black' : 'text-[#a8a29e] hover:text-[#bef264]'}`}
                         >
                             {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                         </button>
@@ -1307,7 +1338,7 @@ const CreateUserModal: React.FC<{
                 </div>
 
                 <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">Assignment Role</label>
+                    <label className={`text-[10px] font-black uppercase tracking-widest ml-1 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>Assignment Role</label>
                     <div className="grid grid-cols-3 gap-2">
                         {(['user', 'teacher', 'admin'] as const).map(r => (
                             <button
@@ -1315,8 +1346,12 @@ const CreateUserModal: React.FC<{
                                 type="button"
                                 onClick={() => setRole(r)}
                                 className={`py-3 px-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all cursor-pointer ${role === r
-                                    ? 'bg-indigo-500/10 border-2 border-indigo-500 text-indigo-600 dark:text-indigo-400'
-                                    : 'bg-gray-100 dark:bg-white/5 border-2 border-transparent text-gray-500 dark:text-gray-400 grayscale hover:grayscale-0'
+                                    ? isBento
+                                        ? 'bg-[#fde047] border-2 border-black text-black shadow-[2px_2px_0px_#000]'
+                                        : 'bg-[#1c2317] border-2 border-[#bef264] text-[#bef264]'
+                                    : isBento
+                                        ? 'bg-[#f5f3ec] border-2 border-black/30 text-black/70 hover:border-black'
+                                        : 'bg-[#1a1714] border border-[#2e2924] text-[#a8a29e] hover:text-[#f5f3ec]'
                                     }`}
                             >
                                 {r === 'admin' ? '🛡️ Admin' : r === 'teacher' ? '👩‍🏫 Teacher' : '🎓 Student'}
@@ -1853,7 +1888,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
                 title={viewingAttempts ? `${viewingAttempts.name}'s Pulse` : 'Attempts'}
                 description="Performance History Log"
                 maxWidth="max-w-2xl"
-                icon={<BarChart3 className="w-6 h-6" />}
+                icon={<BarChart3 className={`w-6 h-6 ${isBento ? 'text-black' : 'text-[#bef264]'}`} />}
             >
                 <div className="space-y-3">
                     {viewingAttempts && attempts.filter(a => a.userId === viewingAttempts.userId).length > 0 ? (
@@ -1867,23 +1902,35 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
                                 return (
                                     <div
                                         key={attempt.attemptId}
-                                        className="bg-[#f5f3ec] dark:bg-zinc-900 p-4 rounded-2xl border-2 border-black dark:border-zinc-700 shadow-[3px_3px_0px_#000] dark:shadow-[3px_3px_0px_#3f3f46] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 hover:-translate-y-0.5 transition-all"
+                                        className={`p-4 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 hover:-translate-y-0.5 transition-all ${
+                                            isBento
+                                                ? 'bg-[#f5f3ec] border-2 border-black shadow-[3px_3px_0px_#000]'
+                                                : 'bg-[#1a1714] border border-[#2e2924]'
+                                        }`}
                                     >
                                         <div className="flex items-center gap-3.5 min-w-0">
-                                            <div className={`w-10 h-10 rounded-xl border-2 border-black shadow-[2px_2px_0px_#000] flex items-center justify-center shrink-0 ${passed ? 'bg-[#bef264] text-black' : 'bg-[#fca5a5] text-black'}`}>
+                                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                                                isBento
+                                                    ? `border-2 border-black shadow-[2px_2px_0px_#000] ${passed ? 'bg-[#bef264] text-black' : 'bg-[#fecdd3] text-black'}`
+                                                    : passed ? 'bg-[#1c2317] text-[#bef264] border border-[#bef264]/35' : 'bg-[#251317] text-[#fb7185] border border-[#fb7185]/35'
+                                            }`}>
                                                 <Trophy className="w-4 h-4" />
                                             </div>
                                             <div className="min-w-0">
-                                                <div className="text-xs font-black text-black dark:text-white uppercase tracking-tight mb-1 truncate">
+                                                <div className={`text-xs font-black uppercase tracking-tight mb-1 truncate ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>
                                                     {attempt.quizTitle}
                                                 </div>
-                                                <div className="flex flex-wrap items-center gap-2 text-[10px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                                                <div className={`flex flex-wrap items-center gap-2 text-[10px] font-bold uppercase tracking-wider ${isBento ? 'text-neutral-700' : 'text-[#a8a29e]'}`}>
                                                     <span className="inline-flex items-center gap-1">
                                                         <Calendar className="w-3 h-3" />
                                                         {new Date(attempt.completedAt).toLocaleDateString()}
                                                     </span>
                                                     {typeof attempt.timeTaken === 'number' && attempt.timeTaken > 0 && (
-                                                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-white dark:bg-zinc-800 border border-black/20 dark:border-zinc-700 text-black dark:text-gray-200 font-black">
+                                                        <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded font-black ${
+                                                            isBento
+                                                                ? 'bg-white border border-black/25 text-black'
+                                                                : 'bg-[#0e0d0b] border border-[#2e2924] text-[#d6d0c7]'
+                                                        }`}>
                                                             <Clock className="w-3 h-3" />
                                                             {mins > 0 ? `${mins}m ${secs}s` : `${secs}s`}
                                                         </span>
@@ -1892,15 +1939,23 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end shrink-0">
-                                            <div className={`px-2.5 py-1 rounded-lg border-2 border-black shadow-[2px_2px_0px_#000] text-center ${passed ? 'bg-white dark:bg-zinc-800 text-emerald-700 dark:text-emerald-400' : 'bg-white dark:bg-zinc-800 text-red-600 dark:text-red-400'}`}>
-                                                <div className="text-[9px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest leading-none mb-0.5">SCORE</div>
+                                            <div className={`px-2.5 py-1 rounded-lg text-center ${
+                                                isBento
+                                                    ? `border-2 border-black shadow-[2px_2px_0px_#000] bg-white ${passed ? 'text-black' : 'text-red-600'}`
+                                                    : `bg-[#0e0d0b] border border-[#2e2924] ${passed ? 'text-[#bef264]' : 'text-[#fb7185]'}`
+                                            }`}>
+                                                <div className={`text-[9px] font-black uppercase tracking-widest leading-none mb-0.5 ${isBento ? 'text-neutral-600' : 'text-[#a8a29e]'}`}>SCORE</div>
                                                 <div className="text-sm font-black leading-none">{attempt.percentage}%</div>
                                             </div>
                                             <a
                                                 href={`/admin/proctoring/${encodeURIComponent(attempt.attemptId)}`}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="px-3.5 py-2 bg-[#bef264] hover:bg-[#d9f99d] text-black rounded-xl font-black text-[10px] uppercase tracking-wider transition-all flex items-center gap-1.5 shrink-0 border-2 border-black shadow-[2px_2px_0px_#000] hover:translate-y-0.5 hover:shadow-none no-underline"
+                                                className={`px-3.5 py-2 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all flex items-center gap-1.5 shrink-0 no-underline ${
+                                                    isBento
+                                                        ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:translate-y-0.5 hover:shadow-none'
+                                                        : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908]'
+                                                }`}
                                                 title="Open full telemetry & answer inspector in a new tab"
                                             >
                                                 <ExternalLink className="w-3.5 h-3.5" />
@@ -1911,9 +1966,13 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
                                 );
                             })
                     ) : (
-                        <div className="py-16 text-center bg-[#f5f3ec] dark:bg-zinc-900 rounded-2xl border-2 border-dashed border-black/30 dark:border-zinc-700">
-                            <BarChart3 className="w-10 h-10 mx-auto mb-3 text-black/40 dark:text-white/40" />
-                            <p className="text-xs font-black uppercase tracking-widest text-black/60 dark:text-white/60">No activity recorded for this student</p>
+                        <div className={`py-16 text-center rounded-2xl border-2 border-dashed ${
+                            isBento
+                                ? 'bg-[#f5f3ec] border-black/30 text-black/60'
+                                : 'bg-[#1a1714] border-[#2e2924] text-[#a8a29e]'
+                        }`}>
+                            <BarChart3 className="w-10 h-10 mx-auto mb-3 opacity-50" />
+                            <p className="text-xs font-black uppercase tracking-widest">No activity recorded for this student</p>
                         </div>
                     )}
                 </div>
@@ -1932,18 +1991,18 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
                             onClick={() => setEditingUser(null)}
                             className={`flex-1 py-3 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-colors cursor-pointer ${
                                 isBento
-                                    ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-neutral-100 font-mono'
-                                    : 'bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10'
+                                    ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#f5f3ec] font-mono'
+                                    : 'bg-[#1a1714] border border-[#2e2924] text-[#d6d0c7] hover:bg-[#24201c] hover:text-[#f5f3ec]'
                             }`}
                         >
                             Cancel
                         </button>
                         <button
                             onClick={() => editingUser && handleUpdateUser(editingUser)}
-                            className={`flex-[2] py-3 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all transform cursor-pointer ${
+                            className={`flex-[2] py-3 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all cursor-pointer ${
                                 isBento
                                     ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:shadow-[4px_4px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 font-mono'
-                                    : 'bg-teal-600 hover:bg-teal-700 text-white shadow-xl shadow-teal-600/30 hover:shadow-teal-600/50 hover:-translate-y-1'
+                                    : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908]'
                             }`}
                         >
                             Update Identity
@@ -1953,27 +2012,35 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
             >
                 <div className="space-y-5">
                     <div className="space-y-1.5">
-                        <label className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">Display Name</label>
+                        <label className={`text-[10px] font-black uppercase tracking-widest ml-1 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>Display Name</label>
                         <input
                             placeholder="e.g. John Wick"
                             value={editingUser?.name || ''}
                             onChange={e => editingUser && setEditingUser({ ...editingUser, name: e.target.value })}
-                            className="w-full bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/10 focus:ring-2 focus:ring-indigo-500/50 rounded-xl px-5 py-4 text-gray-900 dark:text-white font-bold outline-none transition-all placeholder:text-gray-400"
+                            className={`w-full rounded-xl px-5 py-4 font-bold outline-none transition-all ${
+                                isBento
+                                    ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] placeholder:text-neutral-500'
+                                    : 'bg-[#0e0d0b] border border-[#2e2924] focus:border-[#bef264] text-[#f5f3ec] placeholder:text-[#78716c]'
+                            }`}
                         />
                     </div>
 
                     <div className="space-y-1.5">
-                        <label className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">Email Identity</label>
+                        <label className={`text-[10px] font-black uppercase tracking-widest ml-1 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>Email Identity</label>
                         <input
                             placeholder="e.g. wick@continental.com"
                             value={editingUser?.email || ''}
                             onChange={e => editingUser && setEditingUser({ ...editingUser, email: e.target.value })}
-                            className="w-full bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/10 focus:ring-2 focus:ring-indigo-500/50 rounded-xl px-5 py-4 text-gray-900 dark:text-white font-bold outline-none transition-all placeholder:text-gray-400"
+                            className={`w-full rounded-xl px-5 py-4 font-bold outline-none transition-all ${
+                                isBento
+                                    ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] placeholder:text-neutral-500'
+                                    : 'bg-[#0e0d0b] border border-[#2e2924] focus:border-[#bef264] text-[#f5f3ec] placeholder:text-[#78716c]'
+                            }`}
                         />
                     </div>
 
                     <div className="space-y-1.5">
-                        <label className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">Platform Mode / Role</label>
+                        <label className={`text-[10px] font-black uppercase tracking-widest ml-1 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>Platform Mode / Role</label>
                         <div className="grid grid-cols-3 gap-2">
                             {([
                                 { id: 'user', label: '🎓 Student' },
@@ -1991,8 +2058,10 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
                                             selected
                                                 ? isBento
                                                     ? 'bg-[#fde047] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                                    : 'bg-indigo-500/15 border-2 border-indigo-500 text-indigo-600 dark:text-indigo-400'
-                                                : 'bg-gray-100 dark:bg-white/5 border-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white'
+                                                    : 'bg-[#1c2317] border-2 border-[#bef264] text-[#bef264]'
+                                                : isBento
+                                                    ? 'bg-[#f5f3ec] border-2 border-black/30 text-black/70 hover:border-black'
+                                                    : 'bg-[#1a1714] border border-[#2e2924] text-[#a8a29e] hover:text-[#f5f3ec]'
                                         }`}
                                     >
                                         {r.label}
@@ -2003,19 +2072,23 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
                     </div>
 
                     <div className="space-y-1.5">
-                        <label className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">Access Key Override</label>
+                        <label className={`text-[10px] font-black uppercase tracking-widest ml-1 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>Access Key Override</label>
                         <div className="relative">
                             <input
                                 type={showPassword ? 'text' : 'password'}
                                 placeholder="Secure blank for status quo"
                                 value={editingUser?.password || ''}
                                 onChange={e => editingUser && setEditingUser({ ...editingUser, password: e.target.value })}
-                                className="w-full bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/10 focus:ring-2 focus:ring-indigo-500/50 rounded-xl px-5 py-4 text-gray-900 dark:text-white font-bold outline-none transition-all pr-14 placeholder:text-gray-400"
+                                className={`w-full rounded-xl px-5 py-4 font-bold outline-none transition-all pr-14 ${
+                                    isBento
+                                        ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] placeholder:text-neutral-500'
+                                        : 'bg-[#0e0d0b] border border-[#2e2924] focus:border-[#bef264] text-[#f5f3ec] placeholder:text-[#78716c]'
+                                }`}
                             />
                             <button
                                 type="button"
                                 onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-indigo-500 transition-colors"
+                                className={`absolute right-4 top-1/2 -translate-y-1/2 p-2 transition-colors cursor-pointer ${isBento ? 'text-black' : 'text-[#a8a29e] hover:text-[#bef264]'}`}
                             >
                                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                             </button>
@@ -2052,7 +2125,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
                 onClose={() => setGiftingUser(null)}
                 title="Send Gift"
                 description={giftingUser ? `To: ${giftingUser.name}` : ''}
-                icon={<Gift className="w-6 h-6" />}
+                icon={<Gift className={`w-6 h-6 ${isBento ? 'text-black' : 'text-[#fde047]'}`} />}
                 maxWidth="max-w-xl"
                 footer={
                     <>
@@ -2060,8 +2133,8 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
                             onClick={() => setGiftingUser(null)}
                             className={`flex-1 py-3 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-colors cursor-pointer ${
                                 isBento
-                                    ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-neutral-100 font-mono'
-                                    : 'bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400'
+                                    ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#f5f3ec] font-mono'
+                                    : 'bg-[#1a1714] border border-[#2e2924] text-[#d6d0c7] hover:bg-[#24201c] hover:text-[#f5f3ec]'
                             }`}
                         >
                             Cancel
@@ -2069,10 +2142,10 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
                         <button
                             onClick={() => giftingUser && handleGiftSend(giftingUser)}
                             disabled={!giftAmount && giftType !== 'shopitem' || (giftType === 'shopitem' && !selectedShopItem)}
-                            className={`flex-[2] py-3 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all transform cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
+                            className={`flex-[2] py-3 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
                                 isBento
                                     ? 'bg-[#fde047] text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:shadow-[4px_4px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 font-mono'
-                                    : 'bg-amber-500 text-white shadow-xl shadow-amber-500/30 hover:shadow-amber-500/50 hover:-translate-y-1'
+                                    : 'bg-[#fde047] hover:bg-[#fef08a] text-[#0a0908]'
                             }`}
                         >
                             Send Gift
@@ -2082,22 +2155,29 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
             >
                 <div className="space-y-6">
                     <div>
-                        <label className="block text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3">
+                        <label className={`block text-xs font-black uppercase tracking-widest mb-3 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>
                             Gift Type
                         </label>
                         <div className="grid grid-cols-3 gap-3">
                             {(['coins', 'xp', 'shopitem'] as const).map(type => (
                                 <button
                                     key={type}
+                                    type="button"
                                     onClick={() => {
                                         setGiftType(type);
                                         setGiftAmount('');
                                     }}
-                                    className={`py-3 px-4 rounded-xl font-bold text-xs uppercase tracking-widest transition-all ${giftType === type
-                                        ? type === 'coins' ? 'bg-yellow-500/10 border border-yellow-500 text-yellow-600 dark:text-yellow-400'
-                                            : type === 'xp' ? 'bg-teal-500/10 border border-teal-500 text-teal-600 dark:text-teal-400'
-                                                : 'bg-blue-500/10 border border-blue-500 text-blue-600 dark:text-blue-400'
-                                        : 'bg-gray-100 dark:bg-[#1c1917] border border-transparent text-gray-600 dark:text-gray-400'
+                                    className={`py-3 px-4 rounded-xl font-bold text-xs uppercase tracking-widest transition-all cursor-pointer ${giftType === type
+                                        ? isBento
+                                            ? type === 'coins' ? 'bg-[#fde047] border-2 border-black text-black shadow-[2px_2px_0px_#000]'
+                                                : type === 'xp' ? 'bg-[#bef264] border-2 border-black text-black shadow-[2px_2px_0px_#000]'
+                                                    : 'bg-[#bae6fd] border-2 border-black text-black shadow-[2px_2px_0px_#000]'
+                                            : type === 'coins' ? 'bg-[#231f14] border-2 border-[#fde047] text-[#fde047]'
+                                                : type === 'xp' ? 'bg-[#1c2317] border-2 border-[#bef264] text-[#bef264]'
+                                                    : 'bg-[#151e24] border-2 border-[#bae6fd] text-[#bae6fd]'
+                                        : isBento
+                                            ? 'bg-[#f5f3ec] border-2 border-black/30 text-black/75 hover:border-black'
+                                            : 'bg-[#1a1714] border border-[#2e2924] text-[#a8a29e] hover:text-[#f5f3ec]'
                                         }`}
                                 >
                                     {type === 'coins' ? '🪙 Coins' : type === 'xp' ? '⭐ XP' : '🛍️ Item'}
@@ -2108,7 +2188,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
 
                     {giftType === 'coins' && (
                         <div>
-                            <label className="block text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3">
+                            <label className={`block text-xs font-black uppercase tracking-widest mb-3 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>
                                 Coins Amount
                             </label>
                             <input
@@ -2117,14 +2197,18 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
                                 onChange={(e) => setGiftAmount(e.target.value)}
                                 placeholder="Enter coins amount"
                                 min="0"
-                                className="w-full px-4 py-3 bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/10 rounded-xl font-bold text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500/20"
+                                className={`w-full px-4 py-3 rounded-xl font-bold focus:outline-none ${
+                                    isBento
+                                        ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                        : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] placeholder-[#78716c] focus:border-[#fde047]'
+                                }`}
                             />
                         </div>
                     )}
 
                     {giftType === 'xp' && (
                         <div>
-                            <label className="block text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3">
+                            <label className={`block text-xs font-black uppercase tracking-widest mb-3 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>
                                 XP Amount
                             </label>
                             <input
@@ -2133,21 +2217,29 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
                                 onChange={(e) => setGiftAmount(e.target.value)}
                                 placeholder="Enter XP amount"
                                 min="0"
-                                className="w-full px-4 py-3 bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/10 rounded-xl font-bold text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                                className={`w-full px-4 py-3 rounded-xl font-bold focus:outline-none ${
+                                    isBento
+                                        ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                        : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] placeholder-[#78716c] focus:border-[#bef264]'
+                                }`}
                             />
                         </div>
                     )}
 
                     {giftType === 'shopitem' && (
                         <div>
-                            <label className="block text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3">
+                            <label className={`block text-xs font-black uppercase tracking-widest mb-3 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>
                                 Select Item
                             </label>
                             <div className="relative">
                                 <select
                                     value={selectedShopItem}
                                     onChange={(e) => setSelectedShopItem(e.target.value)}
-                                    className="w-full px-4 py-3 bg-gray-900 dark:bg-[#1c1917] border border-gray-700 dark:border-[#f5f3ec]/10 rounded-xl font-bold text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 appearance-none cursor-pointer"
+                                    className={`w-full px-4 py-3 rounded-xl font-bold focus:outline-none appearance-none cursor-pointer ${
+                                        isBento
+                                            ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                            : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] focus:border-[#bae6fd]'
+                                    }`}
                                 >
                                     <option value="">Choose an item...</option>
                                     {shopItems.length > 0 ? (
@@ -2160,13 +2252,17 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, attempts, curren
                                         <option value="" disabled>Loading items...</option>
                                     )}
                                 </select>
-                                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
+                                <ChevronDown className={`absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none ${isBento ? 'text-black' : 'text-[#a8a29e]'}`} />
                             </div>
                         </div>
                     )}
 
-                    <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
-                        <p className="text-xs text-blue-600 dark:text-blue-400 font-bold">
+                    <div className={`rounded-xl p-4 ${
+                        isBento
+                            ? 'bg-[#bae6fd] border-2 border-black text-black'
+                            : 'bg-[#151e24] border border-[#bae6fd]/30 text-[#bae6fd]'
+                    }`}>
+                        <p className="text-xs font-bold">
                             💡 The gift will be added to the user's inventory immediately.
                         </p>
                     </div>

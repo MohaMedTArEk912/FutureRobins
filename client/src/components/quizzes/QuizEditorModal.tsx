@@ -62,7 +62,6 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
 
     useEffect(() => {
         if (quiz) {
-            // eslint-disable-next-line react-hooks/set-state-in-effect
             setEditingQuiz({
                 ...quiz,
                 shuffleQuestions: true,
@@ -221,7 +220,7 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
             title={editingQuiz.id ? "Edit Quiz" : "Create Quiz"}
             description={editingQuiz.id ? "Modify existing quiz details and questions" : "Configure new quiz parameters"}
             maxWidth="max-w-3xl"
-            icon={<Edit2 className={`w-6 h-6 ${isBento ? 'text-black' : 'text-teal-500'}`} />}
+            icon={<Edit2 className={`w-6 h-6 ${isBento ? 'text-black' : 'text-[#bef264]'}`} />}
             footer={
                 <div className="flex items-center justify-between gap-3 w-full">
                     <button 
@@ -229,7 +228,7 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                         className={`py-3 px-5 rounded-xl font-black uppercase tracking-wider text-xs transition-all cursor-pointer ${
                             isBento
                                 ? 'bg-white text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:bg-gray-100 active:translate-x-0.5 active:translate-y-0.5'
-                                : 'bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 rounded-xl font-bold hover:bg-gray-200 dark:hover:bg-white/10'
+                                : 'bg-[#1c1917] text-[#d6d0c7] border border-[#2e2924] hover:bg-[#24201c] hover:text-[#f5f3ec]'
                         }`}
                     >
                         Cancel
@@ -239,7 +238,7 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                         className={`flex-1 max-w-xs py-3 px-6 rounded-xl font-black uppercase tracking-wider text-xs transition-all cursor-pointer ${
                             isBento
                                 ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:shadow-[5px_5px_0px_#000] active:translate-x-0.5 active:translate-y-0.5'
-                                : 'bg-teal-600 text-white rounded-xl font-bold hover:bg-teal-500 shadow-lg shadow-teal-500/20'
+                                : 'bg-[#bef264] text-[#0a0908] border border-[#bef264] shadow-[0_3px_0_#050504] hover:bg-[#d2fa8a] active:translate-y-0.5'
                         }`}
                     >
                         Save Quiz Changes
@@ -251,7 +250,7 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
             <div className={`flex gap-2 p-1.5 rounded-2xl mb-5 ${
                 isBento
                     ? 'bg-[#f5f3ec] border-2 border-black shadow-[2px_2px_0px_#000]'
-                    : 'bg-gray-100 dark:bg-white/5'
+                    : 'bg-[#0e0d0b] border border-[#2e2924]'
             }`}>
                 <button
                     type="button"
@@ -260,10 +259,10 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                         activeModalTab === 'general'
                             ? isBento
                                 ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                : 'bg-teal-600 text-white shadow-md'
+                                : 'bg-[#bef264] text-[#0a0908] shadow-[0_2px_0_#050504]'
                             : isBento
                                 ? 'text-gray-700 hover:text-black hover:bg-white/60'
-                                : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
+                                : 'text-[#a8a29e] hover:text-[#f5f3ec] hover:bg-[#1c1917]'
                     }`}
                 >
                     General Settings
@@ -275,10 +274,10 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                         activeModalTab === 'questions'
                             ? isBento
                                 ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                : 'bg-teal-600 text-white shadow-md'
+                                : 'bg-[#bef264] text-[#0a0908] shadow-[0_2px_0_#050504]'
                             : isBento
                                 ? 'text-gray-700 hover:text-black hover:bg-white/60'
-                                : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
+                                : 'text-[#a8a29e] hover:text-[#f5f3ec] hover:bg-[#1c1917]'
                     }`}
                 >
                     Questions ({editingQuiz.questions?.length || 0})
@@ -290,7 +289,7 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                     {/* Title */}
                     <div className="space-y-1">
                         <label className={`text-xs font-black uppercase tracking-wider flex items-center gap-1.5 ${
-                            isBento ? 'text-black' : 'text-gray-700 dark:text-gray-300'
+                            isBento ? 'text-black' : 'text-[#a8a29e]'
                         }`}>
                             <Type className="w-3.5 h-3.5" />
                             <span>Quiz Title</span>
@@ -302,7 +301,7 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                             className={`w-full rounded-xl px-4 py-3 font-bold text-base transition-all ${
                                 isBento
                                     ? 'bg-white border-2 border-black text-black shadow-[2px_2px_0px_#000] focus:shadow-[4px_4px_0px_#000] focus:outline-none'
-                                    : 'bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500/50'
+                                    : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] placeholder-[#78716c] focus:outline-none focus:border-[#bef264]'
                             }`} 
                         />
                     </div>
@@ -310,7 +309,7 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                     {/* Description */}
                     <div className="space-y-1">
                         <label className={`text-xs font-black uppercase tracking-wider flex items-center gap-1.5 ${
-                            isBento ? 'text-black' : 'text-gray-700 dark:text-gray-300'
+                            isBento ? 'text-black' : 'text-[#a8a29e]'
                         }`}>
                             <FileText className="w-3.5 h-3.5" />
                             <span>Description & Objectives</span>
@@ -322,7 +321,7 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                             className={`w-full rounded-xl px-4 py-3 font-medium text-sm transition-all min-h-[75px] resize-y ${
                                 isBento
                                     ? 'bg-white border-2 border-black text-black shadow-[2px_2px_0px_#000] focus:shadow-[4px_4px_0px_#000] focus:outline-none'
-                                    : 'bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500/50'
+                                    : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] placeholder-[#78716c] focus:outline-none focus:border-[#bef264]'
                             }`} 
                             rows={3}
                         />
@@ -334,10 +333,10 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                         <div className={`p-3 rounded-xl ${
                             isBento
                                 ? 'bg-[#fef9c3] border-2 border-black shadow-[2px_2px_0px_#000]'
-                                : 'bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10'
+                                : 'bg-[#1a1714] border border-[#2e2924]'
                         }`}>
-                            <label className={`text-[10px] font-black uppercase tracking-wider block mb-1.5 flex items-center gap-1 ${
-                                isBento ? 'text-black' : 'text-gray-500 dark:text-gray-400'
+                            <label className={`text-[10px] font-black uppercase tracking-wider mb-1.5 flex items-center gap-1 ${
+                                isBento ? 'text-black' : 'text-[#fde047]'
                             }`}>
                                 <Clock className="w-3 h-3" />
                                 <span>Time (min)</span>
@@ -351,20 +350,20 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                                 className={`w-full rounded-lg px-2.5 py-1.5 font-black text-center text-sm focus:outline-none ${
                                     isBento
                                         ? 'bg-white border-2 border-black text-black'
-                                        : 'bg-white dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white'
+                                        : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] focus:border-[#fde047]'
                                 }`} 
                             />
-                            <span className="text-[9px] font-bold text-gray-500 block text-center mt-1">0 = unlimited</span>
+                            <span className={`text-[9px] font-bold block text-center mt-1 ${isBento ? 'text-gray-600' : 'text-[#78716c]'}`}>0 = unlimited</span>
                         </div>
 
                         {/* Passing Score */}
                         <div className={`p-3 rounded-xl ${
                             isBento
                                 ? 'bg-[#f0f9ff] border-2 border-black shadow-[2px_2px_0px_#000]'
-                                : 'bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10'
+                                : 'bg-[#1a1714] border border-[#2e2924]'
                         }`}>
-                            <label className={`text-[10px] font-black uppercase tracking-wider block mb-1.5 flex items-center gap-1 ${
-                                isBento ? 'text-black' : 'text-gray-500 dark:text-gray-400'
+                            <label className={`text-[10px] font-black uppercase tracking-wider mb-1.5 flex items-center gap-1 ${
+                                isBento ? 'text-black' : 'text-[#bae6fd]'
                             }`}>
                                 <Target className="w-3 h-3" />
                                 <span>Pass Score %</span>
@@ -379,20 +378,20 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                                 className={`w-full rounded-lg px-2.5 py-1.5 font-black text-center text-sm focus:outline-none ${
                                     isBento
                                         ? 'bg-white border-2 border-black text-black'
-                                        : 'bg-white dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white'
+                                        : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] focus:border-[#bae6fd]'
                                 }`} 
                             />
-                            <span className="text-[9px] font-bold text-gray-500 block text-center mt-1">Percent required</span>
+                            <span className={`text-[9px] font-bold block text-center mt-1 ${isBento ? 'text-gray-600' : 'text-[#78716c]'}`}>Percent required</span>
                         </div>
 
                         {/* Coins */}
                         <div className={`p-3 rounded-xl ${
                             isBento
                                 ? 'bg-[#f0fdf4] border-2 border-black shadow-[2px_2px_0px_#000]'
-                                : 'bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10'
+                                : 'bg-[#1a1714] border border-[#2e2924]'
                         }`}>
-                            <label className={`text-[10px] font-black uppercase tracking-wider block mb-1.5 flex items-center gap-1 ${
-                                isBento ? 'text-black' : 'text-emerald-600 dark:text-emerald-400'
+                            <label className={`text-[10px] font-black uppercase tracking-wider mb-1.5 flex items-center gap-1 ${
+                                isBento ? 'text-black' : 'text-[#fde047]'
                             }`}>
                                 <Coins className="w-3 h-3" />
                                 <span>Coins</span>
@@ -406,20 +405,20 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                                 className={`w-full rounded-lg px-2.5 py-1.5 font-black text-center text-sm focus:outline-none ${
                                     isBento
                                         ? 'bg-white border-2 border-black text-black'
-                                        : 'bg-white dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white'
+                                        : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] focus:border-[#fde047]'
                                 }`} 
                             />
-                            <span className="text-[9px] font-bold text-gray-500 block text-center mt-1">On completion</span>
+                            <span className={`text-[9px] font-bold block text-center mt-1 ${isBento ? 'text-gray-600' : 'text-[#78716c]'}`}>On completion</span>
                         </div>
 
                         {/* XP Reward */}
                         <div className={`p-3 rounded-xl ${
                             isBento
                                 ? 'bg-[#fff7ed] border-2 border-black shadow-[2px_2px_0px_#000]'
-                                : 'bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10'
+                                : 'bg-[#1a1714] border border-[#2e2924]'
                         }`}>
-                            <label className={`text-[10px] font-black uppercase tracking-wider block mb-1.5 flex items-center gap-1 ${
-                                isBento ? 'text-black' : 'text-indigo-600 dark:text-indigo-400'
+                            <label className={`text-[10px] font-black uppercase tracking-wider mb-1.5 flex items-center gap-1 ${
+                                isBento ? 'text-black' : 'text-[#bef264]'
                             }`}>
                                 <Zap className="w-3 h-3" />
                                 <span>XP Reward</span>
@@ -433,10 +432,10 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                                 className={`w-full rounded-lg px-2.5 py-1.5 font-black text-center text-sm focus:outline-none ${
                                     isBento
                                         ? 'bg-white border-2 border-black text-black'
-                                        : 'bg-white dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white'
+                                        : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] focus:border-[#bef264]'
                                 }`} 
                             />
-                            <span className="text-[9px] font-bold text-gray-500 block text-center mt-1">XP for ranking</span>
+                            <span className={`text-[9px] font-bold block text-center mt-1 ${isBento ? 'text-gray-600' : 'text-[#78716c]'}`}>XP for ranking</span>
                         </div>
                     </div>
 
@@ -446,7 +445,7 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                             {/* Category */}
                             <div className="space-y-1">
                                 <label className={`text-xs font-black uppercase tracking-wider flex items-center gap-1.5 ${
-                                    isBento ? 'text-black' : 'text-gray-500 dark:text-gray-400'
+                                    isBento ? 'text-black' : 'text-[#a8a29e]'
                                 }`}>
                                     <Folder className="w-3.5 h-3.5" />
                                     <span>Category</span>
@@ -459,7 +458,7 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                                     className={`w-full rounded-xl px-3.5 py-2.5 font-bold text-sm transition-all ${
                                         isBento
                                             ? 'bg-white border-2 border-black text-black shadow-[2px_2px_0px_#000] focus:shadow-[4px_4px_0px_#000] focus:outline-none'
-                                            : 'bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500/50'
+                                            : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] placeholder-[#78716c] focus:outline-none focus:border-[#bef264]'
                                     }`} 
                                 />
                             </div>
@@ -467,7 +466,7 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                             {/* Subject / Stack */}
                             <div className="space-y-1">
                                 <label className={`text-xs font-black uppercase tracking-wider flex items-center gap-1.5 ${
-                                    isBento ? 'text-black' : 'text-gray-500 dark:text-gray-400'
+                                    isBento ? 'text-black' : 'text-[#a8a29e]'
                                 }`}>
                                     <Layers className="w-3.5 h-3.5" />
                                     <span>Road / Stack</span>
@@ -478,7 +477,7 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                                     className={`w-full rounded-xl px-3.5 py-2.5 font-bold text-sm transition-all appearance-none cursor-pointer ${
                                         isBento
                                             ? 'bg-white border-2 border-black text-black shadow-[2px_2px_0px_#000] focus:shadow-[4px_4px_0px_#000] focus:outline-none'
-                                            : 'bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500/50'
+                                            : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] focus:outline-none focus:border-[#bef264]'
                                     }`}
                                 >
                                     <option value="">Uncategorized</option>
@@ -491,7 +490,7 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                             {/* Difficulty */}
                             <div className="space-y-1">
                                 <label className={`text-xs font-black uppercase tracking-wider flex items-center gap-1.5 ${
-                                    isBento ? 'text-black' : 'text-gray-500 dark:text-gray-400'
+                                    isBento ? 'text-black' : 'text-[#a8a29e]'
                                 }`}>
                                     <Sliders className="w-3.5 h-3.5" />
                                     <span>Difficulty Level</span>
@@ -502,7 +501,7 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                                     className={`w-full rounded-xl px-3.5 py-2.5 font-bold text-sm transition-all appearance-none cursor-pointer ${
                                         isBento
                                             ? 'bg-white border-2 border-black text-black shadow-[2px_2px_0px_#000] focus:shadow-[4px_4px_0px_#000] focus:outline-none'
-                                            : 'bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500/50'
+                                            : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] focus:outline-none focus:border-[#bef264]'
                                     }`}
                                 >
                                     {DIFFICULTY_LEVELS.map(level => (
@@ -514,9 +513,10 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                             {/* Quiz Type */}
                             <div className="space-y-1">
                                 <label className={`text-xs font-black uppercase tracking-wider flex items-center gap-1.5 ${
-                                    isBento ? 'text-black' : 'text-gray-500 dark:text-gray-400'
+                                    isBento ? 'text-black' : 'text-[#a8a29e]'
                                 }`}>
-                                    <span>🎯 Quiz Type</span>
+                                    <Target className="w-3.5 h-3.5" />
+                                    <span>Quiz Type</span>
                                 </label>
                                 <select 
                                     value={editingQuiz.quizType || (editingQuiz.isQuestionPool ? 'pool' : 'quiz')} 
@@ -532,7 +532,7 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                                     className={`w-full rounded-xl px-3.5 py-2.5 font-bold text-sm transition-all appearance-none cursor-pointer ${
                                         isBento
                                             ? 'bg-white border-2 border-black text-black shadow-[2px_2px_0px_#000] focus:shadow-[4px_4px_0px_#000] focus:outline-none'
-                                            : 'bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500/50'
+                                            : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] focus:outline-none focus:border-[#bef264]'
                                     }`}
                                 >
                                     <option value="quiz">Regular Quiz</option>
@@ -545,9 +545,9 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                         {/* Icon Picker */}
                         <div className="space-y-1">
                             <label className={`text-xs font-black uppercase tracking-wider flex items-center gap-1.5 ${
-                                isBento ? 'text-black' : 'text-gray-500 dark:text-gray-400'
+                                isBento ? 'text-black' : 'text-[#a8a29e]'
                             }`}>
-                                <Sparkles className="w-3.5 h-3.5 text-black" /> 
+                                <Sparkles className={`w-3.5 h-3.5 ${isBento ? 'text-black' : 'text-[#fde047]'}`} /> 
                                 <span>Quiz Badge Icon</span>
                             </label>
                             <div className="grid grid-cols-4 gap-2">
@@ -566,8 +566,8 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                                                         ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000]'
                                                         : 'bg-white text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000] hover:bg-gray-50'
                                                     : isSelected
-                                                        ? 'bg-teal-500/10 border border-teal-500 text-teal-600 dark:text-teal-300 shadow-sm'
-                                                        : 'bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400 hover:border-teal-300'
+                                                        ? 'bg-[#bef264]/15 border-[1.5px] border-[#bef264] text-[#bef264]'
+                                                        : 'bg-[#0e0d0b] border border-[#2e2924] text-[#a8a29e] hover:border-[#443d35] hover:text-[#f5f3ec]'
                                             }`}
                                         >
                                             <Icon className="w-5 h-5" />
@@ -585,31 +585,39 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                         <div className={`p-4 rounded-xl space-y-3 ${
                             isBento
                                 ? 'bg-[#bae6fd] border-2 border-black shadow-[3px_3px_0px_#000]'
-                                : 'p-4 bg-blue-50 dark:bg-blue-950/30 rounded-xl border border-blue-200 dark:border-blue-800'
+                                : 'bg-[#1a1714] border border-[#bae6fd]/35'
                         }`}>
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
-                                    <span className="text-sm font-black uppercase text-black tracking-wider">Question Bank Configuration</span>
+                                    <span className={`text-sm font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>Question Bank Configuration</span>
                                 </div>
-                                <span className="px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest bg-white border border-black shadow-[1px_1px_0px_#000] text-black">
+                                <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${
+                                    isBento
+                                        ? 'bg-white border border-black shadow-[1px_1px_0px_#000] text-black'
+                                        : 'bg-[#bae6fd]/15 border border-[#bae6fd]/40 text-[#bae6fd]'
+                                }`}>
                                     Pool Mode Active
                                 </span>
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="space-y-1">
-                                    <label className="text-xs text-black font-black uppercase">Questions Per Attempt</label>
+                                    <label className={`text-xs font-black uppercase ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>Questions Per Attempt</label>
                                     <input 
                                         type="number" 
                                         min="1" 
                                         max={Math.max(1, editingQuiz.questions?.length || 100)}
                                         value={editingQuiz.questionsPerAttempt || 10} 
                                         onChange={e => setEditingQuiz({ ...editingQuiz, questionsPerAttempt: Math.max(1, parseInt(e.target.value) || 1) })} 
-                                        className="w-full bg-white border-2 border-black rounded-xl px-4 py-2.5 text-black font-black focus:outline-none shadow-[2px_2px_0px_#000]" 
+                                        className={`w-full rounded-xl px-4 py-2.5 font-black focus:outline-none ${
+                                            isBento
+                                                ? 'bg-white border-2 border-black text-black shadow-[2px_2px_0px_#000]'
+                                                : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] focus:border-[#bae6fd]'
+                                        }`} 
                                     />
                                 </div>
-                                <div className="flex flex-col justify-center text-xs text-black font-semibold">
-                                    <span>Bank contains <strong>{editingQuiz.questions?.length || 0}</strong> total questions.</span>
-                                    <span className="opacity-80">Takes ~{Math.ceil((editingQuiz.questions?.length || 1) / (editingQuiz.questionsPerAttempt || 10))} rounds to test all questions.</span>
+                                <div className={`flex flex-col justify-center text-xs font-semibold ${isBento ? 'text-black' : 'text-[#d6d0c7]'}`}>
+                                    <span>Bank contains <strong className={isBento ? 'text-black' : 'text-[#bae6fd]'}>{editingQuiz.questions?.length || 0}</strong> total questions.</span>
+                                    <span className={isBento ? 'opacity-80' : 'text-[#a8a29e]'}>Takes ~{Math.ceil((editingQuiz.questions?.length || 1) / (editingQuiz.questionsPerAttempt || 10))} rounds to test all questions.</span>
                                 </div>
                             </div>
                         </div>
@@ -620,27 +628,39 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                         {/* Visible to Students */}
                         <div 
                             onClick={() => setEditingQuiz({ ...editingQuiz, isVisible: editingQuiz.isVisible === false ? true : false })}
-                            className={`p-3.5 rounded-xl border-2 border-black shadow-[2px_2px_0px_#000] flex items-center justify-between gap-3 cursor-pointer select-none transition-all ${
-                                editingQuiz.isVisible !== false
-                                    ? isBento ? 'bg-[#dcfce7]' : 'bg-emerald-50 dark:bg-emerald-900/20'
-                                    : 'bg-white dark:bg-black/20 opacity-70'
+                            className={`p-3.5 rounded-xl flex items-center justify-between gap-3 cursor-pointer select-none transition-all ${
+                                isBento
+                                    ? `border-2 border-black shadow-[2px_2px_0px_#000] ${editingQuiz.isVisible !== false ? 'bg-[#dcfce7]' : 'bg-white opacity-70'}`
+                                    : editingQuiz.isVisible !== false
+                                        ? 'bg-[#171d14] border border-[#bef264]/35 hover:border-[#bef264]/60'
+                                        : 'bg-[#1a1714] border border-[#2e2924] opacity-75 hover:opacity-100'
                             }`}
                         >
                             <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-lg bg-white border-2 border-black flex items-center justify-center shadow-[1px_1px_0px_#000] shrink-0">
-                                    <Eye className="w-4 h-4 text-black" />
+                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                                    isBento
+                                        ? 'bg-white border-2 border-black shadow-[1px_1px_0px_#000] text-black'
+                                        : editingQuiz.isVisible !== false
+                                            ? 'bg-[#bef264]/15 border border-[#bef264]/40 text-[#bef264]'
+                                            : 'bg-[#0e0d0b] border border-[#2e2924] text-[#a8a29e]'
+                                }`}>
+                                    <Eye className="w-4 h-4" />
                                 </div>
                                 <div>
-                                    <div className="text-xs font-black uppercase tracking-wider text-black">
+                                    <div className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>
                                         Visible to Students
                                     </div>
-                                    <div className="text-[11px] font-bold text-gray-700">
+                                    <div className={`text-[11px] font-bold ${isBento ? 'text-gray-700' : 'text-[#a8a29e]'}`}>
                                         Turn this off to hide the quiz from public browsing while keeping it editable in admin tools.
                                     </div>
                                 </div>
                             </div>
-                            <div className={`w-6 h-6 rounded-lg border-2 border-black flex items-center justify-center font-black text-xs ${
-                                editingQuiz.isVisible !== false ? 'bg-[#bef264] text-black' : 'bg-white text-transparent'
+                            <div className={`w-6 h-6 rounded-lg flex items-center justify-center font-black text-xs shrink-0 ${
+                                isBento
+                                    ? `border-2 border-black ${editingQuiz.isVisible !== false ? 'bg-[#bef264] text-black' : 'bg-white text-transparent'}`
+                                    : editingQuiz.isVisible !== false
+                                        ? 'bg-[#bef264] text-[#0a0908] border border-[#bef264]'
+                                        : 'bg-[#0e0d0b] text-transparent border border-[#3a342e]'
                             }`}>
                                 ✓
                             </div>
@@ -649,27 +669,39 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                         {/* Enable Review Mode */}
                         <div 
                             onClick={() => setEditingQuiz({ ...editingQuiz, reviewMode: !editingQuiz.reviewMode })}
-                            className={`p-3.5 rounded-xl border-2 border-black shadow-[2px_2px_0px_#000] flex items-center justify-between gap-3 cursor-pointer select-none transition-all ${
-                                editingQuiz.reviewMode
-                                    ? isBento ? 'bg-[#fed7aa]' : 'bg-teal-50 dark:bg-teal-900/20'
-                                    : 'bg-white dark:bg-black/20 opacity-70'
+                            className={`p-3.5 rounded-xl flex items-center justify-between gap-3 cursor-pointer select-none transition-all ${
+                                isBento
+                                    ? `border-2 border-black shadow-[2px_2px_0px_#000] ${editingQuiz.reviewMode ? 'bg-[#fed7aa]' : 'bg-white opacity-70'}`
+                                    : editingQuiz.reviewMode
+                                        ? 'bg-[#171c20] border border-[#bae6fd]/35 hover:border-[#bae6fd]/60'
+                                        : 'bg-[#1a1714] border border-[#2e2924] opacity-75 hover:opacity-100'
                             }`}
                         >
                             <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-lg bg-white border-2 border-black flex items-center justify-center shadow-[1px_1px_0px_#000] shrink-0">
-                                    <Sparkles className="w-4 h-4 text-black" />
+                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                                    isBento
+                                        ? 'bg-white border-2 border-black shadow-[1px_1px_0px_#000] text-black'
+                                        : editingQuiz.reviewMode
+                                            ? 'bg-[#bae6fd]/15 border border-[#bae6fd]/40 text-[#bae6fd]'
+                                            : 'bg-[#0e0d0b] border border-[#2e2924] text-[#a8a29e]'
+                                }`}>
+                                    <Sparkles className="w-4 h-4" />
                                 </div>
                                 <div>
-                                    <div className="text-xs font-black uppercase tracking-wider text-black">
+                                    <div className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>
                                         Enable Review Mode
                                     </div>
-                                    <div className="text-[11px] font-bold text-gray-700">
+                                    <div className={`text-[11px] font-bold ${isBento ? 'text-gray-700' : 'text-[#a8a29e]'}`}>
                                         Show immediate feedback and explanations after each answer.
                                     </div>
                                 </div>
                             </div>
-                            <div className={`w-6 h-6 rounded-lg border-2 border-black flex items-center justify-center font-black text-xs ${
-                                editingQuiz.reviewMode ? 'bg-[#bef264] text-black' : 'bg-white text-transparent'
+                            <div className={`w-6 h-6 rounded-lg flex items-center justify-center font-black text-xs shrink-0 ${
+                                isBento
+                                    ? `border-2 border-black ${editingQuiz.reviewMode ? 'bg-[#bef264] text-black' : 'bg-white text-transparent'}`
+                                    : editingQuiz.reviewMode
+                                        ? 'bg-[#bef264] text-[#0a0908] border border-[#bef264]'
+                                        : 'bg-[#0e0d0b] text-transparent border border-[#3a342e]'
                             }`}>
                                 ✓
                             </div>
@@ -677,24 +709,34 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
 
                         {/* Shuffle Questions (Always Enforced) */}
                         <div 
-                            className={`p-3.5 rounded-xl border-2 border-black shadow-[2px_2px_0px_#000] flex items-center justify-between gap-3 select-none ${
-                                isBento ? 'bg-[#fef08a]' : 'bg-orange-50 dark:bg-orange-900/20'
+                            className={`p-3.5 rounded-xl flex items-center justify-between gap-3 select-none ${
+                                isBento
+                                    ? 'bg-[#fef08a] border-2 border-black shadow-[2px_2px_0px_#000]'
+                                    : 'bg-[#1e1b13] border border-[#fde047]/35'
                             }`}
                         >
                             <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-lg bg-white border-2 border-black flex items-center justify-center shadow-[1px_1px_0px_#000] shrink-0">
-                                    <Sliders className="w-4 h-4 text-black" />
+                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                                    isBento
+                                        ? 'bg-white border-2 border-black shadow-[1px_1px_0px_#000] text-black'
+                                        : 'bg-[#fde047]/15 border border-[#fde047]/40 text-[#fde047]'
+                                }`}>
+                                    <Sliders className="w-4 h-4" />
                                 </div>
                                 <div>
-                                    <div className="text-xs font-black uppercase tracking-wider text-black">
+                                    <div className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>
                                         Shuffle Questions Order (Always On)
                                     </div>
-                                    <div className="text-[11px] font-bold text-gray-700">
+                                    <div className={`text-[11px] font-bold ${isBento ? 'text-gray-700' : 'text-[#a8a29e]'}`}>
                                         Question order is always randomized for every quiz attempt across the platform.
                                     </div>
                                 </div>
                             </div>
-                            <div className="w-6 h-6 rounded-lg border-2 border-black flex items-center justify-center font-black text-xs bg-[#bef264] text-black">
+                            <div className={`w-6 h-6 rounded-lg flex items-center justify-center font-black text-xs shrink-0 ${
+                                isBento
+                                    ? 'bg-[#bef264] text-black border-2 border-black'
+                                    : 'bg-[#bef264] text-[#0a0908] border border-[#bef264]'
+                            }`}>
                                 ✓
                             </div>
                         </div>
@@ -706,16 +748,16 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                     <div className={`flex flex-wrap items-center justify-between gap-3 p-4 rounded-2xl ${
                         isBento
                             ? 'bg-[#fef08a] border-2 border-black shadow-[3px_3px_0px_#000]'
-                            : 'bg-gray-50 dark:bg-white/5'
+                            : 'bg-[#1a1714] border border-[#2e2924]'
                     }`}>
                         <div className="flex items-center gap-2.5">
-                            <span className={`font-black text-sm uppercase tracking-wider ${isBento ? 'text-black' : 'text-gray-900 dark:text-white'}`}>
+                            <span className={`font-black text-sm uppercase tracking-wider ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>
                                 📝 Questions Pool
                             </span>
                             <span className={`px-2.5 py-1 rounded-lg text-xs font-black ${
                                 isBento 
                                     ? 'bg-white border-2 border-black shadow-[1.5px_1.5px_0px_#000] text-black' 
-                                    : 'bg-teal-100 dark:bg-teal-900/40 text-teal-700 dark:text-teal-300'
+                                    : 'bg-[#bef264]/15 border border-[#bef264]/35 text-[#bef264]'
                             }`}>
                                 {editingQuiz.questions?.length || 0} Questions
                             </span>
@@ -735,7 +777,7 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                             className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer ${
                                 isBento
                                     ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:shadow-[4px_4px_0px_#000] active:translate-x-0.5 active:translate-y-0.5'
-                                    : 'bg-teal-600 text-white rounded-lg text-sm font-bold shadow-md hover:bg-teal-500'
+                                    : 'bg-[#bef264] text-[#0a0908] border border-[#bef264] shadow-[0_2px_0_#050504] hover:bg-[#d2fa8a]'
                             }`}
                         >
                             <Plus className="w-4 h-4" />
@@ -747,7 +789,7 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                     <div className={`flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl border transition-all ${
                         isBento 
                             ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000]'
-                            : 'bg-white/60 dark:bg-white/5 border-gray-200 dark:border-white/10'
+                            : 'bg-[#1a1714] border-[#2e2924]'
                     }`}>
                         <div className="flex items-center gap-2">
                             <button
@@ -756,19 +798,19 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                                 className={`px-2.5 py-1 rounded-lg text-xs font-black uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer ${
                                     isBento
                                         ? 'bg-white text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000] hover:bg-gray-50'
-                                        : 'bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-300'
+                                        : 'bg-[#0e0d0b] border border-[#2e2924] text-[#d6d0c7] hover:border-[#bef264] hover:text-[#f5f3ec]'
                                 }`}
                             >
                                 {editingQuiz.questions?.length > 0 && selectedQuestionIds.length === editingQuiz.questions.length ? (
-                                    <CheckSquare className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                                    <CheckSquare className={`w-4 h-4 ${isBento ? 'text-black' : 'text-[#bef264]'}`} />
                                 ) : (
-                                    <Square className="w-4 h-4 text-gray-400" />
+                                    <Square className={`w-4 h-4 ${isBento ? 'text-gray-500' : 'text-[#78716c]'}`} />
                                 )}
                                 <span>{editingQuiz.questions?.length > 0 && selectedQuestionIds.length === editingQuiz.questions.length ? 'Deselect All' : 'Select All'}</span>
                             </button>
                             {selectedQuestionIds.length > 0 && (
                                 <span className={`px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider ${
-                                    isBento ? 'bg-[#bef264] text-black border border-black' : 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300'
+                                    isBento ? 'bg-[#bef264] text-black border border-black' : 'bg-[#bef264]/15 border border-[#bef264]/40 text-[#bef264]'
                                 }`}>
                                     {selectedQuestionIds.length} Selected
                                 </span>
@@ -783,7 +825,7 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                                     className={`px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer ${
                                         isBento
                                             ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000]'
-                                            : 'bg-teal-600 text-white shadow-sm'
+                                            : 'bg-[#bef264] text-[#0a0908] hover:bg-[#d2fa8a]'
                                     }`}
                                 >
                                     <Sliders className="w-3.5 h-3.5" />
@@ -795,7 +837,7 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                                     className={`px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer ${
                                         isBento
                                             ? 'bg-[#ff6b6b] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000]'
-                                            : 'bg-red-600 text-white shadow-sm'
+                                            : 'bg-[#fb7185] text-[#0a0908] hover:bg-[#fda4af]'
                                     }`}
                                 >
                                     <Trash2 className="w-3.5 h-3.5" />
@@ -804,7 +846,7 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                                 <button
                                     type="button"
                                     onClick={() => setSelectedQuestionIds([])}
-                                    className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 text-gray-400 cursor-pointer"
+                                    className={`p-1 rounded-lg cursor-pointer ${isBento ? 'hover:bg-gray-100 text-black' : 'hover:bg-[#24201c] text-[#a8a29e] hover:text-[#f5f3ec]'}`}
                                 >
                                     <X className="w-3.5 h-3.5" />
                                 </button>
@@ -840,10 +882,10 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                                         selectedQuestionIds.includes(q.id)
                                             ? isBento
                                                 ? 'bg-[#fef9c3] border-2 border-black shadow-[4px_4px_0px_#000] ring-2 ring-[#bef264]'
-                                                : 'bg-teal-50/50 dark:bg-teal-950/20 border-2 border-teal-500 shadow-sm'
+                                                : 'bg-[#171d14] border-[1.5px] border-[#bef264]'
                                             : isBento
                                                 ? 'bg-white border-2 border-black shadow-[3px_3px_0px_#000] hover:shadow-[4px_4px_0px_#000]'
-                                                : 'bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/5'
+                                                : 'bg-[#1a1714] border border-[#2e2924] hover:border-[#443d35]'
                                     }`}>
                                         <div className="flex items-center gap-3 min-w-0 flex-1">
                                             <button
@@ -854,10 +896,10 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                                                     selectedQuestionIds.includes(q.id)
                                                         ? isBento
                                                             ? 'bg-[#bef264] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]'
-                                                            : 'bg-teal-600 text-white shadow-sm'
+                                                            : 'bg-[#bef264] text-[#0a0908] border border-[#bef264]'
                                                         : isBento
                                                             ? 'bg-white border-2 border-black hover:bg-gray-100 shadow-[1px_1px_0px_#000]'
-                                                            : 'bg-gray-100 dark:bg-white/10 border border-gray-300 dark:border-white/20 text-transparent'
+                                                            : 'bg-[#0e0d0b] border border-[#3a342e] text-transparent hover:border-[#bef264]'
                                                 }`}
                                             >
                                                 {selectedQuestionIds.includes(q.id) && <Check className="w-4 h-4 stroke-[3]" />}
@@ -865,12 +907,12 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                                             <span className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs shrink-0 ${
                                                 isBento
                                                     ? 'bg-[#bae6fd] border-2 border-black shadow-[1.5px_1.5px_0px_#000] text-black'
-                                                    : 'bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-300'
+                                                    : 'bg-[#bae6fd]/15 border border-[#bae6fd]/35 text-[#bae6fd]'
                                             }`}>
                                                 Q{i + 1}
                                             </span>
                                             <div className="min-w-0 flex-1 pr-2">
-                                                <p className={`font-bold text-sm truncate ${isBento ? 'text-black' : 'text-gray-700 dark:text-gray-200'}`}>
+                                                <p className={`font-bold text-sm truncate ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>
                                                     {q.question || 'Untitled Question'}
                                                 </p>
                                                 <div className="flex items-center gap-2 mt-1">
@@ -889,7 +931,7 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                                                             <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${
                                                                 isBento
                                                                     ? `${badge.color} border border-black text-black shadow-[1px_1px_0px_#000]`
-                                                                    : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+                                                                    : 'bg-[#24201c] border border-[#3a342e] text-[#d6d0c7]'
                                                             }`}>
                                                                 {badge.label}
                                                             </span>
@@ -898,22 +940,22 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                                                     <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${
                                                         isBento
                                                             ? 'bg-[#bef264] border border-black text-black shadow-[1px_1px_0px_#000]'
-                                                            : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                                                            : 'bg-[#bef264]/15 border border-[#bef264]/35 text-[#bef264]'
                                                     }`}>
                                                         {q.points || 10} pts
                                                     </span>
                                                     {!q.isCompiler && (!q.type || q.type === 'multiple-choice') && q.options && (
-                                                        <span className={`text-[10px] font-bold ${isBento ? 'text-gray-600' : 'text-gray-400'}`}>
+                                                        <span className={`text-[10px] font-bold ${isBento ? 'text-gray-600' : 'text-[#a8a29e]'}`}>
                                                             • {q.options.length} options
                                                         </span>
                                                     )}
                                                     {q.type === 'ordering' && q.orderingItems && (
-                                                        <span className={`text-[10px] font-bold ${isBento ? 'text-gray-600' : 'text-gray-400'}`}>
+                                                        <span className={`text-[10px] font-bold ${isBento ? 'text-gray-600' : 'text-[#a8a29e]'}`}>
                                                             • {q.orderingItems.length} steps
                                                         </span>
                                                     )}
                                                     {q.type === 'matching' && q.matchingPairs && (
-                                                        <span className={`text-[10px] font-bold ${isBento ? 'text-gray-600' : 'text-gray-400'}`}>
+                                                        <span className={`text-[10px] font-bold ${isBento ? 'text-gray-600' : 'text-[#a8a29e]'}`}>
                                                             • {q.matchingPairs.length} pairs
                                                         </span>
                                                     )}
@@ -939,7 +981,7 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                                                 className={`p-2 rounded-lg transition-all cursor-pointer ${
                                                     isBento
                                                         ? 'bg-[#bae6fd] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000] active:translate-x-0.5 active:translate-y-0.5'
-                                                        : 'text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20'
+                                                        : 'bg-[#0e0d0b] border border-[#2e2924] text-[#bae6fd] hover:border-[#bae6fd]'
                                                 }`}
                                                 title="Edit Question"
                                             >
@@ -951,7 +993,7 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                                                 className={`p-2 rounded-lg transition-all cursor-pointer ${
                                                     isBento
                                                         ? 'bg-[#fca5a5] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000] active:translate-x-0.5 active:translate-y-0.5'
-                                                        : 'text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20'
+                                                        : 'bg-[#0e0d0b] border border-[#2e2924] text-[#fb7185] hover:border-[#fb7185]'
                                                 }`}
                                                 title="Delete Question"
                                             >
@@ -978,8 +1020,8 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                         <button
                             type="button"
                             onClick={() => setIsBulkEditQuestionsOpen(false)}
-                            className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider ${
-                                isBento ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]' : 'bg-gray-100 dark:bg-white/10'
+                            className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider cursor-pointer ${
+                                isBento ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]' : 'bg-[#1c1917] text-[#d6d0c7] border border-[#2e2924] hover:bg-[#24201c]'
                             }`}
                         >
                             Cancel
@@ -988,8 +1030,8 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                             type="button"
                             onClick={handleApplyBulkQuestionEdit}
                             disabled={!enableBulkPoints && !enableBulkPart && !enableBulkType}
-                            className={`px-5 py-2 rounded-xl text-xs font-black uppercase tracking-wider disabled:opacity-50 ${
-                                isBento ? 'bg-[#bef264] text-black border-2 border-black shadow-[2.5px_2.5px_0px_#000]' : 'bg-teal-600 text-white'
+                            className={`px-5 py-2 rounded-xl text-xs font-black uppercase tracking-wider disabled:opacity-50 cursor-pointer ${
+                                isBento ? 'bg-[#bef264] text-black border-2 border-black shadow-[2.5px_2.5px_0px_#000]' : 'bg-[#bef264] text-[#0a0908] hover:bg-[#d2fa8a]'
                             }`}
                         >
                             Apply Changes
@@ -999,10 +1041,10 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
             >
                 <div className="space-y-4">
                     {/* Points */}
-                    <div className={`p-3 rounded-xl border ${isBento ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000]' : 'bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/10'}`}>
+                    <div className={`p-3 rounded-xl border ${isBento ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000]' : 'bg-[#1a1714] border-[#2e2924]'}`}>
                         <label onClick={() => setEnableBulkPoints(!enableBulkPoints)} className="flex items-center gap-2 cursor-pointer mb-2">
-                            <input type="checkbox" checked={enableBulkPoints} onChange={() => {}} className="cursor-pointer" />
-                            <span className="text-xs font-black uppercase">Update Points</span>
+                            <input type="checkbox" checked={enableBulkPoints} onChange={() => {}} className="cursor-pointer accent-[#bef264]" />
+                            <span className={`text-xs font-black uppercase ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>Update Points</span>
                         </label>
                         {enableBulkPoints && (
                             <div className="flex items-center gap-2 pl-6">
@@ -1012,19 +1054,19 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                                     value={bulkQuestionPoints}
                                     onChange={e => setBulkQuestionPoints(Math.max(1, parseInt(e.target.value) || 1))}
                                     className={`w-24 px-3 py-1.5 rounded-lg text-sm font-black text-center ${
-                                        isBento ? 'border-2 border-black shadow-[1.5px_1.5px_0px_#000]' : 'border'
+                                        isBento ? 'bg-white text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]' : 'bg-[#0e0d0b] text-[#f5f3ec] border border-[#2e2924]'
                                     }`}
                                 />
-                                <span className="text-xs font-bold">pts</span>
+                                <span className={`text-xs font-bold ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>pts</span>
                             </div>
                         )}
                     </div>
 
                     {/* Part */}
-                    <div className={`p-3 rounded-xl border ${isBento ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000]' : 'bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/10'}`}>
+                    <div className={`p-3 rounded-xl border ${isBento ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000]' : 'bg-[#1a1714] border-[#2e2924]'}`}>
                         <label onClick={() => setEnableBulkPart(!enableBulkPart)} className="flex items-center gap-2 cursor-pointer mb-2">
-                            <input type="checkbox" checked={enableBulkPart} onChange={() => {}} className="cursor-pointer" />
-                            <span className="text-xs font-black uppercase">Update Part Section</span>
+                            <input type="checkbox" checked={enableBulkPart} onChange={() => {}} className="cursor-pointer accent-[#bef264]" />
+                            <span className={`text-xs font-black uppercase ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>Update Part Section</span>
                         </label>
                         {enableBulkPart && (
                             <div className="pl-6">
@@ -1034,7 +1076,7 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                                     onChange={e => setBulkQuestionPart(e.target.value.toUpperCase())}
                                     placeholder="e.g. A, B, 1, 2"
                                     className={`w-24 px-3 py-1.5 rounded-lg text-sm font-black text-center ${
-                                        isBento ? 'border-2 border-black shadow-[1.5px_1.5px_0px_#000]' : 'border'
+                                        isBento ? 'bg-white text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]' : 'bg-[#0e0d0b] text-[#f5f3ec] border border-[#2e2924]'
                                     }`}
                                 />
                             </div>
@@ -1042,10 +1084,10 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                     </div>
 
                     {/* Question Type */}
-                    <div className={`p-3 rounded-xl border ${isBento ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000]' : 'bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/10'}`}>
+                    <div className={`p-3 rounded-xl border ${isBento ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000]' : 'bg-[#1a1714] border-[#2e2924]'}`}>
                         <label onClick={() => setEnableBulkType(!enableBulkType)} className="flex items-center gap-2 cursor-pointer mb-2">
-                            <input type="checkbox" checked={enableBulkType} onChange={() => {}} className="cursor-pointer" />
-                            <span className="text-xs font-black uppercase">Update Question Type</span>
+                            <input type="checkbox" checked={enableBulkType} onChange={() => {}} className="cursor-pointer accent-[#bef264]" />
+                            <span className={`text-xs font-black uppercase ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>Update Question Type</span>
                         </label>
                         {enableBulkType && (
                             <div className="flex flex-wrap gap-2 pl-6">
@@ -1056,8 +1098,8 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                                         onClick={() => setBulkQuestionType(t)}
                                         className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider cursor-pointer ${
                                             bulkQuestionType === t
-                                                ? isBento ? 'bg-[#bef264] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]' : 'bg-teal-600 text-white'
-                                                : isBento ? 'bg-white text-black border border-black' : 'bg-gray-100 dark:bg-white/10'
+                                                ? isBento ? 'bg-[#bef264] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]' : 'bg-[#bef264] text-[#0a0908]'
+                                                : isBento ? 'bg-white text-black border border-black' : 'bg-[#0e0d0b] text-[#a8a29e] border border-[#2e2924] hover:text-[#f5f3ec]'
                                         }`}
                                     >
                                         {t.replace('-', ' ')}
@@ -1068,11 +1110,11 @@ const QuizEditorModal: React.FC<QuizEditorModalProps> = ({
                     </div>
 
                     {/* Shuffle Answer Options (Always Enforced) */}
-                    <div className={`p-3 rounded-xl border ${isBento ? 'bg-[#fef9c3]/50 border-2 border-black shadow-[2px_2px_0px_#000]' : 'bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/10'}`}>
+                    <div className={`p-3 rounded-xl border ${isBento ? 'bg-[#fef9c3]/50 border-2 border-black shadow-[2px_2px_0px_#000]' : 'bg-[#1e1b13] border-[#fde047]/35'}`}>
                         <div className="flex items-center justify-between gap-2">
-                            <span className="text-xs font-black uppercase">Shuffle Answer Options</span>
+                            <span className={`text-xs font-black uppercase ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>Shuffle Answer Options</span>
                             <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase ${
-                                isBento ? 'bg-[#bef264] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]' : 'bg-teal-600 text-white'
+                                isBento ? 'bg-[#bef264] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]' : 'bg-[#bef264] text-[#0a0908]'
                             }`}>
                                 Always Enabled
                             </span>

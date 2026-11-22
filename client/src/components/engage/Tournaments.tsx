@@ -1337,14 +1337,23 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
       {/* RESULTS GATING AWAITING REVEAL HOLDING MODAL                   */}
       {/* ============================================================== */}
       {awaitingTournament && (
-        <div className="app-dialog-overlay fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="app-dialog-panel app-dialog-panel--padded bg-white dark:bg-[#1c1917] rounded-3xl border border-gray-200 dark:border-white/10 max-w-lg w-full p-8 shadow-2xl relative space-y-6 text-center">
+        <div className="app-dialog-overlay fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 animate-in fade-in duration-300">
+          <div className={`app-dialog-panel app-dialog-panel--padded rounded-3xl max-w-lg w-full p-8 relative space-y-6 text-center ${
+            isBento
+              ? 'bg-white text-black border-[3px] border-black shadow-[8px_8px_0px_#000]'
+              : 'bg-[#141210] text-[#f5f3ec] border-[1.5px] border-[#2e2924] shadow-[0_8px_0_#050504,0_24px_60px_rgba(0,0,0,0.78)]'
+          }`}>
             <button
+              type="button"
               onClick={() => {
                 setAwaitingTournament(null);
                 setSearchParams({});
               }}
-              className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-white rounded-xl transition-colors cursor-pointer"
+              className={`absolute top-4 right-4 p-2 rounded-xl transition-colors cursor-pointer ${
+                isBento
+                  ? 'bg-white text-black border-2 border-black hover:bg-[#fed7aa] shadow-[2px_2px_0px_#000]'
+                  : 'bg-[#1a1714] border border-[#2e2924] text-[#a8a29e] hover:text-[#f5f3ec] hover:border-[#bef264]/50'
+              }`}
             >
               <X className="w-5 h-5" />
             </button>
@@ -1352,22 +1361,26 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
             {/* Radar / Celebration Graphic */}
             <div className="relative w-24 h-24 mx-auto flex items-center justify-center">
               <div className={`absolute inset-0 rounded-full animate-ping opacity-25 ${
-                isRevealedUnlock ? 'bg-teal-500' : 'bg-amber-500'
+                isRevealedUnlock ? 'bg-[#bef264]' : 'bg-[#fde047]'
               }`} />
-              <div className={`w-20 h-20 rounded-2xl flex items-center justify-center text-white shadow-xl relative z-10 ${
-                isRevealedUnlock
-                  ? 'bg-teal-500 shadow-teal-500/30'
-                  : 'bg-amber-400 shadow-orange-500/30'
+              <div className={`w-20 h-20 rounded-2xl flex items-center justify-center relative z-10 ${
+                isBento
+                  ? isRevealedUnlock
+                    ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000]'
+                    : 'bg-[#fde047] text-black border-2 border-black shadow-[3px_3px_0px_#000]'
+                  : isRevealedUnlock
+                    ? 'bg-[#bef264] text-[#0a0908]'
+                    : 'bg-[#fde047] text-[#0a0908]'
               }`}>
                 {isRevealedUnlock ? <Unlock className="w-10 h-10" /> : <Trophy className="w-10 h-10" />}
               </div>
             </div>
 
             <div className="space-y-2">
-              <h3 className="text-2xl font-black uppercase tracking-tight text-gray-900 dark:text-white">
+              <h3 className={`text-2xl font-black uppercase tracking-tight ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>
                 {isRevealedUnlock ? '🎉 Results are Revealed!' : 'Submission Received!'}
               </h3>
-              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-semibold max-w-sm mx-auto leading-relaxed">
+              <p className={`text-xs sm:text-sm font-semibold max-w-sm mx-auto leading-relaxed ${isBento ? 'text-neutral-700' : 'text-[#a8a29e]'}`}>
                 {isRevealedUnlock
                   ? 'The tournament master has published all scores and rankings. You can now see where you stand on the podium!'
                   : 'Your answers have been securely recorded. To maintain competitive integrity, scores are locked until the tournament master officially reveals results.'}
@@ -1377,9 +1390,13 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
             {/* Live Status Pulse & Refresh */}
             <div className="flex items-center gap-2">
               <div className={`flex-1 p-4 rounded-2xl flex items-center justify-center gap-3 text-xs font-black uppercase tracking-wider ${
-                isRevealedUnlock
-                  ? 'bg-teal-500/10 text-teal-600 dark:text-teal-300 border border-teal-500/20'
-                  : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'
+                isBento
+                  ? isRevealedUnlock
+                    ? 'bg-[#bef264] text-black border-2 border-black'
+                    : 'bg-[#fef08a] text-black border-2 border-black'
+                  : isRevealedUnlock
+                    ? 'bg-[#1c2317] text-[#bef264] border border-[#bef264]/35'
+                    : 'bg-[#231f14] text-[#fde047] border border-[#fde047]/35'
               }`}>
                 <Radio className={`w-4 h-4 ${isRevealedUnlock ? '' : 'animate-spin'}`} />
                 <span>{isRevealedUnlock ? 'Official Bracket Unlocked' : 'Listening for Teacher Reveal...'}</span>
@@ -1406,8 +1423,8 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
                   disabled={isRefreshing}
                   className={`p-4 rounded-2xl transition-all flex items-center justify-center cursor-pointer ${
                     isBento
-                      ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-slate-100'
-                      : 'bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 text-amber-600 dark:text-amber-400'
+                      ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#f5f3ec]'
+                      : 'bg-[#231f14] hover:bg-[#2e2818] border border-[#fde047]/35 text-[#fde047]'
                   }`}
                   title="Check if results were revealed"
                 >
@@ -1420,23 +1437,33 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
             <div className="space-y-2 pt-2">
               {isRevealedUnlock ? (
                 <button
+                  type="button"
                   onClick={() => {
                     setSelectedLeaderboardId(awaitingTournament.tournamentId);
                     setActiveTab('leaderboards');
                     setAwaitingTournament(null);
                     setSearchParams({});
                   }}
-                  className="w-full py-4 bg-teal-600 hover:bg-teal-700 text-white rounded-2xl font-black text-xs uppercase tracking-widest cursor-pointer shadow-lg shadow-teal-600/30 transition-all flex items-center justify-center gap-2"
+                  className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest cursor-pointer transition-all flex items-center justify-center gap-2 ${
+                    isBento
+                      ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[3px_3px_0px_#000]'
+                      : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908]'
+                  }`}
                 >
                   <Trophy className="w-4 h-4" /> View My Official Rank on Leaderboard
                 </button>
               ) : (
                 <button
+                  type="button"
                   onClick={() => {
                     setAwaitingTournament(null);
                     setSearchParams({});
                   }}
-                  className="w-full py-3.5 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 text-gray-700 dark:text-gray-300 rounded-2xl font-black text-xs uppercase tracking-wider cursor-pointer transition-all"
+                  className={`w-full py-3.5 rounded-2xl font-black text-xs uppercase tracking-wider cursor-pointer transition-all ${
+                    isBento
+                      ? 'bg-white hover:bg-[#f5f3ec] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                      : 'bg-[#1a1714] hover:bg-[#24201c] border border-[#2e2924] text-[#d6d0c7]'
+                  }`}
                 >
                   Back to Tournaments Arena
                 </button>

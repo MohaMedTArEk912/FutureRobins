@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Edit2 } from 'lucide-react';
 import Modal from '../common/Modal';
 import { AVAILABLE_ICONS } from '../../utils/constants';
+import { useTheme } from '../../context/ThemeContext';
 import * as LucideIcons from 'lucide-react';
 import type { Subject } from '../../types';
 
@@ -13,6 +14,7 @@ interface StackEditModalProps {
 }
 
 const StackEditModal: React.FC<StackEditModalProps> = ({ isOpen, subject, onClose, onSave }) => {
+    const { isBento } = useTheme();
     const [editForm, setEditForm] = useState<Subject | null>(null);
 
     useEffect(() => {
@@ -36,13 +38,27 @@ const StackEditModal: React.FC<StackEditModalProps> = ({ isOpen, subject, onClos
             title="Edit Stack"
             description="Update stack details including title, description and icon."
             maxWidth="max-w-md"
-            icon={<Edit2 className="w-6 h-6 text-teal-500" />}
+            icon={<Edit2 className={`w-6 h-6 ${isBento ? 'text-black' : 'text-[#bef264]'}`} />}
             footer={
                 <>
-                    <button onClick={onClose} className="flex-1 py-3 bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 rounded-xl font-bold hover:bg-gray-200 dark:hover:bg-white/10">
+                    <button
+                        onClick={onClose}
+                        className={`flex-1 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all cursor-pointer ${
+                            isBento
+                                ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-gray-100'
+                                : 'bg-[#1c1917] text-[#d6d0c7] border border-[#2e2924] hover:bg-[#24201c]'
+                        }`}
+                    >
                         Cancel
                     </button>
-                    <button onClick={handleSave} className="flex-1 py-3 bg-teal-600 text-white rounded-xl font-bold hover:bg-teal-500 shadow-lg shadow-teal-500/20">
+                    <button
+                        onClick={handleSave}
+                        className={`flex-1 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all cursor-pointer ${
+                            isBento
+                                ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:bg-[#a3e635]'
+                                : 'bg-[#bef264] text-[#0a0908] hover:bg-[#d2fa8a] shadow-[0_3px_0_#050504]'
+                        }`}
+                    >
                         Save Changes
                     </button>
                 </>
@@ -50,26 +66,36 @@ const StackEditModal: React.FC<StackEditModalProps> = ({ isOpen, subject, onClos
         >
             <div className="space-y-4">
                 <div>
-                    <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Title</label>
+                    <label className={`block text-xs font-black uppercase mb-2 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>Title</label>
                     <input
-                        className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all font-bold"
+                        className={`w-full rounded-xl px-4 py-3 focus:outline-none transition-all font-bold ${
+                            isBento
+                                ? 'bg-white border-2 border-black text-black shadow-[2px_2px_0px_#000]'
+                                : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] focus:border-[#bef264]'
+                        }`}
                         value={editForm.title}
                         onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
                         placeholder="e.g. Mathematics"
                     />
                 </div>
                 <div>
-                    <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Description</label>
+                    <label className={`block text-xs font-black uppercase mb-2 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>Description</label>
                     <textarea
-                        className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500 h-24 resize-none transition-all"
+                        className={`w-full rounded-xl px-4 py-3 focus:outline-none h-24 resize-none transition-all ${
+                            isBento
+                                ? 'bg-white border-2 border-black text-black shadow-[2px_2px_0px_#000]'
+                                : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] focus:border-[#bef264]'
+                        }`}
                         value={editForm.description}
                         onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
                         placeholder="Describe the contents of this stack..."
                     />
                 </div>
                 <div>
-                    <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Icon</label>
-                    <div className="grid grid-cols-6 gap-2 bg-gray-50 dark:bg-black/40 p-3 rounded-xl border border-gray-200 dark:border-white/10 max-h-48 overflow-y-auto custom-scrollbar">
+                    <label className={`block text-xs font-black uppercase mb-2 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>Icon</label>
+                    <div className={`grid grid-cols-6 gap-2 p-3 rounded-xl border max-h-48 overflow-y-auto custom-scrollbar ${
+                        isBento ? 'bg-[#f5f3ec] border-2 border-black' : 'bg-[#0e0d0b] border-[#2e2924]'
+                    }`}>
                         {AVAILABLE_ICONS.map(iconName => {
                             // eslint-disable-next-line @typescript-eslint/no-explicit-any
                             const IconComp = (LucideIcons as any)[iconName];
@@ -77,8 +103,17 @@ const StackEditModal: React.FC<StackEditModalProps> = ({ isOpen, subject, onClos
                             return (
                                 <button
                                     key={iconName}
+                                    type="button"
                                     onClick={() => setEditForm({ ...editForm, icon: iconName })}
-                                    className={`aspect-square flex items-center justify-center rounded-lg transition-all ${isSelected ? 'bg-teal-600 text-white shadow-lg shadow-teal-500/30' : 'text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10'}`}
+                                    className={`aspect-square flex items-center justify-center rounded-lg transition-all cursor-pointer ${
+                                        isSelected
+                                            ? isBento
+                                                ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                                : 'bg-[#bef264] text-[#0a0908]'
+                                            : isBento
+                                                ? 'bg-white text-black border border-black/30 hover:border-black'
+                                                : 'text-[#a8a29e] hover:bg-[#1c1917] hover:text-[#f5f3ec]'
+                                    }`}
                                 >
                                     {IconComp ? <IconComp className="w-5 h-5" /> : <div className="w-5 h-5 bg-gray-500/20 rounded" />}
                                 </button>

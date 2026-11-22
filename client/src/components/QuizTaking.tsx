@@ -1554,20 +1554,6 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
         }
     };
 
-    const getPowerUpColor = (type: string) => {
-        switch (type) {
-            case 'hint': return 'bg-amber-500';
-            case 'time': return 'bg-sky-600';
-            case 'skip': return 'bg-teal-600';
-            case 'shield': return 'bg-emerald-600';
-            case 'auto_pair': return 'bg-teal-600';
-            case 'lock_step': return 'bg-sky-600';
-            case 'letter_reveal': return 'bg-orange-500';
-            case 'code_hint': return 'bg-indigo-600';
-            default: return 'bg-indigo-600';
-        }
-    };
-
     const currentQuestionType: 'compiler' | 'ordering' | 'matching' | 'code-output' | 'text' | 'multiple-choice' =
         q.isCompiler || q.type === 'compiler'
             ? 'compiler'
@@ -1681,20 +1667,32 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
             {/* Fullscreen Exit Warning Modal */}
             {showFullscreenWarning && !(user?.role === 'admin' || user?.isAdmin) && (
                 <div className="app-dialog-overlay fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-                    <div className="app-dialog-panel app-dialog-panel--padded bg-white dark:bg-[#141210] text-gray-900 dark:text-white border-2 border-red-500 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-4 text-center">
-                        <div className="w-14 h-14 rounded-2xl bg-red-500/15 text-red-500 flex items-center justify-center mx-auto">
+                    <div className={`app-dialog-panel app-dialog-panel--padded rounded-2xl p-6 sm:p-8 max-w-md w-full space-y-4 text-center ${
+                        isBento
+                            ? 'bg-white text-black border-[3px] border-black shadow-[8px_8px_0px_#000]'
+                            : 'bg-[#141210] text-[#f5f3ec] border-2 border-[#fb7185] shadow-[0_8px_0_#050504]'
+                    }`}>
+                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mx-auto ${
+                            isBento
+                                ? 'bg-[#fecdd3] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                : 'bg-[#fb7185]/15 text-[#fb7185] border border-[#fb7185]/35'
+                        }`}>
                             <Shield className="w-8 h-8" />
                         </div>
-                        <h3 className="text-xl font-black uppercase tracking-tight text-red-600 dark:text-red-400">
+                        <h3 className={`text-xl font-black uppercase tracking-tight ${isBento ? 'text-black' : 'text-[#fb7185]'}`}>
                             Security Alert: Fullscreen Exit
                         </h3>
-                        <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed font-medium">
+                        <p className={`text-xs leading-relaxed font-medium ${isBento ? 'text-slate-700' : 'text-[#d6d0c7]'}`}>
                             You exited fullscreen mode. This event has been recorded in the exam security audit log. Please return to fullscreen immediately to avoid penalties.
                         </p>
                         <button
                             type="button"
                             onClick={enterFullscreen}
-                            className="w-full py-3.5 bg-red-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-[1.01] active:scale-[0.99] transition-all shadow-lg shadow-red-500/25 cursor-pointer"
+                            className={`w-full py-3.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all cursor-pointer ${
+                                isBento
+                                    ? 'bg-[#ff6b6b] hover:bg-[#ff5252] text-black border-2 border-black shadow-[3px_3px_0px_#000]'
+                                    : 'bg-[#fb7185] hover:bg-[#fda4af] text-[#0a0908] shadow-[0_3px_0_#050504]'
+                            }`}
                         >
                             Return to Fullscreen
                         </button>
@@ -2790,39 +2788,39 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
             {/* --- SHOP OVERLAY (Feature 9) --- */}
             {showShop && (
                 <div className={`app-dialog-overlay app-dialog-overlay--edge fixed inset-0 z-[100] flex items-center justify-end transition-all animate-in fade-in ${
-                    isBento ? 'bg-black/60' : 'bg-black/40 backdrop-blur-sm'
+                    isBento ? 'bg-black/60' : 'bg-[#050504]/80'
                 }`}>
                     <div className={`app-dialog-panel app-dialog-panel--structured w-full max-w-md h-full sm:h-auto flex flex-col animate-in slide-in-from-right sm:slide-in-from-bottom-8 ${
                         isBento
                             ? 'bg-white border-[3px] border-black sm:rounded-2xl shadow-[8px_8px_0px_#000]'
-                            : 'bg-white dark:bg-[#141210] sm:rounded-3xl shadow-2xl border border-gray-200 dark:border-[#f5f3ec]/10'
+                            : 'bg-[#141210] text-[#f5f3ec] sm:rounded-2xl border-[1.5px] border-[#2e2924] shadow-[0_8px_0_#050504]'
                     }`}>
                         
                         {/* Shop Header */}
                         <div className={`app-dialog-header p-6 flex justify-between items-center ${
                             isBento
                                 ? 'bg-[#fde047] border-b-[2.5px] border-black'
-                                : 'p-6 border-b border-gray-100 dark:border-[#f5f3ec]/10 bg-gray-50 dark:bg-[#141210]'
+                                : 'border-b border-[#2e2924] bg-[#1a1714]'
                         }`}>
                             <div className="flex items-center gap-3">
                                 <div className={`p-2 rounded-lg ${
                                     isBento
                                         ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] text-black'
-                                        : 'bg-yellow-100 dark:bg-yellow-500/20 text-yellow-600 dark:text-yellow-400'
+                                        : 'bg-[#fde047]/15 border border-[#fde047]/35 text-[#fde047]'
                                 }`}>
                                     <ShoppingBag className="w-6 h-6" />
                                 </div>
                                 <div>
-                                    <h2 className={`text-xl font-black leading-none ${isBento ? 'text-black' : 'text-gray-900 dark:text-white'}`}>Item Shop</h2>
-                                    <p className={`text-xs font-bold mt-1 ${isBento ? 'text-black/70' : 'text-gray-500 dark:text-gray-400'}`}>Mid-Quiz Boosters</p>
+                                    <h2 className={`text-xl font-black leading-none ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>Item Shop</h2>
+                                    <p className={`text-xs font-bold mt-1 ${isBento ? 'text-black/70' : 'text-[#a8a29e]'}`}>Mid-Quiz Boosters</p>
                                 </div>
                             </div>
                             <button
                                 onClick={() => setShowShop(false)}
-                                className={`p-2 rounded-xl transition shrink-0 ${
+                                className={`p-2 rounded-xl transition shrink-0 cursor-pointer ${
                                     isBento
                                         ? 'border-2 border-black bg-white text-black hover:bg-[#fed7aa] shadow-[2px_2px_0px_#000] active:translate-x-0.5 active:translate-y-0.5'
-                                        : 'bg-gray-200 hover:bg-gray-300 dark:bg-[#1c1917] dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300'
+                                        : 'bg-[#1c1917] border border-[#2e2924] hover:border-[#bef264] text-[#a8a29e] hover:text-[#f5f3ec]'
                                 }`}
                             >
                                 <XCircle className="w-6 h-6" />
@@ -2834,17 +2832,17 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                             <div className={`inline-flex items-center gap-3 px-6 py-3 rounded-2xl ${
                                 isBento
                                     ? 'bg-[#fef08a] border-2 border-black shadow-[3px_3px_0px_#000]'
-                                    : 'bg-yellow-50 dark:bg-yellow-500/10 border border-yellow-200 dark:border-yellow-500/20 shadow-inner'
+                                    : 'bg-[#1e1b13] border border-[#fde047]/35'
                             }`}>
-                                <Coins className={`w-6 h-6 ${isBento ? 'text-black' : 'text-yellow-500'}`} />
-                                <span className={`text-3xl font-black ${isBento ? 'text-black' : 'text-yellow-600 dark:text-yellow-400'}`}>{localCoins}</span>
+                                <Coins className={`w-6 h-6 ${isBento ? 'text-black' : 'text-[#fde047]'}`} />
+                                <span className={`text-3xl font-black ${isBento ? 'text-black' : 'text-[#fde047]'}`}>{localCoins}</span>
                             </div>
                         </div>
 
                         {/* Owned Inventory Quick Access inside Store (Filtered by Question Type) */}
                         {localPowerUps.some(p => p.quantity > 0 && isPowerUpRelevantForType(p.type, currentQuestionType)) && (
-                            <div className={`px-6 pb-4 border-b ${isBento ? 'border-black' : 'border-gray-100 dark:border-[#f5f3ec]/10'}`}>
-                                <div className={`text-xs font-black uppercase tracking-wider mb-2 text-start ${isBento ? 'text-black' : 'text-gray-400 dark:text-gray-500'}`}>
+                            <div className={`px-6 pb-4 border-b ${isBento ? 'border-black' : 'border-[#2e2924]'}`}>
+                                <div className={`text-xs font-black uppercase tracking-wider mb-2 text-start ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>
                                     {tx('Your Inventory', 'أدواتك الجاهزة')}
                                 </div>
                                 <div className="flex gap-2 flex-wrap justify-start">
@@ -2858,13 +2856,13 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                                             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-black text-xs transition-all cursor-pointer ${
                                                 isBento
                                                     ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000] active:translate-x-0.5 active:translate-y-0.5'
-                                                    : `${getPowerUpColor(p.type)} text-white font-extrabold shadow-md hover:scale-105`
+                                                    : 'bg-[#bef264] text-[#0a0908] hover:bg-[#d2fa8a]'
                                             }`}
                                             title={`Use ${p.type}`}
                                         >
                                             {getPowerUpIcon(p.type, "w-3.5 h-3.5")}
                                             <span className="capitalize">{p.type.replace('_', ' ')}</span>
-                                            <span className={`px-1.5 py-0.5 rounded-md text-[10px] ${isBento ? 'bg-black text-white font-black' : 'bg-white/20'}`}>{p.quantity}</span>
+                                            <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-black ${isBento ? 'bg-black text-white' : 'bg-[#0a0908] text-[#bef264]'}`}>{p.quantity}</span>
                                         </button>
                                     ))}
                                 </div>
@@ -2872,13 +2870,13 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                         )}
 
                         {/* Shop Items List (Filtered by Current Question Type) */}
-                        <div className={`app-dialog-body app-dialog-body-spaced flex flex-col gap-3.5 ${isBento ? 'bg-white' : 'bg-white dark:bg-transparent'}`}>
+                        <div className={`app-dialog-body app-dialog-body-spaced flex flex-col gap-3.5 ${isBento ? 'bg-white' : 'bg-transparent'}`}>
                             <div className="flex items-center justify-between gap-2">
-                                <span className={`text-[11px] font-black uppercase tracking-wider ${isBento ? 'text-black/70' : 'text-slate-500 dark:text-slate-400'}`}>
+                                <span className={`text-[11px] font-black uppercase tracking-wider ${isBento ? 'text-black/70' : 'text-[#a8a29e]'}`}>
                                     {tx('Items for this question type:', 'أدوات مناسبة لنوع السؤال ده:')}
                                 </span>
                                 <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase ${
-                                    isBento ? 'bg-[#bae6fd] text-black border border-black' : 'bg-indigo-500/15 text-indigo-600 dark:text-indigo-300'
+                                    isBento ? 'bg-[#bae6fd] text-black border border-black' : 'bg-[#bae6fd]/15 text-[#bae6fd] border border-[#bae6fd]/35'
                                 }`}>
                                     {currentQuestionTypeLabel}
                                 </span>
@@ -2902,39 +2900,39 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                                     <div key={item.type} className={`flex flex-row items-center gap-4 p-4 rounded-2xl relative overflow-hidden transition-all ${
                                         isBento
                                             ? 'bg-[#f5f3ec] border-2 border-black shadow-[3px_3px_0px_#000] hover:shadow-[5px_5px_0px_#000]'
-                                            : 'bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/16 shadow-sm group hover:border-indigo-300 dark:hover:border-indigo-500 hover:shadow-md'
+                                            : 'bg-[#1a1714] border border-[#2e2924] group hover:border-[#bef264]/60'
                                     }`}>
                                         
                                         <div className={`w-14 h-14 rounded-xl flex items-center justify-center shrink-0 transition-transform ${
                                             isBento
                                                 ? 'bg-[#bae6fd] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                                : `${getPowerUpColor(item.icon)} shadow-lg text-white group-hover:scale-105`
+                                                : 'bg-[#0e0d0b] border border-[#2e2924] text-[#fde047] group-hover:border-[#fde047]/50'
                                         }`}>
                                             {getPowerUpIcon(item.icon, "w-7 h-7")}
                                         </div>
                                         
                                         <div className="flex-1">
                                             <div className="flex justify-between items-start">
-                                                <h3 className={`font-black text-base leading-tight mb-0.5 ${isBento ? 'text-black' : 'text-gray-900 dark:text-white font-bold'}`}>{item.name}</h3>
+                                                <h3 className={`font-black text-base leading-tight mb-0.5 ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>{item.name}</h3>
                                                 {ownedQuantity > 0 && (
                                                     <span className={`px-2 py-0.5 rounded-lg font-black text-[10px] uppercase tracking-wider ${
                                                         isBento
                                                             ? 'bg-[#bef264] text-black border border-black shadow-[1px_1px_0px_#000]'
-                                                            : 'bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400 font-extrabold'
+                                                            : 'bg-[#bef264]/15 text-[#bef264] border border-[#bef264]/35'
                                                     }`}>
                                                         Owned: {ownedQuantity}
                                                     </span>
                                                 )}
                                             </div>
-                                            <div className={`text-xs pr-2 leading-relaxed ${isBento ? 'text-gray-700 font-medium' : 'text-gray-500 dark:text-gray-400'}`}>{item.desc}</div>
+                                            <div className={`text-xs pr-2 leading-relaxed ${isBento ? 'text-gray-700 font-medium' : 'text-[#a8a29e]'}`}>{item.desc}</div>
                                             
                                             <div className="mt-3 flex items-center justify-between gap-2 flex-wrap">
                                                 <span className={`font-black flex items-center gap-1.5 text-sm ${
                                                     isBento
                                                         ? 'text-black'
-                                                        : canAfford ? 'text-yellow-600 dark:text-yellow-400' : 'text-gray-400 dark:text-gray-500'
+                                                        : canAfford ? 'text-[#fde047]' : 'text-[#78716c]'
                                                 }`}>
-                                                    <Coins className={`w-4 h-4 ${isBento ? 'text-yellow-500 fill-yellow-400' : ''}`}/> {item.price}
+                                                    <Coins className={`w-4 h-4 ${isBento ? 'text-yellow-500 fill-yellow-400' : 'text-[#fde047]'}`}/> {item.price}
                                                 </span>
                                                 <div className="flex gap-2 ml-auto">
                                                     {ownedQuantity > 0 && (
@@ -2943,10 +2941,10 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                                                                 handleUseOwnedItem(item.type);
                                                                 setShowShop(false);
                                                             }}
-                                                            className={`px-3 py-2 rounded-xl text-xs transition-all active:scale-95 flex items-center gap-1 ${
+                                                            className={`px-3 py-2 rounded-xl text-xs font-black uppercase transition-all cursor-pointer flex items-center gap-1 ${
                                                                 isBento
-                                                                    ? 'bg-[#67e8f9] hover:bg-[#22d3ee] text-black font-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                                                    : 'bg-green-600 hover:bg-green-700 text-white font-bold shadow-md'
+                                                                    ? 'bg-[#bae6fd] hover:bg-[#7dd3fc] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                                                    : 'bg-[#bae6fd] hover:bg-[#e0f2fe] text-[#0a0908]'
                                                             }`}
                                                         >
                                                             Use
@@ -2957,12 +2955,14 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                                                             handleBuyItem(item.type, item.price, apiId);
                                                         }}
                                                         disabled={!canAfford}
-                                                        className={`px-3.5 py-2 rounded-xl text-xs transition-all active:scale-95 flex items-center gap-1 ${
+                                                        className={`px-3.5 py-2 rounded-xl text-xs font-black uppercase transition-all cursor-pointer flex items-center gap-1 ${
                                                             isBento
                                                                 ? canAfford
-                                                                    ? 'bg-[#bef264] hover:bg-[#a3e635] text-black font-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                                                    : 'bg-gray-200 text-gray-400 border-2 border-gray-300 font-black cursor-not-allowed'
-                                                                : 'bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-200 dark:disabled:bg-gray-800 disabled:text-gray-400 text-white font-bold shadow-md'
+                                                                    ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                                                    : 'bg-gray-200 text-gray-400 border-2 border-gray-300 cursor-not-allowed'
+                                                                : canAfford
+                                                                    ? 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908]'
+                                                                    : 'bg-[#0e0d0b] text-[#78716c] border border-[#2e2924] cursor-not-allowed'
                                                         }`}
                                                     >
                                                         Buy
@@ -2981,41 +2981,37 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
             {/* AI Coach Hints Top-Up Modal */}
             {showAICoachBuyModal && (
                 <div 
-                    className="app-dialog-overlay fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200"
+                    className={`app-dialog-overlay fixed inset-0 z-[110] flex items-center justify-center p-4 animate-in fade-in duration-200 ${
+                        isBento ? 'bg-black/60 backdrop-blur-sm' : 'bg-[#050504]/82'
+                    }`}
                     onClick={() => setShowAICoachBuyModal(false)}
                 >
                     <div 
-                        className={`app-dialog-panel app-dialog-panel--structured max-w-md w-full rounded-3xl overflow-hidden transition-all flex flex-col max-h-[92vh] animate-in zoom-in-95 duration-200 ${
+                        className={`app-dialog-panel app-dialog-panel--structured max-w-md w-full rounded-2xl overflow-hidden transition-all flex flex-col max-h-[92vh] animate-in zoom-in-95 duration-200 ${
                             isBento
-                                ? 'bg-[#fff7ed] border-[3.5px] border-black shadow-[8px_8px_0px_#000] text-black'
-                                : theme === 'dark'
-                                    ? 'bg-[#0c1020]/95 backdrop-blur-2xl border border-indigo-500/35 text-white shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9)]'
-                                    : 'bg-white/95 backdrop-blur-2xl border border-slate-200 text-slate-900 shadow-2xl'
+                                ? 'bg-white border-[3px] border-black shadow-[8px_8px_0px_#000] text-black'
+                                : 'bg-[#141210] border-[1.5px] border-[#2e2924] text-[#f5f3ec] shadow-[0_8px_0_#050504]'
                         }`}
                         onClick={(e) => e.stopPropagation()}
                     >
                         {/* Modal Header */}
                         <div className={`app-dialog-header p-6 pb-4 flex items-center justify-between border-b ${
                             isBento 
-                                ? 'border-b-[2.5px] border-black bg-white' 
-                                : theme === 'dark' 
-                                    ? 'border-indigo-500/20 bg-white/[0.02]' 
-                                    : 'border-slate-100 bg-slate-50/60'
+                                ? 'border-b-[2.5px] border-black bg-[#fef08a]' 
+                                : 'border-[#2e2924] bg-[#1a1714]'
                         }`}>
                             <div className="flex items-center gap-3">
-                                <div className={`p-2.5 rounded-2xl ${
+                                <div className={`p-2.5 rounded-xl ${
                                     isBento
-                                        ? 'bg-[#fdba74] border-2 border-black shadow-[2px_2px_0px_#000] text-black'
-                                        : theme === 'dark'
-                                            ? 'bg-teal-500/30 border border-teal-400/30 text-teal-300 shadow-sm'
-                                            : 'bg-teal-100 text-teal-700 border border-teal-200'
+                                        ? 'bg-[#bef264] border-2 border-black shadow-[2px_2px_0px_#000] text-black'
+                                        : 'bg-[#fde047]/15 border border-[#fde047]/35 text-[#fde047]'
                                 }`}>
-                                    <Sparkles className="w-6 h-6 animate-pulse" />
+                                    <Sparkles className="w-6 h-6" />
                                 </div>
                                 <div>
-                                    <h2 className="text-xl font-black leading-tight">AI Coach Hints</h2>
+                                    <h2 className={`text-xl font-black leading-tight ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>AI Coach Hints</h2>
                                     <p className={`text-xs font-bold mt-0.5 ${
-                                        isBento ? 'text-slate-600' : theme === 'dark' ? 'text-indigo-200/70' : 'text-slate-500'
+                                        isBento ? 'text-slate-700' : 'text-[#a8a29e]'
                                     }`}>
                                         Socratic pointers • 0 spoilers
                                     </p>
@@ -3027,9 +3023,7 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                                 className={`p-2 rounded-xl transition-all cursor-pointer ${
                                     isBento
                                         ? 'border-2 border-black bg-white text-black hover:bg-[#fed7aa] shadow-[2px_2px_0px_#000] active:translate-x-0.5 active:translate-y-0.5'
-                                        : theme === 'dark'
-                                            ? 'bg-white/10 hover:bg-white/15 text-white/80 border border-white/10'
-                                            : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
+                                        : 'bg-[#1c1917] border border-[#2e2924] hover:border-[#bef264] text-[#a8a29e] hover:text-[#f5f3ec]'
                                 }`}
                                 aria-label="Close modal"
                             >
@@ -3041,19 +3035,15 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                         <div className={`app-dialog-toolbar p-5 pb-4 flex flex-col items-center justify-center gap-2 border-b ${
                             isBento
                                 ? 'bg-white border-b-2 border-black'
-                                : theme === 'dark'
-                                    ? 'bg-indigo-950/40 border-indigo-500/15'
-                                    : 'bg-teal-50/50 border-slate-100'
+                                : 'bg-[#161411] border-[#2e2924]'
                         }`}>
                             <div className="flex items-center gap-3 w-full justify-between px-1">
                                 <div className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl ${
                                     isBento
                                         ? 'bg-[#fdba74] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                        : theme === 'dark'
-                                            ? 'bg-teal-500/20 text-teal-200 border border-teal-400/30'
-                                            : 'bg-teal-100 text-teal-800 border border-teal-200'
+                                        : 'bg-[#bae6fd]/12 text-[#bae6fd] border border-[#bae6fd]/35'
                                 }`}>
-                                    <Sparkles className="w-4 h-4 text-teal-600 dark:text-teal-300" />
+                                    <Sparkles className={`w-4 h-4 ${isBento ? 'text-black' : 'text-[#bae6fd]'}`} />
                                     <span className="text-xs font-black">
                                         {aiCoachUsesLeft} hint{aiCoachUsesLeft === 1 ? '' : 's'} remaining
                                     </span>
@@ -3062,11 +3052,9 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                                 <div className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl ${
                                     isBento
                                         ? 'bg-[#fef08a] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                        : theme === 'dark'
-                                            ? 'bg-amber-400/15 text-amber-300 border border-amber-400/30'
-                                            : 'bg-amber-100 text-amber-900 border border-amber-300'
+                                        : 'bg-[#fde047]/12 text-[#fde047] border border-[#fde047]/35'
                                 }`}>
-                                    <Coins className="w-4 h-4 text-yellow-500" />
+                                    <Coins className={`w-4 h-4 ${isBento ? 'text-black' : 'text-[#fde047]'}`} />
                                     <span className="text-xs font-black">{localCoins} Coins</span>
                                 </div>
                             </div>
@@ -3075,7 +3063,7 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                                 <div className={`w-full text-center py-1.5 px-3 rounded-lg text-xs font-black animate-in fade-in slide-in-from-top-1 ${
                                     isBento
                                         ? 'bg-[#bef264] text-black border-2 border-black'
-                                        : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                                        : 'bg-[#bef264]/15 text-[#bef264] border border-[#bef264]/35'
                                 }`}>
                                     🎉 {purchaseFeedback}
                                 </div>
@@ -3085,7 +3073,7 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                         {/* Hint Packs */}
                         <div className="app-dialog-body app-dialog-body-spaced p-5 pt-3 overflow-y-auto no-scrollbar flex flex-col gap-3">
                             <div className={`text-[11px] font-black uppercase tracking-wider ${
-                                isBento ? 'text-black' : theme === 'dark' ? 'text-indigo-300' : 'text-slate-500'
+                                isBento ? 'text-black' : 'text-[#fde047]'
                             }`}>
                                 Select a Hint Pack
                             </div>
@@ -3125,9 +3113,7 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                                         className={`p-4 rounded-2xl transition-all relative flex flex-col justify-between gap-3 ${
                                             isBento
                                                 ? 'bg-white border-2 border-black shadow-[3px_3px_0px_#000] hover:shadow-[5px_5px_0px_#000]'
-                                                : theme === 'dark'
-                                                    ? 'bg-white/[0.04] hover:bg-white/[0.07] border border-white/10 hover:border-indigo-500/50'
-                                                    : 'bg-slate-50/80 hover:bg-slate-100/90 border border-slate-200'
+                                                : 'bg-[#1a1714] border border-[#2e2924] hover:border-[#bef264]/60'
                                         }`}
                                     >
                                         <div className="flex items-start justify-between gap-2">
@@ -3135,18 +3121,16 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                                                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm shrink-0 ${
                                                     isBento
                                                         ? 'bg-[#bae6fd] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]'
-                                                        : theme === 'dark'
-                                                            ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
-                                                            : 'bg-indigo-100 text-indigo-800 border border-indigo-200'
+                                                        : 'bg-[#bae6fd]/15 text-[#bae6fd] border border-[#bae6fd]/35'
                                                 }`}>
                                                     +{pack.hints}
                                                 </div>
                                                 <div>
-                                                    <h3 className="font-black text-sm sm:text-base leading-snug">
+                                                    <h3 className={`font-black text-sm sm:text-base leading-snug ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>
                                                         {pack.title}
                                                     </h3>
                                                     <p className={`text-xs mt-0.5 ${
-                                                        isBento ? 'text-slate-600' : theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                                                        isBento ? 'text-slate-600' : 'text-[#a8a29e]'
                                                     }`}>
                                                         {pack.desc}
                                                     </p>
@@ -3157,9 +3141,7 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                                                 <span className={`px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider shrink-0 ${
                                                     isBento
                                                         ? 'bg-[#fef08a] text-black border border-black shadow-[1px_1px_0px_#000]'
-                                                        : theme === 'dark'
-                                                            ? 'bg-amber-400/20 text-amber-300 border border-amber-400/30'
-                                                            : 'bg-amber-100 text-amber-900 border border-amber-300'
+                                                        : 'bg-[#fde047]/15 text-[#fde047] border border-[#fde047]/35'
                                                 }`}>
                                                     {pack.badge}
                                                 </span>
@@ -3167,10 +3149,10 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                                         </div>
 
                                         <div className={`flex items-center justify-between pt-2 border-t ${
-                                            isBento ? 'border-black/10' : theme === 'dark' ? 'border-white/10' : 'border-slate-200'
+                                            isBento ? 'border-black/15' : 'border-[#2e2924]'
                                         }`}>
-                                            <div className="flex items-center gap-1.5 font-black text-sm">
-                                                <Coins className="w-4 h-4 text-yellow-500" />
+                                            <div className={`flex items-center gap-1.5 font-black text-sm ${isBento ? 'text-black' : 'text-[#fde047]'}`}>
+                                                <Coins className={`w-4 h-4 ${isBento ? 'text-yellow-500' : 'text-[#fde047]'}`} />
                                                 <span>{pack.price} Coins</span>
                                             </div>
 
@@ -3184,8 +3166,8 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                                                             ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
                                                             : 'bg-gray-200 text-gray-400 border-2 border-gray-400'
                                                         : canAfford
-                                                            ? 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-md'
-                                                            : 'bg-white/10 text-slate-500 border border-white/10'
+                                                            ? 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908] shadow-[0_2px_0_#050504]'
+                                                            : 'bg-[#0e0d0b] text-[#78716c] border border-[#2e2924]'
                                                 }`}
                                             >
                                                 {isBusy ? (
@@ -3209,9 +3191,7 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                         <div className={`app-dialog-footer p-4 text-center text-xs font-bold border-t ${
                             isBento
                                 ? 'bg-white border-t-2 border-black text-slate-600'
-                                : theme === 'dark'
-                                    ? 'bg-white/[0.02] border-white/10 text-slate-400'
-                                    : 'bg-slate-50 border-slate-200 text-slate-500'
+                                : 'bg-[#11100e] border-[#2e2924] text-[#a8a29e]'
                         }`}>
                             💡 Hints already unlocked on a question can be viewed again for free.
                         </div>
@@ -3222,50 +3202,50 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
             {/* Resume Prompt Modal */}
             {showResumePrompt && (
                 <div className={`app-dialog-overlay fixed inset-0 z-50 flex items-center justify-center p-4 ${
-                    isBento ? 'bg-black/60' : 'bg-black/70 backdrop-blur-md'
+                    isBento ? 'bg-black/60 backdrop-blur-sm' : 'bg-[#050504]/82'
                 }`}>
                     <div className={`app-dialog-panel app-dialog-panel--padded p-8 max-w-md w-full animate-in fade-in zoom-in duration-200 ${
                         isBento
                             ? 'bg-white border-[3px] border-black rounded-2xl shadow-[8px_8px_0px_#000] text-black'
-                            : 'bg-white dark:bg-[#141210] text-gray-900 dark:text-white border border-gray-200 dark:border-white/[0.10] rounded-3xl shadow-2xl'
+                            : 'bg-[#141210] text-[#f5f3ec] border-[1.5px] border-[#2e2924] rounded-2xl shadow-[0_8px_0_#050504]'
                     }`}>
                         <div className="flex items-center gap-4 mb-6">
                             <div className={`p-3 rounded-2xl ${
                                 isBento
                                     ? 'bg-[#fde047] border-2 border-black shadow-[3px_3px_0px_#000] text-black'
-                                    : 'bg-indigo-100 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 text-indigo-600 dark:text-indigo-400'
+                                    : 'bg-[#fde047]/15 border border-[#fde047]/35 text-[#fde047]'
                             }`}>
                                 <Clock className="w-8 h-8" />
                             </div>
                             <div>
-                                <h3 className="text-xl font-black">Resume Quiz?</h3>
-                                <p className={`text-sm mt-0.5 ${isBento ? 'text-gray-600 font-medium' : 'text-gray-500 dark:text-slate-500'}`}>
+                                <h3 className={`text-xl font-black ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>Resume Quiz?</h3>
+                                <p className={`text-sm mt-0.5 ${isBento ? 'text-gray-600 font-medium' : 'text-[#a8a29e]'}`}>
                                     Unfinished attempt from {savedState ? new Date(savedState.lastUpdated).toLocaleDateString() : ''}
                                 </p>
                             </div>
                         </div>
 
-                        <p className={`mb-8 text-sm leading-relaxed ${isBento ? 'text-gray-700 font-medium' : 'text-gray-600 dark:text-slate-400'}`}>
+                        <p className={`mb-8 text-sm leading-relaxed ${isBento ? 'text-gray-700 font-medium' : 'text-[#d6d0c7]'}`}>
                             Continue where you left off, or start a fresh attempt from the beginning.
                         </p>
 
                         <div className="flex gap-3">
                             <button
                                 onClick={handleStartNew}
-                                className={`flex-1 px-4 py-3 rounded-xl font-black transition-all ${
+                                className={`flex-1 px-4 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all cursor-pointer ${
                                     isBento
                                         ? 'bg-white hover:bg-[#fee2e2] text-black border-2 border-black shadow-[3px_3px_0px_#000] active:translate-x-0.5 active:translate-y-0.5'
-                                        : 'text-gray-600 dark:text-slate-300 bg-gray-100 dark:bg-white/[0.05] border border-gray-200 dark:border-white/[0.08] hover:bg-gray-200 dark:hover:bg-white/[0.10] font-bold'
+                                        : 'text-[#d6d0c7] bg-[#1c1917] border border-[#2e2924] hover:bg-[#24201c] hover:text-[#f5f3ec]'
                                 }`}
                             >
                                 Start Over
                             </button>
                             <button
                                 onClick={handleResume}
-                                className={`flex-1 px-4 py-3 rounded-xl font-black transition-all ${
+                                className={`flex-1 px-4 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all cursor-pointer ${
                                     isBento
                                         ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[3px_3px_0px_#000] active:translate-x-0.5 active:translate-y-0.5'
-                                        : 'text-white bg-indigo-600 hover:bg-indigo-500 shadow-xl shadow-indigo-600/30'
+                                        : 'text-[#0a0908] bg-[#bef264] hover:bg-[#d2fa8a] shadow-[0_3px_0_#050504]'
                                 }`}
                             >
                                 Resume

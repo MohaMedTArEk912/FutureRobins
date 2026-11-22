@@ -1156,21 +1156,35 @@ button:active {
 [data-layout="bento"] .animate-in.fade-in.zoom-in-95 button.bg-teal-600,
 [data-theme="bento"] .animate-in.fade-in.zoom-in-95 button.bg-teal-600,
 [data-layout="bento"] .animate-in.fade-in.zoom-in-95 button[type="submit"]:not(.btn-unstyled),
-[data-theme="bento"] .animate-in.fade-in.zoom-in-95 button[type="submit"]:not(.btn-unstyled) {
+[data-theme="bento"] .animate-in.fade-in.zoom-in-95 button[type="submit"]:not(.btn-unstyled),
+[data-theme="bento"] .app-dialog-panel button:is(.bg-indigo-600, .bg-indigo-500, .bg-teal-600, .bg-teal-500, .bg-sky-600, .bg-cyan-600, .bg-blue-600, .bg-orange-500, .bg-green-500, .bg-green-600, .bg-emerald-500, .bg-emerald-600):not(.btn-unstyled):not(.bento-keep-color) {
+  background-color: var(--bento-green) !important;
   color: #000000 !important;
+  border: 2px solid #000000 !important;
+  box-shadow: 3px 3px 0px #000000 !important;
 }
 
-/* Explicit white text only on dark or crimson solid buttons inside modals */
+[data-theme="bento"] .app-dialog-panel button:is(.bg-red-600, .bg-rose-600):not(.btn-unstyled):not(.bento-keep-color) {
+  background-color: #ff6b6b !important;
+  color: #000000 !important;
+  border: 2px solid #000000 !important;
+  box-shadow: 3px 3px 0px #000000 !important;
+}
+
+[data-theme="bento"] .app-dialog-panel button:is(.bg-amber-500, .bg-yellow-500):not(.btn-unstyled):not(.bento-keep-color) {
+  background-color: var(--bento-yellow) !important;
+  color: #000000 !important;
+  border: 2px solid #000000 !important;
+  box-shadow: 3px 3px 0px #000000 !important;
+}
+
+/* Explicit white text only on dark solid buttons inside modals */
 [data-layout="bento"] .animate-in.fade-in.zoom-in-95 button.bg-black,
 [data-theme="bento"] .animate-in.fade-in.zoom-in-95 button.bg-black,
 [data-layout="bento"] .animate-in.fade-in.zoom-in-95 button.bg-slate-900,
 [data-theme="bento"] .animate-in.fade-in.zoom-in-95 button.bg-slate-900,
 [data-layout="bento"] .animate-in.fade-in.zoom-in-95 button.bg-gray-900,
-[data-theme="bento"] .animate-in.fade-in.zoom-in-95 button.bg-gray-900,
-[data-layout="bento"] .animate-in.fade-in.zoom-in-95 button.bg-red-600:not(.btn-unstyled),
-[data-theme="bento"] .animate-in.fade-in.zoom-in-95 button.bg-red-600:not(.btn-unstyled),
-[data-layout="bento"] .animate-in.fade-in.zoom-in-95 button.bg-rose-600:not(.btn-unstyled),
-[data-theme="bento"] .animate-in.fade-in.zoom-in-95 button.bg-rose-600:not(.btn-unstyled) {
+[data-theme="bento"] .animate-in.fade-in.zoom-in-95 button.bg-gray-900 {
   color: #ffffff !important;
 }
 
@@ -1919,9 +1933,11 @@ button:active {
   box-shadow: 0 0 0 2px rgba(190, 242, 100, 0.22);
 }
 
-/* 4. Primary Indigo CTA Harmonization -> Solid High-Contrast Bento Lime on Obsidian */
+/* 4. Primary CTA Harmonization -> Solid High-Contrast Noir Lime on Obsidian */
 .dark button.bg-indigo-600:not(.btn-unstyled):not(.noir-keep-color),
-.dark a.bg-indigo-600:not(.btn-unstyled):not(.noir-keep-color) {
+.dark a.bg-indigo-600:not(.btn-unstyled):not(.noir-keep-color),
+.dark .app-dialog-panel button:is(.bg-teal-600, .bg-teal-500, .bg-indigo-600, .bg-indigo-500, .bg-sky-600, .bg-cyan-600, .bg-blue-600, .bg-emerald-600, .bg-emerald-500, .bg-green-600, .bg-green-500, .bg-orange-500):not(.btn-unstyled):not(.noir-keep-color),
+.dark .app-dialog-panel a:is(.bg-teal-600, .bg-indigo-600, .bg-sky-600, .bg-blue-600):not(.btn-unstyled):not(.noir-keep-color) {
   background-color: var(--noir-lime) !important;
   color: var(--noir-lime-ink) !important;
   border: 1.5px solid var(--noir-lime) !important;
@@ -1930,21 +1946,56 @@ button:active {
 }
 
 .dark button.bg-indigo-600:not(.btn-unstyled):not(.noir-keep-color):hover,
-.dark a.bg-indigo-600:not(.btn-unstyled):not(.noir-keep-color):hover {
+.dark a.bg-indigo-600:not(.btn-unstyled):not(.noir-keep-color):hover,
+.dark .app-dialog-panel button:is(.bg-teal-600, .bg-teal-500, .bg-indigo-600, .bg-indigo-500, .bg-sky-600, .bg-cyan-600, .bg-blue-600, .bg-emerald-600, .bg-emerald-500, .bg-green-600, .bg-green-500, .bg-orange-500):not(.btn-unstyled):not(.noir-keep-color):hover,
+.dark .app-dialog-panel a:is(.bg-teal-600, .bg-indigo-600, .bg-sky-600, .bg-blue-600):not(.btn-unstyled):not(.noir-keep-color):hover {
   background-color: var(--noir-lime-hover) !important;
   transform: translateY(-1px);
   box-shadow: 0 4px 0 #050504 !important;
 }
 
 .dark button.bg-indigo-600:not(.btn-unstyled):not(.noir-keep-color):active,
-.dark a.bg-indigo-600:not(.btn-unstyled):not(.noir-keep-color):active {
+.dark a.bg-indigo-600:not(.btn-unstyled):not(.noir-keep-color):active,
+.dark .app-dialog-panel button:is(.bg-teal-600, .bg-teal-500, .bg-indigo-600, .bg-indigo-500, .bg-sky-600, .bg-cyan-600, .bg-blue-600, .bg-emerald-600, .bg-emerald-500, .bg-green-600, .bg-green-500, .bg-orange-500):not(.btn-unstyled):not(.noir-keep-color):active {
   transform: translateY(1px);
   box-shadow: 0 1px 0 #050504 !important;
 }
 
 .dark button.bg-indigo-600:not(.btn-unstyled):not(.noir-keep-color) svg,
-.dark a.bg-indigo-600:not(.btn-unstyled):not(.noir-keep-color) svg {
+.dark a.bg-indigo-600:not(.btn-unstyled):not(.noir-keep-color) svg,
+.dark .app-dialog-panel button:is(.bg-teal-600, .bg-teal-500, .bg-indigo-600, .bg-indigo-500, .bg-sky-600, .bg-cyan-600, .bg-blue-600, .bg-emerald-600, .bg-emerald-500, .bg-green-600, .bg-green-500, .bg-orange-500):not(.btn-unstyled):not(.noir-keep-color) svg {
   color: var(--noir-lime-ink) !important;
+}
+
+/* Noir Studio Modal Semantic Buttons (Warning Yellow & Destructive Coral) */
+.dark .app-dialog-panel button:is(.bg-amber-500, .bg-yellow-500):not(.btn-unstyled):not(.noir-keep-color) {
+  background-color: var(--noir-yellow) !important;
+  color: #0a0908 !important;
+  border: 1.5px solid var(--noir-yellow) !important;
+  box-shadow: 0 3px 0 #050504 !important;
+  font-weight: 800;
+}
+
+.dark .app-dialog-panel button:is(.bg-red-600, .bg-rose-600):not(.btn-unstyled):not(.noir-keep-color) {
+  background-color: var(--noir-coral) !important;
+  color: #0a0908 !important;
+  border: 1.5px solid var(--noir-coral) !important;
+  box-shadow: 0 3px 0 #050504 !important;
+  font-weight: 800;
+}
+
+/* Noir Studio Modal Recessed Inputs & Selects */
+.dark .app-dialog-panel input:not(.chat-bare-input):not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+.dark .app-dialog-panel textarea:not(.chat-bare-input),
+.dark .app-dialog-panel select {
+  background-color: #0e0d0b;
+  border-color: #2e2924;
+  color: #f5f3ec;
+}
+
+.dark .app-dialog-panel input:not(.chat-bare-input):not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"])::placeholder,
+.dark .app-dialog-panel textarea:not(.chat-bare-input)::placeholder {
+  color: #78716c;
 }
 
 /* 5. Dashboard Progression Hero Card (Anodized Micro-Hatch + Flush Lime Rail — NO pinched corner borders) */

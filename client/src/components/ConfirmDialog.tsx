@@ -39,12 +39,12 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     const getIcon = () => {
         switch (type) {
             case 'danger':
-                return <AlertOctagon className={`w-5 h-5 ${isBento ? 'text-black' : 'text-red-500'}`} />;
+                return <AlertOctagon className={`w-5 h-5 ${isBento ? 'text-black' : 'text-[#fb7185]'}`} />;
             case 'warning':
-                return <AlertTriangle className={`w-5 h-5 ${isBento ? 'text-black' : 'text-amber-500'}`} />;
+                return <AlertTriangle className={`w-5 h-5 ${isBento ? 'text-black' : 'text-[#fde047]'}`} />;
             case 'info':
             default:
-                return <Info className={`w-5 h-5 ${isBento ? 'text-black' : 'text-blue-500'}`} />;
+                return <Info className={`w-5 h-5 ${isBento ? 'text-black' : 'text-[#bae6fd]'}`} />;
         }
     };
 
@@ -63,12 +63,12 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 
         switch (type) {
             case 'danger':
-                return 'bg-red-500/10 text-red-500 border border-red-500/20';
+                return 'bg-[#251317] text-[#fb7185] border border-[#fb7185]/35';
             case 'warning':
-                return 'bg-amber-500/10 text-amber-500 border border-amber-500/20';
+                return 'bg-[#231f14] text-[#fde047] border border-[#fde047]/35';
             case 'info':
             default:
-                return 'bg-blue-500/10 text-blue-500 border border-blue-500/20';
+                return 'bg-[#151e24] text-[#bae6fd] border border-[#bae6fd]/35';
         }
     };
 
@@ -81,26 +81,26 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
                     return 'bg-[#fef08a] text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:bg-yellow-300 hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none';
                 case 'info':
                 default:
-                    return 'bg-[#bae6fd] text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:bg-sky-300 hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none';
+                    return 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:bg-[#a3e635] hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none';
             }
         }
 
         switch (type) {
             case 'danger':
-                return 'bg-red-600 hover:bg-red-500 dark:bg-[#fb7185] dark:hover:bg-[#fda4af] text-white dark:text-[#0a0908] shadow-lg shadow-red-500/25 dark:shadow-[0_8px_20px_-6px_rgba(251,113,133,0.3)] hover:-translate-y-0.5 active:translate-y-0';
+                return 'bg-[#fb7185] hover:bg-[#fda4af] text-[#0a0908] hover:-translate-y-0.5 active:translate-y-0';
             case 'warning':
-                return 'bg-amber-500 hover:bg-amber-600 dark:bg-[#fde047] dark:hover:bg-[#fef08a] text-white dark:text-[#0a0908] shadow-lg shadow-amber-500/25 dark:shadow-[0_8px_20px_-6px_rgba(253,224,71,0.3)] hover:-translate-y-0.5 active:translate-y-0';
+                return 'bg-[#fde047] hover:bg-[#fef08a] text-[#0a0908] hover:-translate-y-0.5 active:translate-y-0';
             case 'info':
             default:
-                return 'bg-blue-600 hover:bg-blue-500 dark:bg-[#bae6fd] dark:hover:bg-[#e0f2fe] text-white dark:text-[#0a0908] shadow-lg shadow-blue-500/25 dark:shadow-[0_8px_20px_-6px_rgba(186,230,253,0.3)] hover:-translate-y-0.5 active:translate-y-0';
+                return 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908] hover:-translate-y-0.5 active:translate-y-0';
         }
     };
 
     const getCancelButtonClass = () => {
         if (isBento) {
-            return 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-gray-100 hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none';
+            return 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#f5f3ec] hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none';
         }
-        return 'bg-gray-100 dark:bg-[#1c1917] text-gray-700 dark:text-[#d6d0c7] border border-gray-200 dark:border-[#f5f3ec]/14 hover:bg-gray-200 dark:hover:bg-[#24201c] active:scale-95';
+        return 'bg-[#1a1714] text-[#d6d0c7] border border-[#2e2924] hover:bg-[#24201c] hover:text-[#f5f3ec] active:scale-95';
     };
 
     const shouldShowBanner = showWarningBanner ?? (type === 'danger');
@@ -138,9 +138,9 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         >
             <div className="space-y-4">
                 <p className={`leading-relaxed text-sm ${
-                    isBento 
-                        ? 'text-black font-semibold' 
-                        : 'text-gray-600 dark:text-gray-300 font-medium'
+                    isBento
+                        ? 'text-black font-semibold'
+                        : 'text-[#d6d0c7] font-medium'
                 }`}>
                     {message}
                 </p>
@@ -148,8 +148,8 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
                 {shouldShowBanner && (
                     <div className={`p-3.5 rounded-xl flex items-center gap-2 text-xs font-bold ${
                         isBento
-                            ? 'bg-[#fee2e2] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                            : 'bg-red-500/10 dark:bg-red-500/15 border border-red-500/20 text-red-600 dark:text-red-400'
+                            ? 'bg-[#fecdd3] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                            : 'bg-[#251317] border border-[#fb7185]/35 text-[#fda4af]'
                     }`}>
                         <span className="text-base leading-none">⚠️</span>
                         <span>{tx('This action is permanent and cannot be undone.', 'الإجراء ده نهائي وما ينفعش الرجوع فيه.')}</span>

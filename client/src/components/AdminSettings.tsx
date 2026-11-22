@@ -60,29 +60,29 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({ adminEmail, onClose }) =>
             <div className={`app-dialog-panel app-dialog-panel--padded w-full max-w-md p-6 sm:p-8 relative max-h-[90vh] overflow-y-auto custom-scrollbar ${
                 isBento
                     ? 'bg-white text-black border-[3px] border-black rounded-2xl shadow-[8px_8px_0px_#000]'
-                    : 'bg-white dark:bg-[#141210] border border-gray-200 dark:border-white/10 rounded-[2rem] shadow-2xl'
+                    : 'bg-[#141210] text-[#f5f3ec] border-[1.5px] border-[#2e2924] rounded-2xl shadow-[0_8px_0_#050504]'
             }`}>
                 <button
                     onClick={onClose}
                     className={`absolute top-5 right-5 sm:top-6 sm:right-6 transition-all cursor-pointer ${
                         isBento
                             ? 'p-1.5 rounded-xl border-2 border-black bg-white hover:bg-[#fed7aa] text-black shadow-[2px_2px_0px_#000] active:translate-x-0.5 active:translate-y-0.5'
-                            : 'text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                            : 'p-1.5 rounded-xl bg-[#1c1917] border border-[#2e2924] text-[#a8a29e] hover:border-[#bef264] hover:text-[#f5f3ec]'
                     }`}
                 >
                     <X className="w-5 h-5 sm:w-6 sm:h-6" />
                 </button>
 
                 <div className="mb-8">
-                    <h2 className={`text-2xl font-black mb-1 ${isBento ? 'text-black' : 'text-gray-900 dark:text-white'}`}>Admin Settings</h2>
-                    <p className={`text-sm ${isBento ? 'text-gray-700 font-bold' : 'text-gray-600 dark:text-gray-400 font-medium'}`}>Change your admin password</p>
+                    <h2 className={`text-2xl font-black mb-1 ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>Admin Settings</h2>
+                    <p className={`text-sm ${isBento ? 'text-gray-700 font-bold' : 'text-[#a8a29e] font-medium'}`}>Change your admin password</p>
                 </div>
 
                 {error && (
                     <div className={`mb-6 p-4 rounded-xl flex items-center gap-3 ${
                         isBento
                             ? 'bg-[#fee2e2] border-2 border-black text-black font-bold shadow-[3px_3px_0px_#000]'
-                            : 'bg-red-500/10 border border-red-500/20 text-red-400'
+                            : 'bg-[#251317] border border-[#fb7185]/45 text-[#fb7185]'
                     }`}>
                         <AlertCircle className="w-5 h-5" />
                         <span className="font-bold text-sm">{error}</span>
@@ -93,7 +93,7 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({ adminEmail, onClose }) =>
                     <div className={`mb-6 p-4 rounded-xl flex items-center gap-3 ${
                         isBento
                             ? 'bg-[#dcfce7] border-2 border-black text-black font-bold shadow-[3px_3px_0px_#000]'
-                            : 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400'
+                            : 'bg-[#171d14] border border-[#bef264]/45 text-[#bef264]'
                     }`}>
                         <Check className="w-5 h-5" />
                         <span className="font-bold text-sm">{success}</span>
@@ -102,11 +102,11 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({ adminEmail, onClose }) =>
 
                 <form onSubmit={handleChangePassword} className="space-y-5">
                     <div>
-                        <label className={`block text-xs uppercase tracking-wider mb-2 ${isBento ? 'font-black text-black' : 'font-bold text-gray-500'}`}>
+                        <label className={`block text-xs uppercase tracking-wider mb-2 font-black ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>
                             Current Password
                         </label>
                         <div className="relative">
-                            <Lock className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 ${isBento ? 'text-black' : 'text-gray-400 dark:text-gray-500'}`} />
+                            <Lock className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 ${isBento ? 'text-black' : 'text-[#78716c]'}`} />
                             <input
                                 type={showCurrentPassword ? 'text' : 'password'}
                                 value={currentPassword}
@@ -114,14 +114,14 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({ adminEmail, onClose }) =>
                                 className={`w-full pl-12 pr-12 py-3 rounded-xl transition-all font-medium ${
                                     isBento
                                         ? 'border-2 border-black bg-white text-black placeholder-gray-500 shadow-[2px_2px_0px_#000] focus:outline-none'
-                                        : 'bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 focus:border-teal-500 focus:outline-none text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600'
+                                        : 'bg-[#0e0d0b] border border-[#2e2924] focus:border-[#bef264] focus:outline-none text-[#f5f3ec] placeholder-[#78716c]'
                                 }`}
                                 required
                             />
                             <button
                                 type="button"
                                 onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                                className={`absolute right-4 top-1/2 transform -translate-y-1/2 ${isBento ? 'text-black' : 'text-gray-400 dark:text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
+                                className={`absolute right-4 top-1/2 transform -translate-y-1/2 cursor-pointer ${isBento ? 'text-black' : 'text-[#a8a29e] hover:text-[#f5f3ec]'}`}
                             >
                                 {showCurrentPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                             </button>
@@ -129,11 +129,11 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({ adminEmail, onClose }) =>
                     </div>
 
                     <div>
-                        <label className={`block text-xs uppercase tracking-wider mb-2 ${isBento ? 'font-black text-black' : 'font-bold text-gray-500'}`}>
+                        <label className={`block text-xs uppercase tracking-wider mb-2 font-black ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>
                             New Password
                         </label>
                         <div className="relative">
-                            <Lock className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 ${isBento ? 'text-black' : 'text-gray-400 dark:text-gray-500'}`} />
+                            <Lock className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 ${isBento ? 'text-black' : 'text-[#78716c]'}`} />
                             <input
                                 type={showNewPassword ? 'text' : 'password'}
                                 value={newPassword}
@@ -141,7 +141,7 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({ adminEmail, onClose }) =>
                                 className={`w-full pl-12 pr-12 py-3 rounded-xl transition-all font-medium ${
                                     isBento
                                         ? 'border-2 border-black bg-white text-black placeholder-gray-500 shadow-[2px_2px_0px_#000] focus:outline-none'
-                                        : 'bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 focus:border-teal-500 focus:outline-none text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600'
+                                        : 'bg-[#0e0d0b] border border-[#2e2924] focus:border-[#bef264] focus:outline-none text-[#f5f3ec] placeholder-[#78716c]'
                                 }`}
                                 required
                                 minLength={6}
@@ -149,7 +149,7 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({ adminEmail, onClose }) =>
                             <button
                                 type="button"
                                 onClick={() => setShowNewPassword(!showNewPassword)}
-                                className={`absolute right-4 top-1/2 transform -translate-y-1/2 ${isBento ? 'text-black' : 'text-gray-400 dark:text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
+                                className={`absolute right-4 top-1/2 transform -translate-y-1/2 cursor-pointer ${isBento ? 'text-black' : 'text-[#a8a29e] hover:text-[#f5f3ec]'}`}
                             >
                                 {showNewPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                             </button>
@@ -157,11 +157,11 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({ adminEmail, onClose }) =>
                     </div>
 
                     <div>
-                        <label className={`block text-xs uppercase tracking-wider mb-2 ${isBento ? 'font-black text-black' : 'font-bold text-gray-500'}`}>
+                        <label className={`block text-xs uppercase tracking-wider mb-2 font-black ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>
                             Confirm New Password
                         </label>
                         <div className="relative">
-                            <Lock className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 ${isBento ? 'text-black' : 'text-gray-400 dark:text-gray-500'}`} />
+                            <Lock className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 ${isBento ? 'text-black' : 'text-[#78716c]'}`} />
                             <input
                                 type={showConfirmPassword ? 'text' : 'password'}
                                 value={confirmPassword}
@@ -169,7 +169,7 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({ adminEmail, onClose }) =>
                                 className={`w-full pl-12 pr-12 py-3 rounded-xl transition-all font-medium ${
                                     isBento
                                         ? 'border-2 border-black bg-white text-black placeholder-gray-500 shadow-[2px_2px_0px_#000] focus:outline-none'
-                                        : 'bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 focus:border-teal-500 focus:outline-none text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600'
+                                        : 'bg-[#0e0d0b] border border-[#2e2924] focus:border-[#bef264] focus:outline-none text-[#f5f3ec] placeholder-[#78716c]'
                                 }`}
                                 required
                                 minLength={6}
@@ -177,7 +177,7 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({ adminEmail, onClose }) =>
                             <button
                                 type="button"
                                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                className={`absolute right-4 top-1/2 transform -translate-y-1/2 ${isBento ? 'text-black' : 'text-gray-400 dark:text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
+                                className={`absolute right-4 top-1/2 transform -translate-y-1/2 cursor-pointer ${isBento ? 'text-black' : 'text-[#a8a29e] hover:text-[#f5f3ec]'}`}
                             >
                                 {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                             </button>
@@ -188,10 +188,10 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({ adminEmail, onClose }) =>
                         <button
                             type="button"
                             onClick={onClose}
-                            className={`flex-1 px-4 py-3 rounded-xl font-black transition-all ${
+                            className={`flex-1 px-4 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all cursor-pointer ${
                                 isBento
                                     ? 'bg-white hover:bg-gray-100 text-black border-2 border-black shadow-[3px_3px_0px_#000] active:translate-x-0.5 active:translate-y-0.5'
-                                    : 'bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white'
+                                    : 'bg-[#1c1917] border border-[#2e2924] text-[#d6d0c7] hover:bg-[#24201c] hover:text-[#f5f3ec]'
                             }`}
                         >
                             Cancel
@@ -199,10 +199,10 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({ adminEmail, onClose }) =>
                         <button
                             type="submit"
                             disabled={loading}
-                            className={`flex-1 px-4 py-3 rounded-xl font-black transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                            className={`flex-1 px-4 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
                                 isBento
                                     ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[3px_3px_0px_#000] active:translate-x-0.5 active:translate-y-0.5'
-                                    : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-teal-500/20'
+                                    : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908] shadow-[0_3px_0_#050504]'
                             }`}
                         >
                             {loading ? 'Changing...' : 'Change Password'}

@@ -1049,26 +1049,30 @@ export const LiveHostMode: React.FC<LiveHostModeProps> = ({
             {/* Invite User Modal */}
             {showInviteModal && (
                 <div
-                    className="app-dialog-overlay fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+                    className="app-dialog-overlay fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/70"
                     onClick={() => setShowInviteModal(false)}
                 >
                     <div
                         className={`app-dialog-panel app-dialog-panel--padded w-full max-w-md p-5 rounded-2xl space-y-3 ${
                             isBento
                                 ? 'bg-white text-black border-[3px] border-black shadow-[6px_6px_0_#000]'
-                                : 'bg-white dark:bg-[#141210] text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 shadow-2xl'
+                                : 'bg-[#141210] text-[#f5f3ec] border-[1.5px] border-[#2e2924] shadow-[0_8px_0_#050504,0_24px_60px_rgba(0,0,0,0.78)]'
                         }`}
                         onClick={e => e.stopPropagation()}
                     >
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                                <UserPlus className="w-4 h-4 text-indigo-500" />
+                                <UserPlus className={`w-4 h-4 ${isBento ? 'text-black' : 'text-[#bef264]'}`} />
                                 <h3 className="text-sm font-black uppercase">{tx('Invite Student / Peer', 'ابعت دعوة لطالب أو زميل')}</h3>
                             </div>
                             <button
                                 type="button"
                                 onClick={() => setShowInviteModal(false)}
-                                className="btn-unstyled p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 cursor-pointer bg-transparent border-0"
+                                className={`btn-unstyled p-1 rounded-lg cursor-pointer ${
+                                    isBento
+                                        ? 'hover:bg-black/10 text-black bg-transparent border-0'
+                                        : 'hover:bg-[#24201c] text-[#a8a29e] hover:text-[#f5f3ec] bg-transparent border-0'
+                                }`}
                             >
                                 <X className="w-4 h-4" />
                             </button>
@@ -1079,10 +1083,10 @@ export const LiveHostMode: React.FC<LiveHostModeProps> = ({
                             placeholder={tx('Search by name or email...', 'ابحث بالاسم أو الإيميل...')}
                             value={userSearchQuery}
                             onChange={e => setUserSearchQuery(e.target.value)}
-                            className={`w-full px-3 py-2 rounded-xl text-xs font-bold ${
+                            className={`w-full px-3 py-2 rounded-xl text-xs font-bold outline-none ${
                                 isBento
                                     ? 'bg-white text-black border-2 border-black'
-                                    : 'bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/15'
+                                    : 'bg-[#0e0d0b] text-[#f5f3ec] border border-[#2e2924] focus:border-[#bef264] placeholder:text-[#78716c]'
                             }`}
                         />
 
@@ -1096,7 +1100,9 @@ export const LiveHostMode: React.FC<LiveHostModeProps> = ({
                                     <div
                                         key={user.userId}
                                         className={`p-2.5 rounded-xl flex items-center justify-between gap-2 ${
-                                            isBento ? 'bg-slate-50 border border-black/25' : 'bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10'
+                                            isBento
+                                                ? 'bg-[#f5f3ec] border border-black/30'
+                                                : 'bg-[#1a1714] border border-[#2e2924]'
                                         }`}
                                     >
                                         <div className="min-w-0">
@@ -1109,7 +1115,7 @@ export const LiveHostMode: React.FC<LiveHostModeProps> = ({
                                             className={`btn-unstyled px-3 py-1 rounded-lg text-[11px] font-black uppercase cursor-pointer ${
                                                 isBento
                                                     ? 'bg-[#bef264] text-black border border-black shadow-[1.5px_1.5px_0_#000]'
-                                                    : 'bg-indigo-600 text-white'
+                                                    : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908]'
                                             }`}
                                         >
                                             <span>{tx('Send', 'ابعت')}</span>

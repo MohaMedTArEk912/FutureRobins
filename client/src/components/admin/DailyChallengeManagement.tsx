@@ -7,6 +7,25 @@ import { api } from '../../lib/api.ts';
 import CompilerQuestionManagement from './CompilerQuestionManagement';
 import { useTheme } from '../../context/ThemeContext.tsx';
 
+interface AiTierPreview {
+    title?: string;
+    category?: string;
+    giftLabel?: string;
+    rewardCoins?: number;
+    rewardXP?: number;
+    description?: string;
+    starterCode?: string;
+    referenceCode?: string;
+    hints?: string[];
+}
+
+interface AiGeneratedChallengePreview {
+    referenceTitle?: string;
+    language?: string;
+    referenceCategory?: string;
+    tiers?: Partial<Record<'easy' | 'medium' | 'hard', AiTierPreview>>;
+}
+
 interface DailyChallengeManagementProps {
     currentUser: UserData;
     quizzes?: Quiz[];
@@ -38,7 +57,7 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
         hard: { coins: 200, xp: 400, giftLabel: 'Gold Grandmaster Vault' }
     });
     const [isGeneratingAi, setIsGeneratingAi] = useState(false);
-    const [aiGeneratedPreview, setAiGeneratedPreview] = useState<any>(null);
+    const [aiGeneratedPreview, setAiGeneratedPreview] = useState<AiGeneratedChallengePreview | null>(null);
     const [previewTierTab, setPreviewTierTab] = useState<'easy' | 'medium' | 'hard'>('easy');
 
     // Weekly Challenges Newsletter Broadcast State
@@ -604,25 +623,32 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
             />
 
             {/* Edit Challenge Modal */}
-            {/* Edit Challenge Modal */}
             <Modal
                 isOpen={!!editingChallenge}
                 onClose={() => setEditingChallenge(null)}
                 title="Edit Schedule"
                 description="Configure daily goal parameters"
                 maxWidth="max-w-2xl"
-                icon={<Calendar className="w-6 h-6 text-teal-500" />}
+                icon={<Calendar className={`w-6 h-6 ${isBento ? 'text-black' : 'text-[#bef264]'}`} />}
                 footer={
                     <>
                         <button
                             onClick={() => setEditingChallenge(null)}
-                            className="flex-1 py-3 bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-gray-200 dark:hover:bg-white/10 transition-colors"
+                            className={`flex-1 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-colors cursor-pointer ${
+                                isBento
+                                    ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#f5f3ec]'
+                                    : 'bg-[#1a1714] border border-[#2e2924] text-[#d6d0c7] hover:bg-[#24201c] hover:text-[#f5f3ec]'
+                            }`}
                         >
                             Discard Changes
                         </button>
                         <button
                             onClick={handleSaveChallenge}
-                            className="flex-[2] py-3 bg-teal-600 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-teal-500/30 hover:shadow-teal-500/50 hover:-translate-y-1 transition-all"
+                            className={`flex-[2] py-3 rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all cursor-pointer ${
+                                isBento
+                                    ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:-translate-y-0.5'
+                                    : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908]'
+                            }`}
                         >
                             Save Challenge
                         </button>
@@ -633,24 +659,36 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                     {/* Date */}
                     <div className="grid grid-cols-1 gap-4">
                         <div className="space-y-1.5">
-                            <label className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-2">Date</label>
+                            <label className={`text-[10px] font-black uppercase tracking-widest ml-2 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>Date</label>
                             <input
                                 type="date"
                                 value={editingChallenge ? new Date(editingChallenge.date).toISOString().split('T')[0] : ''}
                                 onChange={e => editingChallenge && setEditingChallenge({ ...editingChallenge, date: e.target.value })}
-                                className="w-full bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/10 focus:ring-2 focus:ring-teal-500/50 rounded-xl px-5 py-3.5 text-gray-900 dark:text-white font-bold outline-none transition-all"
+                                className={`w-full rounded-xl px-5 py-3.5 font-bold outline-none transition-all ${
+                                    isBento
+                                        ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                        : 'bg-[#0e0d0b] border border-[#2e2924] focus:border-[#bef264] text-[#f5f3ec]'
+                                }`}
                             />
                         </div>
                     </div>
 
                     {/* Settings Grid */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 p-6 bg-gray-50 dark:bg-black/20 rounded-3xl border border-gray-200 dark:border-white/5">
+                    <div className={`grid grid-cols-1 sm:grid-cols-2 gap-6 p-6 rounded-3xl ${
+                        isBento
+                            ? 'bg-[#f5f3ec] border-2 border-black shadow-[3px_3px_0px_#000]'
+                            : 'bg-[#1a1714] border border-[#2e2924]'
+                    }`}>
                         <div className="space-y-4">
-                            <h4 className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em] ml-2">Compiler Question</h4>
+                            <h4 className={`text-[10px] font-black uppercase tracking-[0.2em] ml-2 ${isBento ? 'text-black' : 'text-[#bef264]'}`}>Compiler Question</h4>
                             <select
                                 value={editingChallenge?.compilerQuestionId || ''}
                                 onChange={e => editingChallenge && setEditingChallenge({ ...editingChallenge, compilerQuestionId: e.target.value })}
-                                className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-[#f5f3ec]/10 focus:ring-2 focus:ring-indigo-500/50 rounded-xl px-4 py-3 text-gray-900 dark:text-white font-bold outline-none transition-all cursor-pointer"
+                                className={`w-full rounded-xl px-4 py-3 font-bold outline-none transition-all cursor-pointer ${
+                                    isBento
+                                        ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                        : 'bg-[#0e0d0b] border border-[#2e2924] focus:border-[#bef264] text-[#f5f3ec]'
+                                }`}
                             >
                                 <option value="">Select a Question...</option>
                                 {compilerQuestions.filter(q => q.isActive).map(q => (
@@ -660,13 +698,13 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                                 ))}
                             </select>
 
-                            <p className="text-xs text-gray-400 dark:text-gray-500 pl-2">
+                            <p className={`text-xs pl-2 ${isBento ? 'text-neutral-700' : 'text-[#a8a29e]'}`}>
                                 Select the coding question for this date. If left empty, the system will auto-select one.
                             </p>
                         </div>
 
                         <div className="space-y-4">
-                            <h4 className="text-[10px] font-black text-amber-500 uppercase tracking-[0.2em] ml-2">Rewards Override</h4>
+                            <h4 className={`text-[10px] font-black uppercase tracking-[0.2em] ml-2 ${isBento ? 'text-black' : 'text-[#fde047]'}`}>Rewards Override</h4>
                             <div className="flex gap-2">
                                 <div className="relative flex-1">
                                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg">🪙</span>
@@ -675,7 +713,11 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                                         placeholder="Coins"
                                         value={editingChallenge?.rewardCoins || 0}
                                         onChange={e => editingChallenge && setEditingChallenge({ ...editingChallenge, rewardCoins: parseInt(e.target.value) })}
-                                        className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-[#f5f3ec]/10 focus:ring-2 focus:ring-amber-500/50 rounded-xl px-4 py-3 pl-10 text-gray-900 dark:text-white font-black outline-none transition-all"
+                                        className={`w-full rounded-xl px-4 py-3 pl-10 font-black outline-none transition-all ${
+                                            isBento
+                                                ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                                : 'bg-[#0e0d0b] border border-[#2e2924] focus:border-[#fde047] text-[#f5f3ec]'
+                                        }`}
                                     />
                                 </div>
                                 <div className="relative flex-1">
@@ -685,7 +727,11 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                                         placeholder="XP"
                                         value={editingChallenge?.rewardXP || 0}
                                         onChange={e => editingChallenge && setEditingChallenge({ ...editingChallenge, rewardXP: parseInt(e.target.value) })}
-                                        className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-[#f5f3ec]/10 focus:ring-2 focus:ring-blue-500/50 rounded-xl px-4 py-3 pl-10 text-gray-900 dark:text-white font-black outline-none transition-all"
+                                        className={`w-full rounded-xl px-4 py-3 pl-10 font-black outline-none transition-all ${
+                                            isBento
+                                                ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                                : 'bg-[#0e0d0b] border border-[#2e2924] focus:border-[#bef264] text-[#f5f3ec]'
+                                        }`}
                                     />
                                 </div>
                             </div>
@@ -693,7 +739,11 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                             <select
                                 value={editingChallenge?.rewardItemId || ''}
                                 onChange={e => editingChallenge && setEditingChallenge({ ...editingChallenge, rewardItemId: e.target.value || undefined, rewardBadgeId: undefined })}
-                                className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-[#f5f3ec]/10 focus:ring-2 focus:ring-teal-500/50 rounded-xl px-4 py-3 text-gray-900 dark:text-white font-bold outline-none transition-all cursor-pointer"
+                                className={`w-full rounded-xl px-4 py-3 font-bold outline-none transition-all cursor-pointer ${
+                                    isBento
+                                        ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                        : 'bg-[#0e0d0b] border border-[#2e2924] focus:border-[#bef264] text-[#f5f3ec]'
+                                }`}
                             >
                                 <option value="">No Shop Item Bonus</option>
                                 {shopItems.map(item => (
@@ -717,14 +767,22 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                     <div className="flex gap-2">
                         <button
                             onClick={() => setShowBroadcastModal(false)}
-                            className="px-4 py-2 text-gray-500 font-bold hover:bg-gray-100 dark:hover:bg-white/5 rounded-xl transition-all"
+                            className={`px-4 py-2 font-bold rounded-xl transition-all cursor-pointer ${
+                                isBento
+                                    ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#f5f3ec]'
+                                    : 'bg-[#1a1714] border border-[#2e2924] text-[#d6d0c7] hover:bg-[#24201c] hover:text-[#f5f3ec]'
+                            }`}
                         >
                             Cancel
                         </button>
                         <button
                             onClick={handleSendBroadcast}
                             disabled={isBroadcasting || !broadcastData.title.trim()}
-                            className="px-6 py-2 bg-amber-500 text-white font-bold rounded-xl shadow-lg shadow-orange-500/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 disabled:opacity-50"
+                            className={`px-6 py-2 font-black rounded-xl transition-all flex items-center gap-2 disabled:opacity-50 cursor-pointer ${
+                                isBento
+                                    ? 'bg-[#fde047] hover:bg-yellow-300 text-black border-2 border-black shadow-[3px_3px_0px_#000]'
+                                    : 'bg-[#fde047] hover:bg-[#fef08a] text-[#0a0908]'
+                            }`}
                         >
                             {isBroadcasting ? (
                                 <RefreshCw className="w-4 h-4 animate-spin" />
@@ -738,36 +796,52 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
             >
                 <div className="space-y-4">
                     <div>
-                        <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-1.5">Challenge Title</label>
+                        <label className={`block text-xs font-bold uppercase tracking-widest mb-1.5 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>Challenge Title</label>
                         <input
                             type="text"
                             value={broadcastData.title}
                             onChange={e => setBroadcastData({ ...broadcastData, title: e.target.value })}
                             placeholder="e.g. Dijkstra's Shortest Path Algorithm"
-                            className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-[#f5f3ec]/10 rounded-xl px-4 py-3 text-gray-900 dark:text-white font-bold outline-none"
+                            className={`w-full rounded-xl px-4 py-3 font-bold outline-none ${
+                                isBento
+                                    ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                    : 'bg-[#0e0d0b] border border-[#2e2924] focus:border-[#bef264] text-[#f5f3ec] placeholder:text-[#78716c]'
+                            }`}
                         />
                     </div>
                     <div>
-                        <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-1.5">Category</label>
+                        <label className={`block text-xs font-bold uppercase tracking-widest mb-1.5 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>Category</label>
                         <input
                             type="text"
                             value={broadcastData.category}
                             onChange={e => setBroadcastData({ ...broadcastData, category: e.target.value })}
                             placeholder="e.g. Graphs & Trees / Algorithmic Challenge"
-                            className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-[#f5f3ec]/10 rounded-xl px-4 py-3 text-gray-900 dark:text-white font-bold outline-none"
+                            className={`w-full rounded-xl px-4 py-3 font-bold outline-none ${
+                                isBento
+                                    ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                    : 'bg-[#0e0d0b] border border-[#2e2924] focus:border-[#bef264] text-[#f5f3ec] placeholder:text-[#78716c]'
+                            }`}
                         />
                     </div>
                     <div>
-                        <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-1.5">Description & Highlights</label>
+                        <label className={`block text-xs font-bold uppercase tracking-widest mb-1.5 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>Description & Highlights</label>
                         <textarea
                             rows={3}
                             value={broadcastData.description}
                             onChange={e => setBroadcastData({ ...broadcastData, description: e.target.value })}
                             placeholder="Explain the challenge, rewards, and key concepts..."
-                            className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-[#f5f3ec]/10 rounded-xl px-4 py-3 text-gray-900 dark:text-white font-bold outline-none resize-none"
+                            className={`w-full rounded-xl px-4 py-3 font-bold outline-none resize-none ${
+                                isBento
+                                    ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                    : 'bg-[#0e0d0b] border border-[#2e2924] focus:border-[#bef264] text-[#f5f3ec] placeholder:text-[#78716c]'
+                            }`}
                         />
                     </div>
-                    <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-xs text-amber-700 dark:text-amber-400 font-medium">
+                    <div className={`p-3 rounded-xl text-xs font-medium ${
+                        isBento
+                            ? 'bg-[#fef08a] border-2 border-black text-black'
+                            : 'bg-[#231f14] border border-[#fde047]/35 text-[#fde047]'
+                    }`}>
                         📬 An email with a direct solving link and breakdown will be delivered to all active Weekly Challenge subscribers.
                     </div>
                 </div>
@@ -782,21 +856,29 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                 title="AI 3-Tier Challenge Studio"
                 description="Synthesize original Easy, Medium, and Hard coding puzzles referencing existing quizzes"
                 maxWidth="max-w-4xl"
-                icon={<Sparkles className="w-6 h-6 text-yellow-400" />}
+                icon={<Sparkles className={`w-6 h-6 ${isBento ? 'text-black' : 'text-[#fde047]'}`} />}
                 footer={
                     aiGeneratedPreview ? (
                         <div className="flex items-center justify-between w-full gap-3">
                             <button
                                 onClick={() => setAiGeneratedPreview(null)}
                                 disabled={isGeneratingAi}
-                                className="px-5 py-3 rounded-2xl bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 font-black text-xs uppercase tracking-widest hover:bg-gray-200 dark:hover:bg-white/10 transition-colors"
+                                className={`px-5 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-colors cursor-pointer ${
+                                    isBento
+                                        ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#f5f3ec]'
+                                        : 'bg-[#1a1714] border border-[#2e2924] text-[#d6d0c7] hover:bg-[#24201c] hover:text-[#f5f3ec]'
+                                }`}
                             >
                                 ← Edit Parameters
                             </button>
                             <button
                                 onClick={handleConfirmSchedulePreview}
                                 disabled={isGeneratingAi}
-                                className="px-7 py-3 bg-emerald-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:-translate-y-0.5 active:scale-95 transition-all flex items-center gap-2"
+                                className={`px-7 py-3 rounded-2xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all flex items-center gap-2 cursor-pointer ${
+                                    isBento
+                                        ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[3px_3px_0px_#000]'
+                                        : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908]'
+                                }`}
                             >
                                 {isGeneratingAi ? (
                                     <RefreshCw className="w-4 h-4 animate-spin" />
@@ -811,7 +893,11 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                             <button
                                 onClick={() => setShowAiModal(false)}
                                 disabled={isGeneratingAi}
-                                className="px-5 py-3 rounded-2xl bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 font-black text-xs uppercase tracking-widest hover:bg-gray-200 dark:hover:bg-white/10 transition-colors"
+                                className={`px-5 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-colors cursor-pointer ${
+                                    isBento
+                                        ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#f5f3ec]'
+                                        : 'bg-[#1a1714] border border-[#2e2924] text-[#d6d0c7] hover:bg-[#24201c] hover:text-[#f5f3ec]'
+                                }`}
                             >
                                 Cancel
                             </button>
@@ -819,7 +905,11 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                                 <button
                                     onClick={() => handleGenerateAi(false)}
                                     disabled={isGeneratingAi}
-                                    className="px-5 py-3 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-black text-xs uppercase tracking-widest hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-all flex items-center gap-2 disabled:opacity-50"
+                                    className={`px-5 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2 disabled:opacity-50 cursor-pointer ${
+                                        isBento
+                                            ? 'bg-[#bae6fd] hover:bg-sky-300 text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                            : 'bg-[#151e24] border border-[#bae6fd]/35 text-[#bae6fd] hover:bg-[#1b2830]'
+                                    }`}
                                 >
                                     {isGeneratingAi ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Code2 className="w-4 h-4" />}
                                     Preview 3 Tiers
@@ -827,7 +917,11 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                                 <button
                                     onClick={() => handleGenerateAi(true)}
                                     disabled={isGeneratingAi}
-                                    className="px-6 py-3 bg-teal-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-teal-500/30 hover:shadow-teal-500/50 hover:-translate-y-0.5 active:scale-95 transition-all flex items-center gap-2 disabled:opacity-50"
+                                    className={`px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all flex items-center gap-2 disabled:opacity-50 cursor-pointer ${
+                                        isBento
+                                            ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[3px_3px_0px_#000]'
+                                            : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908]'
+                                    }`}
                                 >
                                     {isGeneratingAi ? (
                                         <><RefreshCw className="w-4 h-4 animate-spin" /> Generating with AI...</>
@@ -844,46 +938,70 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                     /* Preview Mode */
                     <div className="space-y-5 animate-in fade-in duration-300">
                         {/* Reference Info Banner */}
-                        <div className="p-4 bg-indigo-500/10 border border-indigo-500/20 rounded-2xl flex items-center justify-between">
+                        <div className={`p-4 rounded-2xl flex items-center justify-between ${
+                            isBento
+                                ? 'bg-[#f5f3ec] border-2 border-black shadow-[3px_3px_0px_#000]'
+                                : 'bg-[#1a1714] border border-[#2e2924]'
+                        }`}>
                             <div className="flex items-center gap-3">
-                                <Sparkles className="w-5 h-5 text-indigo-500 shrink-0" />
+                                <Sparkles className={`w-5 h-5 shrink-0 ${isBento ? 'text-black' : 'text-[#bef264]'}`} />
                                 <div>
-                                    <div className="text-xs font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+                                    <div className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-[#bef264]'}`}>
                                         Synthesized From: {aiGeneratedPreview.referenceTitle || 'General Question Pool'}
                                     </div>
-                                    <div className="text-[11px] text-gray-500 dark:text-gray-400">
-                                        Language: <span className="font-bold uppercase text-gray-700 dark:text-gray-300">{aiGeneratedPreview.language || selectedLanguage}</span> • Category: <span className="font-bold text-gray-700 dark:text-gray-300">{aiGeneratedPreview.referenceCategory || 'Algorithms'}</span>
+                                    <div className={`text-[11px] ${isBento ? 'text-neutral-700' : 'text-[#a8a29e]'}`}>
+                                        Language: <span className={`font-bold uppercase ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>{aiGeneratedPreview.language || selectedLanguage}</span> • Category: <span className={`font-bold ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>{aiGeneratedPreview.referenceCategory || 'Algorithms'}</span>
                                     </div>
                                 </div>
                             </div>
-                            <span className="px-3 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-black text-xs rounded-xl border border-emerald-500/20">
+                            <span className={`px-3 py-1 font-black text-xs rounded-xl ${
+                                isBento
+                                    ? 'bg-[#bef264] text-black border border-black'
+                                    : 'bg-[#1c2317] text-[#bef264] border border-[#bef264]/35'
+                            }`}>
                                 3 Levels Ready
                             </span>
                         </div>
 
                         {/* Tier Selector Tabs */}
-                        <div className="grid grid-cols-3 gap-2 p-1.5 bg-gray-100 dark:bg-black/40 rounded-2xl">
+                        <div className={`grid grid-cols-3 gap-2 p-1.5 rounded-2xl ${
+                            isBento ? 'bg-[#f5f3ec] border-2 border-black' : 'bg-[#0e0d0b] border border-[#2e2924]'
+                        }`}>
                             {(['easy', 'medium', 'hard'] as const).map(tierKey => {
                                 const tierData = aiGeneratedPreview.tiers?.[tierKey];
                                 const isActive = previewTierTab === tierKey;
-                                const tierColor = tierKey === 'easy' ? 'text-emerald-500' : tierKey === 'hard' ? 'text-rose-500' : 'text-amber-500';
-                                const activeBg = tierKey === 'easy' ? 'bg-emerald-500/10 border-emerald-500/30' : tierKey === 'hard' ? 'bg-rose-500/10 border-rose-500/30' : 'bg-amber-500/10 border-amber-500/30';
+                                const tierColor = isBento
+                                    ? 'text-black'
+                                    : tierKey === 'easy' ? 'text-[#bef264]' : tierKey === 'hard' ? 'text-[#fb7185]' : 'text-[#fde047]';
+                                const activeBg = isBento
+                                    ? tierKey === 'easy'
+                                        ? 'bg-[#bef264] border-black text-black'
+                                        : tierKey === 'hard'
+                                            ? 'bg-[#fecdd3] border-black text-black'
+                                            : 'bg-[#fde047] border-black text-black'
+                                    : tierKey === 'easy'
+                                        ? 'bg-[#1c2317] border-[#bef264]/45 text-[#f5f3ec]'
+                                        : tierKey === 'hard'
+                                            ? 'bg-[#251317] border-[#fb7185]/45 text-[#f5f3ec]'
+                                            : 'bg-[#231f14] border-[#fde047]/45 text-[#f5f3ec]';
 
                                 return (
                                     <button
                                         key={tierKey}
                                         onClick={() => setPreviewTierTab(tierKey)}
-                                        className={`p-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all flex flex-col items-center gap-1 border ${
+                                        className={`p-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all flex flex-col items-center gap-1 border cursor-pointer ${
                                             isActive
-                                                ? `${activeBg} shadow-sm text-gray-900 dark:text-white`
-                                                : 'border-transparent text-gray-500 hover:text-gray-800 dark:hover:text-gray-200'
+                                                ? activeBg
+                                                : isBento
+                                                    ? 'border-transparent text-neutral-700 hover:bg-white'
+                                                    : 'border-transparent text-[#a8a29e] hover:text-[#f5f3ec]'
                                         }`}
                                     >
                                         <div className="flex items-center gap-1.5">
-                                            <span className={`w-2 h-2 rounded-full ${tierKey === 'easy' ? 'bg-emerald-500' : tierKey === 'hard' ? 'bg-rose-500' : 'bg-amber-500'}`} />
+                                            <span className={`w-2 h-2 rounded-full ${tierKey === 'easy' ? 'bg-[#bef264]' : tierKey === 'hard' ? 'bg-[#fb7185]' : 'bg-[#fde047]'}`} />
                                             <span className={tierColor}>{tierKey}</span>
                                         </div>
-                                        <span className="text-[10px] font-bold text-gray-400 truncate max-w-[120px]">
+                                        <span className="text-[10px] font-bold opacity-75 truncate max-w-[120px]">
                                             {tierData?.title || 'Challenge'}
                                         </span>
                                     </button>
@@ -897,30 +1015,44 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                             if (!curTier) return null;
 
                             return (
-                                <div className="space-y-4 p-5 rounded-2xl bg-white dark:bg-[#151722] border border-gray-200 dark:border-white/5 shadow-sm">
-                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-gray-100 dark:border-white/5">
+                                <div className={`space-y-4 p-5 rounded-2xl ${
+                                    isBento
+                                        ? 'bg-white border-2 border-black shadow-[3px_3px_0px_#000]'
+                                        : 'bg-[#1a1714] border border-[#2e2924]'
+                                }`}>
+                                    <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b ${isBento ? 'border-black/20' : 'border-[#2e2924]'}`}>
                                         <div>
                                             <div className="flex items-center gap-2 mb-1">
                                                 <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider ${
-                                                    previewTierTab === 'easy' ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20' :
-                                                    previewTierTab === 'hard' ? 'bg-rose-500/10 text-rose-600 border border-rose-500/20' :
-                                                    'bg-amber-500/10 text-amber-600 border border-amber-500/20'
+                                                    isBento
+                                                        ? previewTierTab === 'easy' ? 'bg-[#bef264] text-black border border-black' :
+                                                          previewTierTab === 'hard' ? 'bg-[#fecdd3] text-black border border-black' :
+                                                          'bg-[#fde047] text-black border border-black'
+                                                        : previewTierTab === 'easy' ? 'bg-[#1c2317] text-[#bef264] border border-[#bef264]/35' :
+                                                          previewTierTab === 'hard' ? 'bg-[#251317] text-[#fb7185] border border-[#fb7185]/35' :
+                                                          'bg-[#231f14] text-[#fde047] border border-[#fde047]/35'
                                                 }`}>
                                                     {previewTierTab} Level
                                                 </span>
-                                                <span className="px-2 py-0.5 rounded bg-gray-100 dark:bg-white/5 text-gray-500 text-[10px] font-black uppercase">
+                                                <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase ${
+                                                    isBento ? 'bg-[#f5f3ec] text-black border border-black/30' : 'bg-[#0e0d0b] text-[#a8a29e] border border-[#2e2924]'
+                                                }`}>
                                                     {curTier.category}
                                                 </span>
                                             </div>
-                                            <h3 className="text-lg font-black text-gray-900 dark:text-white">
+                                            <h3 className={`text-lg font-black ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>
                                                 {curTier.title}
                                             </h3>
                                         </div>
                                         <div className="flex items-center gap-3">
-                                            <div className="px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-black flex items-center gap-1.5">
+                                            <div className={`px-3 py-1.5 rounded-xl text-xs font-black flex items-center gap-1.5 ${
+                                                isBento
+                                                    ? 'bg-[#fde047] text-black border border-black'
+                                                    : 'bg-[#231f14] border border-[#fde047]/35 text-[#fde047]'
+                                            }`}>
                                                 <Gift className="w-3.5 h-3.5" /> {curTier.giftLabel || 'Loot Box'}
                                             </div>
-                                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400">
+                                            <div className={`text-xs font-bold ${isBento ? 'text-neutral-700' : 'text-[#a8a29e]'}`}>
                                                 🪙 {curTier.rewardCoins} • ⚡ {curTier.rewardXP}
                                             </div>
                                         </div>
@@ -928,8 +1060,12 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
 
                                     {/* Description */}
                                     <div>
-                                        <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Problem Statement</label>
-                                        <div className="p-4 bg-gray-50 dark:bg-black/30 rounded-xl text-xs text-gray-800 dark:text-gray-200 font-medium whitespace-pre-wrap leading-relaxed max-h-48 overflow-y-auto">
+                                        <label className={`block text-[10px] font-black uppercase tracking-widest mb-1 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>Problem Statement</label>
+                                        <div className={`p-4 rounded-xl text-xs font-medium whitespace-pre-wrap leading-relaxed max-h-48 overflow-y-auto ${
+                                            isBento
+                                                ? 'bg-[#f5f3ec] text-black border border-black/25'
+                                                : 'bg-[#0e0d0b] text-[#d6d0c7] border border-[#2e2924]'
+                                        }`}>
                                             {curTier.description}
                                         </div>
                                     </div>
@@ -937,14 +1073,22 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                                     {/* Starter & Reference Code Preview */}
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                         <div>
-                                            <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Student Starter Stub</label>
-                                            <pre className="p-3 bg-gray-900 text-emerald-400 rounded-xl font-mono text-[11px] overflow-x-auto max-h-36 overflow-y-auto">
+                                            <label className={`block text-[10px] font-black uppercase tracking-widest mb-1 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>Student Starter Stub</label>
+                                            <pre className={`p-3 rounded-xl font-mono text-[11px] overflow-x-auto max-h-36 overflow-y-auto ${
+                                                isBento
+                                                    ? 'bg-[#f5f3ec] text-black border border-black'
+                                                    : 'bg-[#0e0d0b] text-[#bef264] border border-[#2e2924]'
+                                            }`}>
                                                 {curTier.starterCode || '// Starter code\n'}
                                             </pre>
                                         </div>
                                         <div>
-                                            <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">AI Reference Solution</label>
-                                            <pre className="p-3 bg-gray-900 text-indigo-300 rounded-xl font-mono text-[11px] overflow-x-auto max-h-36 overflow-y-auto">
+                                            <label className={`block text-[10px] font-black uppercase tracking-widest mb-1 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>AI Reference Solution</label>
+                                            <pre className={`p-3 rounded-xl font-mono text-[11px] overflow-x-auto max-h-36 overflow-y-auto ${
+                                                isBento
+                                                    ? 'bg-[#f5f3ec] text-black border border-black'
+                                                    : 'bg-[#0e0d0b] text-[#bae6fd] border border-[#2e2924]'
+                                            }`}>
                                                 {curTier.referenceCode || '// Reference solution\n'}
                                             </pre>
                                         </div>
@@ -953,11 +1097,11 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                                     {/* Hints */}
                                     {curTier.hints && curTier.hints.length > 0 && (
                                         <div>
-                                            <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Hints</label>
+                                            <label className={`block text-[10px] font-black uppercase tracking-widest mb-1 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>Hints</label>
                                             <div className="space-y-1">
                                                 {curTier.hints.map((hint: string, hIdx: number) => (
-                                                    <div key={hIdx} className="text-xs text-gray-600 dark:text-gray-400 flex items-start gap-1.5">
-                                                        <span className="text-amber-500 shrink-0">💡</span>
+                                                    <div key={hIdx} className={`text-xs flex items-start gap-1.5 ${isBento ? 'text-neutral-800' : 'text-[#d6d0c7]'}`}>
+                                                        <span className="text-[#fde047] shrink-0">💡</span>
                                                         <span>{hint}</span>
                                                     </div>
                                                 ))}
@@ -974,24 +1118,32 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
                         {/* Target Date & Language */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-xs font-black uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2 flex items-center gap-1.5">
-                                    <Calendar className="w-3.5 h-3.5 text-teal-500" /> Challenge Date
+                                <label className={`text-xs font-black uppercase tracking-wider mb-2 flex items-center gap-1.5 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>
+                                    <Calendar className={`w-3.5 h-3.5 ${isBento ? 'text-black' : 'text-[#bef264]'}`} /> Challenge Date
                                 </label>
                                 <input
                                     type="date"
                                     value={aiDate}
                                     onChange={e => setAiDate(e.target.value)}
-                                    className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-[#f5f3ec]/10 rounded-2xl px-4 py-3 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-teal-500/50"
+                                    className={`w-full rounded-2xl px-4 py-3 text-sm font-bold outline-none ${
+                                        isBento
+                                            ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                            : 'bg-[#0e0d0b] border border-[#2e2924] focus:border-[#bef264] text-[#f5f3ec]'
+                                    }`}
                                 />
                             </div>
                             <div>
-                                <label className="block text-xs font-black uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2 flex items-center gap-1.5">
-                                    <Code2 className="w-3.5 h-3.5 text-indigo-500" /> Programming Language
+                                <label className={`text-xs font-black uppercase tracking-wider mb-2 flex items-center gap-1.5 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>
+                                    <Code2 className={`w-3.5 h-3.5 ${isBento ? 'text-black' : 'text-[#bae6fd]'}`} /> Programming Language
                                 </label>
                                 <select
                                     value={selectedLanguage}
                                     onChange={e => setSelectedLanguage(e.target.value)}
-                                    className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-[#f5f3ec]/10 rounded-2xl px-4 py-3 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500/50 cursor-pointer"
+                                    className={`w-full rounded-2xl px-4 py-3 text-sm font-bold outline-none cursor-pointer ${
+                                        isBento
+                                            ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                            : 'bg-[#0e0d0b] border border-[#2e2924] focus:border-[#bef264] text-[#f5f3ec]'
+                                    }`}
                                 >
                                     <option value="javascript">JavaScript (ES6+)</option>
                                     <option value="python">Python 3</option>
@@ -1002,16 +1154,20 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
 
                         {/* Reference Quiz Selector */}
                         <div>
-                            <label className="block text-xs font-black uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2 flex items-center gap-1.5">
-                                <Sparkles className="w-3.5 h-3.5 text-amber-500" /> Reference Quiz Inspiration
+                            <label className={`text-xs font-black uppercase tracking-wider mb-2 flex items-center gap-1.5 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>
+                                <Sparkles className={`w-3.5 h-3.5 ${isBento ? 'text-black' : 'text-[#fde047]'}`} /> Reference Quiz Inspiration
                             </label>
-                            <p className="text-[11px] text-gray-400 mb-2 font-medium">
+                            <p className={`text-[11px] mb-2 font-medium ${isBento ? 'text-neutral-700' : 'text-[#a8a29e]'}`}>
                                 AI inspects the selected quiz's questions, concepts, and explanations to synthesize completely new coding problems.
                             </p>
                             <select
                                 value={selectedQuizId}
                                 onChange={e => setSelectedQuizId(e.target.value)}
-                                className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-[#f5f3ec]/10 rounded-2xl px-4 py-3 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-500/50 cursor-pointer"
+                                className={`w-full rounded-2xl px-4 py-3 text-sm font-bold outline-none cursor-pointer ${
+                                    isBento
+                                        ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                        : 'bg-[#0e0d0b] border border-[#2e2924] focus:border-[#bef264] text-[#f5f3ec]'
+                                }`}
                             >
                                 <option value="random">🎲 Randomly Sample Existing Quizzes (Recommended)</option>
                                 {quizzes.map(q => (
@@ -1024,140 +1180,198 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
 
                         {/* Custom Topic / Admin Instructions */}
                         <div>
-                            <label className="block text-xs font-black uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2 flex items-center gap-1.5">
-                                <Bot className="w-3.5 h-3.5 text-rose-500" /> Custom Concept or Focus (Optional)
+                            <label className={`text-xs font-black uppercase tracking-wider mb-2 flex items-center gap-1.5 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>
+                                <Bot className={`w-3.5 h-3.5 ${isBento ? 'text-black' : 'text-[#fb7185]'}`} /> Custom Concept or Focus (Optional)
                             </label>
                             <input
                                 type="text"
                                 value={customTopic}
                                 onChange={e => setCustomTopic(e.target.value)}
                                 placeholder="e.g. Array manipulation, anagram detection, string reversal, recursion..."
-                                className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-[#f5f3ec]/10 rounded-2xl px-4 py-3 text-sm font-medium text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-rose-500/50"
+                                className={`w-full rounded-2xl px-4 py-3 text-sm font-medium outline-none ${
+                                    isBento
+                                        ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] placeholder:text-neutral-500'
+                                        : 'bg-[#0e0d0b] border border-[#2e2924] focus:border-[#bef264] text-[#f5f3ec] placeholder:text-[#78716c]'
+                                }`}
                             />
                         </div>
 
                         {/* 3 Distinct Tiers & Gifts Configuration */}
                         <div>
-                            <label className="block text-xs font-black uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2 flex items-center gap-1.5">
-                                <Gift className="w-3.5 h-3.5 text-emerald-500" /> Configure 3 Tiers & Distinct Gifts
+                            <label className={`text-xs font-black uppercase tracking-wider mb-2 flex items-center gap-1.5 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>
+                                <Gift className={`w-3.5 h-3.5 ${isBento ? 'text-black' : 'text-[#bef264]'}`} /> Configure 3 Tiers & Distinct Gifts
                             </label>
-                            <p className="text-[11px] text-gray-400 mb-3 font-medium">
+                            <p className={`text-[11px] mb-3 font-medium ${isBento ? 'text-neutral-700' : 'text-[#a8a29e]'}`}>
                                 Each difficulty level awards its own distinct gift and rewards. Users can solve all 3 levels every day.
                             </p>
 
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                                 {/* Easy Tier Card */}
-                                <div className="p-4 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-500/30 space-y-3">
+                                <div className={`p-4 rounded-2xl space-y-3 ${
+                                    isBento
+                                        ? 'bg-[#dcfce7] border-2 border-black shadow-[3px_3px_0px_#000]'
+                                        : 'bg-[#171d14] border border-[#bef264]/35'
+                                }`}>
                                     <div className="flex items-center justify-between">
-                                        <span className="px-2 py-0.5 rounded bg-emerald-500 text-white text-[10px] font-black uppercase">
+                                        <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase ${
+                                            isBento ? 'bg-[#bef264] text-black border border-black' : 'bg-[#bef264] text-[#0a0908]'
+                                        }`}>
                                             Easy Tier
                                         </span>
-                                        <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">Warm-up</span>
+                                        <span className={`text-[10px] font-bold ${isBento ? 'text-black' : 'text-[#bef264]'}`}>Warm-up</span>
                                     </div>
                                     <div>
-                                        <label className="block text-[10px] font-black uppercase tracking-wider text-gray-400 mb-1">Gift Title</label>
+                                        <label className={`block text-[10px] font-black uppercase tracking-wider mb-1 ${isBento ? 'text-black/75' : 'text-[#a8a29e]'}`}>Gift Title</label>
                                         <input
                                             type="text"
                                             value={tierRewards.easy.giftLabel}
                                             onChange={e => setTierRewards({ ...tierRewards, easy: { ...tierRewards.easy, giftLabel: e.target.value } })}
-                                            className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-[#f5f3ec]/10 rounded-xl px-3 py-2 text-xs font-bold text-gray-900 dark:text-white outline-none"
+                                            className={`w-full rounded-xl px-3 py-2 text-xs font-bold outline-none ${
+                                                isBento
+                                                    ? 'bg-white text-black border-2 border-black'
+                                                    : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec]'
+                                            }`}
                                         />
                                     </div>
                                     <div className="flex gap-2">
                                         <div className="flex-1">
-                                            <label className="block text-[10px] font-black uppercase tracking-wider text-gray-400 mb-1">🪙 Coins</label>
+                                            <label className={`block text-[10px] font-black uppercase tracking-wider mb-1 ${isBento ? 'text-black/75' : 'text-[#a8a29e]'}`}>🪙 Coins</label>
                                             <input
                                                 type="number"
                                                 value={tierRewards.easy.coins}
                                                 onChange={e => setTierRewards({ ...tierRewards, easy: { ...tierRewards.easy, coins: parseInt(e.target.value) || 0 } })}
-                                                className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-[#f5f3ec]/10 rounded-xl px-3 py-2 text-xs font-black text-gray-900 dark:text-white outline-none"
+                                                className={`w-full rounded-xl px-3 py-2 text-xs font-black outline-none ${
+                                                    isBento
+                                                        ? 'bg-white text-black border-2 border-black'
+                                                        : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec]'
+                                                }`}
                                             />
                                         </div>
                                         <div className="flex-1">
-                                            <label className="block text-[10px] font-black uppercase tracking-wider text-gray-400 mb-1">⚡ XP</label>
+                                            <label className={`block text-[10px] font-black uppercase tracking-wider mb-1 ${isBento ? 'text-black/75' : 'text-[#a8a29e]'}`}>⚡ XP</label>
                                             <input
                                                 type="number"
                                                 value={tierRewards.easy.xp}
                                                 onChange={e => setTierRewards({ ...tierRewards, easy: { ...tierRewards.easy, xp: parseInt(e.target.value) || 0 } })}
-                                                className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-[#f5f3ec]/10 rounded-xl px-3 py-2 text-xs font-black text-gray-900 dark:text-white outline-none"
+                                                className={`w-full rounded-xl px-3 py-2 text-xs font-black outline-none ${
+                                                    isBento
+                                                        ? 'bg-white text-black border-2 border-black'
+                                                        : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec]'
+                                                }`}
                                             />
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* Medium Tier Card */}
-                                <div className="p-4 rounded-2xl bg-amber-50/50 dark:bg-amber-950/20 border border-amber-500/30 space-y-3">
+                                <div className={`p-4 rounded-2xl space-y-3 ${
+                                    isBento
+                                        ? 'bg-[#fef08a] border-2 border-black shadow-[3px_3px_0px_#000]'
+                                        : 'bg-[#231f14] border border-[#fde047]/35'
+                                }`}>
                                     <div className="flex items-center justify-between">
-                                        <span className="px-2 py-0.5 rounded bg-amber-500 text-white text-[10px] font-black uppercase">
+                                        <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase ${
+                                            isBento ? 'bg-black text-[#fde047]' : 'bg-[#fde047] text-[#0a0908]'
+                                        }`}>
                                             Medium Tier
                                         </span>
-                                        <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400">Core</span>
+                                        <span className={`text-[10px] font-bold ${isBento ? 'text-black' : 'text-[#fde047]'}`}>Core</span>
                                     </div>
                                     <div>
-                                        <label className="block text-[10px] font-black uppercase tracking-wider text-gray-400 mb-1">Gift Title</label>
+                                        <label className={`block text-[10px] font-black uppercase tracking-wider mb-1 ${isBento ? 'text-black/75' : 'text-[#a8a29e]'}`}>Gift Title</label>
                                         <input
                                             type="text"
                                             value={tierRewards.medium.giftLabel}
                                             onChange={e => setTierRewards({ ...tierRewards, medium: { ...tierRewards.medium, giftLabel: e.target.value } })}
-                                            className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-[#f5f3ec]/10 rounded-xl px-3 py-2 text-xs font-bold text-gray-900 dark:text-white outline-none"
+                                            className={`w-full rounded-xl px-3 py-2 text-xs font-bold outline-none ${
+                                                isBento
+                                                    ? 'bg-white text-black border-2 border-black'
+                                                    : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec]'
+                                            }`}
                                         />
                                     </div>
                                     <div className="flex gap-2">
                                         <div className="flex-1">
-                                            <label className="block text-[10px] font-black uppercase tracking-wider text-gray-400 mb-1">🪙 Coins</label>
+                                            <label className={`block text-[10px] font-black uppercase tracking-wider mb-1 ${isBento ? 'text-black/75' : 'text-[#a8a29e]'}`}>🪙 Coins</label>
                                             <input
                                                 type="number"
                                                 value={tierRewards.medium.coins}
                                                 onChange={e => setTierRewards({ ...tierRewards, medium: { ...tierRewards.medium, coins: parseInt(e.target.value) || 0 } })}
-                                                className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-[#f5f3ec]/10 rounded-xl px-3 py-2 text-xs font-black text-gray-900 dark:text-white outline-none"
+                                                className={`w-full rounded-xl px-3 py-2 text-xs font-black outline-none ${
+                                                    isBento
+                                                        ? 'bg-white text-black border-2 border-black'
+                                                        : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec]'
+                                                }`}
                                             />
                                         </div>
                                         <div className="flex-1">
-                                            <label className="block text-[10px] font-black uppercase tracking-wider text-gray-400 mb-1">⚡ XP</label>
+                                            <label className={`block text-[10px] font-black uppercase tracking-wider mb-1 ${isBento ? 'text-black/75' : 'text-[#a8a29e]'}`}>⚡ XP</label>
                                             <input
                                                 type="number"
                                                 value={tierRewards.medium.xp}
                                                 onChange={e => setTierRewards({ ...tierRewards, medium: { ...tierRewards.medium, xp: parseInt(e.target.value) || 0 } })}
-                                                className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-[#f5f3ec]/10 rounded-xl px-3 py-2 text-xs font-black text-gray-900 dark:text-white outline-none"
+                                                className={`w-full rounded-xl px-3 py-2 text-xs font-black outline-none ${
+                                                    isBento
+                                                        ? 'bg-white text-black border-2 border-black'
+                                                        : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec]'
+                                                }`}
                                             />
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* Hard Tier Card */}
-                                <div className="p-4 rounded-2xl bg-rose-50/50 dark:bg-rose-950/20 border border-rose-500/30 space-y-3">
+                                <div className={`p-4 rounded-2xl space-y-3 ${
+                                    isBento
+                                        ? 'bg-[#fecdd3] border-2 border-black shadow-[3px_3px_0px_#000]'
+                                        : 'bg-[#251317] border border-[#fb7185]/35'
+                                }`}>
                                     <div className="flex items-center justify-between">
-                                        <span className="px-2 py-0.5 rounded bg-rose-500 text-white text-[10px] font-black uppercase">
+                                        <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase ${
+                                            isBento ? 'bg-black text-[#fecdd3]' : 'bg-[#fb7185] text-[#0a0908]'
+                                        }`}>
                                             Hard Tier
                                         </span>
-                                        <span className="text-[10px] font-bold text-rose-600 dark:text-rose-400">Grandmaster</span>
+                                        <span className={`text-[10px] font-bold ${isBento ? 'text-black' : 'text-[#fb7185]'}`}>Grandmaster</span>
                                     </div>
                                     <div>
-                                        <label className="block text-[10px] font-black uppercase tracking-wider text-gray-400 mb-1">Gift Title</label>
+                                        <label className={`block text-[10px] font-black uppercase tracking-wider mb-1 ${isBento ? 'text-black/75' : 'text-[#a8a29e]'}`}>Gift Title</label>
                                         <input
                                             type="text"
                                             value={tierRewards.hard.giftLabel}
                                             onChange={e => setTierRewards({ ...tierRewards, hard: { ...tierRewards.hard, giftLabel: e.target.value } })}
-                                            className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-[#f5f3ec]/10 rounded-xl px-3 py-2 text-xs font-bold text-gray-900 dark:text-white outline-none"
+                                            className={`w-full rounded-xl px-3 py-2 text-xs font-bold outline-none ${
+                                                isBento
+                                                    ? 'bg-white text-black border-2 border-black'
+                                                    : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec]'
+                                            }`}
                                         />
                                     </div>
                                     <div className="flex gap-2">
                                         <div className="flex-1">
-                                            <label className="block text-[10px] font-black uppercase tracking-wider text-gray-400 mb-1">🪙 Coins</label>
+                                            <label className={`block text-[10px] font-black uppercase tracking-wider mb-1 ${isBento ? 'text-black/75' : 'text-[#a8a29e]'}`}>🪙 Coins</label>
                                             <input
                                                 type="number"
                                                 value={tierRewards.hard.coins}
                                                 onChange={e => setTierRewards({ ...tierRewards, hard: { ...tierRewards.hard, coins: parseInt(e.target.value) || 0 } })}
-                                                className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-[#f5f3ec]/10 rounded-xl px-3 py-2 text-xs font-black text-gray-900 dark:text-white outline-none"
+                                                className={`w-full rounded-xl px-3 py-2 text-xs font-black outline-none ${
+                                                    isBento
+                                                        ? 'bg-white text-black border-2 border-black'
+                                                        : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec]'
+                                                }`}
                                             />
                                         </div>
                                         <div className="flex-1">
-                                            <label className="block text-[10px] font-black uppercase tracking-wider text-gray-400 mb-1">⚡ XP</label>
+                                            <label className={`block text-[10px] font-black uppercase tracking-wider mb-1 ${isBento ? 'text-black/75' : 'text-[#a8a29e]'}`}>⚡ XP</label>
                                             <input
                                                 type="number"
                                                 value={tierRewards.hard.xp}
                                                 onChange={e => setTierRewards({ ...tierRewards, hard: { ...tierRewards.hard, xp: parseInt(e.target.value) || 0 } })}
-                                                className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-[#f5f3ec]/10 rounded-xl px-3 py-2 text-xs font-black text-gray-900 dark:text-white outline-none"
+                                                className={`w-full rounded-xl px-3 py-2 text-xs font-black outline-none ${
+                                                    isBento
+                                                        ? 'bg-white text-black border-2 border-black'
+                                                        : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec]'
+                                                }`}
                                             />
                                         </div>
                                     </div>

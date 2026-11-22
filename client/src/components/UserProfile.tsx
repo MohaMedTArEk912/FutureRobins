@@ -1933,10 +1933,10 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
 
                                     const statusClasses =
                                         joinStatus === 'approved'
-                                            ? isBento ? 'bg-[#bef264] text-black border border-black' : 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300'
+                                            ? isBento ? 'bg-[#4ade80] text-black border border-black' : 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/40'
                                             : joinStatus === 'rejected'
-                                                ? isBento ? 'bg-[#fecdd3] text-black border border-black' : 'bg-rose-500/15 text-rose-700 dark:text-rose-300'
-                                                : isBento ? 'bg-[#fef08a] text-black border border-black' : 'bg-amber-500/15 text-amber-700 dark:text-amber-300';
+                                                ? isBento ? 'bg-[#f87171] text-black border border-black' : 'bg-red-500/15 text-red-400 border border-red-500/40'
+                                                : isBento ? 'bg-[#60a5fa] text-black border border-black' : 'bg-blue-500/15 text-blue-400 border border-blue-500/40';
 
                                     return (
                                         <div

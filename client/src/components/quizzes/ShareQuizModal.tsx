@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { X, Copy, Check, Share2, Link, ExternalLink } from 'lucide-react';
+import { Copy, Check, Share2, Link, ExternalLink } from 'lucide-react';
+import Modal from '../common/Modal';
+import { useTheme } from '../../context/ThemeContext';
 import type { Quiz } from '../../types';
 
 interface ShareQuizModalProps {
@@ -9,6 +11,7 @@ interface ShareQuizModalProps {
 }
 
 const ShareQuizModal: React.FC<ShareQuizModalProps> = ({ quiz, isOpen, onClose }) => {
+    const { isBento } = useTheme();
     const [copied, setCopied] = useState(false);
 
     // Build the shareable link using the quiz's id
@@ -61,48 +64,65 @@ const ShareQuizModal: React.FC<ShareQuizModalProps> = ({ quiz, isOpen, onClose }
     if (!isOpen || !quiz) return null;
 
     return (
-        <div
-            className="app-dialog-overlay fixed inset-0 z-[200] flex items-center justify-center p-4"
-            onClick={onClose}
-        >
-            {/* Backdrop */}
-            <div className="app-dialog-backdrop absolute inset-0 bg-black/30 dark:bg-black/45 backdrop-blur-md" />
-
-            {/* Modal */}
-            <div
-                className="app-dialog-panel app-dialog-panel--structured flex flex-col relative w-full max-w-md bg-white dark:bg-[#16162a] rounded-2xl shadow-2xl border border-gray-200 dark:border-white/10 overflow-hidden animate-in fade-in zoom-in-95 duration-200"
-                onClick={(e) => e.stopPropagation()}
-            >
-                {/* Header */}
-                <div className="app-dialog-header flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-white/10">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-sky-100 dark:bg-sky-900/40 rounded-xl">
-                            <Share2 className="w-5 h-5 text-sky-600 dark:text-sky-400" />
-                        </div>
-                        <div>
-                            <h2 className="text-base font-bold text-gray-900 dark:text-white">Share Quiz</h2>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">Anyone with the link can take this quiz</p>
-                        </div>
-                    </div>
-                    <button
-                        onClick={onClose}
-                        className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/10 rounded-xl transition-colors"
+        <Modal
+            isOpen={isOpen}
+            onClose={onClose}
+            title="Share Quiz"
+            description="Anyone with the link can take this quiz"
+            maxWidth="max-w-md"
+            icon={<Share2 className={`w-5 h-5 ${isBento ? 'text-black' : 'text-[#bae6fd]'}`} />}
+            iconContainerClassName={
+                isBento
+                    ? 'bg-[#bae6fd] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                    : 'bg-[#bae6fd]/15 text-[#bae6fd] border border-[#bae6fd]/35'
+            }
+            footer={
+                <div className="flex gap-3 w-full">
+                    <a
+                        href={shareUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`flex-1 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
+                            isBento
+                                ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#fef08a]'
+                                : 'bg-[#1c1917] text-[#f5f3ec] border border-[#2e2924] hover:border-[#bef264]'
+                        }`}
                     >
-                        <X className="w-5 h-5" />
-                    </button>
+                        <ExternalLink className="w-4 h-4" />
+                        Preview
+                    </a>
+                    {typeof navigator.share === 'function' && (
+                        <button
+                            type="button"
+                            onClick={handleNativeShare}
+                            className={`flex-1 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                                isBento
+                                    ? 'bg-[#fde047] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#facc15]'
+                                    : 'bg-[#fde047] text-[#0a0908] hover:bg-[#fef08a]'
+                            }`}
+                        >
+                            <Share2 className="w-4 h-4" />
+                            Share via...
+                        </button>
+                    )}
+                </div>
+            }
+        >
+            <div className="space-y-4">
+                <div className={`p-4 rounded-xl ${
+                    isBento
+                        ? 'bg-[#f5f3ec] border-2 border-black shadow-[2px_2px_0px_#000]'
+                        : 'bg-[#1a1714] border border-[#2e2924]'
+                }`}>
+                    <h3 className={`font-black text-sm truncate ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>{quiz.title}</h3>
+                    <p className={`text-xs mt-0.5 font-semibold ${isBento ? 'text-slate-700' : 'text-[#a8a29e]'}`}>
+                        {quiz.questions?.length || 0} Questions &bull; {quiz.difficulty || 'Medium'} &bull; {quiz.category || 'General'}
+                    </p>
                 </div>
 
-                {/* Quiz Info */}
-                <div className="app-dialog-body px-6 pt-5 pb-2">
-                    <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-xl mb-4">
-                        <h3 className="font-bold text-gray-900 dark:text-white text-sm truncate">{quiz.title}</h3>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                            {quiz.questions?.length || 0} Questions &bull; {quiz.difficulty || 'Medium'} &bull; {quiz.category || 'General'}
-                        </p>
-                    </div>
-
-                    {/* Link input */}
-                    <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">
+                {/* Link input */}
+                <div>
+                    <label className={`block text-xs font-black uppercase tracking-wider mb-1.5 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>
                         <Link className="w-3 h-3 inline mr-1.5" />
                         Shareable Link
                     </label>
@@ -111,15 +131,24 @@ const ShareQuizModal: React.FC<ShareQuizModalProps> = ({ quiz, isOpen, onClose }
                             type="text"
                             readOnly
                             value={shareUrl}
-                            className="flex-1 px-3 py-2.5 bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-200 text-sm rounded-xl border border-gray-200 dark:border-white/10 focus:outline-none font-mono overflow-hidden text-ellipsis"
+                            className={`flex-1 px-3 py-2.5 text-sm rounded-xl focus:outline-none font-mono overflow-hidden text-ellipsis ${
+                                isBento
+                                    ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                    : 'bg-[#0e0d0b] text-[#f5f3ec] border border-[#2e2924]'
+                            }`}
                             onClick={(e) => (e.target as HTMLInputElement).select()}
                         />
                         <button
+                            type="button"
                             onClick={handleCopy}
-                            className={`px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 transition-all duration-200 ${
-                                copied
-                                    ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30'
-                                    : 'bg-sky-600 hover:bg-sky-700 text-white shadow-lg shadow-sky-500/30'
+                            className={`px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer ${
+                                isBento
+                                    ? copied
+                                        ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                        : 'bg-[#fde047] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#bef264]'
+                                    : copied
+                                        ? 'bg-[#bef264] text-[#0a0908]'
+                                        : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908] shadow-[0_2px_0_#050504]'
                             }`}
                         >
                             {copied ? (
@@ -136,30 +165,8 @@ const ShareQuizModal: React.FC<ShareQuizModalProps> = ({ quiz, isOpen, onClose }
                         </button>
                     </div>
                 </div>
-
-                {/* Actions */}
-                <div className="app-dialog-footer flex gap-3 px-6 pb-5 pt-3">
-                    <a
-                        href={shareUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex-1 py-2.5 bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-white/20 rounded-xl font-bold text-sm transition-colors flex items-center justify-center gap-2"
-                    >
-                        <ExternalLink className="w-4 h-4" />
-                        Preview
-                    </a>
-                    {typeof navigator.share === 'function' && (
-                        <button
-                            onClick={handleNativeShare}
-                            className="flex-1 py-2.5 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-200 dark:hover:bg-indigo-900/50 rounded-xl font-bold text-sm transition-colors flex items-center justify-center gap-2"
-                        >
-                            <Share2 className="w-4 h-4" />
-                            Share via...
-                        </button>
-                    )}
-                </div>
             </div>
-        </div>
+        </Modal>
     );
 };
 

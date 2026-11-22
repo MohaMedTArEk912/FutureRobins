@@ -144,12 +144,12 @@ export const RoadmapJsonImporter: React.FC<RoadmapJsonImporterProps> = ({ isOpen
                 'Create or update your learning path structure instantly',
                 'اعمل أو حدّث هيكل مسار التعلم فوراً'
             )}
-            icon={<FileJson className={`w-6 h-6 ${isBento ? 'text-black' : 'text-indigo-500 dark:text-indigo-400'}`} />}
+            icon={<FileJson className={`w-6 h-6 ${isBento ? 'text-black' : 'text-[#bef264]'}`} />}
             maxWidth="max-w-6xl"
             bodyClassName={`flex flex-col md:flex-row overflow-hidden p-0 ${
                 isBento
                     ? 'bg-[#f5f3ec] text-black'
-                    : 'bg-slate-50 dark:bg-[#05070a] text-slate-900 dark:text-slate-100'
+                    : 'bg-[#0e0d0b] text-[#f5f3ec]'
             }`}
             footer={
                 <div className="flex flex-wrap justify-between items-center gap-3 w-full">
@@ -160,7 +160,7 @@ export const RoadmapJsonImporter: React.FC<RoadmapJsonImporterProps> = ({ isOpen
                             className={`btn-unstyled flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-black transition-all cursor-pointer ${
                                 isBento
                                     ? 'bg-white hover:bg-[#fef9c3] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                    : 'bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-indigo-700 dark:text-indigo-300 border border-slate-200 dark:border-white/10'
+                                    : 'bg-[#1c1917] hover:bg-[#24201c] text-[#f5f3ec] border border-[#2e2924]'
                             }`}
                         >
                             <Download className="w-4 h-4 shrink-0" />
@@ -172,7 +172,7 @@ export const RoadmapJsonImporter: React.FC<RoadmapJsonImporterProps> = ({ isOpen
                             className={`btn-unstyled flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-black transition-all cursor-pointer ${
                                 isBento
                                     ? 'bg-[#bae6fd] hover:bg-[#7dd3fc] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                    : 'text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-white/5 border border-transparent hover:border-indigo-200 dark:hover:border-white/10'
+                                    : 'bg-[#bae6fd]/12 text-[#bae6fd] hover:bg-[#bae6fd]/20 border border-[#bae6fd]/35'
                             }`}
                         >
                             <Code className="w-4 h-4 shrink-0" />
@@ -187,7 +187,7 @@ export const RoadmapJsonImporter: React.FC<RoadmapJsonImporterProps> = ({ isOpen
                             className={`btn-unstyled px-5 py-2.5 rounded-xl text-sm font-black transition-all cursor-pointer ${
                                 isBento
                                     ? 'bg-white hover:bg-[#fecdd3] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                    : 'text-slate-600 dark:text-gray-400 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white'
+                                    : 'bg-[#1c1917] text-[#d6d0c7] border border-[#2e2924] hover:bg-[#24201c] hover:text-[#f5f3ec]'
                             }`}
                         >
                             {tx('Cancel', 'إلغاء')}
@@ -199,7 +199,7 @@ export const RoadmapJsonImporter: React.FC<RoadmapJsonImporterProps> = ({ isOpen
                             className={`btn-unstyled px-7 py-2.5 rounded-xl text-sm font-black transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
                                 isBento
                                     ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[3px_3px_0px_#000] active:translate-y-0.5'
-                                    : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/20 hover:-translate-y-0.5 active:translate-y-0'
+                                    : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908] shadow-[0_3px_0_#050504] hover:-translate-y-0.5 active:translate-y-0'
                             }`}
                         >
                             {importing ? tx('Importing...', 'بنستورد...') : tx('Import Changes', 'استيراد التعديلات')}
@@ -213,12 +213,12 @@ export const RoadmapJsonImporter: React.FC<RoadmapJsonImporterProps> = ({ isOpen
                 className={`w-full md:w-64 shrink-0 flex flex-col p-4 gap-2 ${
                     isBento
                         ? 'bg-white border-b-[2.5px] md:border-b-0 md:border-e-[2.5px] border-black text-black'
-                        : 'bg-white dark:bg-[#131320] border-b md:border-b-0 md:border-e border-slate-200 dark:border-white/5'
+                        : 'bg-[#141210] border-b md:border-b-0 md:border-e border-[#2e2924]'
                 }`}
             >
                 <div
                     className={`text-xs font-black uppercase tracking-wider mb-1 px-2 ${
-                        isBento ? 'text-black' : 'text-slate-500 dark:text-gray-400'
+                        isBento ? 'text-black' : 'text-[#a8a29e]'
                     }`}
                 >
                     {tx('Import Source', 'مصدر الاستيراد')}
@@ -232,10 +232,10 @@ export const RoadmapJsonImporter: React.FC<RoadmapJsonImporterProps> = ({ isOpen
                             mode === 'upload'
                                 ? isBento
                                     ? 'bg-[#bef264] border-2 border-black shadow-[3px_3px_0px_#000] text-black'
-                                    : 'bg-indigo-50 dark:bg-indigo-600/15 border border-indigo-300 dark:border-indigo-500/50 text-indigo-700 dark:text-indigo-300'
+                                    : 'bg-[#bef264]/15 border border-[#bef264] text-[#bef264]'
                                 : isBento
                                   ? 'bg-white hover:bg-[#fef9c3] border-2 border-black/20 text-black'
-                                  : 'bg-slate-50 dark:bg-transparent border border-slate-200/70 dark:border-transparent text-slate-600 dark:text-gray-400 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-gray-200'
+                                  : 'bg-[#1a1714] border border-[#2e2924] text-[#a8a29e] hover:text-[#f5f3ec]'
                         }`}
                     >
                         <Upload className="w-5 h-5 shrink-0" />
@@ -254,10 +254,10 @@ export const RoadmapJsonImporter: React.FC<RoadmapJsonImporterProps> = ({ isOpen
                             mode === 'editor'
                                 ? isBento
                                     ? 'bg-[#bef264] border-2 border-black shadow-[3px_3px_0px_#000] text-black'
-                                    : 'bg-indigo-50 dark:bg-indigo-600/15 border border-indigo-300 dark:border-indigo-500/50 text-indigo-700 dark:text-indigo-300'
+                                    : 'bg-[#bef264]/15 border border-[#bef264] text-[#bef264]'
                                 : isBento
                                   ? 'bg-white hover:bg-[#fef9c3] border-2 border-black/20 text-black'
-                                  : 'bg-slate-50 dark:bg-transparent border border-slate-200/70 dark:border-transparent text-slate-600 dark:text-gray-400 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-gray-200'
+                                  : 'bg-[#1a1714] border border-[#2e2924] text-[#a8a29e] hover:text-[#f5f3ec]'
                         }`}
                     >
                         <Code className="w-5 h-5 shrink-0" />
@@ -274,19 +274,19 @@ export const RoadmapJsonImporter: React.FC<RoadmapJsonImporterProps> = ({ isOpen
                     className={`mt-auto hidden md:block p-4 rounded-xl ${
                         isBento
                             ? 'bg-[#bae6fd] border-2 border-black shadow-[2px_2px_0px_#000] text-black'
-                            : 'bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20'
+                            : 'bg-[#1a1714] border border-[#bae6fd]/35'
                     }`}
                 >
                     <h4
                         className={`flex items-center gap-2 font-black text-xs mb-1.5 ${
-                            isBento ? 'text-black' : 'text-blue-700 dark:text-blue-400'
+                            isBento ? 'text-black' : 'text-[#bae6fd]'
                         }`}
                     >
                         <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {tx('Note', 'ملاحظة')}
                     </h4>
                     <p
                         className={`text-[11px] leading-relaxed font-medium ${
-                            isBento ? 'text-black/80' : 'text-blue-800/80 dark:text-blue-200/70'
+                            isBento ? 'text-black/80' : 'text-[#d6d0c7]'
                         }`}
                     >
                         {tx(
@@ -300,7 +300,7 @@ export const RoadmapJsonImporter: React.FC<RoadmapJsonImporterProps> = ({ isOpen
             {/* Content Area */}
             <div
                 className={`flex-1 relative min-h-[320px] md:h-full overflow-hidden ${
-                    isBento ? 'bg-[#f5f3ec]' : 'bg-slate-50 dark:bg-[#05070a]'
+                    isBento ? 'bg-[#f5f3ec]' : 'bg-[#0e0d0b]'
                 }`}
             >
                 {/* Error/Success Messages */}
@@ -310,10 +310,10 @@ export const RoadmapJsonImporter: React.FC<RoadmapJsonImporterProps> = ({ isOpen
                             error
                                 ? isBento
                                     ? 'bg-[#fecdd3] border-2 border-black text-black shadow-[3px_3px_0px_#000]'
-                                    : 'bg-red-50 dark:bg-red-950/90 border border-red-200 dark:border-red-500/30 text-red-800 dark:text-red-200'
+                                    : 'bg-[#251317] border border-[#fb7185]/45 text-[#fb7185]'
                                 : isBento
                                   ? 'bg-[#bef264] border-2 border-black text-black shadow-[3px_3px_0px_#000]'
-                                  : 'bg-emerald-50 dark:bg-emerald-950/90 border border-emerald-200 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-200'
+                                  : 'bg-[#171d14] border border-[#bef264]/45 text-[#bef264]'
                         }`}
                     >
                         {error ? <AlertCircle className="w-5 h-5 shrink-0" /> : <Check className="w-5 h-5 shrink-0" />}
@@ -339,7 +339,7 @@ export const RoadmapJsonImporter: React.FC<RoadmapJsonImporterProps> = ({ isOpen
                             className={`group w-full max-w-lg aspect-video rounded-3xl flex flex-col items-center justify-center cursor-pointer transition-all duration-300 p-6 ${
                                 isBento
                                     ? 'bg-white border-[3px] border-dashed border-black hover:bg-[#fef9c3] shadow-[5px_5px_0px_#000]'
-                                    : 'bg-white dark:bg-white/[0.02] border-2 border-dashed border-slate-300 dark:border-[#f5f3ec]/16 hover:border-indigo-500 hover:bg-indigo-50/50 dark:hover:bg-indigo-500/5 shadow-sm'
+                                    : 'bg-[#141210] border-2 border-dashed border-[#2e2924] hover:border-[#bef264]'
                             }`}
                         >
                             <input
@@ -353,7 +353,7 @@ export const RoadmapJsonImporter: React.FC<RoadmapJsonImporterProps> = ({ isOpen
                                 className={`w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mb-5 transition-colors duration-300 ${
                                     isBento
                                         ? 'bg-[#fde047] border-2 border-black text-black shadow-[3px_3px_0px_#000]'
-                                        : 'bg-slate-100 dark:bg-[#1c1917] group-hover:bg-indigo-100 dark:group-hover:bg-indigo-500/20 text-slate-500 dark:text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400'
+                                        : 'bg-[#1c1917] border border-[#2e2924] group-hover:border-[#bef264] text-[#bef264]'
                                 }`}
                             >
                                 <Upload className="w-8 h-8 sm:w-10 sm:h-10" />
@@ -362,14 +362,14 @@ export const RoadmapJsonImporter: React.FC<RoadmapJsonImporterProps> = ({ isOpen
                                 className={`text-lg sm:text-xl font-black transition-colors ${
                                     isBento
                                         ? 'text-black'
-                                        : 'text-slate-800 dark:text-gray-200 group-hover:text-indigo-700 dark:group-hover:text-white'
+                                        : 'text-[#f5f3ec] group-hover:text-[#bef264]'
                                 }`}
                             >
                                 {tx('Click to upload JSON', 'اضغط لرفع ملف JSON')}
                             </h3>
                             <p
                                 className={`mt-2 text-xs sm:text-sm font-semibold ${
-                                    isBento ? 'text-slate-700' : 'text-slate-500 dark:text-gray-400'
+                                    isBento ? 'text-slate-700' : 'text-[#a8a29e]'
                                 }`}
                             >
                                 {tx('or drag and drop file here', 'أو اسحب الملف وحطه هنا')}
@@ -377,7 +377,7 @@ export const RoadmapJsonImporter: React.FC<RoadmapJsonImporterProps> = ({ isOpen
                         </div>
                         <p
                             className={`mt-6 text-xs sm:text-sm font-bold ${
-                                isBento ? 'text-slate-700' : 'text-slate-500 dark:text-gray-500'
+                                isBento ? 'text-slate-700' : 'text-[#78716c]'
                             }`}
                         >
                             {tx('Supported formats: .json', 'الصيغ المدعومة: .json')}
@@ -398,7 +398,7 @@ export const RoadmapJsonImporter: React.FC<RoadmapJsonImporterProps> = ({ isOpen
                             className={`flex-1 w-full min-h-[260px] p-4 sm:p-5 font-mono text-sm leading-6 rounded-2xl outline-none resize-none ${
                                 isBento
                                     ? 'bg-white text-black border-2 border-black shadow-[3px_3px_0px_#000]'
-                                    : 'bg-white dark:bg-[#0b0e17] text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-white/10 placeholder:text-slate-400 dark:placeholder:text-slate-500/60 focus:ring-2 focus:ring-indigo-500/30'
+                                    : 'bg-[#141210] text-[#f5f3ec] border border-[#2e2924] placeholder:text-[#78716c] focus:border-[#bef264]'
                             }`}
                             spellCheck={false}
                             rows={16}
@@ -407,7 +407,7 @@ export const RoadmapJsonImporter: React.FC<RoadmapJsonImporterProps> = ({ isOpen
                             className={`px-4 py-2 rounded-xl text-xs font-mono font-bold flex justify-between ${
                                 isBento
                                     ? 'bg-white border-2 border-black text-black'
-                                    : 'bg-white dark:bg-[#0B0E1A] border border-slate-200 dark:border-white/5 text-slate-500 dark:text-gray-400'
+                                    : 'bg-[#141210] border border-[#2e2924] text-[#a8a29e]'
                             }`}
                         >
                             <span>{tx('JSON Editor', 'محرر JSON')}</span>

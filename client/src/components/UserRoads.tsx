@@ -1088,11 +1088,20 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                                             {isRejected ? (
                                                                 <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] uppercase tracking-wider ${
                                                                     isBento
-                                                                        ? 'font-black bg-[#fecdd3] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000] -rotate-1'
-                                                                        : 'font-bold bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30'
+                                                                        ? 'font-black bg-[#f87171] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000] -rotate-1'
+                                                                        : 'font-bold bg-red-500/20 text-red-400 border border-red-500/45'
                                                                 }`}>
                                                                     <XCircle className="w-2.5 h-2.5" />
                                                                     {tx('Request Rejected', 'الطلب اترفض')}
+                                                                </span>
+                                                            ) : isPending ? (
+                                                                <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] uppercase tracking-wider ${
+                                                                    isBento
+                                                                        ? 'font-black bg-[#60a5fa] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000] -rotate-1'
+                                                                        : 'font-bold bg-blue-500/20 text-blue-400 border border-blue-500/45'
+                                                                }`}>
+                                                                    <Clock className="w-2.5 h-2.5" />
+                                                                    {tx('Pending Review', 'قيد المراجعة')}
                                                                 </span>
                                                             ) : (
                                                                 <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] uppercase tracking-wider ${
@@ -1135,7 +1144,7 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                                         <div className={`rounded-xl p-3 mb-4 border-2 ${
                                                             isBento
                                                                 ? 'bg-[#fee2e2] border-black text-black'
-                                                                : 'bg-rose-50 dark:bg-rose-950/30 border-rose-300 dark:border-rose-600/40 text-rose-900 dark:text-rose-200'
+                                                                : 'bg-red-500/12 border-red-500/40 text-red-200'
                                                         }`}>
                                                             <div className="text-[10px] font-black uppercase tracking-wider mb-1 flex items-center gap-1">
                                                                 <XCircle className="w-3 h-3 shrink-0" />
@@ -1167,8 +1176,8 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                                     {isPending ? (
                                                         <div className={`w-full py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 ${
                                                             isBento
-                                                                ? 'bg-[#fef08a] text-black font-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                                                : 'bg-amber-500/10 text-amber-700 dark:text-amber-300 font-bold border border-amber-500/20'
+                                                                ? 'bg-[#60a5fa] text-black font-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                                                : 'bg-blue-500/15 text-blue-400 font-bold border border-blue-500/40'
                                                         }`}>
                                                             <Clock className="w-3.5 h-3.5 animate-spin" />
                                                             <span>{tx('REQUEST PENDING REVIEW', 'الطلب قيد المراجعة')}</span>
@@ -1182,8 +1191,8 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                                             }}
                                                             className={`w-full py-2.5 px-4 rounded-xl text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer ${
                                                                 isBento
-                                                                    ? 'bg-[#fecdd3] hover:bg-[#fda4af] text-black font-black border-2 border-black shadow-[3px_3px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-[1px_1px_0px_#000]'
-                                                                    : 'bg-rose-600 hover:bg-rose-700 text-white font-bold shadow-md shadow-rose-500/20 active:scale-95'
+                                                                    ? 'bg-[#f87171] hover:bg-[#ef4444] text-black font-black border-2 border-black shadow-[3px_3px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-[1px_1px_0px_#000]'
+                                                                    : 'bg-red-600 hover:bg-red-500 text-white font-bold shadow-md shadow-red-600/25 active:scale-95'
                                                             }`}
                                                         >
                                                             <RotateCcw className="w-3.5 h-3.5" />

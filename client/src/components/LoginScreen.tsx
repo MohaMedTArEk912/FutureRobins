@@ -6,6 +6,7 @@ import { AmbientBackground } from './AmbientBackground';
 import { AnimatedCharacter } from './AnimatedCharacter.tsx';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useLanguage } from '../context/LanguageContext.tsx';
+import { AuthThemeButton } from './common/AuthThemeButton';
 
 interface LoginScreenProps {
     onLogin: (email: string, password: string) => Promise<void>;
@@ -84,6 +85,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSwitchToRegister, 
                     <span className="text-xs hidden sm:inline">{tx('Home', 'الرئيسية')}</span>
                 </button>
             </div>
+
+            {/* Top End Change Theme */}
+            <AuthThemeButton />
 
             {/* Left Column - Mascot & Branding (Hidden on Mobile) */}
             <div className={`hidden lg:flex flex-col flex-[1.2] relative z-10 items-center justify-center p-12 login-mascot-col ${

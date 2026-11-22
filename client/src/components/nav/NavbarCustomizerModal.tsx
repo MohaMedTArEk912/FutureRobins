@@ -46,27 +46,31 @@ export const NavbarCustomizerModal: React.FC = () => {
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="navigation-customizer-title"
-                className={`app-dialog-panel app-dialog-panel--structured relative w-full max-w-2xl max-h-[90vh] flex flex-col rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 ${
+                className={`app-dialog-panel app-dialog-panel--structured relative w-full max-w-2xl max-h-[90vh] flex flex-col rounded-2xl overflow-hidden animate-in zoom-in-95 duration-200 ${
                     isBento
-                        ? 'bg-white text-black border-3 border-black shadow-[6px_6px_0px_#000]'
-                        : 'bg-white dark:bg-[#11131f] text-gray-900 dark:text-white border border-gray-200 dark:border-white/10'
+                        ? 'bg-white text-black border-[3px] border-black shadow-[6px_6px_0px_#000]'
+                        : 'bg-[#141210] text-[#f5f3ec] border-[1.5px] border-[#2e2924] shadow-[0_8px_0_#050504]'
                 }`}
             >
                 {/* Header */}
                 <div className={`app-dialog-header flex items-center justify-between gap-3 border-b ${
                     isBento
-                        ? 'bg-[#fde047] border-b-2.5 border-black text-black'
-                        : 'border-slate-200 dark:border-white/10'
+                        ? 'bg-[#fde047] border-b-[2.5px] border-black text-black'
+                        : 'bg-[#1a1714] border-[#2e2924]'
                 }`}>
                     <div className="flex items-center gap-2.5">
-                        <div className={`rounded-xl p-2 ${isBento ? 'bg-black text-[#bef264]' : 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'}`}>
+                        <div className={`rounded-xl p-2 ${
+                            isBento
+                                ? 'bg-black text-[#bef264]'
+                                : 'bg-[#bef264]/15 text-[#bef264] border border-[#bef264]/35'
+                        }`}>
                             <Sliders className="w-5 h-5" />
                         </div>
                         <div>
                             <h2 id="navigation-customizer-title" className="text-lg font-black tracking-tight">
                                 Customize Navigation
                             </h2>
-                            <p className="text-xs font-medium opacity-80">
+                            <p className={`text-xs font-medium ${isBento ? 'opacity-80' : 'text-[#a8a29e]'}`}>
                                 Arrange, reorder, and pin tabs to match your personal workflow
                             </p>
                         </div>
@@ -78,7 +82,7 @@ export const NavbarCustomizerModal: React.FC = () => {
                         className={`grid size-11 shrink-0 cursor-pointer place-items-center rounded-xl transition-all ${
                             isBento
                                 ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-neutral-100'
-                                : 'text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-white/10'
+                                : 'bg-[#1c1917] border border-[#2e2924] text-[#a8a29e] hover:border-[#bef264] hover:text-[#f5f3ec]'
                         }`}
                         aria-label="Close customizer"
                     >
@@ -88,7 +92,7 @@ export const NavbarCustomizerModal: React.FC = () => {
 
                 {/* Subheader Switcher: Arrange Tabs vs Presets */}
                 <div className={`app-dialog-toolbar p-3 border-b flex items-center justify-between gap-3 shrink-0 ${
-                    isBento ? 'bg-neutral-50 border-b-2 border-black' : 'bg-slate-50 dark:bg-white/[0.02] border-b border-gray-200 dark:border-white/10'
+                    isBento ? 'bg-neutral-50 border-b-2 border-black' : 'bg-[#161411] border-[#2e2924]'
                 }`}>
                     <div className="flex items-center gap-2">
                         <button
@@ -96,8 +100,8 @@ export const NavbarCustomizerModal: React.FC = () => {
                             onClick={() => setActiveTab('arrange')}
                             className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer ${
                                 activeTab === 'arrange'
-                                    ? (isBento ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000]' : 'bg-indigo-600 text-white shadow')
-                                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                                    ? (isBento ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000]' : 'bg-[#bef264] text-[#0a0908]')
+                                    : (isBento ? 'text-gray-700 hover:text-black' : 'text-[#a8a29e] hover:text-[#f5f3ec]')
                             }`}
                         >
                             <Layers className="w-3.5 h-3.5" />
@@ -108,8 +112,8 @@ export const NavbarCustomizerModal: React.FC = () => {
                             onClick={() => setActiveTab('presets')}
                             className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer ${
                                 activeTab === 'presets'
-                                    ? (isBento ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000]' : 'bg-indigo-600 text-white shadow')
-                                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                                    ? (isBento ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000]' : 'bg-[#bef264] text-[#0a0908]')
+                                    : (isBento ? 'text-gray-700 hover:text-black' : 'text-[#a8a29e] hover:text-[#f5f3ec]')
                             }`}
                         >
                             <Sparkles className="w-3.5 h-3.5" />
@@ -120,8 +124,8 @@ export const NavbarCustomizerModal: React.FC = () => {
                     <button
                         type="button"
                         onClick={resetToDefault}
-                        className={`px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 opacity-75 hover:opacity-100 transition-opacity cursor-pointer ${
-                            isBento ? 'text-black' : 'text-gray-600 dark:text-gray-400 hover:text-rose-500'
+                        className={`px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 opacity-80 hover:opacity-100 transition-opacity cursor-pointer ${
+                            isBento ? 'text-black' : 'text-[#a8a29e] hover:text-[#fb7185]'
                         }`}
                         title="Restore default navigation order"
                     >
@@ -134,9 +138,9 @@ export const NavbarCustomizerModal: React.FC = () => {
                 <div className="app-dialog-body app-dialog-body-spaced flex-1 overflow-y-auto p-5 space-y-6 custom-scrollbar">
                     {/* Live Preview of Desktop Navbar */}
                     <div className="space-y-2">
-                        <div className="flex items-center justify-between text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        <div className={`flex items-center justify-between text-xs font-bold uppercase tracking-wider ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>
                             <span className="flex items-center gap-1.5">
-                                <Laptop className="w-3.5 h-3.5 text-indigo-500" />
+                                <Laptop className={`w-3.5 h-3.5 ${isBento ? 'text-black' : 'text-[#bae6fd]'}`} />
                                 Live Navbar Preview
                             </span>
                             <span className="text-[11px] font-semibold opacity-70">
@@ -148,7 +152,7 @@ export const NavbarCustomizerModal: React.FC = () => {
                         <div className={`p-2.5 rounded-2xl flex items-center gap-1.5 overflow-x-auto custom-scrollbar select-none ${
                             isBento
                                 ? 'bg-white border-2 border-black shadow-[3px_3px_0px_#000]'
-                                : 'bg-slate-100/90 dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10'
+                                : 'bg-[#0e0d0b] border border-[#2e2924]'
                         }`}>
                             {primaryItems.map((item, idx) => {
                                 const Icon = item.icon;
@@ -159,8 +163,8 @@ export const NavbarCustomizerModal: React.FC = () => {
                                         key={item.path}
                                         className={`px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-bold shrink-0 transition-transform ${
                                             isFirst
-                                                ? (isBento ? 'bg-[#bef264] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000] font-black' : 'bg-white dark:bg-indigo-600 text-slate-900 dark:text-white shadow-xs')
-                                                : (isBento ? 'bg-neutral-100 text-black border border-black' : 'bg-white/60 dark:bg-white/5 text-slate-700 dark:text-slate-300')
+                                                ? (isBento ? 'bg-[#bef264] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000] font-black' : 'bg-[#bef264] text-[#0a0908] font-black')
+                                                : (isBento ? 'bg-neutral-100 text-black border border-black' : 'bg-[#1a1714] border border-[#2e2924] text-[#d6d0c7]')
                                         }`}
                                     >
                                         <Icon className="w-3.5 h-3.5" />
@@ -170,10 +174,10 @@ export const NavbarCustomizerModal: React.FC = () => {
                             })}
 
                             {/* "More" preview indicator */}
-                            <div className={`px-2.5 py-1.5 rounded-xl flex items-center gap-1 text-xs font-bold shrink-0 opacity-80 ${
-                                isBento ? 'bg-neutral-200 text-black border border-black' : 'bg-slate-200/60 dark:bg-white/10 text-slate-600 dark:text-slate-400'
+                            <div className={`px-2.5 py-1.5 rounded-xl flex items-center gap-1 text-xs font-bold shrink-0 opacity-85 ${
+                                isBento ? 'bg-neutral-200 text-black border border-black' : 'bg-[#1c1917] border border-[#2e2924] text-[#a8a29e]'
                             }`}>
-                                <Sparkles className="w-3 h-3 text-amber-500" />
+                                <Sparkles className={`w-3 h-3 ${isBento ? 'text-black' : 'text-[#fde047]'}`} />
                                 <span>More ({secondaryItems.length})</span>
                             </div>
                         </div>
@@ -182,7 +186,7 @@ export const NavbarCustomizerModal: React.FC = () => {
                     {activeTab === 'presets' ? (
                         /* Presets Selection View */
                         <div className="space-y-3">
-                            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                            <p className={`text-xs font-medium ${isBento ? 'text-slate-700' : 'text-[#a8a29e]'}`}>
                                 Select a curated preset layout designed for different play and learning styles:
                             </p>
 
@@ -194,24 +198,24 @@ export const NavbarCustomizerModal: React.FC = () => {
                                         className={`p-4 rounded-2xl border transition-all cursor-pointer select-none group flex flex-col justify-between ${
                                             isBento
                                                 ? 'bg-white border-2 border-black shadow-[3px_3px_0px_#000] hover:shadow-[4px_4px_0px_#000] hover:-translate-y-0.5'
-                                                : 'bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 border-gray-200 dark:border-white/10'
+                                                : 'bg-[#1a1714] hover:bg-[#24201c] border-[#2e2924] hover:border-[#bef264]/60'
                                         }`}
                                     >
                                         <div>
-                                            <h4 className="font-black text-sm uppercase tracking-tight text-gray-900 dark:text-white mb-1 group-hover:text-indigo-500 transition-colors">
+                                            <h4 className={`font-black text-sm uppercase tracking-tight mb-1 transition-colors ${isBento ? 'text-black' : 'text-[#f5f3ec] group-hover:text-[#bef264]'}`}>
                                                 {preset.title}
                                             </h4>
-                                            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium leading-relaxed">
+                                            <p className={`text-xs font-medium leading-relaxed ${isBento ? 'text-slate-700' : 'text-[#a8a29e]'}`}>
                                                 {preset.description}
                                             </p>
                                         </div>
 
-                                        <div className="mt-4 pt-3 border-t border-black/10 dark:border-white/10 flex items-center justify-between text-xs">
+                                        <div className={`mt-4 pt-3 border-t flex items-center justify-between text-xs ${isBento ? 'border-black/15' : 'border-[#2e2924]'}`}>
                                             <span className="font-bold opacity-75">
                                                 {preset.primary.length} Pinned Tabs
                                             </span>
                                             <span className={`px-2.5 py-1 rounded-xl font-black uppercase text-[10px] ${
-                                                isBento ? 'bg-[#bef264] text-black border border-black' : 'bg-indigo-600 text-white'
+                                                isBento ? 'bg-[#bef264] text-black border border-black' : 'bg-[#bef264] text-[#0a0908]'
                                             }`}>
                                                 Apply Preset
                                             </span>
@@ -227,12 +231,12 @@ export const NavbarCustomizerModal: React.FC = () => {
                             <div className="space-y-2.5">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
-                                        <Pin className="w-4 h-4 text-indigo-500" />
-                                        <h3 className="font-black text-xs uppercase tracking-wider text-gray-900 dark:text-white">
+                                        <Pin className={`w-4 h-4 ${isBento ? 'text-black' : 'text-[#bef264]'}`} />
+                                        <h3 className={`font-black text-xs uppercase tracking-wider ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>
                                             Pinned to Main Navbar ({primaryItems.length} / 7)
                                         </h3>
                                     </div>
-                                    <span className="text-[11px] text-gray-400">
+                                    <span className={`text-[11px] ${isBento ? 'text-slate-600' : 'text-[#a8a29e]'}`}>
                                         Use arrows to reorder
                                     </span>
                                 </div>
@@ -249,28 +253,28 @@ export const NavbarCustomizerModal: React.FC = () => {
                                                 className={`p-3 rounded-2xl flex items-center justify-between gap-3 transition-all ${
                                                     isBento
                                                         ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000]'
-                                                        : 'bg-slate-50 dark:bg-white/5 border border-gray-200 dark:border-white/10'
+                                                        : 'bg-[#1a1714] border border-[#2e2924]'
                                                 }`}
                                             >
                                                 {/* Left: Position & Title */}
                                                 <div className="flex items-center gap-3 min-w-0">
                                                     <span className={`w-6 h-6 rounded-lg flex items-center justify-center font-black text-xs shrink-0 ${
-                                                        isBento ? 'bg-[#bef264] text-black border border-black' : 'bg-indigo-600 text-white'
+                                                        isBento ? 'bg-[#bef264] text-black border border-black' : 'bg-[#bef264] text-[#0a0908]'
                                                     }`}>
                                                         {index + 1}
                                                     </span>
 
                                                     <div className={`p-2 rounded-xl shrink-0 ${
-                                                        isBento ? 'bg-neutral-100 text-black border border-black' : 'bg-white dark:bg-white/10 text-indigo-500'
+                                                        isBento ? 'bg-neutral-100 text-black border border-black' : 'bg-[#0e0d0b] border border-[#2e2924] text-[#bef264]'
                                                     }`}>
                                                         <Icon className="w-4 h-4" />
                                                     </div>
 
                                                     <div className="min-w-0">
-                                                        <h4 className="font-black text-sm text-gray-900 dark:text-white truncate">
+                                                        <h4 className={`font-black text-sm truncate ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>
                                                             {item.label}
                                                         </h4>
-                                                        <p className="text-[11px] text-gray-500 dark:text-gray-400 truncate">
+                                                        <p className={`text-[11px] truncate ${isBento ? 'text-slate-600' : 'text-[#a8a29e]'}`}>
                                                             {item.description}
                                                         </p>
                                                     </div>
@@ -278,33 +282,30 @@ export const NavbarCustomizerModal: React.FC = () => {
 
                                                 {/* Right: Actions */}
                                                 <div className="flex items-center gap-1 shrink-0">
-                                                    {/* Move Up/Left */}
                                                     <button
                                                         type="button"
                                                         disabled={isFirst}
                                                         onClick={() => movePrimaryItem(index, 'left')}
                                                         className={`p-2 rounded-xl transition-all cursor-pointer disabled:opacity-30 ${
-                                                            isBento ? 'hover:bg-neutral-100 text-black' : 'hover:bg-gray-200 dark:hover:bg-white/10 text-gray-600 dark:text-gray-300'
+                                                            isBento ? 'hover:bg-neutral-100 text-black' : 'hover:bg-[#24201c] text-[#d6d0c7]'
                                                         }`}
                                                         title="Move Left"
                                                     >
                                                         <ArrowUp className="w-4 h-4" />
                                                     </button>
 
-                                                    {/* Move Down/Right */}
                                                     <button
                                                         type="button"
                                                         disabled={isLast}
                                                         onClick={() => movePrimaryItem(index, 'right')}
                                                         className={`p-2 rounded-xl transition-all cursor-pointer disabled:opacity-30 ${
-                                                            isBento ? 'hover:bg-neutral-100 text-black' : 'hover:bg-gray-200 dark:hover:bg-white/10 text-gray-600 dark:text-gray-300'
+                                                            isBento ? 'hover:bg-neutral-100 text-black' : 'hover:bg-[#24201c] text-[#d6d0c7]'
                                                         }`}
                                                         title="Move Right"
                                                     >
                                                         <ArrowDown className="w-4 h-4" />
                                                     </button>
 
-                                                    {/* Unpin to More */}
                                                     <button
                                                         type="button"
                                                         onClick={() => unpinToSecondary(item.path)}
@@ -312,7 +313,7 @@ export const NavbarCustomizerModal: React.FC = () => {
                                                         className={`px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 transition-all cursor-pointer disabled:opacity-30 ${
                                                             isBento
                                                                 ? 'bg-neutral-100 hover:bg-neutral-200 text-black border border-black'
-                                                                : 'bg-gray-200/80 dark:bg-white/10 hover:bg-gray-300 text-gray-700 dark:text-gray-300'
+                                                                : 'bg-[#0e0d0b] border border-[#2e2924] hover:border-[#443d35] text-[#d6d0c7]'
                                                         }`}
                                                         title="Move to 'More' Dropdown"
                                                     >
@@ -330,12 +331,12 @@ export const NavbarCustomizerModal: React.FC = () => {
                             <div className="space-y-2.5">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
-                                        <Sparkles className="w-4 h-4 text-amber-500" />
-                                        <h3 className="font-black text-xs uppercase tracking-wider text-gray-900 dark:text-white">
+                                        <Sparkles className={`w-4 h-4 ${isBento ? 'text-black' : 'text-[#fde047]'}`} />
+                                        <h3 className={`font-black text-xs uppercase tracking-wider ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>
                                             More Menu Tabs ({secondaryItems.length})
                                         </h3>
                                     </div>
-                                    <span className="text-[11px] text-gray-400">
+                                    <span className={`text-[11px] ${isBento ? 'text-slate-600' : 'text-[#a8a29e]'}`}>
                                         Shown inside 'More' dropdown
                                     </span>
                                 </div>
@@ -352,22 +353,22 @@ export const NavbarCustomizerModal: React.FC = () => {
                                                 className={`p-3 rounded-2xl flex items-center justify-between gap-3 transition-all ${
                                                     isBento
                                                         ? 'bg-neutral-50 border-2 border-black/40'
-                                                        : 'bg-white/60 dark:bg-white/[0.02] border border-gray-200 dark:border-white/5'
+                                                        : 'bg-[#161411] border border-[#2e2924]'
                                                 }`}
                                             >
                                                 {/* Left: Icon & Label */}
                                                 <div className="flex items-center gap-3 min-w-0">
                                                     <div className={`p-2 rounded-xl shrink-0 ${
-                                                        isBento ? 'bg-white text-black border border-black' : 'bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-300'
+                                                        isBento ? 'bg-white text-black border border-black' : 'bg-[#0e0d0b] border border-[#2e2924] text-[#a8a29e]'
                                                     }`}>
                                                         <Icon className="w-4 h-4" />
                                                     </div>
 
                                                     <div className="min-w-0">
-                                                        <h4 className="font-black text-sm text-gray-900 dark:text-white truncate">
+                                                        <h4 className={`font-black text-sm truncate ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>
                                                             {item.label}
                                                         </h4>
-                                                        <p className="text-[11px] text-gray-500 dark:text-gray-400 truncate">
+                                                        <p className={`text-[11px] truncate ${isBento ? 'text-slate-600' : 'text-[#a8a29e]'}`}>
                                                             {item.description}
                                                         </p>
                                                     </div>
@@ -375,38 +376,34 @@ export const NavbarCustomizerModal: React.FC = () => {
 
                                                 {/* Right: Actions */}
                                                 <div className="flex items-center gap-1 shrink-0">
-                                                    {/* Move Up */}
                                                     <button
                                                         type="button"
                                                         disabled={isFirst}
                                                         onClick={() => moveSecondaryItem(index, 'up')}
-                                                        className="p-1.5 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 disabled:opacity-30 cursor-pointer"
+                                                        className={`p-1.5 rounded-lg disabled:opacity-30 cursor-pointer ${isBento ? 'hover:bg-black/10 text-black' : 'hover:bg-[#24201c] text-[#d6d0c7]'}`}
                                                         title="Move Up"
                                                     >
                                                         <ArrowUp className="w-3.5 h-3.5" />
                                                     </button>
-                                                    {/* Move Down */}
                                                     <button
                                                         type="button"
                                                         disabled={isLast}
                                                         onClick={() => moveSecondaryItem(index, 'down')}
-                                                        className="p-1.5 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 disabled:opacity-30 cursor-pointer"
+                                                        className={`p-1.5 rounded-lg disabled:opacity-30 cursor-pointer ${isBento ? 'hover:bg-black/10 text-black' : 'hover:bg-[#24201c] text-[#d6d0c7]'}`}
                                                         title="Move Down"
                                                     >
                                                         <ArrowDown className="w-3.5 h-3.5" />
                                                     </button>
 
-                                                    {/* Hide Tab */}
                                                     <button
                                                         type="button"
                                                         onClick={() => toggleHideItem(item.path)}
-                                                        className="p-1.5 rounded-lg hover:bg-rose-500/10 text-gray-400 hover:text-rose-500 transition-colors cursor-pointer"
+                                                        className={`p-1.5 rounded-lg transition-colors cursor-pointer ${isBento ? 'text-black hover:bg-[#fecdd3]' : 'text-[#a8a29e] hover:bg-[#fb7185]/15 hover:text-[#fb7185]'}`}
                                                         title="Hide tab from navigation"
                                                     >
                                                         <EyeOff className="w-3.5 h-3.5" />
                                                     </button>
 
-                                                    {/* Pin to Primary */}
                                                     <button
                                                         type="button"
                                                         onClick={() => pinToPrimary(item.path)}
@@ -414,7 +411,7 @@ export const NavbarCustomizerModal: React.FC = () => {
                                                         className={`px-2.5 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1 transition-all cursor-pointer disabled:opacity-40 ${
                                                             isBento
                                                                 ? 'bg-[#bef264] text-black border border-black shadow-[1.5px_1.5px_0px_#000] hover:bg-[#a3e635]'
-                                                                : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-xs'
+                                                                : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908]'
                                                         }`}
                                                         title="Pin to Main Navbar"
                                                     >
@@ -430,8 +427,8 @@ export const NavbarCustomizerModal: React.FC = () => {
 
                             {/* Section 3: Hidden Tabs (if any) */}
                             {hiddenItems.length > 0 && (
-                                <div className="space-y-2.5 pt-2 border-t border-black/10 dark:border-white/10">
-                                    <div className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-wider">
+                                <div className={`space-y-2.5 pt-2 border-t ${isBento ? 'border-black/15' : 'border-[#2e2924]'}`}>
+                                    <div className={`flex items-center gap-2 text-xs font-bold uppercase tracking-wider ${isBento ? 'text-slate-600' : 'text-[#a8a29e]'}`}>
                                         <EyeOff className="w-4 h-4" />
                                         <span>Hidden Tabs ({hiddenItems.length})</span>
                                     </div>
@@ -442,7 +439,9 @@ export const NavbarCustomizerModal: React.FC = () => {
                                             return (
                                                 <div
                                                     key={item.path}
-                                                    className="p-2.5 rounded-xl border border-dashed border-gray-300 dark:border-white/10 flex items-center justify-between gap-2 opacity-60 hover:opacity-100 transition-opacity"
+                                                    className={`p-2.5 rounded-xl border border-dashed flex items-center justify-between gap-2 opacity-75 hover:opacity-100 transition-opacity ${
+                                                        isBento ? 'border-black/40 bg-white' : 'border-[#2e2924] bg-[#1a1714]'
+                                                    }`}
                                                 >
                                                     <div className="flex items-center gap-2 truncate">
                                                         <Icon className="w-4 h-4" />
@@ -451,7 +450,11 @@ export const NavbarCustomizerModal: React.FC = () => {
                                                     <button
                                                         type="button"
                                                         onClick={() => toggleHideItem(item.path)}
-                                                        className="px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-indigo-500/10 text-indigo-500 hover:bg-indigo-500/20 cursor-pointer"
+                                                        className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider cursor-pointer ${
+                                                            isBento
+                                                                ? 'bg-[#bef264] text-black border border-black'
+                                                                : 'bg-[#bef264]/15 text-[#bef264] hover:bg-[#bef264]/25'
+                                                        }`}
                                                     >
                                                         Restore
                                                     </button>
@@ -464,15 +467,15 @@ export const NavbarCustomizerModal: React.FC = () => {
 
                             {/* Mobile Bottom Nav Sync Toggle */}
                             <div className={`p-3.5 rounded-2xl flex items-center justify-between gap-3 ${
-                                isBento ? 'bg-[#fef9c3] border border-black' : 'bg-slate-50 dark:bg-white/[0.03] border border-gray-200 dark:border-white/10'
+                                isBento ? 'bg-[#fef9c3] border-2 border-black' : 'bg-[#1a1714] border border-[#2e2924]'
                             }`}>
                                 <div className="flex items-center gap-2.5">
-                                    <Smartphone className="w-4 h-4 text-indigo-500 shrink-0" />
+                                    <Smartphone className={`w-4 h-4 shrink-0 ${isBento ? 'text-black' : 'text-[#bae6fd]'}`} />
                                     <div>
-                                        <p className="font-black text-xs uppercase tracking-tight text-gray-900 dark:text-white">
+                                        <p className={`font-black text-xs uppercase tracking-tight ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>
                                             Sync with Mobile Bottom Bar
                                         </p>
-                                        <p className="text-[11px] text-gray-500 dark:text-gray-400 font-medium">
+                                        <p className={`text-[11px] font-medium ${isBento ? 'text-slate-700' : 'text-[#a8a29e]'}`}>
                                             Mirror your top 4 primary tabs on the mobile bottom bar
                                         </p>
                                     </div>
@@ -482,7 +485,7 @@ export const NavbarCustomizerModal: React.FC = () => {
                                     type="checkbox"
                                     checked={config.syncWithBottomNav}
                                     onChange={e => setSyncWithBottomNav(e.target.checked)}
-                                    className="w-4 h-4 accent-indigo-600 rounded cursor-pointer"
+                                    className="w-4 h-4 accent-[#bef264] rounded cursor-pointer"
                                 />
                             </div>
                         </div>
@@ -491,9 +494,9 @@ export const NavbarCustomizerModal: React.FC = () => {
 
                 {/* Footer */}
                 <div className={`app-dialog-footer p-4 border-t flex items-center justify-between gap-3 shrink-0 ${
-                    isBento ? 'bg-neutral-50 border-t-2 border-black' : 'bg-slate-50 dark:bg-[#161827] border-gray-200 dark:border-white/10'
+                    isBento ? 'bg-white border-t-[2.5px] border-black' : 'bg-[#11100e] border-[#2e2924]'
                 }`}>
-                    <span className="text-xs font-bold text-gray-500 dark:text-gray-400">
+                    <span className={`text-xs font-bold ${isBento ? 'text-slate-700' : 'text-[#a8a29e]'}`}>
                         Changes are saved instantly to your profile.
                     </span>
 
@@ -503,7 +506,7 @@ export const NavbarCustomizerModal: React.FC = () => {
                         className={`px-6 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer active:scale-95 ${
                             isBento
                                 ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000]'
-                                : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-md'
+                                : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908] shadow-[0_3px_0_#050504]'
                         }`}
                     >
                         <Check className="w-4 h-4" />

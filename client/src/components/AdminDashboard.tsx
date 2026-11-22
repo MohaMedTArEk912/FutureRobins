@@ -1438,10 +1438,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     onClick={() => setIsLogoutConfirmOpen(false)}
                 >
                     <div
-                        className={`app-dialog-panel app-dialog-panel--padded rounded-3xl p-6 max-w-sm w-full animate-in zoom-in-95 duration-200 ${
+                        className={`app-dialog-panel app-dialog-panel--padded rounded-2xl p-6 max-w-sm w-full animate-in zoom-in-95 duration-200 ${
                             isBento
-                                ? 'bg-white border-2 border-black shadow-[6px_6px_0px_#000]'
-                                : 'bg-white dark:bg-[#141210] border border-gray-200 dark:border-white/10 shadow-2xl'
+                                ? 'bg-white text-black border-[3px] border-black shadow-[6px_6px_0px_#000]'
+                                : 'bg-[#141210] text-[#f5f3ec] border-[1.5px] border-[#2e2924] shadow-[0_8px_0_#050504]'
                         }`}
                         onClick={(e) => e.stopPropagation()}
                     >
@@ -1449,17 +1449,17 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 ${
                                 isBento
                                     ? 'bg-[#fecdd3] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]'
-                                    : 'bg-red-500/10 text-red-500 border border-red-500/20'
+                                    : 'bg-[#fb7185]/15 text-[#fb7185] border border-[#fb7185]/35'
                             }`}>
                                 <ShieldAlert className="w-6 h-6" />
                             </div>
                             <div>
-                                <h3 className={`font-black text-base ${isBento ? 'text-black font-mono' : 'text-gray-900 dark:text-white'}`}>Log Out of Admin?</h3>
-                                <p className={`text-xs ${isBento ? 'text-gray-600 font-mono' : 'text-gray-500 dark:text-gray-400'}`}>End your administrator session</p>
+                                <h3 className={`font-black text-base ${isBento ? 'text-black font-mono' : 'text-[#f5f3ec]'}`}>Log Out of Admin?</h3>
+                                <p className={`text-xs ${isBento ? 'text-gray-600 font-mono' : 'text-[#a8a29e]'}`}>End your administrator session</p>
                             </div>
                         </div>
 
-                        <p className={`text-xs mb-6 leading-relaxed ${isBento ? 'text-gray-700 font-mono' : 'text-gray-600 dark:text-gray-300'}`}>
+                        <p className={`text-xs mb-6 leading-relaxed ${isBento ? 'text-gray-700 font-mono' : 'text-[#d6d0c7]'}`}>
                             Are you sure you want to log out? You will be redirected to the sign-in screen and will need administrator credentials to access this dashboard again.
                         </p>
 
@@ -1467,10 +1467,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             <button
                                 type="button"
                                 onClick={() => setIsLogoutConfirmOpen(false)}
-                                className={`flex-1 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer ${
+                                className={`flex-1 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all cursor-pointer ${
                                     isBento
                                         ? 'bg-white hover:bg-gray-100 text-black border-2 border-black shadow-[2px_2px_0px_#000] font-mono'
-                                        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10'
+                                        : 'bg-[#1c1917] text-[#d6d0c7] border border-[#2e2924] hover:bg-[#24201c]'
                                 }`}
                             >
                                 Cancel
@@ -1481,10 +1481,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                     setIsLogoutConfirmOpen(false);
                                     onLogout();
                                 }}
-                                className={`flex-1 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer ${
+                                className={`flex-1 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all cursor-pointer ${
                                     isBento
                                         ? 'bg-[#fecdd3] hover:bg-[#fda4af] text-black border-2 border-black shadow-[2px_2px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 font-mono'
-                                        : 'bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-500/30 active:scale-95'
+                                        : 'bg-[#fb7185] hover:bg-[#fda4af] text-[#0a0908] shadow-[0_3px_0_#050504]'
                                 }`}
                             >
                                 Yes, Log Out

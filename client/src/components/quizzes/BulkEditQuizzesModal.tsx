@@ -123,21 +123,39 @@ const BulkEditQuizzesModal: React.FC<BulkEditQuizzesModalProps> = ({
         checked 
             ? isBento
                 ? 'bg-[#bef264] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]'
-                : 'bg-teal-600 text-white border-teal-600 shadow-sm'
+                : 'bg-[#bef264] text-[#0a0908] border-[#bef264]'
             : isBento
                 ? 'bg-white border-2 border-black hover:bg-gray-100 shadow-[1px_1px_0px_#000]'
-                : 'bg-white dark:bg-black/20 border-gray-300 dark:border-white/10 text-transparent'
+                : 'bg-[#0e0d0b] border-[#3a342e] text-transparent hover:border-[#bef264]'
     }`;
 
     const cardClass = (enabled: boolean) => `p-4 rounded-2xl border transition-all ${
         enabled
             ? isBento
                 ? 'bg-[#fef9c3]/50 border-2 border-black shadow-[3px_3px_0px_#000]'
-                : 'bg-teal-50/50 dark:bg-teal-950/20 border-teal-300 dark:border-teal-800 shadow-sm'
+                : 'bg-[#171d14] border-[#bef264]/45'
             : isBento
                 ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] opacity-80 hover:opacity-100'
-                : 'bg-gray-50/60 dark:bg-white/5 border-gray-200 dark:border-white/10 opacity-70 hover:opacity-100'
+                : 'bg-[#1a1714] border-[#2e2924] opacity-80 hover:opacity-100'
     }`;
+
+    const pillBtnClass = (active: boolean, bentoBg = 'bg-[#bef264]', noirBg = 'bg-[#bef264] text-[#0a0908] border border-[#bef264]') =>
+        `px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer ${
+            active
+                ? isBento
+                    ? `${bentoBg} text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]`
+                    : noirBg
+                : isBento
+                    ? 'bg-white text-black border border-black hover:bg-gray-100'
+                    : 'bg-[#0e0d0b] text-[#a8a29e] border border-[#2e2924] hover:border-[#443d35] hover:text-[#f5f3ec]'
+        }`;
+
+    const inputClass = isBento
+        ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+        : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] focus:border-[#bef264]';
+
+    const enabledBadge = (bentoBg = 'bg-[#bef264]', noirClass = 'bg-[#bef264]/15 text-[#bef264] border border-[#bef264]/35') =>
+        `text-[10px] font-black uppercase px-2 py-0.5 rounded ${isBento ? `${bentoBg} text-black border border-black` : noirClass}`;
 
     return (
         <Modal
@@ -146,7 +164,7 @@ const BulkEditQuizzesModal: React.FC<BulkEditQuizzesModalProps> = ({
             title={`Bulk Edit ${selectedCount} Quizzes`}
             description="Check the fields you want to update across all selected quizzes. Unchecked fields remain unchanged."
             maxWidth="max-w-2xl"
-            icon={<Sliders className={`w-6 h-6 ${isBento ? 'text-black' : 'text-teal-500'}`} />}
+            icon={<Sliders className={`w-6 h-6 ${isBento ? 'text-black' : 'text-[#bef264]'}`} />}
             footer={
                 <div className="flex items-center justify-between gap-3 w-full">
                     <button
@@ -156,7 +174,7 @@ const BulkEditQuizzesModal: React.FC<BulkEditQuizzesModalProps> = ({
                         className={`px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer disabled:opacity-50 ${
                             isBento
                                 ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-gray-100'
-                                : 'bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/10'
+                                : 'bg-[#1c1917] text-[#d6d0c7] border border-[#2e2924] hover:bg-[#24201c] hover:text-[#f5f3ec]'
                         }`}
                     >
                         Cancel
@@ -168,7 +186,7 @@ const BulkEditQuizzesModal: React.FC<BulkEditQuizzesModalProps> = ({
                         className={`px-6 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
                             isBento
                                 ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:shadow-[4px_4px_0px_#000] active:translate-x-0.5 active:translate-y-0.5'
-                                : 'bg-teal-600 hover:bg-teal-500 text-white shadow-lg shadow-teal-500/25'
+                                : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908] shadow-[0_3px_0_#050504]'
                         }`}
                     >
                         {isLoading ? (
@@ -198,19 +216,13 @@ const BulkEditQuizzesModal: React.FC<BulkEditQuizzesModalProps> = ({
                                 {enableTime && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                             </div>
                             <div className="flex items-center gap-2">
-                                <Clock className="w-4 h-4 text-teal-600 dark:text-teal-400" />
-                                <span className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-gray-900 dark:text-white'}`}>
+                                <Clock className={`w-4 h-4 ${isBento ? 'text-black' : 'text-[#fde047]'}`} />
+                                <span className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>
                                     Time Limit (Minutes)
                                 </span>
                             </div>
                         </label>
-                        {enableTime && (
-                            <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${
-                                isBento ? 'bg-[#bef264] text-black border border-black' : 'bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300'
-                            }`}>
-                                Enabled
-                            </span>
-                        )}
+                        {enableTime && <span className={enabledBadge()}>Enabled</span>}
                     </div>
 
                     {enableTime && (
@@ -222,13 +234,9 @@ const BulkEditQuizzesModal: React.FC<BulkEditQuizzesModalProps> = ({
                                     max="300"
                                     value={timeLimit}
                                     onChange={(e) => setTimeLimit(Math.max(0, parseInt(e.target.value) || 0))}
-                                    className={`w-28 px-3.5 py-2 rounded-xl text-sm font-black text-center focus:outline-none ${
-                                        isBento
-                                            ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                            : 'bg-white dark:bg-black/40 border border-gray-300 dark:border-white/10 text-gray-900 dark:text-white'
-                                    }`}
+                                    className={`w-28 px-3.5 py-2 rounded-xl text-sm font-black text-center focus:outline-none ${inputClass}`}
                                 />
-                                <span className={`text-xs font-bold ${isBento ? 'text-black' : 'text-gray-500'}`}>
+                                <span className={`text-xs font-bold ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>
                                     {timeLimit === 0 ? 'No time limit (unlimited)' : `${timeLimit} minutes`}
                                 </span>
                             </div>
@@ -238,15 +246,7 @@ const BulkEditQuizzesModal: React.FC<BulkEditQuizzesModalProps> = ({
                                         key={preset}
                                         type="button"
                                         onClick={() => setTimeLimit(preset)}
-                                        className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer ${
-                                            timeLimit === preset
-                                                ? isBento
-                                                    ? 'bg-[#bef264] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]'
-                                                    : 'bg-teal-600 text-white shadow-sm'
-                                                : isBento
-                                                    ? 'bg-white text-black border border-black hover:bg-gray-100'
-                                                    : 'bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 hover:bg-gray-200'
-                                        }`}
+                                        className={pillBtnClass(timeLimit === preset)}
                                     >
                                         {preset}m
                                     </button>
@@ -267,19 +267,13 @@ const BulkEditQuizzesModal: React.FC<BulkEditQuizzesModalProps> = ({
                                 {enableType && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                             </div>
                             <div className="flex items-center gap-2">
-                                <Layers className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                                <span className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-gray-900 dark:text-white'}`}>
+                                <Layers className={`w-4 h-4 ${isBento ? 'text-black' : 'text-[#bae6fd]'}`} />
+                                <span className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>
                                     Quiz Type
                                 </span>
                             </div>
                         </label>
-                        {enableType && (
-                            <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${
-                                isBento ? 'bg-[#bae6fd] text-black border border-black' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'
-                            }`}>
-                                Enabled
-                            </span>
-                        )}
+                        {enableType && <span className={enabledBadge('bg-[#bae6fd]', 'bg-[#bae6fd]/15 text-[#bae6fd] border border-[#bae6fd]/35')}>Enabled</span>}
                     </div>
 
                     {enableType && (
@@ -287,7 +281,7 @@ const BulkEditQuizzesModal: React.FC<BulkEditQuizzesModalProps> = ({
                             {[
                                 { id: 'quiz', label: 'Standard Quiz', icon: '📝', desc: 'Fixed full questions' },
                                 { id: 'exam', label: 'Exam Mode', icon: '🎓', desc: 'Rigorous assessment' },
-                                { id: 'pool', label: 'Question Bank', desc: 'Random pooled sets' }
+                                { id: 'pool', label: 'Question Bank', icon: '📚', desc: 'Random pooled sets' }
                             ].map(option => (
                                 <button
                                     key={option.id}
@@ -297,10 +291,10 @@ const BulkEditQuizzesModal: React.FC<BulkEditQuizzesModalProps> = ({
                                         quizType === option.id
                                             ? isBento
                                                 ? 'bg-[#bae6fd] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                                : 'bg-blue-500/10 border-2 border-blue-500 text-blue-700 dark:text-blue-300 shadow-sm'
+                                                : 'bg-[#bae6fd]/15 border-[1.5px] border-[#bae6fd] text-[#bae6fd]'
                                             : isBento
                                                 ? 'bg-white text-black border border-black hover:bg-gray-50'
-                                                : 'bg-white dark:bg-black/20 border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 hover:border-gray-300'
+                                                : 'bg-[#0e0d0b] border border-[#2e2924] text-[#d6d0c7] hover:border-[#443d35]'
                                     }`}
                                 >
                                     <div className="flex items-center gap-1.5 mb-1">
@@ -326,19 +320,13 @@ const BulkEditQuizzesModal: React.FC<BulkEditQuizzesModalProps> = ({
                                     {enablePoolCount && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <Layers className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-                                    <span className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-gray-900 dark:text-white'}`}>
+                                    <Layers className={`w-4 h-4 ${isBento ? 'text-black' : 'text-[#bae6fd]'}`} />
+                                    <span className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>
                                         Questions Per Attempt (Pool Mode)
                                     </span>
                                 </div>
                             </label>
-                            {enablePoolCount && (
-                                <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${
-                                    isBento ? 'bg-[#c7d2fe] text-black border border-black' : 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300'
-                                }`}>
-                                    Enabled
-                                </span>
-                            )}
+                            {enablePoolCount && <span className={enabledBadge('bg-[#bae6fd]', 'bg-[#bae6fd]/15 text-[#bae6fd] border border-[#bae6fd]/35')}>Enabled</span>}
                         </div>
 
                         {enablePoolCount && (
@@ -350,13 +338,9 @@ const BulkEditQuizzesModal: React.FC<BulkEditQuizzesModalProps> = ({
                                         max="100"
                                         value={questionsPerAttempt}
                                         onChange={(e) => setQuestionsPerAttempt(Math.max(1, parseInt(e.target.value) || 1))}
-                                        className={`w-28 px-3.5 py-2 rounded-xl text-sm font-black text-center focus:outline-none ${
-                                            isBento
-                                                ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                                : 'bg-white dark:bg-black/40 border border-gray-300 dark:border-white/10 text-gray-900 dark:text-white'
-                                        }`}
+                                        className={`w-28 px-3.5 py-2 rounded-xl text-sm font-black text-center focus:outline-none ${inputClass}`}
                                     />
-                                    <span className={`text-xs font-bold ${isBento ? 'text-black' : 'text-gray-500'}`}>
+                                    <span className={`text-xs font-bold ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>
                                         questions randomly picked per student attempt
                                     </span>
                                 </div>
@@ -366,15 +350,7 @@ const BulkEditQuizzesModal: React.FC<BulkEditQuizzesModalProps> = ({
                                             key={cnt}
                                             type="button"
                                             onClick={() => setQuestionsPerAttempt(cnt)}
-                                            className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer ${
-                                                questionsPerAttempt === cnt
-                                                    ? isBento
-                                                        ? 'bg-[#bef264] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]'
-                                                        : 'bg-indigo-600 text-white shadow-sm'
-                                                    : isBento
-                                                        ? 'bg-white text-black border border-black hover:bg-gray-100'
-                                                        : 'bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 hover:bg-gray-200'
-                                            }`}
+                                            className={pillBtnClass(questionsPerAttempt === cnt)}
                                         >
                                             {cnt} questions
                                         </button>
@@ -396,19 +372,13 @@ const BulkEditQuizzesModal: React.FC<BulkEditQuizzesModalProps> = ({
                                 {enableCategory && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                             </div>
                             <div className="flex items-center gap-2">
-                                <Tag className="w-4 h-4 text-teal-600 dark:text-teal-400" />
-                                <span className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-gray-900 dark:text-white'}`}>
+                                <Tag className={`w-4 h-4 ${isBento ? 'text-black' : 'text-[#bef264]'}`} />
+                                <span className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>
                                     Category
                                 </span>
                             </div>
                         </label>
-                        {enableCategory && (
-                            <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${
-                                isBento ? 'bg-[#fef08a] text-black border border-black' : 'bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300'
-                            }`}>
-                                Enabled
-                            </span>
-                        )}
+                        {enableCategory && <span className={enabledBadge('bg-[#fef08a]')}>Enabled</span>}
                     </div>
 
                     {enableCategory && (
@@ -418,11 +388,7 @@ const BulkEditQuizzesModal: React.FC<BulkEditQuizzesModalProps> = ({
                                 value={category}
                                 onChange={(e) => setCategory(e.target.value)}
                                 placeholder="Enter category (e.g. JavaScript, Math, System Design)"
-                                className={`w-full px-3.5 py-2 rounded-xl text-xs font-black focus:outline-none ${
-                                    isBento
-                                        ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                        : 'bg-white dark:bg-black/40 border border-gray-300 dark:border-white/10 text-gray-900 dark:text-white'
-                                }`}
+                                className={`w-full px-3.5 py-2 rounded-xl text-xs font-black focus:outline-none ${inputClass}`}
                             />
                             <div className="flex flex-wrap gap-1.5 pt-1">
                                 {CATEGORY_PRESETS.map(preset => (
@@ -430,15 +396,7 @@ const BulkEditQuizzesModal: React.FC<BulkEditQuizzesModalProps> = ({
                                         key={preset}
                                         type="button"
                                         onClick={() => setCategory(preset)}
-                                        className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer ${
-                                            category === preset
-                                                ? isBento
-                                                    ? 'bg-[#bef264] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]'
-                                                    : 'bg-teal-600 text-white shadow-sm'
-                                                : isBento
-                                                    ? 'bg-white text-black border border-black hover:bg-gray-100'
-                                                    : 'bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 hover:bg-gray-200'
-                                        }`}
+                                        className={pillBtnClass(category === preset)}
                                     >
                                         {preset}
                                     </button>
@@ -459,19 +417,13 @@ const BulkEditQuizzesModal: React.FC<BulkEditQuizzesModalProps> = ({
                                 {enableDifficulty && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                             </div>
                             <div className="flex items-center gap-2">
-                                <Award className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                                <span className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-gray-900 dark:text-white'}`}>
+                                <Award className={`w-4 h-4 ${isBento ? 'text-black' : 'text-[#fde047]'}`} />
+                                <span className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>
                                     Difficulty Level
                                 </span>
                             </div>
                         </label>
-                        {enableDifficulty && (
-                            <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${
-                                isBento ? 'bg-[#fef08a] text-black border border-black' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'
-                            }`}>
-                                Enabled
-                            </span>
-                        )}
+                        {enableDifficulty && <span className={enabledBadge('bg-[#fef08a]', 'bg-[#fde047]/15 text-[#fde047] border border-[#fde047]/35')}>Enabled</span>}
                     </div>
 
                     {enableDifficulty && (
@@ -485,10 +437,10 @@ const BulkEditQuizzesModal: React.FC<BulkEditQuizzesModalProps> = ({
                                         difficulty === level
                                             ? isBento
                                                 ? 'bg-[#fef08a] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                                : 'bg-amber-500 text-white shadow-md'
+                                                : 'bg-[#fde047] text-[#0a0908] border border-[#fde047]'
                                             : isBento
                                                 ? 'bg-white text-black border border-black hover:bg-gray-100'
-                                                : 'bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 hover:bg-gray-200'
+                                                : 'bg-[#0e0d0b] text-[#a8a29e] border border-[#2e2924] hover:border-[#443d35] hover:text-[#f5f3ec]'
                                     }`}
                                 >
                                     {level}
@@ -509,19 +461,13 @@ const BulkEditQuizzesModal: React.FC<BulkEditQuizzesModalProps> = ({
                                 {enablePassingScore && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                             </div>
                             <div className="flex items-center gap-2">
-                                <Target className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                                <span className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-gray-900 dark:text-white'}`}>
+                                <Target className={`w-4 h-4 ${isBento ? 'text-black' : 'text-[#bef264]'}`} />
+                                <span className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>
                                     Passing Score (%)
                                 </span>
                             </div>
                         </label>
-                        {enablePassingScore && (
-                            <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${
-                                isBento ? 'bg-[#bef264] text-black border border-black' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
-                            }`}>
-                                Enabled
-                            </span>
-                        )}
+                        {enablePassingScore && <span className={enabledBadge()}>Enabled</span>}
                     </div>
 
                     {enablePassingScore && (
@@ -533,13 +479,9 @@ const BulkEditQuizzesModal: React.FC<BulkEditQuizzesModalProps> = ({
                                     max="100"
                                     value={passingScore}
                                     onChange={(e) => setPassingScore(Math.min(100, Math.max(0, parseInt(e.target.value) || 0)))}
-                                    className={`w-28 px-3.5 py-2 rounded-xl text-sm font-black text-center focus:outline-none ${
-                                        isBento
-                                            ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                            : 'bg-white dark:bg-black/40 border border-gray-300 dark:border-white/10 text-gray-900 dark:text-white'
-                                    }`}
+                                    className={`w-28 px-3.5 py-2 rounded-xl text-sm font-black text-center focus:outline-none ${inputClass}`}
                                 />
-                                <span className={`text-xs font-bold ${isBento ? 'text-black' : 'text-gray-500'}`}>
+                                <span className={`text-xs font-bold ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>
                                     Minimum {passingScore}% required to pass
                                 </span>
                             </div>
@@ -549,15 +491,7 @@ const BulkEditQuizzesModal: React.FC<BulkEditQuizzesModalProps> = ({
                                         key={preset}
                                         type="button"
                                         onClick={() => setPassingScore(preset)}
-                                        className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer ${
-                                            passingScore === preset
-                                                ? isBento
-                                                    ? 'bg-[#bef264] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]'
-                                                    : 'bg-emerald-600 text-white shadow-sm'
-                                                : isBento
-                                                    ? 'bg-white text-black border border-black hover:bg-gray-100'
-                                                    : 'bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 hover:bg-gray-200'
-                                        }`}
+                                        className={pillBtnClass(passingScore === preset)}
                                     >
                                         {preset}%
                                     </button>
@@ -578,19 +512,13 @@ const BulkEditQuizzesModal: React.FC<BulkEditQuizzesModalProps> = ({
                                 {enableSubject && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                             </div>
                             <div className="flex items-center gap-2">
-                                <Folder className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-                                <span className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-gray-900 dark:text-white'}`}>
+                                <Folder className={`w-4 h-4 ${isBento ? 'text-black' : 'text-[#bae6fd]'}`} />
+                                <span className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>
                                     Assign to Stack / Subject
                                 </span>
                             </div>
                         </label>
-                        {enableSubject && (
-                            <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${
-                                isBento ? 'bg-[#fed7aa] text-black border border-black' : 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300'
-                            }`}>
-                                Enabled
-                            </span>
-                        )}
+                        {enableSubject && <span className={enabledBadge('bg-[#fed7aa]', 'bg-[#bae6fd]/15 text-[#bae6fd] border border-[#bae6fd]/35')}>Enabled</span>}
                     </div>
 
                     {enableSubject && (
@@ -598,11 +526,7 @@ const BulkEditQuizzesModal: React.FC<BulkEditQuizzesModalProps> = ({
                             <select
                                 value={subjectId}
                                 onChange={(e) => setSubjectId(e.target.value)}
-                                className={`w-full px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider focus:outline-none cursor-pointer ${
-                                    isBento
-                                        ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                        : 'bg-white dark:bg-[#1c1917] border border-gray-300 dark:border-white/10 text-gray-900 dark:text-white'
-                                }`}
+                                className={`w-full px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider focus:outline-none cursor-pointer ${inputClass}`}
                             >
                                 <option value="">None (Unassigned / General)</option>
                                 {subjects.map(s => (
@@ -626,19 +550,13 @@ const BulkEditQuizzesModal: React.FC<BulkEditQuizzesModalProps> = ({
                                 {enableVisibility && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                             </div>
                             <div className="flex items-center gap-2">
-                                <Eye className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                                <span className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-gray-900 dark:text-white'}`}>
+                                <Eye className={`w-4 h-4 ${isBento ? 'text-black' : 'text-[#bef264]'}`} />
+                                <span className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>
                                     Student Visibility
                                 </span>
                             </div>
                         </label>
-                        {enableVisibility && (
-                            <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${
-                                isBento ? 'bg-[#86efac] text-black border border-black' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
-                            }`}>
-                                Enabled
-                            </span>
-                        )}
+                        {enableVisibility && <span className={enabledBadge('bg-[#86efac]')}>Enabled</span>}
                     </div>
 
                     {enableVisibility && (
@@ -650,10 +568,10 @@ const BulkEditQuizzesModal: React.FC<BulkEditQuizzesModalProps> = ({
                                     isVisible
                                         ? isBento
                                             ? 'bg-[#86efac] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                            : 'bg-emerald-600 text-white shadow-sm'
+                                            : 'bg-[#bef264] text-[#0a0908] border border-[#bef264]'
                                         : isBento
                                             ? 'bg-white text-black border border-black hover:bg-gray-50'
-                                            : 'bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 hover:bg-gray-200'
+                                            : 'bg-[#0e0d0b] text-[#a8a29e] border border-[#2e2924] hover:text-[#f5f3ec]'
                                 }`}
                             >
                                 👁️ Visible
@@ -665,10 +583,10 @@ const BulkEditQuizzesModal: React.FC<BulkEditQuizzesModalProps> = ({
                                     !isVisible
                                         ? isBento
                                             ? 'bg-[#fecdd3] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                            : 'bg-rose-600 text-white shadow-sm'
+                                            : 'bg-[#fb7185] text-[#0a0908] border border-[#fb7185]'
                                         : isBento
                                             ? 'bg-white text-black border border-black hover:bg-gray-50'
-                                            : 'bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 hover:bg-gray-200'
+                                            : 'bg-[#0e0d0b] text-[#a8a29e] border border-[#2e2924] hover:text-[#f5f3ec]'
                                 }`}
                             >
                                 🚫 Hidden
@@ -689,7 +607,7 @@ const BulkEditQuizzesModal: React.FC<BulkEditQuizzesModalProps> = ({
                                 <div className={checkboxClass(enableShuffle)}>
                                     {enableShuffle && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                                 </div>
-                                <span className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-gray-900 dark:text-white'}`}>
+                                <span className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>
                                     Shuffle Questions (Enforced)
                                 </span>
                             </label>
@@ -697,7 +615,7 @@ const BulkEditQuizzesModal: React.FC<BulkEditQuizzesModalProps> = ({
                         {enableShuffle && (
                             <div className="pl-7 pt-1 animate-in fade-in duration-200">
                                 <span className={`inline-block py-1 px-2.5 rounded-lg text-[10px] font-black uppercase tracking-wider ${
-                                    isBento ? 'bg-[#bef264] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]' : 'bg-teal-600 text-white'
+                                    isBento ? 'bg-[#bef264] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]' : 'bg-[#bef264] text-[#0a0908]'
                                 }`}>
                                     Always Enabled (Platform Policy)
                                 </span>
@@ -715,7 +633,7 @@ const BulkEditQuizzesModal: React.FC<BulkEditQuizzesModalProps> = ({
                                 <div className={checkboxClass(enableReview)}>
                                     {enableReview && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                                 </div>
-                                <span className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-gray-900 dark:text-white'}`}>
+                                <span className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>
                                     Review Mode
                                 </span>
                             </label>
@@ -725,10 +643,10 @@ const BulkEditQuizzesModal: React.FC<BulkEditQuizzesModalProps> = ({
                                 <button
                                     type="button"
                                     onClick={() => setReviewMode(true)}
-                                    className={`flex-1 py-1.5 px-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all ${
+                                    className={`flex-1 py-1.5 px-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer ${
                                         reviewMode
-                                            ? isBento ? 'bg-[#bef264] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]' : 'bg-teal-600 text-white'
-                                            : isBento ? 'bg-white text-black border border-black' : 'bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400'
+                                            ? isBento ? 'bg-[#bef264] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]' : 'bg-[#bef264] text-[#0a0908]'
+                                            : isBento ? 'bg-white text-black border border-black' : 'bg-[#0e0d0b] text-[#a8a29e] border border-[#2e2924]'
                                     }`}
                                 >
                                     Enabled
@@ -736,10 +654,10 @@ const BulkEditQuizzesModal: React.FC<BulkEditQuizzesModalProps> = ({
                                 <button
                                     type="button"
                                     onClick={() => setReviewMode(false)}
-                                    className={`flex-1 py-1.5 px-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all ${
+                                    className={`flex-1 py-1.5 px-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer ${
                                         !reviewMode
-                                            ? isBento ? 'bg-[#fecdd3] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]' : 'bg-rose-600 text-white'
-                                            : isBento ? 'bg-white text-black border border-black' : 'bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400'
+                                            ? isBento ? 'bg-[#fecdd3] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]' : 'bg-[#fb7185] text-[#0a0908]'
+                                            : isBento ? 'bg-white text-black border border-black' : 'bg-[#0e0d0b] text-[#a8a29e] border border-[#2e2924]'
                                     }`}
                                 >
                                     Disabled
@@ -760,49 +678,35 @@ const BulkEditQuizzesModal: React.FC<BulkEditQuizzesModalProps> = ({
                                 {enableRewards && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                             </div>
                             <div className="flex items-center gap-2">
-                                <Coins className="w-4 h-4 text-amber-500" />
-                                <span className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-gray-900 dark:text-white'}`}>
+                                <Coins className={`w-4 h-4 ${isBento ? 'text-black' : 'text-[#fde047]'}`} />
+                                <span className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>
                                     Completion Rewards (Coins & XP)
                                 </span>
                             </div>
                         </label>
-                        {enableRewards && (
-                            <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${
-                                isBento ? 'bg-[#fef08a] text-black border border-black' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'
-                            }`}>
-                                Enabled
-                            </span>
-                        )}
+                        {enableRewards && <span className={enabledBadge('bg-[#fef08a]', 'bg-[#fde047]/15 text-[#fde047] border border-[#fde047]/35')}>Enabled</span>}
                     </div>
 
                     {enableRewards && (
                         <div className="grid grid-cols-2 gap-3 pl-7 animate-in fade-in duration-200">
                             <div className="space-y-1">
-                                <label className="text-[10px] font-black uppercase text-gray-500">Coins</label>
+                                <label className={`text-[10px] font-black uppercase ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>Coins</label>
                                 <input
                                     type="number"
                                     min="0"
                                     value={coinsReward}
                                     onChange={(e) => setCoinsReward(Math.max(0, parseInt(e.target.value) || 0))}
-                                    className={`w-full px-3 py-2 rounded-xl text-xs font-black focus:outline-none ${
-                                        isBento
-                                            ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                            : 'bg-white dark:bg-black/40 border border-gray-300 dark:border-white/10 text-gray-900 dark:text-white'
-                                    }`}
+                                    className={`w-full px-3 py-2 rounded-xl text-xs font-black focus:outline-none ${inputClass}`}
                                 />
                             </div>
                             <div className="space-y-1">
-                                <label className="text-[10px] font-black uppercase text-gray-500">XP</label>
+                                <label className={`text-[10px] font-black uppercase ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>XP</label>
                                 <input
                                     type="number"
                                     min="0"
                                     value={xpReward}
                                     onChange={(e) => setXpReward(Math.max(0, parseInt(e.target.value) || 0))}
-                                    className={`w-full px-3 py-2 rounded-xl text-xs font-black focus:outline-none ${
-                                        isBento
-                                            ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                            : 'bg-white dark:bg-black/40 border border-gray-300 dark:border-white/10 text-gray-900 dark:text-white'
-                                    }`}
+                                    className={`w-full px-3 py-2 rounded-xl text-xs font-black focus:outline-none ${inputClass}`}
                                 />
                             </div>
                         </div>
@@ -820,19 +724,13 @@ const BulkEditQuizzesModal: React.FC<BulkEditQuizzesModalProps> = ({
                                 {enableProctoring && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                             </div>
                             <div className="flex items-center gap-2">
-                                <ShieldAlert className="w-4 h-4 text-red-600 dark:text-red-400" />
-                                <span className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-gray-900 dark:text-white'}`}>
+                                <ShieldAlert className={`w-4 h-4 ${isBento ? 'text-black' : 'text-[#fb7185]'}`} />
+                                <span className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>
                                     Proctoring & Anti-Cheating
                                 </span>
                             </div>
                         </label>
-                        {enableProctoring && (
-                            <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${
-                                isBento ? 'bg-[#fecdd3] text-black border border-black' : 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300'
-                            }`}>
-                                Enabled
-                            </span>
-                        )}
+                        {enableProctoring && <span className={enabledBadge('bg-[#fecdd3]', 'bg-[#fb7185]/15 text-[#fb7185] border border-[#fb7185]/35')}>Enabled</span>}
                     </div>
 
                     {enableProctoring && (
@@ -846,10 +744,10 @@ const BulkEditQuizzesModal: React.FC<BulkEditQuizzesModalProps> = ({
                                         isProctored
                                             ? isBento
                                                 ? 'bg-[#fecdd3] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                                : 'bg-red-500/10 border-red-500 text-red-700 dark:text-red-300'
+                                                : 'bg-[#fb7185]/15 border-[#fb7185] text-[#fb7185]'
                                             : isBento
                                                 ? 'bg-white text-black border border-black hover:bg-gray-50'
-                                                : 'bg-white dark:bg-black/20 border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300'
+                                                : 'bg-[#0e0d0b] border-[#2e2924] text-[#d6d0c7] hover:border-[#443d35]'
                                     }`}
                                 >
                                     <span className="text-xs font-black uppercase">Strict Proctoring</span>
@@ -864,10 +762,10 @@ const BulkEditQuizzesModal: React.FC<BulkEditQuizzesModalProps> = ({
                                         requireFullscreen
                                             ? isBento
                                                 ? 'bg-[#fed7aa] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                                : 'bg-amber-500/10 border-amber-500 text-amber-700 dark:text-amber-300'
+                                                : 'bg-[#fde047]/15 border-[#fde047] text-[#fde047]'
                                             : isBento
                                                 ? 'bg-white text-black border border-black hover:bg-gray-50'
-                                                : 'bg-white dark:bg-black/20 border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300'
+                                                : 'bg-[#0e0d0b] border-[#2e2924] text-[#d6d0c7] hover:border-[#443d35]'
                                     }`}
                                 >
                                     <span className="text-xs font-black uppercase">Force Fullscreen</span>
@@ -882,10 +780,10 @@ const BulkEditQuizzesModal: React.FC<BulkEditQuizzesModalProps> = ({
                                         disableCopyPaste
                                             ? isBento
                                                 ? 'bg-[#fed7aa] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                                : 'bg-teal-500/10 border-teal-500 text-teal-700 dark:text-teal-300'
+                                                : 'bg-[#bae6fd]/15 border-[#bae6fd] text-[#bae6fd]'
                                             : isBento
                                                 ? 'bg-white text-black border border-black hover:bg-gray-50'
-                                                : 'bg-white dark:bg-black/20 border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300'
+                                                : 'bg-[#0e0d0b] border-[#2e2924] text-[#d6d0c7] hover:border-[#443d35]'
                                     }`}
                                 >
                                     <span className="text-xs font-black uppercase">Block Copy/Paste</span>
@@ -895,7 +793,7 @@ const BulkEditQuizzesModal: React.FC<BulkEditQuizzesModalProps> = ({
 
                             {/* Tab Switch Limit */}
                             <div className="flex items-center gap-3 pt-1">
-                                <span className={`text-xs font-bold ${isBento ? 'text-black' : 'text-gray-600 dark:text-gray-300'}`}>
+                                <span className={`text-xs font-bold ${isBento ? 'text-black' : 'text-[#d6d0c7]'}`}>
                                     Max Tab Switches:
                                 </span>
                                 <input
@@ -904,13 +802,9 @@ const BulkEditQuizzesModal: React.FC<BulkEditQuizzesModalProps> = ({
                                     max="10"
                                     value={strictTabSwitchLimit}
                                     onChange={(e) => setStrictTabSwitchLimit(Math.max(0, parseInt(e.target.value) || 0))}
-                                    className={`w-20 px-3 py-1.5 rounded-lg text-xs font-black text-center focus:outline-none ${
-                                        isBento
-                                            ? 'bg-white text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]'
-                                            : 'bg-white dark:bg-black/40 border border-gray-300 dark:border-white/10 text-gray-900 dark:text-white'
-                                    }`}
+                                    className={`w-20 px-3 py-1.5 rounded-lg text-xs font-black text-center focus:outline-none ${inputClass}`}
                                 />
-                                <span className="text-[11px] text-gray-500">
+                                <span className={`text-[11px] ${isBento ? 'text-gray-600' : 'text-[#a8a29e]'}`}>
                                     {strictTabSwitchLimit === 0 ? 'No tab switch enforcement' : `Auto-flag after ${strictTabSwitchLimit} switches`}
                                 </span>
                             </div>

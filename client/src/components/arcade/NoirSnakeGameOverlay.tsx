@@ -26,10 +26,12 @@ import { api } from '../../lib/api';
 import { NoirSnakeEngine } from './noirSnakeEngine';
 import { noirSnakeAudio } from './noirSnakeAudio';
 import {
+    WEAPON_META,
     getArcadeRankInfo,
     loadArcadeProfile,
     saveArcadeProfile,
     type ArcadeProfile,
+    type ContainmentAlert,
     type Direction,
     type HudSnapshot,
     type RunSummary,
@@ -51,6 +53,13 @@ const INITIAL_HUD: HudSnapshot = {
     takedowns: 0,
     boostEnergy: 100,
     isBoosting: false,
+    boostCooldownSec: 0,
+    boostCooldownRatio: 0,
+    boostOverheated: false,
+    heldWeapon: null,
+    weaponDropsOnMap: 0,
+    escapeRisk: 0,
+    containmentAlert: null,
     comboCount: 0,
     comboMultiplier: 1,
     comboTimeRatio: 0,
@@ -82,6 +91,7 @@ export const NoirSnakeGameOverlay: React.FC = () => {
         dailyRemaining?: number;
     }>({ status: 'idle', awarded: 0 });
     const [showLevelBanner, setShowLevelBanner] = useState<number | null>(null);
+    const [showLockdownAlert, setShowLockdownAlert] = useState<ContainmentAlert | null>(null);
 
     const [isTouchDevice, setIsTouchDevice] = useState<boolean>(() => {
         if (typeof window === 'undefined') return false;
@@ -98,6 +108,8 @@ export const NoirSnakeGameOverlay: React.FC = () => {
     const touchStartRef = useRef<{ x: number; y: number } | null>(null);
     const levelBannerTimerRef = useRef<number | null>(null);
     const lastBannerLevelRef = useRef<number>(1);
+    const lockdownTimerRef = useRef<number | null>(null);
+    const lastLockdownTsRef = useRef<number>(0);
     const profileRef = useRef<ArcadeProfile>(profile);
 
     useEffect(() => {
@@ -246,6 +258,17 @@ export const NoirSnakeGameOverlay: React.FC = () => {
                         levelBannerTimerRef.current = null;
                     }, 1500);
                 }
+                if (snap.containmentAlert && snap.containmentAlert.timestamp > lastLockdownTsRef.current) {
+                    lastLockdownTsRef.current = snap.containmentAlert.timestamp;
+                    setShowLockdownAlert(snap.containmentAlert);
+                    if (lockdownTimerRef.current !== null) {
+                        window.clearTimeout(lockdownTimerRef.current);
+                    }
+                    lockdownTimerRef.current = window.setTimeout(() => {
+                        setShowLockdownAlert(null);
+                        lockdownTimerRef.current = null;
+                    }, 2300);
+                }
             },
             onGameOver: (finalSnap) => {
                 handleRunCompleteRef.current(finalSnap);
@@ -283,6 +306,9 @@ export const NoirSnakeGameOverlay: React.FC = () => {
             if (levelBannerTimerRef.current !== null) {
                 window.clearTimeout(levelBannerTimerRef.current);
             }
+            if (lockdownTimerRef.current !== null) {
+                window.clearTimeout(lockdownTimerRef.current);
+            }
             engine.destroy();
             engineRef.current = null;
         };
@@ -301,7 +327,9 @@ export const NoirSnakeGameOverlay: React.FC = () => {
 
     const startMode = useCallback((mode: SnakeGameMode) => {
         lastBannerLevelRef.current = 1;
+        lastLockdownTsRef.current = 0;
         setShowLevelBanner(null);
+        setShowLockdownAlert(null);
         setSummary(null);
         setPlatformSync({ status: 'idle', awarded: 0 });
         engineRef.current?.startRun(mode);
@@ -309,7 +337,9 @@ export const NoirSnakeGameOverlay: React.FC = () => {
 
     const returnToModeMenu = useCallback(() => {
         lastBannerLevelRef.current = 1;
+        lastLockdownTsRef.current = 0;
         setShowLevelBanner(null);
+        setShowLockdownAlert(null);
         setSummary(null);
         setPlatformSync({ status: 'idle', awarded: 0 });
         engineRef.current?.setMenuMode();
@@ -361,6 +391,14 @@ export const NoirSnakeGameOverlay: React.FC = () => {
                 } else if (hud.status === 'gameover' && key === ' ') {
                     e.preventDefault();
                     startMode(hud.mode);
+                }
+                return;
+            }
+
+            if (key === 'e' || key === 'E' || key === 'f' || key === 'F' || key === 'x' || key === 'X') {
+                if (hud.status === 'playing' && hud.mode === 'hunt') {
+                    e.preventDefault();
+                    engine.fireWeapon();
                 }
                 return;
             }
@@ -456,9 +494,11 @@ export const NoirSnakeGameOverlay: React.FC = () => {
     const deathLabel =
         summary?.deathReason === 'hunter'
             ? tx('Intercepted by a Hunter Snake', 'تم الإمساك بك بواسطة ثعبان صياد')
-            : summary?.deathReason === 'border'
-                ? tx('Grid Perimeter Breach', 'اصطدام بحدود الشبكة')
-                : tx('Self-Trajectory Collision', 'اصطدام بجسمك');
+            : summary?.deathReason === 'wall'
+                ? tx('Breached Containment Wall', 'اصطدام بجدار الاحتواء')
+                : summary?.deathReason === 'border'
+                    ? tx('Grid Perimeter Breach', 'اصطدام بحدود الشبكة')
+                    : tx('Self-Trajectory Collision', 'اصطدام بجسمك');
 
     return createPortal(
         <div
@@ -550,21 +590,86 @@ export const NoirSnakeGameOverlay: React.FC = () => {
                                             {hud.huntersAlive}x
                                         </span>
                                     </div>
-                                    {/* Boost meter */}
-                                    <div className="hidden md:flex flex-col gap-1 w-20">
-                                        <div className="flex items-center justify-between text-[9px] font-mono text-[#bae6fd]">
+                                    {/* Boost meter + Cooldown / Overheat indicator */}
+                                    <div className="hidden md:flex flex-col gap-1 w-24">
+                                        <div
+                                            className={`flex items-center justify-between text-[9px] font-mono ${
+                                                hud.boostOverheated
+                                                    ? 'text-[#fb7185]'
+                                                    : hud.boostCooldownSec > 0
+                                                        ? 'text-[#fde047]'
+                                                        : 'text-[#bae6fd]'
+                                            }`}
+                                        >
                                             <span className="flex items-center gap-0.5 font-bold">
-                                                <Zap className="w-2.5 h-2.5" /> BOOST
+                                                <Zap className="w-2.5 h-2.5" />
+                                                {hud.boostOverheated
+                                                    ? 'HEAT'
+                                                    : hud.boostCooldownSec > 0
+                                                        ? 'COOL'
+                                                        : 'BOOST'}
                                             </span>
-                                            <span>{hud.boostEnergy}%</span>
+                                            <span className="tabular-nums">
+                                                {hud.boostCooldownSec > 0
+                                                    ? `${hud.boostCooldownSec.toFixed(1)}s`
+                                                    : `${hud.boostEnergy}%`}
+                                            </span>
                                         </div>
                                         <div className="h-1.5 w-full bg-[#1c1917] border border-[#2e2924] overflow-hidden">
                                             <div
-                                                className="h-full bg-[#bae6fd] transition-all duration-100"
-                                                style={{ width: `${hud.boostEnergy}%` }}
+                                                className={`h-full transition-all duration-100 ${
+                                                    hud.boostOverheated
+                                                        ? 'bg-[#fb7185]'
+                                                        : hud.boostCooldownSec > 0
+                                                            ? 'bg-[#fde047]'
+                                                            : hud.boostEnergy < 20
+                                                                ? 'bg-[#bae6fd]/45'
+                                                                : 'bg-[#bae6fd]'
+                                                }`}
+                                                style={{
+                                                    width: `${
+                                                        hud.boostCooldownSec > 0
+                                                            ? Math.round(hud.boostCooldownRatio * 100)
+                                                            : hud.boostEnergy
+                                                    }%`
+                                                }}
                                             />
                                         </div>
                                     </div>
+                                    {/* One-Time Dropped Weapon Slot */}
+                                    <button
+                                        type="button"
+                                        onClick={() => engineRef.current?.fireWeapon()}
+                                        disabled={!hud.heldWeapon}
+                                        title={
+                                            hud.heldWeapon
+                                                ? tx('Fire 1× Weapon (E / F)', 'أطلق السلاح (E / F)')
+                                                : tx('Grab a dropped weapon on the grid', 'التقط سلاحاً ساقطاً من الشبكة')
+                                        }
+                                        className={`hidden lg:flex items-center gap-1.5 h-7 px-2 rounded-lg border font-mono text-[10px] font-black uppercase tracking-wider transition-colors shrink-0 ${
+                                            hud.heldWeapon
+                                                ? 'bg-[#191614] cursor-pointer hover:brightness-110'
+                                                : 'bg-[#141210] border-[#2e2924] text-[#78716c] cursor-default'
+                                        }`}
+                                        style={
+                                            hud.heldWeapon
+                                                ? {
+                                                      borderColor: WEAPON_META[hud.heldWeapon].color,
+                                                      color: WEAPON_META[hud.heldWeapon].color
+                                                  }
+                                                : undefined
+                                        }
+                                    >
+                                        <Crosshair className="w-3 h-3 shrink-0" />
+                                        <span>
+                                            {hud.heldWeapon ? `${WEAPON_META[hud.heldWeapon].shortTag} 1×` : 'NO WEAPON'}
+                                        </span>
+                                        {hud.heldWeapon && (
+                                            <span className="px-1 py-0.2 rounded bg-[#0a0908] text-[9px] border border-current opacity-85">
+                                                E
+                                            </span>
+                                        )}
+                                    </button>
                                 </>
                             ) : (
                                 <>
@@ -748,13 +853,106 @@ export const NoirSnakeGameOverlay: React.FC = () => {
                     </div>
                 )}
 
-                {/* Hunt Mode Subtle Boost Pill on Small Screens */}
-                {hud.status === 'playing' && hud.mode === 'hunt' && (
-                    <div className="pointer-events-none md:hidden absolute top-2.5 left-2.5 z-10 flex items-center gap-1.5 px-2 py-1 rounded bg-[#0a0908]/85 border border-[#2e2924]">
-                        <Zap className="w-3 h-3 text-[#bae6fd]" />
-                        <div className="w-14 h-1.5 bg-[#1c1917] overflow-hidden">
-                            <div className="h-full bg-[#bae6fd]" style={{ width: `${hud.boostEnergy}%` }} />
+                {/* Floating Anti-Escape Containment Lockdown Alert */}
+                {showLockdownAlert !== null && hud.status === 'playing' && hud.mode === 'hunt' && (
+                    <div
+                        className={`pointer-events-none absolute left-1/2 -translate-x-1/2 z-20 animate-in zoom-in-95 fade-in duration-150 ${
+                            showLevelBanner !== null ? 'top-16' : 'top-4'
+                        }`}
+                    >
+                        <div className="px-3.5 py-1.5 rounded-lg bg-[#2a1418]/95 border-2 border-[#fb7185] shadow-[0_4px_0_#050504] flex items-center gap-2 max-w-[90vw]">
+                            <ShieldAlert className="w-4 h-4 text-[#fb7185] shrink-0" />
+                            <span className="font-mono text-[10px] sm:text-xs font-black tracking-wider uppercase text-[#fda4af] truncate">
+                                {tx(showLockdownAlert.title, showLockdownAlert.arTitle)}
+                            </span>
                         </div>
+                    </div>
+                )}
+
+                {/* Anti-Escape Detection Warning Chip (visible on all screens when escape risk ramps up) */}
+                {hud.status === 'playing' && hud.mode === 'hunt' && hud.escapeRisk >= 38 && (
+                    <div className="pointer-events-none absolute top-11 lg:top-3 left-2.5 z-10 flex items-center gap-1.5 px-2 py-1 rounded bg-[#2a1418]/90 border border-[#fb7185]/70">
+                        <ShieldAlert className="w-3 h-3 text-[#fb7185] shrink-0" />
+                        <span className="font-mono text-[9px] font-black uppercase tracking-wider text-[#fda4af]">
+                            {tx('LOCK', 'رصد')}
+                        </span>
+                        <div className="w-10 h-1.5 bg-[#141210] overflow-hidden">
+                            <div
+                                className="h-full bg-[#fb7185] transition-all duration-100"
+                                style={{ width: `${hud.escapeRisk}%` }}
+                            />
+                        </div>
+                    </div>
+                )}
+
+                {/* Hunt Mode Subtle Boost + Armed Weapon Pill on Small Screens */}
+                {hud.status === 'playing' && hud.mode === 'hunt' && (
+                    <div className="lg:hidden absolute top-2.5 left-2.5 z-10 flex items-center gap-1.5 pointer-events-none">
+                        <div
+                            className={`md:hidden flex items-center gap-1.5 px-2 py-1 rounded bg-[#0a0908]/85 border ${
+                                hud.boostOverheated
+                                    ? 'border-[#fb7185]/70'
+                                    : hud.boostCooldownSec > 0
+                                        ? 'border-[#fde047]/65'
+                                        : 'border-[#2e2924]'
+                            }`}
+                        >
+                            <Zap
+                                className={`w-3 h-3 ${
+                                    hud.boostOverheated
+                                        ? 'text-[#fb7185]'
+                                        : hud.boostCooldownSec > 0
+                                            ? 'text-[#fde047]'
+                                            : 'text-[#bae6fd]'
+                                }`}
+                            />
+                            <div className="w-12 h-1.5 bg-[#1c1917] overflow-hidden">
+                                <div
+                                    className={`h-full ${
+                                        hud.boostOverheated
+                                            ? 'bg-[#fb7185]'
+                                            : hud.boostCooldownSec > 0
+                                                ? 'bg-[#fde047]'
+                                                : 'bg-[#bae6fd]'
+                                    }`}
+                                    style={{
+                                        width: `${
+                                            hud.boostCooldownSec > 0
+                                                ? Math.round(hud.boostCooldownRatio * 100)
+                                                : hud.boostEnergy
+                                        }%`
+                                    }}
+                                />
+                            </div>
+                            {hud.boostCooldownSec > 0 && (
+                                <span
+                                    className={`font-mono text-[9px] font-black tabular-nums ${
+                                        hud.boostOverheated ? 'text-[#fb7185]' : 'text-[#fde047]'
+                                    }`}
+                                >
+                                    {hud.boostCooldownSec.toFixed(1)}s
+                                </span>
+                            )}
+                        </div>
+                        {hud.heldWeapon && (
+                            <button
+                                type="button"
+                                onPointerDown={(e) => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    engineRef.current?.fireWeapon();
+                                }}
+                                className="pointer-events-auto flex items-center gap-1 px-2 py-1 rounded bg-[#141210]/95 border font-mono text-[10px] font-black uppercase tracking-wider touch-manipulation cursor-pointer"
+                                style={{
+                                    borderColor: WEAPON_META[hud.heldWeapon].color,
+                                    color: WEAPON_META[hud.heldWeapon].color
+                                }}
+                            >
+                                <Crosshair className="w-3 h-3" />
+                                <span>{WEAPON_META[hud.heldWeapon].shortTag} 1×</span>
+                                <span className="hidden sm:inline opacity-75">[E]</span>
+                            </button>
+                        )}
                     </div>
                 )}
 
@@ -842,8 +1040,8 @@ export const NoirSnakeGameOverlay: React.FC = () => {
                                         </div>
                                         <p className="text-xs text-[#a8a29e] leading-relaxed">
                                             {tx(
-                                                'Camera follows you across an endless grid. The longer you survive, the more hunter snakes spawn—and the smarter they flank. Bait them into your tail to shatter them for bonus XP.',
-                                                'الكاميرا تتحرك معك في عالم مفتوح بلا حدود. كلما صمدت أكثر زاد عدد وذكاء الثعابين الصيادة. استدرجهم للاصطدام بذيلك لتدميرهم وكسب XP مضاعف.'
+                                                'Endless grid vs adaptive hunter snakes. Slice hunter bodies, boost-ram head-on, and grab 1× dropped weapons—while the AI Director detects straight-line/loop escapes and seals your path with containment walls & ambush snakes.',
+                                                'عالم مفتوح ضد ثعابين صيادة ذكية. اقطع أجسامهم أو اندفع لصدمهم، والتقط الأسلحة ذات الاستخدام الواحد — بينما يرصد الذكاء الاصطناعي أي هروب مستقيم أو دوران ويغلق طريقك بجدران احتواء وكمين.'
                                             )}
                                         </p>
                                     </div>
@@ -922,7 +1120,12 @@ export const NoirSnakeGameOverlay: React.FC = () => {
                                     <span className="px-1.5 py-0.5 rounded bg-[#1c1917] border border-[#2e2924] text-[#bae6fd]">
                                         SPACE
                                     </span>
-                                    <span>{tx('Boost (Hunt)', 'اندفاع')}</span>
+                                    <span>{tx('Boost / Ram', 'اندفاع / صدم')}</span>
+                                    <span className="opacity-30">·</span>
+                                    <span className="px-1.5 py-0.5 rounded bg-[#1c1917] border border-[#2e2924] text-[#fb7185]">
+                                        E / F
+                                    </span>
+                                    <span>{tx('Fire Weapon (1×)', 'إطلاق سلاح (1×)')}</span>
                                     <span className="opacity-30">·</span>
                                     <span className="px-1.5 py-0.5 rounded bg-[#1c1917] border border-[#2e2924] text-[#f5f3ec]">
                                         SWIPE / D-PAD
@@ -1187,31 +1390,88 @@ export const NoirSnakeGameOverlay: React.FC = () => {
                             <div />
                         </div>
 
-                        {/* Right: Hold-to-Boost Button (Hunt Mode) */}
+                        {/* Right: One-Time Weapon Fire + Hold-to-Boost Buttons (Hunt Mode) */}
                         {hud.mode === 'hunt' && (
-                            <button
-                                type="button"
-                                onPointerDown={(e) => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    engineRef.current?.setBoost(true);
-                                }}
-                                onPointerUp={(e) => {
-                                    e.stopPropagation();
-                                    engineRef.current?.setBoost(false);
-                                }}
-                                onPointerCancel={() => engineRef.current?.setBoost(false)}
-                                onPointerLeave={() => engineRef.current?.setBoost(false)}
-                                className={`pointer-events-auto w-20 h-20 rounded-2xl border-2 flex flex-col items-center justify-center gap-0.5 font-mono text-[10px] font-black uppercase tracking-wider touch-manipulation transition-colors ${
-                                    hud.isBoosting
-                                        ? 'bg-[#bae6fd] border-[#bae6fd] text-[#0a0908]'
-                                        : 'bg-[#141210]/90 border-[#bae6fd]/60 text-[#bae6fd]'
-                                }`}
-                            >
-                                <Zap className="w-5 h-5" />
-                                <span>BOOST</span>
-                                <span className="text-[9px] opacity-80">{hud.boostEnergy}%</span>
-                            </button>
+                            <div className="pointer-events-auto flex items-end gap-2">
+                                <button
+                                    type="button"
+                                    disabled={!hud.heldWeapon}
+                                    onPointerDown={(e) => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        engineRef.current?.fireWeapon();
+                                    }}
+                                    aria-label={tx('Fire one-time weapon', 'إطلاق السلاح')}
+                                    className={`w-[70px] h-[70px] sm:w-20 sm:h-20 rounded-2xl border-2 flex flex-col items-center justify-center gap-0.5 font-mono text-[10px] font-black uppercase tracking-wider touch-manipulation transition-all ${
+                                        hud.heldWeapon
+                                            ? 'text-[#0a0908] active:scale-95 shadow-[0_4px_0_#050504]'
+                                            : 'bg-[#141210]/75 border-[#2e2924] text-[#78716c] opacity-70'
+                                    }`}
+                                    style={
+                                        hud.heldWeapon
+                                            ? {
+                                                  backgroundColor: WEAPON_META[hud.heldWeapon].color,
+                                                  borderColor: WEAPON_META[hud.heldWeapon].color
+                                              }
+                                            : undefined
+                                    }
+                                >
+                                    <Crosshair className="w-5 h-5" />
+                                    <span>{hud.heldWeapon ? WEAPON_META[hud.heldWeapon].shortTag : 'WEAPON'}</span>
+                                    <span className="text-[9px] opacity-85">
+                                        {hud.heldWeapon ? '1× FIRE' : 'EMPTY'}
+                                    </span>
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onPointerDown={(e) => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        engineRef.current?.setBoost(true);
+                                    }}
+                                    onPointerUp={(e) => {
+                                        e.stopPropagation();
+                                        engineRef.current?.setBoost(false);
+                                    }}
+                                    onPointerCancel={() => engineRef.current?.setBoost(false)}
+                                    onPointerLeave={() => engineRef.current?.setBoost(false)}
+                                    className={`relative overflow-hidden w-[70px] h-[70px] sm:w-20 sm:h-20 rounded-2xl border-2 flex flex-col items-center justify-center gap-0.5 font-mono text-[10px] font-black uppercase tracking-wider touch-manipulation transition-colors ${
+                                        hud.isBoosting
+                                            ? 'bg-[#bae6fd] border-[#bae6fd] text-[#0a0908]'
+                                            : hud.boostOverheated
+                                                ? 'bg-[#2a1418]/90 border-[#fb7185] text-[#fb7185]'
+                                                : hud.boostCooldownSec > 0
+                                                    ? 'bg-[#231e0f]/90 border-[#fde047] text-[#fde047]'
+                                                    : hud.boostEnergy < 20
+                                                        ? 'bg-[#141210]/80 border-[#2e2924] text-[#78716c]'
+                                                        : 'bg-[#141210]/90 border-[#bae6fd]/60 text-[#bae6fd]'
+                                    }`}
+                                >
+                                    {hud.boostCooldownSec > 0 && (
+                                        <span
+                                            aria-hidden="true"
+                                            className={`pointer-events-none absolute left-0 bottom-0 h-1 ${
+                                                hud.boostOverheated ? 'bg-[#fb7185]' : 'bg-[#fde047]'
+                                            }`}
+                                            style={{ width: `${Math.round(hud.boostCooldownRatio * 100)}%` }}
+                                        />
+                                    )}
+                                    <Zap className="w-5 h-5" />
+                                    <span>
+                                        {hud.boostOverheated
+                                            ? 'HEAT'
+                                            : hud.boostCooldownSec > 0
+                                                ? 'COOL'
+                                                : 'BOOST'}
+                                    </span>
+                                    <span className="text-[9px] opacity-85 tabular-nums">
+                                        {hud.boostCooldownSec > 0
+                                            ? `${hud.boostCooldownSec.toFixed(1)}s`
+                                            : `${hud.boostEnergy}%`}
+                                    </span>
+                                </button>
+                            </div>
                         )}
                     </div>
                 )}

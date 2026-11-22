@@ -194,8 +194,8 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                 onClick={e => e.stopPropagation()}
                 className={`app-dialog-panel app-dialog-panel--structured relative z-10 w-full max-w-4xl h-[86dvh] md:h-[600px] max-h-[90dvh] overflow-hidden flex flex-col md:flex-row transition-all ${
                     isBento
-                        ? 'bg-white border-[3px] border-black shadow-[8px_8px_0px_#000] rounded-3xl'
-                        : 'bg-white dark:bg-[#141210] rounded-3xl shadow-2xl border border-slate-200 dark:border-white/10'
+                        ? 'bg-white text-black border-[3px] border-black shadow-[8px_8px_0px_#000] rounded-3xl'
+                        : 'bg-[#141210] text-[#f5f3ec] rounded-3xl border-[1.5px] border-[#2e2924] shadow-[0_8px_0_#050504,0_24px_60px_rgba(0,0,0,0.78)]'
                 }`}
             >
                 {/* LEFT COLUMN: LIVE PREVIEW STAGE */}
@@ -203,7 +203,7 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                     className={`md:w-[300px] lg:w-[320px] shrink-0 p-4 sm:p-6 flex flex-col items-center justify-between relative ${
                         isBento
                             ? 'bg-[#f5f3ec] border-b-[2.5px] md:border-b-0 md:border-r-[2.5px] border-black'
-                            : 'bg-slate-50/90 dark:bg-black/25 border-b md:border-b-0 md:border-r border-slate-200 dark:border-white/10'
+                            : 'bg-[#11100e] border-b md:border-b-0 md:border-r border-[#2e2924]'
                     }`}
                     style={
                         isBento
@@ -220,7 +220,7 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                             className={`inline-flex items-center gap-1.5 px-3 py-0.5 sm:px-3.5 sm:py-1 rounded-full text-[10px] sm:text-[11px] font-black uppercase tracking-widest ${
                                 isBento
                                     ? 'bg-[#fde047] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                    : 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 border border-indigo-500/20'
+                                    : 'bg-[#1c2317] text-[#bef264] border border-[#bef264]/35'
                             }`}
                         >
                             <Sparkles className="w-3 h-3" />
@@ -234,7 +234,7 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                             className={`p-2 rounded-full transition-transform duration-300 ${
                                 isBento
                                     ? 'bg-white border-[3px] border-black shadow-[4px_4px_0px_#000] sm:shadow-[5px_5px_0px_#000]'
-                                    : 'bg-white dark:bg-[#1c1917] shadow-xl ring-1 ring-slate-200 dark:ring-white/10'
+                                    : 'bg-[#1a1714] ring-1 ring-[#2e2924]'
                             }`}
                         >
                             <Avatar config={config} size="xl" className="sm:hidden" />
@@ -256,7 +256,7 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                                         className={`px-2.5 py-0.5 rounded-lg text-[11px] font-bold ${
                                             isBento
                                                 ? 'bg-white text-black border-[1.5px] border-black shadow-[1.5px_1.5px_0px_#000]'
-                                                : 'bg-white dark:bg-white/10 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-white/10'
+                                                : 'bg-[#1a1714] text-[#d6d0c7] border border-[#2e2924]'
                                         }`}
                                     >
                                         {tag}
@@ -273,7 +273,7 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                             className={`btn-unstyled h-9 sm:h-10 px-2 sm:px-3 rounded-xl font-black text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                                 isBento
                                     ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:-translate-y-0.5 active:translate-y-0'
-                                    : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm'
+                                    : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908]'
                             }`}
                         >
                             <RefreshCw className="w-3.5 h-3.5 shrink-0" />
@@ -284,8 +284,8 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                             onClick={handleReset}
                             className={`btn-unstyled h-9 sm:h-10 px-2 sm:px-3 rounded-xl font-black text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                                 isBento
-                                    ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-slate-50'
-                                    : 'bg-white dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-white/10'
+                                    ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#f5f3ec]'
+                                    : 'bg-[#1a1714] hover:bg-[#24201c] text-[#d6d0c7] border border-[#2e2924]'
                             }`}
                         >
                             <RotateCcw className="w-3.5 h-3.5 shrink-0" />
@@ -295,13 +295,13 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                 </div>
 
                 {/* RIGHT COLUMN: CONTROLS */}
-                <div className="flex-1 flex flex-col min-h-0 bg-white dark:bg-[#141210]">
+                <div className={`flex-1 flex flex-col min-h-0 ${isBento ? 'bg-white' : 'bg-[#141210]'}`}>
                     {/* Modal Header */}
                     <div
                         className={`px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between shrink-0 ${
                             isBento
                                 ? 'border-b-[2.5px] border-black bg-white'
-                                : 'border-b border-slate-100 dark:border-white/10'
+                                : 'border-b border-[#2e2924] bg-[#1a1714]'
                         }`}
                     >
                         <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
@@ -309,16 +309,16 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                                 className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 ${
                                     isBento
                                         ? 'bg-[#fdba74] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                        : 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
+                                        : 'bg-[#1c2317] text-[#bef264] border border-[#bef264]/35'
                                 }`}
                             >
                                 <Palette className="w-4 h-4 sm:w-5 sm:h-5" />
                             </div>
                             <div className="min-w-0">
-                                <h2 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white leading-tight truncate">
+                                <h2 className={`text-lg sm:text-xl font-black leading-tight truncate ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>
                                     Customize Avatar
                                 </h2>
-                                <p className="text-[11px] sm:text-xs font-medium text-slate-500 dark:text-slate-400 truncate hidden xs:block">
+                                <p className={`text-[11px] sm:text-xs font-medium truncate hidden xs:block ${isBento ? 'text-neutral-600' : 'text-[#a8a29e]'}`}>
                                     Personalize your identity, outfit, and unlocked accessories
                                 </p>
                             </div>
@@ -331,7 +331,7 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                             className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0 ${
                                 isBento
                                     ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#fde047]'
-                                    : 'hover:bg-slate-100 dark:hover:bg-white/10 text-slate-500'
+                                    : 'bg-[#141210] border border-[#2e2924] hover:border-[#bef264]/50 text-[#a8a29e] hover:text-[#f5f3ec]'
                             }`}
                         >
                             <X className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -342,15 +342,15 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                     <div
                         className={`px-3 sm:px-6 py-2 sm:py-3 shrink-0 ${
                             isBento
-                                ? 'bg-[#faf8f2] border-b-[2.5px] border-black'
-                                : 'bg-slate-50/60 dark:bg-white/[0.02] border-b border-slate-100 dark:border-white/10'
+                                ? 'bg-[#f5f3ec] border-b-[2.5px] border-black'
+                                : 'bg-[#161411] border-b border-[#2e2924]'
                         }`}
                     >
                         <div
                             className={`flex sm:grid sm:grid-cols-5 gap-1 sm:gap-1.5 p-1 rounded-2xl overflow-x-auto scrollbar-none ${
                                 isBento
                                     ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000]'
-                                    : 'bg-slate-200/70 dark:bg-black/40'
+                                    : 'bg-[#0e0d0b] border border-[#2e2924]'
                             }`}
                         >
                             {tabs.map(tab => {
@@ -364,10 +364,10 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                                             isActive
                                                 ? isBento
                                                     ? 'bg-[#bef264] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]'
-                                                    : 'bg-white dark:bg-indigo-600 text-indigo-600 dark:text-white shadow-sm'
+                                                    : 'bg-[#bef264] text-[#0a0908]'
                                                 : isBento
-                                                ? 'text-slate-700 hover:bg-slate-100 border-2 border-transparent'
-                                                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                                                ? 'text-neutral-700 hover:bg-[#f5f3ec] border-2 border-transparent'
+                                                : 'text-[#a8a29e] hover:text-[#f5f3ec]'
                                         }`}
                                     >
                                         {tab.icon}
@@ -385,7 +385,7 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                                 {/* Identity */}
                                 <div>
                                     <div className="flex items-center justify-between mb-2.5">
-                                        <h3 className="text-xs font-black text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                                        <h3 className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>
                                             Identity
                                         </h3>
                                     </div>
@@ -401,10 +401,10 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                                                         selected
                                                             ? isBento
                                                                 ? 'bg-[#bae6fd] text-black border-2 border-black shadow-[3px_3px_0px_#000]'
-                                                                : 'border-2 border-indigo-500 bg-indigo-50 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300'
+                                                                : 'border-2 border-[#bef264] bg-[#1c2317] text-[#bef264]'
                                                             : isBento
-                                                            ? 'bg-white text-slate-800 border-2 border-black hover:bg-slate-50'
-                                                            : 'border-2 border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 hover:border-slate-300'
+                                                            ? 'bg-white text-black border-2 border-black hover:bg-[#f5f3ec]'
+                                                            : 'border border-[#2e2924] bg-[#1a1714] text-[#d6d0c7] hover:border-[#bef264]/50'
                                                     }`}
                                                 >
                                                     <span className="flex items-center gap-2">
@@ -416,7 +416,7 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                                                             className={`w-5 h-5 rounded-full flex items-center justify-center ${
                                                                 isBento
                                                                     ? 'bg-black text-white'
-                                                                    : 'bg-indigo-600 text-white'
+                                                                    : 'bg-[#bef264] text-[#0a0908]'
                                                             }`}
                                                         >
                                                             <Check className="w-3 h-3" />
@@ -431,10 +431,10 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                                 {/* Skin Tone */}
                                 <div>
                                     <div className="flex items-center justify-between mb-2.5">
-                                        <h3 className="text-xs font-black text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                                        <h3 className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>
                                             Skin Tone
                                         </h3>
-                                        <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
+                                        <span className={`text-xs font-bold ${isBento ? 'text-neutral-600' : 'text-[#a8a29e]'}`}>
                                             {SKIN_LABELS[config.skinColor] || 'Custom'}
                                         </span>
                                     </div>
@@ -451,10 +451,10 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                                                         selected
                                                             ? isBento
                                                                 ? 'border-[3px] border-black shadow-[3px_3px_0px_#000] scale-105 ring-2 ring-[#bef264]'
-                                                                : 'border-2 border-indigo-600 ring-2 ring-indigo-400 scale-105'
+                                                                : 'border-2 border-[#bef264] ring-2 ring-[#bef264]/40 scale-105'
                                                             : isBento
                                                             ? 'border-2 border-black hover:scale-105'
-                                                            : 'border-2 border-slate-300 dark:border-white/20 hover:scale-105'
+                                                            : 'border-2 border-[#2e2924] hover:scale-105'
                                                     }`}
                                                     style={{ backgroundColor: color }}
                                                 >
@@ -472,10 +472,10 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                                 {/* Background */}
                                 <div>
                                     <div className="flex items-center justify-between mb-2.5">
-                                        <h3 className="text-xs font-black text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                                        <h3 className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>
                                             Backdrop Theme
                                         </h3>
-                                        <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400">
+                                        <span className={`text-[11px] font-bold ${isBento ? 'text-neutral-600' : 'text-[#a8a29e]'}`}>
                                             {AVATAR_OPTIONS.base.backgroundColor.length} styles
                                         </span>
                                     </div>
@@ -507,10 +507,10 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                                                         selected
                                                             ? isBento
                                                                 ? 'border-[2.5px] border-black shadow-[2.5px_2.5px_0px_#000] scale-105'
-                                                                : 'border-2 border-indigo-600 ring-2 ring-indigo-400 scale-105'
+                                                                : 'border-2 border-[#bef264] ring-2 ring-[#bef264]/40 scale-105'
                                                             : isBento
                                                             ? 'border-2 border-black/80 hover:scale-105'
-                                                            : 'border border-slate-300 dark:border-white/20 hover:scale-105'
+                                                            : 'border border-[#2e2924] hover:scale-105'
                                                     } ${locked ? 'opacity-55 cursor-not-allowed' : 'cursor-pointer'}`}
                                                 >
                                                     {selected && !locked && (
@@ -527,7 +527,7 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                                                     )}
                                                     {isOwned && !locked && (
                                                         <span
-                                                            className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-amber-400 rounded-full border border-black"
+                                                            className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-[#fde047] rounded-full border border-black"
                                                             title="Shop Item Owned"
                                                         />
                                                     )}
@@ -542,7 +542,7 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                         {activeTab === 'hair' && (
                             <div className="space-y-6">
                                 <div>
-                                    <h3 className="text-xs font-black text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-3">
+                                    <h3 className={`text-xs font-black uppercase tracking-wider mb-3 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>
                                         Hair Style ({config.gender})
                                     </h3>
                                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
@@ -557,10 +557,10 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                                                         selected
                                                             ? isBento
                                                                 ? 'bg-[#bef264] text-black border-2 border-black shadow-[2.5px_2.5px_0px_#000]'
-                                                                : 'border-2 border-indigo-500 bg-indigo-50 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300'
+                                                                : 'border-2 border-[#bef264] bg-[#1c2317] text-[#bef264]'
                                                             : isBento
-                                                            ? 'bg-white text-slate-800 border-2 border-black hover:bg-slate-50'
-                                                            : 'border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:border-indigo-400'
+                                                            ? 'bg-white text-black border-2 border-black hover:bg-[#f5f3ec]'
+                                                            : 'border border-[#2e2924] bg-[#1a1714] text-[#d6d0c7] hover:border-[#bef264]/50'
                                                     }`}
                                                 >
                                                     <span>{formatLabel(style)}</span>
@@ -572,7 +572,7 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                                 </div>
 
                                 <div>
-                                    <h3 className="text-xs font-black text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-3">
+                                    <h3 className={`text-xs font-black uppercase tracking-wider mb-3 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>
                                         Hair Color
                                     </h3>
                                     <div className="flex flex-wrap gap-2.5">
@@ -587,10 +587,10 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                                                         selected
                                                             ? isBento
                                                                 ? 'border-[3px] border-black shadow-[2.5px_2.5px_0px_#000] scale-110 ring-2 ring-[#bef264]'
-                                                                : 'border-2 border-indigo-600 ring-2 ring-indigo-400 scale-110'
+                                                                : 'border-2 border-[#bef264] ring-2 ring-[#bef264]/40 scale-110'
                                                             : isBento
                                                             ? 'border-2 border-black hover:scale-105'
-                                                            : 'border-2 border-slate-300 dark:border-white/20 hover:scale-105'
+                                                            : 'border-2 border-[#2e2924] hover:scale-105'
                                                     }`}
                                                     style={{ backgroundColor: color }}
                                                 >
@@ -609,7 +609,7 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
 
                         {activeTab === 'clothing' && (
                             <div>
-                                <h3 className="text-xs font-black text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-3">
+                                <h3 className={`text-xs font-black uppercase tracking-wider mb-3 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>
                                     Outfit Selection ({config.gender})
                                 </h3>
                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -630,21 +630,21 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                                                     selected
                                                         ? isBento
                                                             ? 'bg-[#bef264] text-black border-2 border-black shadow-[2.5px_2.5px_0px_#000]'
-                                                            : 'border-2 border-indigo-500 bg-indigo-50 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300'
+                                                            : 'border-2 border-[#bef264] bg-[#1c2317] text-[#bef264]'
                                                         : isBento
-                                                        ? 'bg-white text-slate-800 border-2 border-black hover:bg-slate-50'
-                                                        : 'border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:border-indigo-400'
+                                                        ? 'bg-white text-black border-2 border-black hover:bg-[#f5f3ec]'
+                                                        : 'border border-[#2e2924] bg-[#1a1714] text-[#d6d0c7] hover:border-[#bef264]/50'
                                                 } ${locked ? 'opacity-55 cursor-not-allowed' : 'cursor-pointer'}`}
                                             >
                                                 <span>{formatLabel(item)}</span>
                                                 {locked ? (
-                                                    <Lock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                                    <Lock className="w-3.5 h-3.5 text-[#78716c] shrink-0" />
                                                 ) : selected ? (
                                                     <Check className="w-3.5 h-3.5 shrink-0" />
                                                 ) : null}
                                                 {isOwned && !locked && (
                                                     <span
-                                                        className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-amber-400 rounded-full border border-black"
+                                                        className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-[#fde047] rounded-full border border-black"
                                                         title="Shop Item Owned"
                                                     />
                                                 )}
@@ -658,7 +658,7 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                         {activeTab === 'style' && (
                             <div className="space-y-6">
                                 <div>
-                                    <h3 className="text-xs font-black text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-3">
+                                    <h3 className={`text-xs font-black uppercase tracking-wider mb-3 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>
                                         Headwear & Accessories
                                     </h3>
                                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
@@ -677,21 +677,21 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                                                         selected
                                                             ? isBento
                                                                 ? 'bg-[#bef264] text-black border-2 border-black shadow-[2.5px_2.5px_0px_#000]'
-                                                                : 'border-2 border-indigo-500 bg-indigo-50 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300'
+                                                                : 'border-2 border-[#bef264] bg-[#1c2317] text-[#bef264]'
                                                             : isBento
-                                                            ? 'bg-white text-slate-800 border-2 border-black hover:bg-slate-50'
-                                                            : 'border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:border-indigo-400'
+                                                            ? 'bg-white text-black border-2 border-black hover:bg-[#f5f3ec]'
+                                                            : 'border border-[#2e2924] bg-[#1a1714] text-[#d6d0c7] hover:border-[#bef264]/50'
                                                     } ${locked ? 'opacity-55 cursor-not-allowed' : 'cursor-pointer'}`}
                                                 >
                                                     <span className="truncate">{formatLabel(item)}</span>
                                                     {locked ? (
-                                                        <Lock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                                        <Lock className="w-3.5 h-3.5 text-[#78716c] shrink-0" />
                                                     ) : selected ? (
                                                         <Check className="w-3.5 h-3.5 shrink-0" />
                                                     ) : null}
                                                     {isOwned && !locked && (
                                                         <span
-                                                            className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-amber-400 rounded-full border border-black"
+                                                            className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-[#fde047] rounded-full border border-black"
                                                             title="Shop Item Owned"
                                                         />
                                                     )}
@@ -702,7 +702,7 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                                 </div>
 
                                 <div>
-                                    <h3 className="text-xs font-black text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-3">
+                                    <h3 className={`text-xs font-black uppercase tracking-wider mb-3 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>
                                         Avatar Frame
                                     </h3>
                                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
@@ -721,21 +721,21 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                                                         selected
                                                             ? isBento
                                                                 ? 'bg-[#fde047] text-black border-2 border-black shadow-[2.5px_2.5px_0px_#000]'
-                                                                : 'border-2 border-indigo-500 bg-indigo-50 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300'
+                                                                : 'border-2 border-[#fde047] bg-[#231f14] text-[#fde047]'
                                                             : isBento
-                                                            ? 'bg-white text-slate-800 border-2 border-black hover:bg-slate-50'
-                                                            : 'border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:border-indigo-400'
+                                                            ? 'bg-white text-black border-2 border-black hover:bg-[#f5f3ec]'
+                                                            : 'border border-[#2e2924] bg-[#1a1714] text-[#d6d0c7] hover:border-[#fde047]/50'
                                                     } ${locked ? 'opacity-55 cursor-not-allowed' : 'cursor-pointer'}`}
                                                 >
                                                     <span>{frame === 'none' ? 'No Frame' : formatLabel(frame)}</span>
                                                     {locked ? (
-                                                        <Lock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                                        <Lock className="w-3.5 h-3.5 text-[#78716c] shrink-0" />
                                                     ) : selected ? (
                                                         <Check className="w-3.5 h-3.5 shrink-0" />
                                                     ) : null}
                                                     {isOwned && !locked && (
                                                         <span
-                                                            className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-amber-400 rounded-full border border-black"
+                                                            className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-[#fde047] rounded-full border border-black"
                                                             title="Shop Item Owned"
                                                         />
                                                     )}
@@ -749,7 +749,7 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
 
                         {activeTab === 'mood' && (
                             <div>
-                                <h3 className="text-xs font-black text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-3">
+                                <h3 className={`text-xs font-black uppercase tracking-wider mb-3 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>
                                     Facial Expression
                                 </h3>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -767,10 +767,10 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                                                     selected
                                                         ? isBento
                                                             ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000]'
-                                                            : 'border-2 border-indigo-500 bg-indigo-50 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300'
+                                                            : 'border-2 border-[#bef264] bg-[#1c2317] text-[#bef264]'
                                                         : isBento
-                                                        ? 'bg-white text-slate-800 border-2 border-black hover:bg-slate-50'
-                                                        : 'border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:border-indigo-400'
+                                                        ? 'bg-white text-black border-2 border-black hover:bg-[#f5f3ec]'
+                                                        : 'border border-[#2e2924] bg-[#1a1714] text-[#d6d0c7] hover:border-[#bef264]/50'
                                                 }`}
                                             >
                                                 <div className="flex items-center gap-3">
@@ -785,7 +785,7 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                                                         className={`w-6 h-6 rounded-full flex items-center justify-center ${
                                                             isBento
                                                                 ? 'bg-black text-white'
-                                                                : 'bg-indigo-600 text-white'
+                                                                : 'bg-[#bef264] text-[#0a0908]'
                                                         }`}
                                                     >
                                                         <Check className="w-3.5 h-3.5" />
@@ -803,8 +803,8 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                     <div
                         className={`px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-end gap-2.5 sm:gap-3 shrink-0 ${
                             isBento
-                                ? 'bg-[#faf8f2] border-t-[2.5px] border-black'
-                                : 'bg-slate-50 dark:bg-black/20 border-t border-slate-200 dark:border-white/10'
+                                ? 'bg-[#f5f3ec] border-t-[2.5px] border-black'
+                                : 'bg-[#11100e] border-t border-[#2e2924]'
                         }`}
                     >
                         <button
@@ -812,8 +812,8 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                             onClick={onClose}
                             className={`btn-unstyled h-10 sm:h-11 px-4 sm:px-6 rounded-xl font-black text-xs sm:text-sm flex-1 sm:flex-none flex items-center justify-center transition-all cursor-pointer ${
                                 isBento
-                                    ? 'bg-white text-black border-2 border-black shadow-[2.5px_2.5px_0px_#000] hover:bg-slate-100'
-                                    : 'bg-white dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-white/10'
+                                    ? 'bg-white text-black border-2 border-black shadow-[2.5px_2.5px_0px_#000] hover:bg-[#f5f3ec]'
+                                    : 'bg-[#1a1714] hover:bg-[#24201c] text-[#d6d0c7] border border-[#2e2924]'
                             }`}
                         >
                             <span>Cancel</span>
@@ -824,13 +824,13 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                             disabled={saving}
                             className={`btn-unstyled h-10 sm:h-11 px-5 sm:px-7 rounded-xl font-black text-xs sm:text-sm flex-1 sm:flex-none flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
                                 isBento
-                                    ? 'bg-[#0d9488] text-white border-2 border-black shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 active:translate-y-0'
-                                    : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/25'
+                                    ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 active:translate-y-0'
+                                    : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908]'
                             }`}
                         >
                             {saving ? (
                                 <>
-                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    <div className="w-4 h-4 border-2 border-current/30 border-t-current rounded-full animate-spin" />
                                     <span>Saving...</span>
                                 </>
                             ) : (

@@ -4,6 +4,7 @@ import {
     OPPOSITE_DIR,
     pointKey,
     type Direction,
+    type EscapePatternKind,
     type FlankRole,
     type GridPoint,
     type HunterSnake,
@@ -152,6 +153,268 @@ export function createHunterSnake(params: {
                 dir,
                 tickAccumulator: 0,
                 tickInterval: getHunterTickInterval(tier, threatLevel),
+                accent: visuals.accent,
+                headColor: visuals.headColor,
+                spawnAge: 0
+            };
+        }
+    }
+
+    return null;
+}
+
+export interface PlayerStepRecord {
+    x: number;
+    y: number;
+    dir: Direction;
+    boosting: boolean;
+}
+
+export interface EscapeEvaluation {
+    riskDelta: number;
+    detectedPattern: EscapePatternKind | null;
+    diagonalSign?: { dx: number; dy: number };
+    loopCenter?: GridPoint;
+}
+
+/**
+ * Multi-signal Anti-Escape & Defect Detection algorithm.
+ * Detects:
+ * 1. Straight-line boost sprinting (`straight-boost`)
+ * 2. Prolonged straight-line fleeing (`straight-run`)
+ * 3. Diagonal staircase / zig-zag kiting (`diagonal-kite`)
+ * 4. Tight-loop / box-stalling cheese (`loop-stall`)
+ */
+export function evaluateEscapePattern(params: {
+    history: PlayerStepRecord[];
+    straightSteps: number;
+    boostStraightSteps: number;
+}): EscapeEvaluation {
+    const { history, straightSteps, boostStraightSteps } = params;
+    const len = history.length;
+    if (len < 6) {
+        return { riskDelta: -3, detectedPattern: null };
+    }
+
+    // 1. Straight-line boost escape: rapid lock-on after 6+ straight boost steps
+    if (boostStraightSteps >= 6) {
+        return { riskDelta: 22, detectedPattern: 'straight-boost' };
+    }
+
+    // 2. Sustained straight-line fleeing (or >86% single-axis displacement over last 18 moves)
+    if (straightSteps >= 11) {
+        return { riskDelta: 15, detectedPattern: 'straight-run' };
+    }
+
+    if (len >= 18) {
+        const recent18 = history.slice(-18);
+        const first = recent18[0];
+        const last = recent18[recent18.length - 1];
+        const dx = last.x - first.x;
+        const dy = last.y - first.y;
+        const absDx = Math.abs(dx);
+        const absDy = Math.abs(dy);
+        const maxAxis = Math.max(absDx, absDy);
+        const minAxis = Math.min(absDx, absDy);
+        const boostCount = recent18.filter((s) => s.boosting).length;
+
+        // Mostly straight corridor with tiny 1-2 cell jukes to try dodging naive straight detectors
+        if (maxAxis >= 14 && minAxis <= 2) {
+            return {
+                riskDelta: boostCount >= 4 ? 19 : 13,
+                detectedPattern: boostCount >= 4 ? 'straight-boost' : 'straight-run'
+            };
+        }
+
+        // 3. Diagonal staircase / 2-direction zig-zag kiting
+        const dirSet = new Set(recent18.map((s) => s.dir));
+        const manhattan = absDx + absDy;
+        if (dirSet.size === 2 && manhattan >= 14 && absDx >= 5 && absDy >= 5) {
+            return {
+                riskDelta: 15,
+                detectedPattern: 'diagonal-kite',
+                diagonalSign: { dx: Math.sign(dx) || 1, dy: Math.sign(dy) || 1 }
+            };
+        }
+    }
+
+    // 4. Tight-loop / box-stall cheese detector (staying trapped in a tiny area to farm survival clock)
+    if (len >= 24) {
+        const recent24 = history.slice(-24);
+        let minX = Infinity;
+        let maxX = -Infinity;
+        let minY = Infinity;
+        let maxY = -Infinity;
+        for (const p of recent24) {
+            if (p.x < minX) minX = p.x;
+            if (p.x > maxX) maxX = p.x;
+            if (p.y < minY) minY = p.y;
+            if (p.y > maxY) maxY = p.y;
+        }
+        if (maxX - minX <= 6 && maxY - minY <= 6) {
+            return {
+                riskDelta: 14,
+                detectedPattern: 'loop-stall',
+                loopCenter: {
+                    x: Math.round((minX + maxX) / 2),
+                    y: Math.round((minY + maxY) / 2)
+                }
+            };
+        }
+    }
+
+    // Partial ramp when building a straight streak (gives player real-time feedback on LOCK meter)
+    if (boostStraightSteps >= 3) {
+        return { riskDelta: 11, detectedPattern: null };
+    }
+    if (straightSteps >= 6) {
+        return { riskDelta: 5.5, detectedPattern: null };
+    }
+
+    // Active varied movement naturally cools down escape risk
+    return { riskDelta: -5, detectedPattern: null };
+}
+
+/**
+ * Generates containment barrier cells placed ahead of (or boxing in) an escaping player.
+ * Always leaves safe swerve space & telegraphs before arming so skilled players can react.
+ */
+export function buildContainmentWallCells(params: {
+    pattern: EscapePatternKind;
+    playerHead: GridPoint;
+    playerDir: Direction;
+    occupied: Set<string>;
+    diagonalSign?: { dx: number; dy: number };
+    loopCenter?: GridPoint;
+}): GridPoint[] {
+    const { pattern, playerHead, playerDir, occupied, diagonalSign, loopCenter } = params;
+    const cells: GridPoint[] = [];
+    const seen = new Set<string>();
+    const addCell = (x: number, y: number) => {
+        const key = pointKey(x, y);
+        if (seen.has(key) || occupied.has(key)) return;
+        // Never spawn a wall cell closer than 3 Manhattan cells from player head
+        if (Math.abs(x - playerHead.x) + Math.abs(y - playerHead.y) < 3) return;
+        seen.add(key);
+        cells.push({ x, y });
+    };
+
+    const vec = DIR_VECTORS[playerDir];
+    const perp = { x: -vec.y, y: vec.x };
+
+    if (pattern === 'diagonal-kite' && diagonalSign) {
+        // L-shaped corner blocker directly across the player's 45-degree escape cone
+        const cornerX = playerHead.x + diagonalSign.dx * 6;
+        const cornerY = playerHead.y + diagonalSign.dy * 6;
+        for (let i = 0; i <= 6; i++) {
+            addCell(cornerX - diagonalSign.dx * i, cornerY);
+            addCell(cornerX, cornerY - diagonalSign.dy * i);
+        }
+        return cells;
+    }
+
+    if (pattern === 'loop-stall' && loopCenter) {
+        // 3-sided Containment Clamp boxing the stall loop while leaving an ambush exit
+        const radius = 5;
+        const openDir = playerDir;
+        for (let offset = -radius; offset <= radius; offset++) {
+            if (openDir !== 'UP') addCell(loopCenter.x + offset, loopCenter.y - radius);
+            if (openDir !== 'DOWN') addCell(loopCenter.x + offset, loopCenter.y + radius);
+            if (openDir !== 'LEFT') addCell(loopCenter.x - radius, loopCenter.y + offset);
+            if (openDir !== 'RIGHT') addCell(loopCenter.x + radius, loopCenter.y + offset);
+        }
+        return cells;
+    }
+
+    // Default: Straight-boost, Straight-run, or Pause-abuse -> Funnel firewall directly ahead!
+    const distAhead = pattern === 'straight-boost' ? 9 : 7;
+    const halfWidth = pattern === 'straight-boost' ? 4 : 3;
+    const cx = playerHead.x + vec.x * distAhead;
+    const cy = playerHead.y + vec.y * distAhead;
+
+    // Solid perpendicular main wall
+    for (let w = -halfWidth; w <= halfWidth; w++) {
+        addCell(cx + perp.x * w, cy + perp.y * w);
+    }
+
+    // Short curved funnel wings curving 2 cells back on both ends to punish lazy 1-cell sidesteps
+    for (let wing = 1; wing <= 2; wing++) {
+        addCell(cx + perp.x * halfWidth - vec.x * wing, cy + perp.y * halfWidth - vec.y * wing);
+        addCell(cx - perp.x * halfWidth - vec.x * wing, cy - perp.y * halfWidth - vec.y * wing);
+    }
+
+    return cells;
+}
+
+/**
+ * Spawns an aggressive Interceptor Hunter Snake directly flanking the containment barrier
+ * so the player cannot simply skirt around the wall without facing an active threat.
+ */
+export function createAmbushHunterSnake(params: {
+    id: number;
+    playerHead: GridPoint;
+    playerDir: Direction;
+    threatLevel: number;
+    occupied: Set<string>;
+    preferFlankSign?: 1 | -1;
+}): HunterSnake | null {
+    const { id, playerHead, playerDir, threatLevel, occupied, preferFlankSign } = params;
+    const tier: HunterTier = threatLevel >= 3 ? 3 : 2;
+    const visuals = getHunterVisuals(tier);
+    const length = Math.min(9, 5 + tier);
+    const vec = DIR_VECTORS[playerDir];
+    const perp = { x: -vec.y, y: vec.x };
+    const flankSigns: Array<1 | -1> = preferFlankSign
+        ? [preferFlankSign, (preferFlankSign * -1) as 1 | -1]
+        : Math.random() < 0.5
+            ? [1, -1]
+            : [-1, 1];
+
+    // Try spawning slightly ahead + off to a flank of the wall, pointing inward to intercept the swerve
+    const candidateOffsets: Array<{ ahead: number; side: number; dir: Direction }> = [];
+    for (const sign of flankSigns) {
+        const inwardDir: Direction =
+            perp.x * sign > 0
+                ? 'LEFT'
+                : perp.x * sign < 0
+                    ? 'RIGHT'
+                    : perp.y * sign > 0
+                        ? 'UP'
+                        : 'DOWN';
+        const headOnDir = OPPOSITE_DIR[playerDir];
+        candidateOffsets.push(
+            { ahead: 9, side: 6 * sign, dir: inwardDir },
+            { ahead: 11, side: 5 * sign, dir: inwardDir },
+            { ahead: 12, side: 2 * sign, dir: headOnDir },
+            { ahead: 7, side: 7 * sign, dir: inwardDir }
+        );
+    }
+
+    for (const cand of candidateOffsets) {
+        const headX = playerHead.x + vec.x * cand.ahead + perp.x * cand.side;
+        const headY = playerHead.y + vec.y * cand.ahead + perp.y * cand.side;
+        const oppVec = DIR_VECTORS[OPPOSITE_DIR[cand.dir]];
+        const segments: GridPoint[] = [];
+        let blocked = false;
+        for (let i = 0; i < length; i++) {
+            const sx = headX + oppVec.x * i;
+            const sy = headY + oppVec.y * i;
+            if (occupied.has(pointKey(sx, sy))) {
+                blocked = true;
+                break;
+            }
+            segments.push({ x: sx, y: sy });
+        }
+        if (!blocked) {
+            return {
+                id,
+                tier,
+                role: cand.side >= 0 ? 'left-pinch' : 'right-pinch',
+                segments,
+                prevSegments: segments.map((s) => ({ ...s })),
+                dir: cand.dir,
+                tickAccumulator: 0,
+                tickInterval: Math.max(92, getHunterTickInterval(tier, threatLevel) - 8),
                 accent: visuals.accent,
                 headColor: visuals.headColor,
                 spawnAge: 0
@@ -321,16 +584,20 @@ export function decideHunterDirection(params: {
     playerSegments: GridPoint[];
     playerDir: Direction;
     allHunters: HunterSnake[];
+    blockedWallKeys?: Set<string>;
 }): Direction {
-    const { hunter, playerSegments, playerDir, allHunters } = params;
+    const { hunter, playerSegments, playerDir, allHunters, blockedWallKeys } = params;
     const head = hunter.segments[0];
     const playerHead = playerSegments[0];
 
     // Candidate non-reversing directions
     const candidateDirs = ALL_DIRS.filter((d) => d !== OPPOSITE_DIR[hunter.dir]);
 
-    // Build obstacle set: player body (excluding player head), plus all hunter bodies (excluding moving tails)
+    // Build obstacle set: player body (excluding player head), hunter bodies, and armed containment walls
     const blocked = new Set<string>();
+    if (blockedWallKeys) {
+        for (const k of blockedWallKeys) blocked.add(k);
+    }
     for (let i = 1; i < playerSegments.length; i++) {
         blocked.add(pointKey(playerSegments[i].x, playerSegments[i].y));
     }

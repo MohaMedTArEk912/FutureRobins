@@ -19,6 +19,7 @@ import { AnimatedCharacter } from './AnimatedCharacter.tsx';
 import { api, type UserData } from '../lib/api';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
+import { AuthThemeButton } from './common/AuthThemeButton';
 
 interface RegisterScreenProps {
     onVerified: (user: UserData, token: string) => void;
@@ -252,6 +253,9 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onVerified, onSwitchToL
                     <span className="text-xs hidden sm:inline">{tx('Home', 'الرئيسية')}</span>
                 </button>
             </div>
+
+            {/* Top End Change Theme */}
+            <AuthThemeButton />
 
             {/* Left Column - Mascot & Branding (Matches LoginScreen 1:1) */}
             <div className={`hidden lg:flex flex-col flex-[1.2] relative z-10 items-center justify-center p-12 login-mascot-col ${

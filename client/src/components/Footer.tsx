@@ -768,7 +768,7 @@ const Footer: React.FC = () => {
                 onClose={() => setActiveModal(null)}
                 title={tx('Enterprise Support & Help Desk', 'الدعم الفني ومكتب المساعدة')}
                 description={tx('Get fast assistance from our technical team', 'احصل على مساعدة سريعة من فريقنا التقني')}
-                icon={<LifeBuoy className="w-5 h-5 text-indigo-500" />}
+                icon={<LifeBuoy className={`w-5 h-5 ${isBento ? 'text-black' : 'text-[#bef264]'}`} />}
                 maxWidth="max-w-xl"
                 footer={(
                     <>
@@ -777,8 +777,8 @@ const Footer: React.FC = () => {
                             onClick={() => setActiveModal(null)}
                             className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                                 isBento
-                                    ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-slate-100 active:translate-x-0.5 active:translate-y-0.5'
-                                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'
+                                    ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#f5f3ec] active:translate-x-0.5 active:translate-y-0.5'
+                                    : 'bg-[#1a1714] border border-[#2e2924] text-[#d6d0c7] hover:bg-[#24201c] hover:text-[#f5f3ec]'
                             }`}
                         >
                             {tx('Cancel', 'إلغاء')}
@@ -787,10 +787,10 @@ const Footer: React.FC = () => {
                             type="submit"
                             form={supportFormId}
                             disabled={isSubmittingSupport}
-                            className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer active:scale-95 disabled:opacity-50 flex items-center gap-2 ${
+                            className={`px-5 py-2.5 rounded-xl text-xs font-black transition-all cursor-pointer active:scale-95 disabled:opacity-50 flex items-center gap-2 ${
                                 isBento
-                                    ? 'bg-[#0d9488] !text-white border-2 border-black shadow-[3.5px_3.5px_0px_#000] hover:shadow-[5px_5px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5'
-                                    : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/25'
+                                    ? 'bg-[#bef264] hover:bg-[#a3e635] !text-black border-2 border-black shadow-[3.5px_3.5px_0px_#000] hover:shadow-[5px_5px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5'
+                                    : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908]'
                             }`}
                         >
                             {isSubmittingSupport ? (
@@ -808,32 +808,32 @@ const Footer: React.FC = () => {
                     </>
                 )}
             >
-                <div className="space-y-5 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                <div className={`space-y-5 text-xs sm:text-sm leading-relaxed ${isBento ? 'text-black' : 'text-[#d6d0c7]'}`}>
                     <a
                         href="mailto:mohaamedtariq12@gmail.com"
                         className={`p-4 rounded-2xl transition-all flex items-center gap-3.5 ${
                             isBento
                                 ? 'bg-[#fef08a] border-2 border-black shadow-[3px_3px_0px_#000] text-black hover:-translate-y-0.5'
-                                : 'border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 hover:border-indigo-500/40 text-slate-900 dark:text-white'
+                                : 'border border-[#2e2924] bg-[#1a1714] hover:border-[#bef264]/60 text-[#f5f3ec]'
                         }`}
                     >
                         <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-                            isBento ? 'bg-black text-[#bef264] border-2 border-black' : 'bg-indigo-500/10 text-indigo-500'
+                            isBento ? 'bg-black text-[#bef264] border-2 border-black' : 'bg-[#1c2317] text-[#bef264] border border-[#bef264]/35'
                         }`}>
                             <Mail className="w-5 h-5" />
                         </div>
                         <div>
-                            <p className={`text-[10px] uppercase font-bold tracking-wider ${isBento ? 'text-black/70' : 'text-slate-400'}`}>
+                            <p className={`text-[10px] uppercase font-bold tracking-wider ${isBento ? 'text-black/70' : 'text-[#a8a29e]'}`}>
                                 {tx('Direct Support Email', 'إيميل الدعم المباشر')}
                             </p>
                             <p className="font-extrabold text-sm">mohaamedtariq12@gmail.com</p>
                         </div>
                     </a>
 
-                    <form id={supportFormId} onSubmit={handleSupportSubmit} className="space-y-3.5 pt-2 border-t border-slate-200 dark:border-white/5">
+                    <form id={supportFormId} onSubmit={handleSupportSubmit} className={`space-y-3.5 pt-2 border-t ${isBento ? 'border-black/20' : 'border-[#2e2924]'}`}>
                         {/* Category Selector Chips */}
                         <div>
-                            <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1.5 ${isBento ? 'text-black' : 'text-slate-700 dark:text-slate-300'}`}>
+                            <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1.5 ${isBento ? 'text-black' : 'text-[#d6d0c7]'}`}>
                                 {tx('Inquiry Category', 'نوع الاستفسار')}
                             </label>
                             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -853,10 +853,10 @@ const Footer: React.FC = () => {
                                             supportCategory === cat.id
                                                 ? isBento
                                                     ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                                    : 'bg-indigo-600 text-white shadow-sm'
+                                                    : 'bg-[#bef264] text-[#0a0908]'
                                                 : isBento
-                                                    ? 'bg-white text-black border border-black hover:bg-slate-100'
-                                                    : 'bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-white/10'
+                                                    ? 'bg-white text-black border border-black hover:bg-[#f5f3ec]'
+                                                    : 'bg-[#1a1714] border border-[#2e2924] text-[#a8a29e] hover:border-[#bef264]/50 hover:text-[#f5f3ec]'
                                         }`}
                                     >
                                         {cat.label}
@@ -868,7 +868,7 @@ const Footer: React.FC = () => {
                         {/* Email & Name row */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
-                                <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1 ${isBento ? 'text-black' : 'text-slate-700 dark:text-slate-300'}`}>
+                                <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1 ${isBento ? 'text-black' : 'text-[#d6d0c7]'}`}>
                                     {tx('Your Email Address *', 'بريدك الإلكتروني *')}
                                 </label>
                                 <input
@@ -879,13 +879,13 @@ const Footer: React.FC = () => {
                                     placeholder="alex.dev@quizplatform.com"
                                     className={`w-full py-2.5 px-3.5 rounded-xl text-xs outline-none transition-all ${
                                         isBento
-                                            ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] focus:shadow-[4px_4px_0px_#000] focus:border-black placeholder:text-neutral-400 font-medium'
-                                            : 'bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-indigo-500'
+                                            ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] focus:shadow-[4px_4px_0px_#000] focus:border-black placeholder:text-neutral-500 font-medium'
+                                            : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] placeholder:text-[#78716c] focus:border-[#bef264]'
                                     }`}
                                 />
                             </div>
                             <div>
-                                <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1 ${isBento ? 'text-black' : 'text-slate-700 dark:text-slate-300'}`}>
+                                <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1 ${isBento ? 'text-black' : 'text-[#d6d0c7]'}`}>
                                     {tx('Your Name (Optional)', 'اسمك (اختياري)')}
                                 </label>
                                 <input
@@ -895,15 +895,15 @@ const Footer: React.FC = () => {
                                     placeholder={tx('Alex Dev', 'اسمك')}
                                     className={`w-full py-2.5 px-3.5 rounded-xl text-xs outline-none transition-all ${
                                         isBento
-                                            ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] focus:shadow-[4px_4px_0px_#000] focus:border-black placeholder:text-neutral-400 font-medium'
-                                            : 'bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-indigo-500'
+                                            ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] focus:shadow-[4px_4px_0px_#000] focus:border-black placeholder:text-neutral-500 font-medium'
+                                            : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] placeholder:text-[#78716c] focus:border-[#bef264]'
                                     }`}
                                 />
                             </div>
                         </div>
 
                         <div>
-                            <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1 ${isBento ? 'text-black' : 'text-slate-700 dark:text-slate-300'}`}>
+                            <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1 ${isBento ? 'text-black' : 'text-[#d6d0c7]'}`}>
                                 {tx('Issue Subject *', 'عنوان المشكلة *')}
                             </label>
                             <input
@@ -914,18 +914,18 @@ const Footer: React.FC = () => {
                                 placeholder={tx('Quiz question scoring, streak freeze, or bug report', 'مشكلة في حساب النقاط أو الـ Streak أو خطأ في سؤال')}
                                 className={`w-full py-2.5 px-3.5 rounded-xl text-xs outline-none transition-all ${
                                     isBento
-                                        ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] focus:shadow-[4px_4px_0px_#000] focus:border-black placeholder:text-neutral-400 font-medium'
-                                        : 'bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-indigo-500'
+                                        ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] focus:shadow-[4px_4px_0px_#000] focus:border-black placeholder:text-neutral-500 font-medium'
+                                        : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] placeholder:text-[#78716c] focus:border-[#bef264]'
                                 }`}
                             />
                         </div>
 
                         <div>
                             <div className="flex justify-between items-center mb-1">
-                                <label className={`block text-[11px] font-bold uppercase tracking-wider ${isBento ? 'text-black' : 'text-slate-700 dark:text-slate-300'}`}>
+                                <label className={`block text-[11px] font-bold uppercase tracking-wider ${isBento ? 'text-black' : 'text-[#d6d0c7]'}`}>
                                     {tx('Description & Details *', 'الوصف والتفاصيل *')}
                                 </label>
-                                <span className={`text-[10px] ${supportMessage.length < 5 ? 'text-amber-500' : 'text-emerald-500 font-bold'}`}>
+                                <span className={`text-[10px] ${supportMessage.length < 5 ? (isBento ? 'text-black font-bold' : 'text-[#fde047]') : (isBento ? 'text-black font-black' : 'text-[#bef264] font-bold')}`}>
                                     {supportMessage.length}/5000
                                 </span>
                             </div>
@@ -940,8 +940,8 @@ const Footer: React.FC = () => {
                                 )}
                                 className={`w-full py-2.5 px-3.5 rounded-xl text-xs outline-none transition-all resize-none ${
                                     isBento
-                                        ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] focus:shadow-[4px_4px_0px_#000] focus:border-black placeholder:text-neutral-400 font-medium'
-                                        : 'bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-indigo-500'
+                                        ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] focus:shadow-[4px_4px_0px_#000] focus:border-black placeholder:text-neutral-500 font-medium'
+                                        : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] placeholder:text-[#78716c] focus:border-[#bef264]'
                                 }`}
                             />
                         </div>
@@ -949,8 +949,8 @@ const Footer: React.FC = () => {
                         {supportError && (
                             <div className={`p-3 rounded-xl flex items-center gap-2 text-xs font-bold animate-in fade-in duration-150 ${
                                 isBento
-                                    ? 'bg-[#fee2e2] text-red-900 border-2 border-black shadow-[2px_2px_0px_#000]'
-                                    : 'bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20'
+                                    ? 'bg-[#fecdd3] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                    : 'bg-[#251317] text-[#fda4af] border border-[#fb7185]/35'
                             }`}>
                                 <AlertCircle className="w-4 h-4 shrink-0" />
                                 <span>{supportError}</span>
@@ -968,9 +968,9 @@ const Footer: React.FC = () => {
                 title={tx('Frequently Asked Questions', 'الأسئلة الشائعة')}
                 maxWidth="max-w-xl"
             >
-                <div className="space-y-4 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                <div className={`space-y-4 text-xs sm:text-sm leading-relaxed ${isBento ? 'text-neutral-800' : 'text-[#d6d0c7]'}`}>
                     <div>
-                        <h4 className="font-bold text-slate-900 dark:text-white mb-1">
+                        <h4 className={`font-bold mb-1 ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>
                             {tx('How do XP and Leveling work?', 'إزاي نظام النقاط (XP) والمستويات شغال؟')}
                         </h4>
                         <p>
@@ -981,7 +981,7 @@ const Footer: React.FC = () => {
                         </p>
                     </div>
                     <div>
-                        <h4 className="font-bold text-slate-900 dark:text-white mb-1">
+                        <h4 className={`font-bold mb-1 ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>
                             {tx('Can I create and share my own quizzes?', 'هل أقدر أعمل وأشارك كويزاتي الخاصة؟')}
                         </h4>
                         <p>
@@ -992,12 +992,12 @@ const Footer: React.FC = () => {
                         </p>
                     </div>
                     <div>
-                        <h4 className="font-bold text-slate-900 dark:text-white mb-1">
+                        <h4 className={`font-bold mb-1 ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>
                             {tx('How do I get help or report a question bug?', 'إزاي أطلب مساعدة أو أبلّغ عن خطأ في سؤال؟')}
                         </h4>
                         <p>
                             {tx('Email us directly at', 'راسلنا مباشرة على')}{' '}
-                            <a href="mailto:mohaamedtariq12@gmail.com" className="text-indigo-500 underline font-semibold">mohaamedtariq12@gmail.com</a>.
+                            <a href="mailto:mohaamedtariq12@gmail.com" className={isBento ? 'text-black underline font-black' : 'text-[#bef264] underline font-semibold'}>mohaamedtariq12@gmail.com</a>.
                         </p>
                     </div>
                 </div>

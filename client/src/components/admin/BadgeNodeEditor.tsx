@@ -60,6 +60,12 @@ const BadgeNodeEditor: React.FC<BadgeNodeEditorProps> = ({ badge, onSave, onClos
         onSave(formData);
     };
 
+    const inputCls = isBento
+        ? 'w-full bg-white border-2 border-black shadow-[2px_2px_0px_#000] rounded-xl px-4 py-3 text-black font-bold outline-none transition-all placeholder:text-gray-400'
+        : 'w-full bg-[#0e0d0b] border border-[#2e2924] focus:border-[#bef264] rounded-xl px-4 py-3 text-[#f5f3ec] font-bold outline-none transition-all placeholder:text-[#78716c]';
+
+    const labelCls = `text-[10px] font-black uppercase tracking-widest ml-1 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`;
+
     return (
         <Modal
             isOpen={true}
@@ -67,16 +73,16 @@ const BadgeNodeEditor: React.FC<BadgeNodeEditorProps> = ({ badge, onSave, onClos
             title={badge?.badgeId ? 'Edit Badge' : 'Create Badge'}
             description="Configure achievement parameters"
             maxWidth="max-w-3xl"
-            icon={<Sparkles className="w-6 h-6 text-teal-600 dark:text-teal-400" />}
+            icon={<Sparkles className={`w-6 h-6 ${isBento ? 'text-black' : 'text-[#fde047]'}`} />}
             footer={
                 <>
                     <button
                         type="button"
                         onClick={onClose}
-                        className={`flex-1 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${
+                        className={`flex-1 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all cursor-pointer ${
                             isBento
                                 ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000]'
-                                : 'bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10'
+                                : 'bg-[#1c1917] text-[#d6d0c7] border border-[#2e2924] hover:bg-[#24201c]'
                         }`}
                     >
                         Cancel
@@ -84,10 +90,10 @@ const BadgeNodeEditor: React.FC<BadgeNodeEditorProps> = ({ badge, onSave, onClos
                     <button
                         type="submit"
                         form="badge-form"
-                        className={`flex-[2] py-3 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all shadow-lg ${
+                        className={`flex-[2] py-3 rounded-xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all cursor-pointer ${
                             isBento
                                 ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:shadow-[4px_4px_0px_#000]'
-                                : 'bg-teal-500 hover:bg-teal-600 text-white shadow-teal-500/25'
+                                : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908] shadow-[0_3px_0_#050504]'
                         }`}
                     >
                         <Save className="w-4 h-4" />
@@ -100,12 +106,12 @@ const BadgeNodeEditor: React.FC<BadgeNodeEditorProps> = ({ badge, onSave, onClos
                 {/* Basic Info */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">Badge ID</label>
+                        <label className={labelCls}>Badge ID</label>
                         <input
                             type="text"
                             value={formData.badgeId}
                             onChange={(e) => setFormData({ ...formData, badgeId: e.target.value })}
-                            className="w-full bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/10 focus:ring-2 focus:ring-teal-500/50 rounded-xl px-4 py-3 text-gray-900 dark:text-white font-bold outline-none transition-all placeholder:text-gray-400"
+                            className={inputCls}
                             required
                             disabled={!!badge}
                             placeholder="e.g. first-step"
@@ -113,12 +119,12 @@ const BadgeNodeEditor: React.FC<BadgeNodeEditorProps> = ({ badge, onSave, onClos
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">Name</label>
+                        <label className={labelCls}>Name</label>
                         <input
                             type="text"
                             value={formData.name}
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                            className="w-full bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/10 focus:ring-2 focus:ring-teal-500/50 rounded-xl px-4 py-3 text-gray-900 dark:text-white font-bold outline-none transition-all placeholder:text-gray-400"
+                            className={inputCls}
                             required
                             placeholder="e.g. First Step"
                         />
@@ -127,23 +133,23 @@ const BadgeNodeEditor: React.FC<BadgeNodeEditorProps> = ({ badge, onSave, onClos
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">Equip Title / Honorific</label>
+                        <label className={labelCls}>Equip Title / Honorific</label>
                         <input
                             type="text"
                             value={formData.title}
                             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                            className="w-full bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/10 focus:ring-2 focus:ring-teal-500/50 rounded-xl px-4 py-3 text-gray-900 dark:text-white font-bold outline-none transition-all placeholder:text-gray-400"
+                            className={inputCls}
                             placeholder="e.g. Novice Quizzer"
                         />
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">Category</label>
+                        <label className={labelCls}>Category</label>
                         <div className="relative">
                             <select
                                 value={formData.category}
                                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                                className="w-full bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/10 focus:ring-2 focus:ring-teal-500/50 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white font-bold outline-none transition-all appearance-none cursor-pointer"
+                                className={`${inputCls} appearance-none cursor-pointer`}
                             >
                                 <option value="milestones">Milestones</option>
                                 <option value="perfection">Perfection</option>
@@ -155,40 +161,40 @@ const BadgeNodeEditor: React.FC<BadgeNodeEditorProps> = ({ badge, onSave, onClos
                                 <option value="arena">Arena & Duels</option>
                                 <option value="other">Other</option>
                             </select>
-                            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                            <ChevronDown className={`absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none ${isBento ? 'text-black' : 'text-[#a8a29e]'}`} />
                         </div>
                     </div>
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">Description</label>
+                    <label className={labelCls}>Description</label>
                     <textarea
                         value={formData.description}
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                        className="w-full bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/10 focus:ring-2 focus:ring-teal-500/50 rounded-xl px-4 py-3 text-gray-900 dark:text-white font-bold outline-none transition-all placeholder:text-gray-400 min-h-[100px] resize-none"
+                        className={`${inputCls} min-h-[100px] resize-none`}
                         required
                     />
                 </div>
 
                 <div className="grid grid-cols-3 gap-4">
                     <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">Icon</label>
+                        <label className={labelCls}>Icon</label>
                         <input
                             type="text"
                             value={formData.icon}
                             onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                            className="w-full bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/10 focus:ring-2 focus:ring-teal-500/50 rounded-xl px-4 py-3 text-gray-900 dark:text-white font-bold outline-none transition-all text-center text-2xl"
+                            className={`${inputCls} text-center text-2xl`}
                             required
                         />
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">Rarity</label>
+                        <label className={labelCls}>Rarity</label>
                         <div className="relative">
                             <select
                                 value={formData.rarity}
                                 onChange={(e) => setFormData({ ...formData, rarity: e.target.value as BadgeNode['rarity'] })}
-                                className="w-full bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/10 focus:ring-2 focus:ring-teal-500/50 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white font-bold outline-none transition-all appearance-none cursor-pointer"
+                                className={`${inputCls} appearance-none cursor-pointer`}
                             >
                                 <option value="common">Common</option>
                                 <option value="rare">Rare</option>
@@ -196,32 +202,34 @@ const BadgeNodeEditor: React.FC<BadgeNodeEditorProps> = ({ badge, onSave, onClos
                                 <option value="legendary">Legendary</option>
                                 <option value="mythic">Mythic</option>
                             </select>
-                            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                            <ChevronDown className={`absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none ${isBento ? 'text-black' : 'text-[#a8a29e]'}`} />
                         </div>
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">Color</label>
+                        <label className={labelCls}>Color</label>
                         <div className="relative h-[50px]">
                             <input
                                 type="color"
                                 value={formData.color}
                                 onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                                className="w-full h-full rounded-xl border-none cursor-pointer p-0 overflow-hidden"
+                                className={`w-full h-full rounded-xl cursor-pointer p-0 overflow-hidden ${isBento ? 'border-2 border-black' : 'border border-[#2e2924]'}`}
                             />
                         </div>
                     </div>
                 </div>
 
                 {/* Rewards */}
-                <div className="bg-gray-50/50 dark:bg-black/20 rounded-3xl p-6 border border-gray-200 dark:border-white/5 space-y-4">
-                    <h3 className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-widest flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-teal-500" />
+                <div className={`rounded-2xl p-5 border space-y-4 ${
+                    isBento ? 'bg-[#f5f3ec] border-2 border-black shadow-[2px_2px_0px_#000]' : 'bg-[#1a1714] border-[#2e2924]'
+                }`}>
+                    <h3 className={`text-xs font-black uppercase tracking-widest flex items-center gap-2 ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>
+                        <span className="w-2 h-2 rounded-full bg-[#bef264]" />
                         Rewards
                     </h3>
                     <div className="grid grid-cols-2 gap-4">
                         <div className="relative">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest absolute top-2 right-3">XP</label>
+                            <label className={`text-[10px] font-black uppercase tracking-widest absolute top-2 right-3 ${isBento ? 'text-slate-600' : 'text-[#a8a29e]'}`}>XP</label>
                             <input
                                 type="number"
                                 value={formData.rewards?.xp}
@@ -229,13 +237,13 @@ const BadgeNodeEditor: React.FC<BadgeNodeEditorProps> = ({ badge, onSave, onClos
                                     ...formData,
                                     rewards: { ...formData.rewards!, xp: parseInt(e.target.value) || 0 }
                                 })}
-                                className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-[#f5f3ec]/10 focus:ring-2 focus:ring-teal-500/50 rounded-xl px-4 py-3 text-gray-900 dark:text-white font-bold outline-none transition-all"
+                                className={inputCls}
                                 min="0"
                             />
                         </div>
 
                         <div className="relative">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest absolute top-2 right-3">Coins</label>
+                            <label className={`text-[10px] font-black uppercase tracking-widest absolute top-2 right-3 ${isBento ? 'text-slate-600' : 'text-[#a8a29e]'}`}>Coins</label>
                             <input
                                 type="number"
                                 value={formData.rewards?.coins}
@@ -243,7 +251,7 @@ const BadgeNodeEditor: React.FC<BadgeNodeEditorProps> = ({ badge, onSave, onClos
                                     ...formData,
                                     rewards: { ...formData.rewards!, coins: parseInt(e.target.value) || 0 }
                                 })}
-                                className="w-full bg-white dark:bg-[#111219] border border-gray-200 dark:border-[#f5f3ec]/10 focus:ring-2 focus:ring-amber-500/50 rounded-xl px-4 py-3 text-gray-900 dark:text-white font-bold outline-none transition-all"
+                                className={inputCls}
                                 min="0"
                             />
                         </div>
@@ -251,22 +259,28 @@ const BadgeNodeEditor: React.FC<BadgeNodeEditorProps> = ({ badge, onSave, onClos
                 </div>
 
                 {/* Unlock Criteria */}
-                <div className="bg-gray-50/50 dark:bg-black/20 rounded-3xl p-6 border border-gray-200 dark:border-white/5 space-y-4">
-                    <h3 className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-widest flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+                <div className={`rounded-2xl p-5 border space-y-4 ${
+                    isBento ? 'bg-[#f5f3ec] border-2 border-black shadow-[2px_2px_0px_#000]' : 'bg-[#1a1714] border-[#2e2924]'
+                }`}>
+                    <h3 className={`text-xs font-black uppercase tracking-widest flex items-center gap-2 ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>
+                        <span className="w-2 h-2 rounded-full bg-[#fde047]" />
                         Unlock Criteria
                     </h3>
 
                     {/* Existing Criteria */}
                     <div className="space-y-2">
                         {formData.unlockCriteria?.map((criterion, index) => (
-                            <div key={index} className="flex items-center gap-3 bg-white dark:bg-[#111219] rounded-xl p-3 border border-gray-200 dark:border-[#f5f3ec]/10">
-                                <span className="text-gray-700 dark:text-gray-300 font-bold text-sm flex-1 flex items-center gap-2">
-                                    <span className="px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-500 text-[10px] uppercase tracking-widest">
+                            <div key={index} className={`flex items-center gap-3 rounded-xl p-3 border ${
+                                isBento ? 'bg-white border-2 border-black' : 'bg-[#0e0d0b] border-[#2e2924]'
+                            }`}>
+                                <span className={`font-bold text-sm flex-1 flex items-center gap-2 ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>
+                                    <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest ${
+                                        isBento ? 'bg-[#bae6fd] text-black border border-black' : 'bg-[#bae6fd]/15 text-[#bae6fd] border border-[#bae6fd]/35'
+                                    }`}>
                                         {criteriaTypes.find(t => t.value === criterion.type)?.label || criterion.type}
                                     </span>
                                     {criterion.operator && criterion.threshold !== undefined && (
-                                        <span className="text-gray-400 font-mono text-xs">
+                                        <span className={`font-mono text-xs ${isBento ? 'text-slate-700' : 'text-[#a8a29e]'}`}>
                                             {criterion.operator} {criterion.threshold}
                                         </span>
                                     )}
@@ -274,7 +288,9 @@ const BadgeNodeEditor: React.FC<BadgeNodeEditorProps> = ({ badge, onSave, onClos
                                 <button
                                     type="button"
                                     onClick={() => handleRemoveCriterion(index)}
-                                    className="p-1.5 hover:bg-red-500/10 text-gray-400 hover:text-red-500 rounded-lg transition-colors"
+                                    className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+                                        isBento ? 'text-black hover:bg-[#fecdd3]' : 'text-[#a8a29e] hover:bg-[#fb7185]/15 hover:text-[#fb7185]'
+                                    }`}
                                 >
                                     <Trash2 className="w-4 h-4" />
                                 </button>
@@ -283,26 +299,32 @@ const BadgeNodeEditor: React.FC<BadgeNodeEditorProps> = ({ badge, onSave, onClos
                     </div>
 
                     {/* Add New Criterion */}
-                    <div className="bg-white/50 dark:bg-white/5 rounded-2xl p-4 border border-dashed border-gray-300 dark:border-[#f5f3ec]/16">
+                    <div className={`rounded-2xl p-4 border border-dashed ${
+                        isBento ? 'bg-white border-black' : 'bg-[#141210] border-[#3a342e]'
+                    }`}>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
                             <div className="relative col-span-1">
                                 <select
                                     value={newCriterion.type}
                                     onChange={(e) => setNewCriterion({ ...newCriterion, type: e.target.value as BadgeCriteria['type'] })}
-                                    className="w-full bg-white dark:bg-[#111219] text-gray-900 dark:text-white rounded-xl pl-3 pr-8 py-2.5 border border-gray-200 dark:border-[#f5f3ec]/10 text-xs font-bold appearance-none cursor-pointer focus:ring-2 focus:ring-indigo-500/50"
+                                    className={`w-full rounded-xl pl-3 pr-8 py-2.5 text-xs font-bold appearance-none cursor-pointer outline-none ${
+                                        isBento ? 'bg-white text-black border-2 border-black' : 'bg-[#0e0d0b] text-[#f5f3ec] border border-[#2e2924]'
+                                    }`}
                                 >
                                     {criteriaTypes.map(type => (
                                         <option key={type.value} value={type.value}>{type.label}</option>
                                     ))}
                                 </select>
-                                <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400 pointer-events-none" />
+                                <ChevronDown className={`absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 pointer-events-none ${isBento ? 'text-black' : 'text-[#a8a29e]'}`} />
                             </div>
 
                             <div className="relative">
                                 <select
                                     value={newCriterion.operator}
                                     onChange={(e) => setNewCriterion({ ...newCriterion, operator: e.target.value as NonNullable<BadgeCriteria['operator']> })}
-                                    className="w-full bg-white dark:bg-[#111219] text-gray-900 dark:text-white rounded-xl pl-3 pr-8 py-2.5 border border-gray-200 dark:border-[#f5f3ec]/10 text-xs font-bold appearance-none cursor-pointer focus:ring-2 focus:ring-indigo-500/50"
+                                    className={`w-full rounded-xl pl-3 pr-8 py-2.5 text-xs font-bold appearance-none cursor-pointer outline-none ${
+                                        isBento ? 'bg-white text-black border-2 border-black' : 'bg-[#0e0d0b] text-[#f5f3ec] border border-[#2e2924]'
+                                    }`}
                                 >
                                     <option value=">=">&ge;</option>
                                     <option value=">">&gt;</option>
@@ -310,14 +332,16 @@ const BadgeNodeEditor: React.FC<BadgeNodeEditorProps> = ({ badge, onSave, onClos
                                     <option value="<">&lt;</option>
                                     <option value="<=">&le;</option>
                                 </select>
-                                <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400 pointer-events-none" />
+                                <ChevronDown className={`absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 pointer-events-none ${isBento ? 'text-black' : 'text-[#a8a29e]'}`} />
                             </div>
 
                             <input
                                 type="number"
                                 value={newCriterion.threshold}
                                 onChange={(e) => setNewCriterion({ ...newCriterion, threshold: parseInt(e.target.value) || 0 })}
-                                className="bg-white dark:bg-[#111219] text-gray-900 dark:text-white rounded-xl px-3 py-2.5 border border-gray-200 dark:border-[#f5f3ec]/10 text-xs font-bold focus:ring-2 focus:ring-indigo-500/50 outline-none"
+                                className={`rounded-xl px-3 py-2.5 text-xs font-bold outline-none ${
+                                    isBento ? 'bg-white text-black border-2 border-black' : 'bg-[#0e0d0b] text-[#f5f3ec] border border-[#2e2924]'
+                                }`}
                                 placeholder="Threshold"
                             />
                         </div>
@@ -325,7 +349,11 @@ const BadgeNodeEditor: React.FC<BadgeNodeEditorProps> = ({ badge, onSave, onClos
                         <button
                             type="button"
                             onClick={handleAddCriterion}
-                            className="w-full bg-indigo-500/10 hover:bg-indigo-500 text-indigo-500 hover:text-white rounded-xl px-4 py-2.5 flex items-center justify-center gap-2 transition-all font-black text-xs uppercase tracking-widest"
+                            className={`w-full rounded-xl px-4 py-2.5 flex items-center justify-center gap-2 transition-all font-black text-xs uppercase tracking-widest cursor-pointer ${
+                                isBento
+                                    ? 'bg-[#fde047] hover:bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                    : 'bg-[#bef264]/15 hover:bg-[#bef264] text-[#bef264] hover:text-[#0a0908] border border-[#bef264]/40'
+                            }`}
                         >
                             <Plus className="w-3 h-3" />
                             Add Criterion

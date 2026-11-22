@@ -315,15 +315,30 @@ const CompilerQuestionManagement: React.FC<CompilerQuestionManagementProps> = ({
                     title="Import Questions"
                     description="Paste JSON or upload a file to bulk import compiler questions"
                     maxWidth="max-w-2xl"
-                    icon={<Upload className="w-6 h-6 text-indigo-500" />}
+                    icon={<Upload className={`w-6 h-6 ${isBento ? 'text-black' : 'text-[#bef264]'}`} />}
                     footer={
                         <>
-                            <button onClick={() => { setShowImportModal(false); setImportJson(''); setImportPreview([]); }} className="flex-1 py-3 bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 rounded-xl font-bold hover:bg-gray-200 dark:hover:bg-white/10 transition-colors">Cancel</button>
-                            <button onClick={handleImportSubmit} disabled={importPreview.length === 0} className={`flex-1 py-3 rounded-xl font-bold transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
-    isBento
-        ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:shadow-[4px_4px_0px_#000] font-mono'
-        : 'bg-indigo-600 hover:bg-indigo-700 text-white'
-}`}>Import {importPreview.length} Question(s)</button>
+                            <button
+                                onClick={() => { setShowImportModal(false); setImportJson(''); setImportPreview([]); }}
+                                className={`flex-1 py-3 rounded-xl font-bold transition-colors cursor-pointer ${
+                                    isBento
+                                        ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#f5f3ec]'
+                                        : 'bg-[#1a1714] border border-[#2e2924] text-[#d6d0c7] hover:bg-[#24201c] hover:text-[#f5f3ec]'
+                                }`}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleImportSubmit}
+                                disabled={importPreview.length === 0}
+                                className={`flex-1 py-3 rounded-xl font-black transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
+                                    isBento
+                                        ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[3px_3px_0px_#000] font-mono'
+                                        : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908]'
+                                }`}
+                            >
+                                Import {importPreview.length} Question(s)
+                            </button>
                         </>
                     }
                 >
@@ -332,20 +347,39 @@ const CompilerQuestionManagement: React.FC<CompilerQuestionManagementProps> = ({
                             value={importJson}
                             onChange={e => { setImportJson(e.target.value); try { const p = JSON.parse(e.target.value); setImportPreview(Array.isArray(p) ? p : [p]); } catch { setImportPreview([]); } }}
                             placeholder='Paste JSON array here, e.g.:\n[\n  { "title": "...", "description": "...", ... }\n]'
-                            className="w-full h-48 bg-gray-900 text-gray-100 font-mono text-sm p-4 rounded-xl border border-gray-700 focus:ring-2 focus:ring-indigo-500/50 outline-none resize-none"
+                            className={`w-full h-48 font-mono text-sm p-4 rounded-xl outline-none resize-none ${
+                                isBento
+                                    ? 'bg-[#f5f3ec] text-black border-2 border-black shadow-[2px_2px_0px_#000] placeholder:text-neutral-500'
+                                    : 'bg-[#0e0d0b] text-[#bef264] border border-[#2e2924] focus:border-[#bef264] placeholder:text-[#78716c]'
+                            }`}
                         />
                         {importPreview.length > 0 && (
-                            <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
-                                <p className="text-emerald-500 font-bold text-sm mb-2">✓ {importPreview.length} valid question(s) detected:</p>
-                                <ul className="space-y-1 text-sm text-gray-600 dark:text-gray-400 max-h-32 overflow-y-auto custom-scrollbar">
-                                    {importPreview.slice(0, 5).map((q, i) => <li key={i} className="flex items-center gap-2"><span className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />{q.title || 'Untitled'} ({q.difficulty || 'medium'})</li>)}
-                                    {importPreview.length > 5 && <li className="text-gray-500 italic pl-3">...and {importPreview.length - 5} more</li>}
+                            <div className={`p-4 rounded-xl ${
+                                isBento
+                                    ? 'bg-[#bef264]/35 border-2 border-black text-black'
+                                    : 'bg-[#1c2317] border border-[#bef264]/35'
+                            }`}>
+                                <p className={`font-bold text-sm mb-2 ${isBento ? 'text-black' : 'text-[#bef264]'}`}>
+                                    ✓ {importPreview.length} valid question(s) detected:
+                                </p>
+                                <ul className={`space-y-1 text-sm max-h-32 overflow-y-auto custom-scrollbar ${isBento ? 'text-neutral-800' : 'text-[#d6d0c7]'}`}>
+                                    {importPreview.slice(0, 5).map((q, i) => (
+                                        <li key={i} className="flex items-center gap-2">
+                                            <span className={`w-1.5 h-1.5 rounded-full ${isBento ? 'bg-black' : 'bg-[#bef264]'}`} />
+                                            {q.title || 'Untitled'} ({q.difficulty || 'medium'})
+                                        </li>
+                                    ))}
+                                    {importPreview.length > 5 && <li className="opacity-70 italic pl-3">...and {importPreview.length - 5} more</li>}
                                 </ul>
                             </div>
                         )}
                         {importJson && importPreview.length === 0 && (
-                            <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
-                                <p className="text-red-500 font-bold text-sm">⚠️ Invalid JSON format. Please check your input.</p>
+                            <div className={`p-4 rounded-xl ${
+                                isBento
+                                    ? 'bg-[#fecdd3] border-2 border-black text-black'
+                                    : 'bg-[#251317] border border-[#fb7185]/35 text-[#fda4af]'
+                            }`}>
+                                <p className="font-bold text-sm">⚠️ Invalid JSON format. Please check your input.</p>
                             </div>
                         )}
                     </div>
@@ -362,13 +396,21 @@ const CompilerQuestionManagement: React.FC<CompilerQuestionManagementProps> = ({
                         <>
                             <button
                                 onClick={() => { setShowCreate(false); setEditingId(null); }}
-                                className="px-6 py-2.5 rounded-xl bg-transparent border-2 border-transparent text-gray-600 dark:text-gray-400 font-bold hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white transition-all"
+                                className={`px-6 py-2.5 rounded-xl font-bold transition-all cursor-pointer ${
+                                    isBento
+                                        ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#f5f3ec]'
+                                        : 'bg-[#1a1714] border border-[#2e2924] text-[#d6d0c7] hover:bg-[#24201c] hover:text-[#f5f3ec]'
+                                }`}
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={() => editingId ? handleUpdate(editingId) : handleCreate()}
-                                className="px-8 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold flex items-center gap-2 shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 active:scale-95 transition-all"
+                                className={`px-8 py-2.5 rounded-xl font-black flex items-center gap-2 active:scale-95 transition-all cursor-pointer ${
+                                    isBento
+                                        ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[3px_3px_0px_#000]'
+                                        : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908]'
+                                }`}
                             >
                                 <Save className="w-4 h-4" />
                                 {editingId ? 'Save Changes' : 'Create Challenge'}
@@ -379,44 +421,60 @@ const CompilerQuestionManagement: React.FC<CompilerQuestionManagementProps> = ({
                     <div className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="col-span-2">
-                                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
-                                    Challenge Title <span className="text-red-500">*</span>
+                                <label className={`block text-xs font-bold uppercase tracking-wider mb-2 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>
+                                    Challenge Title <span className={isBento ? 'text-red-600' : 'text-[#fb7185]'}>*</span>
                                 </label>
                                 <input
                                     type="text"
                                     value={form.title}
                                     onChange={(e) => setForm(prev => ({ ...prev, title: e.target.value }))}
-                                    className="w-full p-4 rounded-xl bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/10 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-transparent transition-all font-medium text-lg"
+                                    className={`w-full p-4 rounded-xl focus:outline-none transition-all font-medium text-lg ${
+                                        isBento
+                                            ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] placeholder:text-neutral-500'
+                                            : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] placeholder-[#78716c] focus:border-[#bef264]'
+                                    }`}
                                     placeholder="e.g., Reverse a Linked List"
                                 />
                             </div>
 
                             <div className="col-span-2">
-                                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
-                                    Description (Markdown supported) <span className="text-red-500">*</span>
+                                <label className={`block text-xs font-bold uppercase tracking-wider mb-2 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>
+                                    Description (Markdown supported) <span className={isBento ? 'text-red-600' : 'text-[#fb7185]'}>*</span>
                                 </label>
                                 <textarea
                                     value={form.description}
                                     onChange={(e) => setForm(prev => ({ ...prev, description: e.target.value }))}
                                     rows={5}
-                                    className="w-full p-4 rounded-xl bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/10 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-transparent transition-all resize-y min-h-[120px]"
+                                    className={`w-full p-4 rounded-xl focus:outline-none transition-all resize-y min-h-[120px] ${
+                                        isBento
+                                            ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] placeholder:text-neutral-500'
+                                            : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] placeholder-[#78716c] focus:border-[#bef264]'
+                                    }`}
                                     placeholder="Describe the problem, input/output format, and constraints..."
                                 />
                             </div>
 
                             <div className="col-span-2">
-                                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
-                                    Reference Solution <span className="text-red-500">*</span>
+                                <label className={`block text-xs font-bold uppercase tracking-wider mb-2 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>
+                                    Reference Solution <span className={isBento ? 'text-red-600' : 'text-[#fb7185]'}>*</span>
                                 </label>
                                 <div className="relative">
-                                    <div className="absolute top-3 right-3 px-2 py-1 rounded-md bg-gray-200 dark:bg-white/10 text-xs font-mono text-gray-500 dark:text-gray-400 pointer-events-none">
+                                    <div className={`absolute top-3 right-3 px-2 py-1 rounded-md text-xs font-mono pointer-events-none ${
+                                        isBento
+                                            ? 'bg-[#fde047] text-black border border-black font-bold'
+                                            : 'bg-[#1a1714] border border-[#2e2924] text-[#fde047]'
+                                    }`}>
                                         {form.language}
                                     </div>
                                     <textarea
                                         value={form.referenceCode}
                                         onChange={(e) => setForm(prev => ({ ...prev, referenceCode: e.target.value }))}
                                         rows={8}
-                                        className="w-full p-4 rounded-xl bg-gray-900 dark:bg-[#0a0908] border border-gray-200 dark:border-[#f5f3ec]/10 text-gray-100 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-transparent transition-all resize-y min-h-[200px]"
+                                        className={`w-full p-4 rounded-xl font-mono text-sm focus:outline-none transition-all resize-y min-h-[200px] ${
+                                            isBento
+                                                ? 'bg-[#f5f3ec] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                                : 'bg-[#0e0d0b] border border-[#2e2924] text-[#bef264] focus:border-[#bef264]'
+                                        }`}
                                         placeholder="// Paste the complete working solution here..."
                                         spellCheck={false}
                                     />
@@ -424,12 +482,16 @@ const CompilerQuestionManagement: React.FC<CompilerQuestionManagementProps> = ({
                             </div>
 
                             <div>
-                                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Language</label>
+                                <label className={`block text-xs font-bold uppercase tracking-wider mb-2 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>Language</label>
                                 <div className="relative">
                                     <select
                                         value={form.language}
                                         onChange={(e) => setForm(prev => ({ ...prev, language: e.target.value }))}
-                                        className="w-full p-3 pl-4 pr-10 rounded-xl bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/10 text-gray-900 dark:text-white appearance-none focus:outline-none focus:ring-2 focus:ring-orange-500/50 cursor-pointer font-medium"
+                                        className={`w-full p-3 pl-4 pr-10 rounded-xl appearance-none focus:outline-none cursor-pointer font-medium ${
+                                            isBento
+                                                ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                                : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] focus:border-[#bef264]'
+                                        }`}
                                     >
                                         <option value="javascript">JavaScript (Node.js)</option>
                                         <option value="typescript">TypeScript</option>
@@ -438,85 +500,115 @@ const CompilerQuestionManagement: React.FC<CompilerQuestionManagementProps> = ({
                                         <option value="cpp">C++</option>
                                         <option value="csharp">C#</option>
                                     </select>
-                                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
+                                    <ChevronDown className={`absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none ${isBento ? 'text-black' : 'text-[#a8a29e]'}`} />
                                 </div>
                             </div>
 
                             <div>
-                                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Difficulty</label>
+                                <label className={`block text-xs font-bold uppercase tracking-wider mb-2 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>Difficulty</label>
                                 <div className="relative">
                                     <select
                                         value={form.difficulty}
                                         onChange={(e) => setForm(prev => ({ ...prev, difficulty: e.target.value }))}
-                                        className="w-full p-3 pl-4 pr-10 rounded-xl bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/10 text-gray-900 dark:text-white appearance-none focus:outline-none focus:ring-2 focus:ring-orange-500/50 cursor-pointer font-medium"
+                                        className={`w-full p-3 pl-4 pr-10 rounded-xl appearance-none focus:outline-none cursor-pointer font-medium ${
+                                            isBento
+                                                ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                                : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] focus:border-[#bef264]'
+                                        }`}
                                     >
                                         <option value="easy">Easy</option>
                                         <option value="medium">Medium</option>
                                         <option value="hard">Hard</option>
                                     </select>
-                                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
+                                    <ChevronDown className={`absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none ${isBento ? 'text-black' : 'text-[#a8a29e]'}`} />
                                 </div>
                             </div>
 
                             <div>
-                                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Category</label>
+                                <label className={`block text-xs font-bold uppercase tracking-wider mb-2 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>Category</label>
                                 <input
                                     type="text"
                                     value={form.category}
                                     onChange={(e) => setForm(prev => ({ ...prev, category: e.target.value }))}
-                                    className="w-full p-3 rounded-xl bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/10 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 font-medium"
+                                    className={`w-full p-3 rounded-xl focus:outline-none font-medium ${
+                                        isBento
+                                            ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                            : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] focus:border-[#bef264]'
+                                    }`}
                                     placeholder="e.g., Arrays, DP"
                                 />
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Coins Reward</label>
+                                    <label className={`block text-xs font-bold uppercase tracking-wider mb-2 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>Coins Reward</label>
                                     <input
                                         type="number"
                                         value={form.rewardCoins}
                                         onChange={(e) => setForm(prev => ({ ...prev, rewardCoins: parseInt(e.target.value) || 0 }))}
-                                        className="w-full p-3 rounded-xl bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/10 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 font-bold"
+                                        className={`w-full p-3 rounded-xl focus:outline-none font-bold ${
+                                            isBento
+                                                ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                                : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] focus:border-[#bef264]'
+                                        }`}
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">XP Reward</label>
+                                    <label className={`block text-xs font-bold uppercase tracking-wider mb-2 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>XP Reward</label>
                                     <input
                                         type="number"
                                         value={form.rewardXP}
                                         onChange={(e) => setForm(prev => ({ ...prev, rewardXP: parseInt(e.target.value) || 0 }))}
-                                        className="w-full p-3 rounded-xl bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/10 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 font-bold"
+                                        className={`w-full p-3 rounded-xl focus:outline-none font-bold ${
+                                            isBento
+                                                ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                                : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] focus:border-[#bef264]'
+                                        }`}
                                     />
                                 </div>
                             </div>
 
                             {/* Hints */}
                             <div className="col-span-1 md:col-span-2">
-                                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Hints</label>
+                                <label className={`block text-xs font-bold uppercase tracking-wider mb-2 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>Hints</label>
                                 <div className="flex gap-2 mb-3">
                                     <input
                                         type="text"
                                         value={hintInput}
                                         onChange={(e) => setHintInput(e.target.value)}
                                         onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addHint())}
-                                        className="flex-1 p-3 rounded-xl bg-gray-50 dark:bg-[#1c1917] border border-gray-200 dark:border-[#f5f3ec]/10 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50"
+                                        className={`flex-1 p-3 rounded-xl focus:outline-none ${
+                                            isBento
+                                                ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                                : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] focus:border-[#bef264]'
+                                        }`}
                                         placeholder="Type a hint and press Enter..."
                                     />
                                     <button
+                                        type="button"
                                         onClick={addHint}
-                                        className="px-4 rounded-xl bg-gray-200 dark:bg-white/10 hover:bg-gray-300 dark:hover:bg-white/20 transition-colors"
+                                        className={`px-4 rounded-xl transition-colors cursor-pointer ${
+                                            isBento
+                                                ? 'bg-[#fde047] hover:bg-yellow-300 text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                                : 'bg-[#1a1714] border border-[#2e2924] hover:border-[#bef264]/60 text-[#bef264]'
+                                        }`}
                                     >
-                                        <Plus className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+                                        <Plus className="w-5 h-5" />
                                     </button>
                                 </div>
                                 {form.hints.length > 0 && (
                                     <div className="flex flex-wrap gap-2">
                                         {form.hints.map((hint, idx) => (
-                                            <div key={idx} className="flex items-center gap-2 pl-3 pr-2 py-1.5 rounded-lg bg-blue-500/10 border border-blue-500/20 text-sm text-blue-500 group">
+                                            <div key={idx} className={`flex items-center gap-2 pl-3 pr-2 py-1.5 rounded-lg text-sm group ${
+                                                isBento
+                                                    ? 'bg-[#bae6fd] border border-black text-black font-bold'
+                                                    : 'bg-[#151e24] border border-[#bae6fd]/30 text-[#bae6fd]'
+                                            }`}>
                                                 <span className="max-w-[200px] truncate">{hint}</span>
                                                 <button
+                                                    type="button"
                                                     onClick={() => removeHint(idx)}
-                                                    className="p-0.5 rounded-full hover:bg-blue-500/20"
+                                                    className="p-0.5 rounded-full hover:bg-black/15 dark:hover:bg-white/10 cursor-pointer"
                                                 >
                                                     <X className="w-3.5 h-3.5" />
                                                 </button>

@@ -167,24 +167,24 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
         <div className={`transition-all ${
             isBento
                 ? 'bg-[#faf9f5] border-[2.5px] border-black rounded-2xl p-5 shadow-[4px_4px_0px_#000] space-y-4 text-black'
-                : 'bg-gray-50 dark:bg-black/40 p-4 rounded-xl border border-gray-200 dark:border-white/10 space-y-3'
+                : 'bg-[#1a1714] p-4 rounded-xl border border-[#2e2924] space-y-3 text-[#f5f3ec]'
         }`}>
             {/* Top Editor Banner */}
             <div className={`flex flex-wrap items-center justify-between gap-3 pb-3 ${
-                isBento ? 'border-b-2 border-black' : 'border-b border-gray-200 dark:border-white/10'
+                isBento ? 'border-b-2 border-black' : 'border-b border-[#2e2924]'
             }`}>
                 <div className="flex items-center gap-2">
                     <span className={`px-3 py-1 rounded-lg text-xs font-black uppercase tracking-wider ${
                         isBento
                             ? 'bg-[#bef264] border-2 border-black text-black shadow-[2px_2px_0px_#000]'
-                            : 'bg-teal-100 dark:bg-teal-900/40 text-teal-700 dark:text-teal-300'
+                            : 'bg-[#bef264]/15 border border-[#bef264]/40 text-[#bef264]'
                     }`}>
                         {question.id === 0 ? '✨ New Question' : `Editing Question ${index !== undefined ? `#${index + 1}` : ''}`}
                     </span>
                     <span className={`px-2.5 py-1 rounded-lg text-xs font-black uppercase tracking-wider ${
                         isBento
                             ? 'bg-[#fef08a] border-2 border-black text-black shadow-[2px_2px_0px_#000]'
-                            : 'bg-gray-200 dark:bg-[#1c1917] text-gray-700 dark:text-gray-300'
+                            : 'bg-[#0e0d0b] border border-[#2e2924] text-[#d6d0c7]'
                     }`}>
                         {QUESTION_TYPES.find(t => t.id === currentType)?.label || 'Multiple Choice'}
                     </span>
@@ -203,10 +203,10 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
                                     isSelected
                                         ? isBento
                                             ? `${t.color} text-black border-2 border-black shadow-[2px_2px_0px_#000] scale-105`
-                                            : 'bg-teal-600 text-white shadow-sm'
+                                            : 'bg-[#bef264] text-[#0a0908] border border-[#bef264]'
                                         : isBento
                                             ? 'bg-white text-gray-700 border-2 border-black hover:bg-gray-100'
-                                            : 'bg-gray-200 dark:bg-[#1c1917] text-gray-600 dark:text-gray-400'
+                                            : 'bg-[#0e0d0b] border border-[#2e2924] text-[#a8a29e] hover:text-[#f5f3ec] hover:border-[#443d35]'
                                 }`}
                             >
                                 <span>{t.icon}</span>
@@ -221,7 +221,7 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
             <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                     <label className={`text-xs font-black uppercase tracking-wider flex items-center gap-1.5 ${
-                        isBento ? 'text-black' : 'text-gray-700 dark:text-gray-300'
+                        isBento ? 'text-black' : 'text-[#a8a29e]'
                     }`}>
                         <Type className="w-3.5 h-3.5" />
                         <span>Question Prompt</span>
@@ -229,7 +229,7 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
                     <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase ${
                         isBento
                             ? 'bg-[#fef08a] border border-black text-black shadow-[1px_1px_0px_#000]'
-                            : 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400'
+                            : 'bg-[#fde047]/15 border border-[#fde047]/35 text-[#fde047]'
                     }`}>
                         Supports LaTeX: $x^2$ or $$E=mc^2$$
                     </span>
@@ -241,7 +241,7 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
                     className={`w-full rounded-xl p-3.5 font-semibold text-sm transition-all min-h-[95px] resize-y ${
                         isBento
                             ? 'bg-white border-2 border-black text-black placeholder-gray-400 focus:outline-none focus:shadow-[4px_4px_0px_#000]'
-                            : 'bg-white dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500/50'
+                            : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] placeholder-[#78716c] focus:outline-none focus:border-[#bef264]'
                     }`}
                     rows={3}
                 />
@@ -249,14 +249,14 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
                     <div className={`p-3 rounded-xl text-xs space-y-1 ${
                         isBento
                             ? 'bg-[#fef9c3] border-2 border-black shadow-[2px_2px_0px_#000] text-black'
-                            : 'bg-indigo-50/80 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-500/20'
+                            : 'bg-[#1e1b13] border border-[#fde047]/35 text-[#f5f3ec]'
                     }`}>
-                        <div className="font-black flex items-center gap-1.5 uppercase text-[10px] tracking-wider">
+                        <div className={`font-black flex items-center gap-1.5 uppercase text-[10px] tracking-wider ${isBento ? 'text-black' : 'text-[#fde047]'}`}>
                             <Sparkles className="w-3.5 h-3.5" />
                             <span>Live LaTeX / Math Preview:</span>
                         </div>
                         <div className="pl-1 font-medium">
-                            <MathRenderer text={question.question} className={isBento ? 'text-black font-semibold' : 'text-gray-800 dark:text-gray-200'} />
+                            <MathRenderer text={question.question} className={isBento ? 'text-black font-semibold' : 'text-[#f5f3ec]'} />
                         </div>
                     </div>
                 )}
@@ -267,7 +267,7 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
                 <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
                         <label className={`text-xs font-black uppercase tracking-wider flex items-center gap-1.5 ${
-                            isBento ? 'text-black' : 'text-gray-700 dark:text-gray-300'
+                            isBento ? 'text-black' : 'text-[#a8a29e]'
                         }`}>
                             <Code className="w-3.5 h-3.5" />
                             <span>{currentType === 'code-output' ? 'Target Code Snippet to Predict' : 'Code Snippet Preview (Optional)'}</span>
@@ -275,7 +275,7 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
                         <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase ${
                             isBento
                                 ? 'bg-[#fed7aa] border border-black text-black shadow-[1px_1px_0px_#000]'
-                                : 'bg-gray-100 dark:bg-[#1c1917] text-gray-500'
+                                : 'bg-[#0e0d0b] border border-[#2e2924] text-[#a8a29e]'
                         }`}>
                             Monospace
                         </span>
@@ -283,19 +283,19 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
                     <div className={`relative rounded-xl overflow-hidden transition-all ${
                         isBento
                             ? 'border-2 border-black shadow-[2px_2px_0px_#000] focus-within:shadow-[4px_4px_0px_#000]'
-                            : 'border border-gray-200 dark:border-white/10'
+                            : 'border border-[#2e2924]'
                     }`}>
-                        <div className="bg-[#18181b] px-3 py-1.5 border-b border-black/50 flex items-center gap-2">
-                            <span className="w-2.5 h-2.5 rounded-full bg-[#ef4444] border border-black/40" />
-                            <span className="w-2.5 h-2.5 rounded-full bg-[#eab308] border border-black/40" />
-                            <span className="w-2.5 h-2.5 rounded-full bg-[#22c55e] border border-black/40" />
-                            <span className="text-[10px] font-mono font-bold text-gray-300 ml-2 uppercase tracking-wider">Snippet Window</span>
+                        <div className="bg-[#0a0908] px-3 py-1.5 border-b border-[#2e2924] flex items-center gap-2">
+                            <span className="w-2.5 h-2.5 rounded-full bg-[#fb7185]" />
+                            <span className="w-2.5 h-2.5 rounded-full bg-[#fde047]" />
+                            <span className="w-2.5 h-2.5 rounded-full bg-[#bef264]" />
+                            <span className="text-[10px] font-mono font-bold text-[#a8a29e] ml-2 uppercase tracking-wider">Snippet Window</span>
                         </div>
                         <textarea
                             placeholder="Provide code to display with the question (e.g. console.log output)..."
                             value={question.codeSnippet || ''}
                             onChange={e => onChange({ ...question, codeSnippet: e.target.value })}
-                            className="w-full !bg-[#18181b] !text-[#f4f4f5] p-3 font-mono text-xs focus:outline-none min-h-[90px] resize-y"
+                            className="w-full !bg-[#0e0d0b] !text-[#f5f3ec] p-3 font-mono text-xs focus:outline-none min-h-[90px] resize-y"
                             rows={4}
                         />
                     </div>
@@ -306,7 +306,7 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
             {currentType !== 'compiler' && (
                 <div className="space-y-1.5">
                     <label className={`text-xs font-black uppercase tracking-wider flex items-center gap-1.5 ${
-                        isBento ? 'text-black' : 'text-gray-700 dark:text-gray-300'
+                        isBento ? 'text-black' : 'text-[#a8a29e]'
                     }`}>
                         <ImageIcon className="w-3.5 h-3.5" />
                         <span>Image URL (Optional)</span>
@@ -319,31 +319,31 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
                         className={`w-full rounded-xl px-3.5 py-2.5 font-semibold text-sm transition-all ${
                             isBento
                                 ? 'bg-white border-2 border-black text-black placeholder-gray-400 focus:outline-none focus:shadow-[4px_4px_0px_#000]'
-                                : 'bg-white dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500/50'
+                                : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] placeholder-[#78716c] focus:outline-none focus:border-[#bef264]'
                         }`}
                     />
                     {question.imageUrl && (
                         <div className={`p-3 rounded-xl flex items-center gap-3 ${
                             isBento
                                 ? 'bg-white border-2 border-black shadow-[3px_3px_0px_#000]'
-                                : 'bg-gray-100 dark:bg-black/20 border border-gray-200 dark:border-white/10'
+                                : 'bg-[#0e0d0b] border border-[#2e2924]'
                         }`}>
                             <img
                                 src={question.imageUrl}
                                 alt="Question preview"
-                                className={`max-h-24 max-w-xs rounded-lg object-contain bg-gray-50 ${
-                                    isBento ? 'border-2 border-black' : 'border border-gray-200 dark:border-[#f5f3ec]/16'
+                                className={`max-h-24 max-w-xs rounded-lg object-contain ${
+                                    isBento ? 'bg-gray-50 border-2 border-black' : 'bg-[#141210] border border-[#2e2924]'
                                 }`}
                                 onError={(e) => {
                                     (e.target as HTMLImageElement).style.display = 'none';
                                 }}
                             />
                             <div className="text-xs space-y-1">
-                                <span className={`font-black uppercase text-[10px] block ${isBento ? 'text-black' : 'text-gray-600'}`}>Image Attached</span>
+                                <span className={`font-black uppercase text-[10px] block ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>Image Attached</span>
                                 <button
                                     type="button"
                                     onClick={() => onChange({ ...question, imageUrl: '' })}
-                                    className="text-red-600 hover:text-red-800 font-bold underline text-xs cursor-pointer"
+                                    className={`font-bold underline text-xs cursor-pointer ${isBento ? 'text-red-600 hover:text-red-800' : 'text-[#fb7185] hover:text-[#fda4af]'}`}
                                 >
                                     Remove image
                                 </button>
@@ -358,34 +358,42 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
                 <div className="space-y-3 pt-2">
                     {/* Shuffle Options Card (Always Enforced) */}
                     <div
-                        className={`p-3 rounded-xl border-2 border-black shadow-[2px_2px_0px_#000] flex items-center justify-between gap-3 select-none ${
-                            isBento ? 'bg-[#fef08a]' : 'bg-indigo-50 dark:bg-indigo-900/30'
+                        className={`p-3 rounded-xl flex items-center justify-between gap-3 select-none ${
+                            isBento
+                                ? 'bg-[#fef08a] border-2 border-black shadow-[2px_2px_0px_#000]'
+                                : 'bg-[#1e1b13] border border-[#fde047]/35'
                         }`}
                     >
                         <div className="flex items-center gap-2.5">
-                            <div className="w-8 h-8 rounded-lg bg-white border-2 border-black flex items-center justify-center shadow-[1px_1px_0px_#000] shrink-0">
-                                <Shuffle className="w-4 h-4 text-black" />
+                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                                isBento
+                                    ? 'bg-white border-2 border-black shadow-[1px_1px_0px_#000] text-black'
+                                    : 'bg-[#fde047]/15 border border-[#fde047]/40 text-[#fde047]'
+                            }`}>
+                                <Shuffle className="w-4 h-4" />
                             </div>
                             <div>
-                                <div className="text-xs font-black uppercase tracking-wider text-black dark:text-white">
+                                <div className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>
                                     Shuffle Options Randomly (Always On)
                                 </div>
-                                <div className="text-[11px] font-bold text-gray-700 dark:text-gray-300">
+                                <div className={`text-[11px] font-bold ${isBento ? 'text-gray-700' : 'text-[#a8a29e]'}`}>
                                     Answer options are always shuffled across the entire platform
                                 </div>
                             </div>
                         </div>
-                        <div className="w-6 h-6 rounded-lg border-2 border-black flex items-center justify-center font-black text-xs bg-[#bef264] text-black">
+                        <div className={`w-6 h-6 rounded-lg flex items-center justify-center font-black text-xs shrink-0 ${
+                            isBento ? 'bg-[#bef264] text-black border-2 border-black' : 'bg-[#bef264] text-[#0a0908]'
+                        }`}>
                             ✓
                         </div>
                     </div>
 
                     {/* Instruction Header */}
                     <div className="flex items-center justify-between text-xs font-black uppercase tracking-wider pt-1">
-                        <span className={isBento ? 'text-black' : 'text-gray-700 dark:text-gray-300'}>
+                        <span className={isBento ? 'text-black' : 'text-[#f5f3ec]'}>
                             Answer Options ({question.options?.length || 4})
                         </span>
-                        <span className="text-[11px] font-bold text-gray-500">
+                        <span className={`text-[11px] font-bold ${isBento ? 'text-gray-600' : 'text-[#a8a29e]'}`}>
                             Click button to select the correct answer
                         </span>
                     </div>
@@ -401,42 +409,52 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
                             return (
                                 <div
                                     key={idx}
-                                    className={`relative border-2 border-black rounded-xl p-3 transition-all ${
+                                    className={`relative rounded-xl p-3 transition-all ${
                                         isCorrect
                                             ? isBento
-                                                ? 'bg-[#dcfce7] shadow-[3px_3px_0px_#000]'
-                                                : 'border-green-500 bg-green-50 dark:bg-green-900/20'
+                                                ? 'bg-[#dcfce7] border-2 border-black shadow-[3px_3px_0px_#000]'
+                                                : 'bg-[#171d14] border-[1.5px] border-[#bef264]'
                                             : isBento
-                                                ? 'bg-white shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000]'
-                                                : 'bg-white dark:bg-black/40'
+                                                ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000]'
+                                                : 'bg-[#141210] border border-[#2e2924]'
                                     }`}
                                 >
                                     <div className="flex items-center justify-between gap-2 mb-2">
                                         <div className="flex items-center gap-2">
-                                            <span className={`w-7 h-7 rounded-lg ${pillColor} border-2 border-black flex items-center justify-center font-black text-xs text-black shadow-[1px_1px_0px_#000]`}>
+                                            <span className={`w-7 h-7 rounded-lg flex items-center justify-center font-black text-xs ${
+                                                isBento
+                                                    ? `${pillColor} border-2 border-black text-black shadow-[1px_1px_0px_#000]`
+                                                    : isCorrect
+                                                        ? 'bg-[#bef264] text-[#0a0908]'
+                                                        : 'bg-[#1c1917] border border-[#2e2924] text-[#f5f3ec]'
+                                            }`}>
                                                 {letter}
                                             </span>
-                                            <span className="text-[11px] font-black uppercase tracking-wider text-black">
+                                            <span className={`text-[11px] font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>
                                                 Option {letter}
                                             </span>
                                         </div>
                                         <button
                                             type="button"
                                             onClick={() => onChange({ ...question, correctAnswer: idx })}
-                                            className={`px-2.5 py-1 rounded-lg border-2 border-black text-[10px] font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer ${
-                                                isCorrect
-                                                    ? 'bg-[#bef264] text-black shadow-[2px_2px_0px_#000]'
-                                                    : 'bg-white text-gray-600 hover:bg-gray-100 hover:text-black'
+                                            className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer ${
+                                                isBento
+                                                    ? isCorrect
+                                                        ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                                        : 'bg-white text-gray-600 border-2 border-black hover:bg-gray-100 hover:text-black'
+                                                    : isCorrect
+                                                        ? 'bg-[#bef264] text-[#0a0908] border border-[#bef264]'
+                                                        : 'bg-[#1c1917] text-[#a8a29e] border border-[#2e2924] hover:border-[#bef264] hover:text-[#f5f3ec]'
                                             }`}
                                         >
                                             {isCorrect ? (
                                                 <>
-                                                    <CheckCircle2 className="w-3.5 h-3.5 text-black" />
+                                                    <CheckCircle2 className="w-3.5 h-3.5" />
                                                     <span>Correct Answer</span>
                                                 </>
                                             ) : (
                                                 <>
-                                                    <Circle className="w-3.5 h-3.5 text-gray-400" />
+                                                    <Circle className="w-3.5 h-3.5" />
                                                     <span>Mark Correct</span>
                                                 </>
                                             )}
@@ -454,7 +472,7 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
                                         className={`w-full rounded-lg px-3 py-2 font-semibold text-sm transition-all ${
                                             isBento
                                                 ? 'bg-white border-2 border-black text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black'
-                                                : 'bg-white dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white focus:outline-none'
+                                                : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] placeholder-[#78716c] focus:outline-none focus:border-[#bef264]'
                                         }`}
                                     />
                                 </div>
@@ -469,16 +487,16 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
                 <div className={`space-y-3 p-4 rounded-xl ${
                     isBento
                         ? 'bg-[#fff7ed] border-2 border-black shadow-[3px_3px_0px_#000]'
-                        : 'bg-orange-50/50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-900/30'
+                        : 'bg-[#141210] border border-[#fde047]/30'
                 }`}>
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
-                            <ListOrdered className="w-4 h-4 text-orange-600" />
-                            <span className="text-xs font-black uppercase tracking-wider text-black dark:text-white">
+                            <ListOrdered className={`w-4 h-4 ${isBento ? 'text-black' : 'text-[#fde047]'}`} />
+                            <span className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>
                                 Target Sequence Steps ({orderingItems.length} steps)
                             </span>
                         </div>
-                        <span className="text-[11px] font-bold text-gray-600 dark:text-gray-400">
+                        <span className={`text-[11px] font-bold ${isBento ? 'text-gray-700' : 'text-[#a8a29e]'}`}>
                             Provide steps in correct order. They will be shuffled for students.
                         </span>
                     </div>
@@ -487,25 +505,37 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
                         {orderingItems.map((item, idx) => (
                             <div
                                 key={idx}
-                                className={`flex items-center gap-2 p-2.5 rounded-xl border-2 border-black ${
-                                    isBento ? 'bg-white shadow-[2px_2px_0px_#000]' : 'bg-white dark:bg-black/30'
+                                className={`flex items-center gap-2 p-2.5 rounded-xl ${
+                                    isBento ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000]' : 'bg-[#1a1714] border border-[#2e2924]'
                                 }`}
                             >
-                                <span className="w-7 h-7 rounded-lg bg-[#fed7aa] border-2 border-black flex items-center justify-center font-black text-xs shrink-0 text-black shadow-[1px_1px_0px_#000]">
+                                <span className={`w-7 h-7 rounded-lg flex items-center justify-center font-black text-xs shrink-0 ${
+                                    isBento
+                                        ? 'bg-[#fed7aa] border-2 border-black text-black shadow-[1px_1px_0px_#000]'
+                                        : 'bg-[#fde047]/15 border border-[#fde047]/40 text-[#fde047]'
+                                }`}>
                                     {idx + 1}
                                 </span>
                                 <input
                                     placeholder={`Step #${idx + 1} description...`}
                                     value={item}
                                     onChange={e => handleUpdateOrderingItem(idx, e.target.value)}
-                                    className="flex-1 px-3 py-1.5 rounded-lg border border-black/20 font-bold text-sm bg-transparent focus:outline-none focus:border-black"
+                                    className={`flex-1 px-3 py-1.5 rounded-lg font-bold text-sm focus:outline-none ${
+                                        isBento
+                                            ? 'bg-white border border-black/30 text-black focus:border-black'
+                                            : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] focus:border-[#bef264]'
+                                    }`}
                                 />
                                 <div className="flex items-center gap-1 shrink-0">
                                     <button
                                         type="button"
                                         disabled={idx === 0}
                                         onClick={() => handleMoveOrderingItem(idx, 'up')}
-                                        className="p-1.5 rounded-lg border border-black hover:bg-gray-100 disabled:opacity-30 cursor-pointer"
+                                        className={`p-1.5 rounded-lg disabled:opacity-30 cursor-pointer ${
+                                            isBento
+                                                ? 'border border-black hover:bg-gray-100 text-black'
+                                                : 'bg-[#0e0d0b] border border-[#2e2924] text-[#d6d0c7] hover:border-[#bef264]'
+                                        }`}
                                         title="Move Up"
                                     >
                                         <ArrowUp className="w-3.5 h-3.5" />
@@ -514,7 +544,11 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
                                         type="button"
                                         disabled={idx === orderingItems.length - 1}
                                         onClick={() => handleMoveOrderingItem(idx, 'down')}
-                                        className="p-1.5 rounded-lg border border-black hover:bg-gray-100 disabled:opacity-30 cursor-pointer"
+                                        className={`p-1.5 rounded-lg disabled:opacity-30 cursor-pointer ${
+                                            isBento
+                                                ? 'border border-black hover:bg-gray-100 text-black'
+                                                : 'bg-[#0e0d0b] border border-[#2e2924] text-[#d6d0c7] hover:border-[#bef264]'
+                                        }`}
                                         title="Move Down"
                                     >
                                         <ArrowDown className="w-3.5 h-3.5" />
@@ -523,7 +557,11 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
                                         type="button"
                                         disabled={orderingItems.length <= 2}
                                         onClick={() => handleRemoveOrderingItem(idx)}
-                                        className="p-1.5 rounded-lg border border-black hover:bg-red-100 text-red-600 disabled:opacity-30 cursor-pointer"
+                                        className={`p-1.5 rounded-lg disabled:opacity-30 cursor-pointer ${
+                                            isBento
+                                                ? 'border border-black hover:bg-red-100 text-red-600'
+                                                : 'bg-[#0e0d0b] border border-[#2e2924] text-[#fb7185] hover:border-[#fb7185]'
+                                        }`}
                                         title="Remove Step"
                                     >
                                         <Trash2 className="w-3.5 h-3.5" />
@@ -539,7 +577,7 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
                         className={`w-full py-2.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer transition-all ${
                             isBento
                                 ? 'bg-white hover:bg-[#fed7aa] border-2 border-black text-black shadow-[2px_2px_0px_#000]'
-                                : 'bg-orange-100 text-orange-700 hover:bg-orange-200'
+                                : 'bg-[#fde047]/15 border border-[#fde047]/40 text-[#fde047] hover:bg-[#fde047]/25'
                         }`}
                     >
                         <Plus className="w-4 h-4" />
@@ -553,16 +591,16 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
                 <div className={`space-y-3 p-4 rounded-xl ${
                     isBento
                         ? 'bg-[#fdf2f8] border-2 border-black shadow-[3px_3px_0px_#000]'
-                        : 'bg-pink-50/50 dark:bg-pink-950/20 border border-pink-200 dark:border-pink-900/30'
+                        : 'bg-[#141210] border border-[#fb7185]/30'
                 }`}>
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
-                            <Link2 className="w-4 h-4 text-pink-600" />
-                            <span className="text-xs font-black uppercase tracking-wider text-black dark:text-white">
+                            <Link2 className={`w-4 h-4 ${isBento ? 'text-black' : 'text-[#fb7185]'}`} />
+                            <span className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>
                                 Matching Pairs ({matchingPairs.length} pairs)
                             </span>
                         </div>
-                        <span className="text-[11px] font-bold text-gray-600 dark:text-gray-400">
+                        <span className={`text-[11px] font-bold ${isBento ? 'text-gray-700' : 'text-[#a8a29e]'}`}>
                             Left column will be matched with right column
                         </span>
                     </div>
@@ -571,31 +609,47 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
                         {matchingPairs.map((pair, idx) => (
                             <div
                                 key={idx}
-                                className={`flex flex-col sm:flex-row items-center gap-2 p-2.5 rounded-xl border-2 border-black ${
-                                    isBento ? 'bg-white shadow-[2px_2px_0px_#000]' : 'bg-white dark:bg-black/30'
+                                className={`flex flex-col sm:flex-row items-center gap-2 p-2.5 rounded-xl ${
+                                    isBento ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000]' : 'bg-[#1a1714] border border-[#2e2924]'
                                 }`}
                             >
-                                <span className="w-7 h-7 rounded-lg bg-[#fbcfe8] border-2 border-black flex items-center justify-center font-black text-xs shrink-0 text-black shadow-[1px_1px_0px_#000]">
+                                <span className={`w-7 h-7 rounded-lg flex items-center justify-center font-black text-xs shrink-0 ${
+                                    isBento
+                                        ? 'bg-[#fbcfe8] border-2 border-black text-black shadow-[1px_1px_0px_#000]'
+                                        : 'bg-[#fb7185]/15 border border-[#fb7185]/40 text-[#fb7185]'
+                                }`}>
                                     P{idx + 1}
                                 </span>
                                 <input
                                     placeholder="Left premise / term (e.g. HTML)..."
                                     value={pair.left}
                                     onChange={e => handleUpdateMatchingPair(idx, 'left', e.target.value)}
-                                    className="flex-1 w-full sm:w-auto px-3 py-1.5 rounded-lg border border-black/20 font-bold text-sm bg-transparent focus:outline-none focus:border-black"
+                                    className={`flex-1 w-full sm:w-auto px-3 py-1.5 rounded-lg font-bold text-sm focus:outline-none ${
+                                        isBento
+                                            ? 'bg-white border border-black/30 text-black focus:border-black'
+                                            : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] focus:border-[#bef264]'
+                                    }`}
                                 />
-                                <span className="font-black text-sm text-black">➔</span>
+                                <span className={`font-black text-sm ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>➔</span>
                                 <input
                                     placeholder="Right match / definition (e.g. Structure)..."
                                     value={pair.right}
                                     onChange={e => handleUpdateMatchingPair(idx, 'right', e.target.value)}
-                                    className="flex-1 w-full sm:w-auto px-3 py-1.5 rounded-lg border border-black/20 font-bold text-sm bg-transparent focus:outline-none focus:border-black"
+                                    className={`flex-1 w-full sm:w-auto px-3 py-1.5 rounded-lg font-bold text-sm focus:outline-none ${
+                                        isBento
+                                            ? 'bg-white border border-black/30 text-black focus:border-black'
+                                            : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] focus:border-[#bef264]'
+                                    }`}
                                 />
                                 <button
                                     type="button"
                                     disabled={matchingPairs.length <= 2}
                                     onClick={() => handleRemoveMatchingPair(idx)}
-                                    className="p-1.5 rounded-lg border border-black hover:bg-red-100 text-red-600 disabled:opacity-30 cursor-pointer shrink-0"
+                                    className={`p-1.5 rounded-lg disabled:opacity-30 cursor-pointer shrink-0 ${
+                                        isBento
+                                            ? 'border border-black hover:bg-red-100 text-red-600'
+                                            : 'bg-[#0e0d0b] border border-[#2e2924] text-[#fb7185] hover:border-[#fb7185]'
+                                    }`}
                                     title="Remove Pair"
                                 >
                                     <Trash2 className="w-3.5 h-3.5" />
@@ -610,7 +664,7 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
                         className={`w-full py-2.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer transition-all ${
                             isBento
                                 ? 'bg-white hover:bg-[#fbcfe8] border-2 border-black text-black shadow-[2px_2px_0px_#000]'
-                                : 'bg-pink-100 text-pink-700 hover:bg-pink-200'
+                                : 'bg-[#fb7185]/15 border border-[#fb7185]/40 text-[#fb7185] hover:bg-[#fb7185]/25'
                         }`}
                     >
                         <Plus className="w-4 h-4" />
@@ -624,16 +678,16 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
                 <div className={`space-y-3 p-4 rounded-xl ${
                     isBento
                         ? 'bg-[#fff7ed] border-2 border-black shadow-[3px_3px_0px_#000]'
-                        : 'bg-teal-50/50 dark:bg-teal-950/20 border border-teal-200 dark:border-teal-900/30'
+                        : 'bg-[#141210] border border-[#bae6fd]/30'
                 }`}>
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
-                            <Terminal className="w-4 h-4 text-teal-600" />
-                            <span className="text-xs font-black uppercase tracking-wider text-black dark:text-white">
+                            <Terminal className={`w-4 h-4 ${isBento ? 'text-black' : 'text-[#bae6fd]'}`} />
+                            <span className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>
                                 Predicted Output Options (or exact output)
                             </span>
                         </div>
-                        <span className="text-[11px] font-bold text-gray-500">
+                        <span className={`text-[11px] font-bold ${isBento ? 'text-gray-600' : 'text-[#a8a29e]'}`}>
                             Mark the correct output from the list
                         </span>
                     </div>
@@ -644,10 +698,14 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
                             return (
                                 <div
                                     key={idx}
-                                    className={`flex items-center gap-2 p-2.5 rounded-xl border-2 border-black ${
+                                    className={`flex items-center gap-2 p-2.5 rounded-xl ${
                                         isCorrect
-                                            ? isBento ? 'bg-[#bef264] shadow-[2px_2px_0px_#000]' : 'bg-green-100 dark:bg-green-900/30'
-                                            : isBento ? 'bg-white shadow-[2px_2px_0px_#000]' : 'bg-white dark:bg-black/30'
+                                            ? isBento
+                                                ? 'bg-[#bef264] border-2 border-black shadow-[2px_2px_0px_#000]'
+                                                : 'bg-[#171d14] border-[1.5px] border-[#bef264]'
+                                            : isBento
+                                                ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000]'
+                                                : 'bg-[#1a1714] border border-[#2e2924]'
                                     }`}
                                 >
                                     <input
@@ -658,13 +716,15 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
                                             newOpts[idx] = e.target.value;
                                             onChange({ ...question, options: newOpts });
                                         }}
-                                        className="flex-1 px-3 py-1 font-mono text-xs bg-transparent border-0 focus:outline-none"
+                                        className={`flex-1 px-3 py-1 font-mono text-xs bg-transparent border-0 focus:outline-none ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}
                                     />
                                     <button
                                         type="button"
                                         onClick={() => onChange({ ...question, correctAnswer: idx })}
-                                        className={`px-2 py-1 rounded-lg border border-black text-[10px] font-black uppercase tracking-wider cursor-pointer ${
-                                            isCorrect ? 'bg-black text-white' : 'bg-white text-black hover:bg-gray-100'
+                                        className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider cursor-pointer shrink-0 ${
+                                            isBento
+                                                ? isCorrect ? 'bg-black text-white border border-black' : 'bg-white text-black border border-black hover:bg-gray-100'
+                                                : isCorrect ? 'bg-[#bef264] text-[#0a0908]' : 'bg-[#0e0d0b] text-[#a8a29e] border border-[#2e2924] hover:border-[#bef264] hover:text-[#f5f3ec]'
                                         }`}
                                     >
                                         {isCorrect ? 'Correct ✓' : 'Mark'}
@@ -681,11 +741,11 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
                 <div className={`space-y-3 p-4 rounded-xl ${
                     isBento
                         ? 'bg-[#f7fee7] border-2 border-black shadow-[3px_3px_0px_#000]'
-                        : 'bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/30'
+                        : 'bg-[#141210] border border-[#bef264]/30'
                 }`}>
                     <div className="flex items-center gap-2">
-                        <AlignLeft className="w-4 h-4 text-emerald-600" />
-                        <span className="text-xs font-black uppercase tracking-wider text-black dark:text-white">
+                        <AlignLeft className={`w-4 h-4 ${isBento ? 'text-black' : 'text-[#bef264]'}`} />
+                        <span className={`text-xs font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>
                             Short Answer Key & Accepted Synonyms
                         </span>
                     </div>
@@ -698,10 +758,10 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
                             className={`w-full rounded-xl px-3.5 py-2.5 font-bold text-base focus:outline-none ${
                                 isBento
                                     ? 'bg-white border-2 border-black text-black focus:shadow-[3px_3px_0px_#000]'
-                                    : 'bg-white dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white'
+                                    : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] focus:border-[#bef264]'
                             }`}
                         />
-                        <p className="text-[11px] font-bold text-gray-600 dark:text-gray-400 mt-1.5">
+                        <p className={`text-[11px] font-bold mt-1.5 ${isBento ? 'text-gray-700' : 'text-[#a8a29e]'}`}>
                             💡 Separate acceptable alternatives with a comma (e.g. <span className="font-mono font-black">42, forty-two</span>). Evaluation is case-insensitive and trims whitespace automatically.
                         </p>
                     </div>
@@ -713,11 +773,11 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
                 <div className={`space-y-3 p-4 rounded-xl ${
                     isBento
                         ? 'bg-[#f5f3ec] border-2 border-black shadow-[3px_3px_0px_#000]'
-                        : 'bg-gray-100 dark:bg-black/20 rounded-lg'
+                        : 'bg-[#141210] border border-[#2e2924]'
                 }`}>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                            <label className="text-xs font-black uppercase tracking-wider text-black dark:text-white block mb-1">
+                            <label className={`text-xs font-black uppercase tracking-wider block mb-1 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>
                                 Default Language
                             </label>
                             <div className="relative">
@@ -747,20 +807,20 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
                                     className={`w-full rounded-xl pl-3 pr-10 py-2.5 font-bold appearance-none cursor-pointer focus:outline-none ${
                                         isBento
                                             ? 'bg-white border-2 border-black text-black focus:shadow-[3px_3px_0px_#000]'
-                                            : 'bg-white dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white'
+                                            : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] focus:border-[#bef264]'
                                     }`}
                                 >
                                     <option value="javascript">JavaScript</option>
                                     <option value="python">Python</option>
                                     <option value="typescript">TypeScript</option>
                                 </select>
-                                <div className="absolute right-3 top-1/2 -translate-y-1/2 text-black pointer-events-none">
+                                <div className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>
                                     <ChevronDown size={16} />
                                 </div>
                             </div>
                         </div>
                         <div>
-                            <label className="text-xs font-black uppercase tracking-wider text-black dark:text-white block mb-1">
+                            <label className={`text-xs font-black uppercase tracking-wider block mb-1 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>
                                 Allowed Languages (comma separated)
                             </label>
                             <input
@@ -775,16 +835,16 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
                                 className={`w-full rounded-xl px-3.5 py-2.5 font-bold focus:outline-none ${
                                     isBento
                                         ? 'bg-white border-2 border-black text-black focus:shadow-[3px_3px_0px_#000]'
-                                        : 'bg-white dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white'
+                                        : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] focus:border-[#bef264]'
                                 }`}
                             />
                         </div>
                     </div>
                     <div>
-                        <label className="text-xs font-black uppercase tracking-wider text-black dark:text-white block mb-1">
+                        <label className={`text-xs font-black uppercase tracking-wider block mb-1 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>
                             Reference Solution Code
                         </label>
-                        <div className={isBento ? 'border-2 border-black rounded-xl overflow-hidden shadow-[2px_2px_0px_#000]' : ''}>
+                        <div className={isBento ? 'border-2 border-black rounded-xl overflow-hidden shadow-[2px_2px_0px_#000]' : 'border border-[#2e2924] rounded-xl overflow-hidden'}>
                             <CompilerQuestion
                                 language={question.compilerConfig?.language || 'javascript'}
                                 allowedLanguages={question.compilerConfig?.allowedLanguages}
@@ -809,9 +869,9 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
                 {/* Points */}
                 <div className="space-y-1">
                     <label className={`text-xs font-black uppercase tracking-wider flex items-center gap-1.5 ${
-                        isBento ? 'text-black' : 'text-gray-700 dark:text-gray-300'
+                        isBento ? 'text-black' : 'text-[#a8a29e]'
                     }`}>
-                        <Star className="w-3.5 h-3.5 text-black" />
+                        <Star className={`w-3.5 h-3.5 ${isBento ? 'text-black' : 'text-[#fde047]'}`} />
                         <span>Points</span>
                     </label>
                     <div className="relative">
@@ -823,10 +883,10 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
                             className={`w-full rounded-xl px-3.5 py-2.5 font-black text-center focus:outline-none ${
                                 isBento
                                     ? 'bg-white border-2 border-black text-black focus:shadow-[3px_3px_0px_#000]'
-                                    : 'bg-white dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white'
+                                    : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] focus:border-[#bef264]'
                             }`}
                         />
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-black text-gray-500 pointer-events-none">
+                        <span className={`absolute right-3 top-1/2 -translate-y-1/2 text-xs font-black pointer-events-none ${isBento ? 'text-gray-500' : 'text-[#78716c]'}`}>
                             pts
                         </span>
                     </div>
@@ -835,19 +895,19 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
                 {/* Explanation */}
                 <div className="sm:col-span-2 space-y-1">
                     <label className={`text-xs font-black uppercase tracking-wider flex items-center gap-1.5 ${
-                        isBento ? 'text-black' : 'text-gray-700 dark:text-gray-300'
+                        isBento ? 'text-black' : 'text-[#a8a29e]'
                     }`}>
-                        <Lightbulb className="w-3.5 h-3.5 text-black" />
+                        <Lightbulb className={`w-3.5 h-3.5 ${isBento ? 'text-black' : 'text-[#fde047]'}`} />
                         <span>Explanation & Solution Hint</span>
                     </label>
                     <input
                         placeholder="Why this answer is correct (supports LaTeX $...$)"
                         value={question.explanation || ''}
                         onChange={e => onChange({ ...question, explanation: e.target.value })}
-                        className={`w-full rounded-xl px-3.5 py-2.5 font-semibold text-sm placeholder-gray-400 focus:outline-none ${
+                        className={`w-full rounded-xl px-3.5 py-2.5 font-semibold text-sm focus:outline-none ${
                             isBento
-                                ? 'bg-white border-2 border-black text-black focus:shadow-[3px_3px_0px_#000]'
-                                : 'bg-white dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white focus:ring-2 focus:ring-teal-500/50'
+                                ? 'bg-white border-2 border-black text-black placeholder-gray-400 focus:shadow-[3px_3px_0px_#000]'
+                                : 'bg-[#0e0d0b] border border-[#2e2924] text-[#f5f3ec] placeholder-[#78716c] focus:border-[#bef264]'
                         }`}
                     />
                 </div>
@@ -858,14 +918,14 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
                 <div className={`p-3 rounded-xl text-xs space-y-1 ${
                     isBento
                         ? 'bg-[#fef9c3] border-2 border-black shadow-[2px_2px_0px_#000] text-black'
-                        : 'bg-indigo-50/80 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-500/20'
+                        : 'bg-[#1e1b13] border border-[#fde047]/35 text-[#f5f3ec]'
                 }`}>
-                    <div className="font-black flex items-center gap-1.5 uppercase text-[10px] tracking-wider">
+                    <div className={`font-black flex items-center gap-1.5 uppercase text-[10px] tracking-wider ${isBento ? 'text-black' : 'text-[#fde047]'}`}>
                         <Sparkles className="w-3.5 h-3.5" />
                         <span>Explanation Formula Preview:</span>
                     </div>
                     <div className="pl-1 font-medium">
-                        <MathRenderer text={question.explanation} className={isBento ? 'text-black font-semibold' : 'text-gray-800 dark:text-gray-200'} />
+                        <MathRenderer text={question.explanation} className={isBento ? 'text-black font-semibold' : 'text-[#f5f3ec]'} />
                     </div>
                 </div>
             )}
@@ -878,7 +938,7 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
                     className={`flex-1 py-3 rounded-xl font-black uppercase tracking-wider text-xs transition-all cursor-pointer ${
                         isBento
                             ? 'bg-white text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:bg-gray-100 active:translate-x-0.5 active:translate-y-0.5'
-                            : 'bg-gray-600 dark:bg-gray-700 text-white hover:bg-gray-700'
+                            : 'bg-[#0e0d0b] text-[#d6d0c7] border border-[#2e2924] hover:bg-[#24201c] hover:text-[#f5f3ec]'
                     }`}
                 >
                     Cancel
@@ -889,7 +949,7 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, index, onChan
                     className={`flex-1 py-3 rounded-xl font-black uppercase tracking-wider text-xs transition-all cursor-pointer flex items-center justify-center gap-2 ${
                         isBento
                             ? 'bg-[#bef264] text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:shadow-[5px_5px_0px_#000] active:translate-x-0.5 active:translate-y-0.5'
-                            : 'bg-green-600 text-white hover:bg-green-500'
+                            : 'bg-[#bef264] text-[#0a0908] border border-[#bef264] hover:bg-[#d2fa8a] shadow-[0_3px_0_#050504]'
                     }`}
                 >
                     <Save className="w-4 h-4" />

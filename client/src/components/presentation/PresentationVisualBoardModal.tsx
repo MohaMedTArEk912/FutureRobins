@@ -379,7 +379,7 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                     className={`app-dialog-panel app-dialog-panel--structured relative z-10 w-full max-w-[1320px] h-[92dvh] rounded-3xl overflow-hidden flex flex-col ${
                         isBento
                             ? 'bg-white text-black border-[3px] border-black shadow-[8px_8px_0px_#000]'
-                            : 'bg-white dark:bg-[#0f1423] text-gray-900 dark:text-white border border-slate-200 dark:border-white/10 shadow-2xl'
+                            : 'bg-[#141210] text-[#f5f3ec] border-[1.5px] border-[#2e2924] shadow-[0_8px_0_#050504,0_24px_60px_rgba(0,0,0,0.78)]'
                     }`}
                 >
                     {/* Studio Top Bar */}
@@ -387,7 +387,7 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                         className={`app-dialog-header px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-3 shrink-0 ${
                             isBento
                                 ? 'bg-[#fef08a] border-b-[2.5px] border-black'
-                                : 'bg-slate-50 dark:bg-white/[0.03] border-b border-slate-200 dark:border-white/10'
+                                : 'bg-[#1a1714] border-b border-[#2e2924]'
                         }`}
                     >
                         <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -395,7 +395,7 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                 className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
                                     isBento
                                         ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                        : 'bg-indigo-500/15 text-indigo-500'
+                                        : 'bg-[#1c2317] text-[#bef264] border border-[#bef264]/35'
                                 }`}
                             >
                                 <LayoutGrid className="w-5 h-5" />
@@ -409,7 +409,7 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                     className={`w-full px-3 py-1.5 rounded-xl text-sm font-black outline-none ${
                                         isBento
                                             ? 'bg-white text-black border-2 border-black'
-                                            : 'bg-white dark:bg-black/30 border border-slate-200 dark:border-white/10'
+                                            : 'bg-[#0e0d0b] text-[#f5f3ec] border border-[#2e2924] focus:border-[#bef264]'
                                     }`}
                                 />
                             </div>
@@ -420,7 +420,7 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                 className={`hidden sm:block px-3 py-1.5 rounded-xl text-xs font-black cursor-pointer outline-none ${
                                     isBento
                                         ? 'bg-white text-black border-2 border-black'
-                                        : 'bg-white dark:bg-black/30 border border-slate-200 dark:border-white/10'
+                                        : 'bg-[#0e0d0b] text-[#f5f3ec] border border-[#2e2924] focus:border-[#bef264]'
                                 }`}
                             >
                                 {DECK_THEMES.map(t => (
@@ -437,7 +437,7 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                 className={`flex items-center p-1 rounded-xl ${
                                     isBento
                                         ? 'bg-white border-2 border-black'
-                                        : 'bg-slate-200/70 dark:bg-black/30'
+                                        : 'bg-[#0e0d0b] border border-[#2e2924]'
                                 }`}
                             >
                                 <button
@@ -447,8 +447,10 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                         editorMode === 'board'
                                             ? isBento
                                                 ? 'bg-[#bef264] text-black border border-black'
-                                                : 'bg-indigo-600 text-white'
-                                            : 'opacity-70 hover:opacity-100'
+                                                : 'bg-[#bef264] text-[#0a0908]'
+                                            : isBento
+                                                ? 'text-black/70 hover:text-black'
+                                                : 'text-[#a8a29e] hover:text-[#f5f3ec]'
                                     }`}
                                 >
                                     <LayoutGrid className="w-3.5 h-3.5" />
@@ -460,9 +462,11 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                     className={`px-3 py-1.5 rounded-lg text-xs font-black uppercase flex items-center gap-1.5 cursor-pointer transition-all ${
                                         editorMode === 'json'
                                             ? isBento
-                                                ? 'bg-[#67e8f9] text-black border border-black'
-                                                : 'bg-indigo-600 text-white'
-                                            : 'opacity-70 hover:opacity-100'
+                                                ? 'bg-[#bae6fd] text-black border border-black'
+                                                : 'bg-[#bef264] text-[#0a0908]'
+                                            : isBento
+                                                ? 'text-black/70 hover:text-black'
+                                                : 'text-[#a8a29e] hover:text-[#f5f3ec]'
                                     }`}
                                 >
                                     <FileJson className="w-3.5 h-3.5" />
@@ -476,7 +480,7 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                 className={`px-3 py-2 rounded-xl text-xs font-black uppercase flex items-center gap-1.5 cursor-pointer ${
                                     isBento
                                         ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#fed7aa]'
-                                        : 'bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/15'
+                                        : 'bg-[#141210] border border-[#2e2924] text-[#f5f3ec] hover:border-[#bef264]/50 hover:bg-[#24201c]'
                                 }`}
                                 title="Open interactive whiteboard preview before saving"
                             >
@@ -491,7 +495,7 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                 className={`px-4 py-2 rounded-xl text-xs font-black uppercase flex items-center gap-1.5 cursor-pointer disabled:opacity-50 ${
                                     isBento
                                         ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#a3e635]'
-                                        : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-md'
+                                        : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908]'
                                 }`}
                             >
                                 <Check className="w-4 h-4" />
@@ -505,7 +509,7 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                 className={`p-2 rounded-xl cursor-pointer ${
                                     isBento
                                         ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#fecdd3]'
-                                        : 'hover:bg-slate-200 dark:hover:bg-white/10'
+                                        : 'bg-[#141210] border border-[#2e2924] text-[#a8a29e] hover:text-[#f5f3ec] hover:border-[#bef264]/50'
                                 }`}
                             >
                                 <X className="w-4 h-4" />
@@ -524,7 +528,7 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                     className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase flex items-center gap-1.5 cursor-pointer ${
                                         isBento
                                             ? 'bg-[#fde047] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                            : 'bg-indigo-500/15 text-indigo-600 dark:text-indigo-300 border border-indigo-500/20'
+                                            : 'bg-[#1c2317] text-[#bef264] border border-[#bef264]/35 hover:bg-[#242e1e]'
                                     }`}
                                 >
                                     <Upload className="w-3.5 h-3.5" />
@@ -533,7 +537,11 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                 </label>
                             </div>
                             {jsonError && (
-                                <div className="px-3.5 py-2 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-600 dark:text-rose-300 text-xs font-bold">
+                                <div className={`px-3.5 py-2 rounded-xl text-xs font-bold ${
+                                    isBento
+                                        ? 'bg-[#fecdd3] border-2 border-black text-black'
+                                        : 'bg-[#251317] border border-[#fb7185]/35 text-[#fda4af]'
+                                }`}>
                                     {jsonError}
                                 </div>
                             )}
@@ -546,8 +554,8 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                 spellCheck={false}
                                 className={`flex-1 min-h-0 w-full p-4 rounded-2xl font-mono text-xs resize-none outline-none ${
                                     isBento
-                                        ? 'bg-slate-50 text-black border-2 border-black'
-                                        : 'bg-slate-950 text-emerald-300 border border-white/10'
+                                        ? 'bg-[#f5f3ec] text-black border-2 border-black'
+                                        : 'bg-[#0e0d0b] text-[#bef264] border border-[#2e2924] focus:border-[#bef264]'
                                 }`}
                             />
                         </div>
@@ -557,11 +565,11 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                             <aside
                                 className={`lg:col-span-3 flex flex-col min-h-0 ${
                                     isBento
-                                        ? 'bg-[#f8fafc] border-b-2 lg:border-b-0 lg:border-r-2 border-black'
-                                        : 'bg-slate-50/70 dark:bg-black/20 border-b lg:border-b-0 lg:border-r border-slate-200 dark:border-white/10'
+                                        ? 'bg-[#f5f3ec] border-b-2 lg:border-b-0 lg:border-r-2 border-black'
+                                        : 'bg-[#11100e] border-b lg:border-b-0 lg:border-r border-[#2e2924]'
                                 }`}
                             >
-                                <div className="p-3.5 flex items-center justify-between gap-2 shrink-0 border-b border-black/10 dark:border-white/10">
+                                <div className={`p-3.5 flex items-center justify-between gap-2 shrink-0 border-b ${isBento ? 'border-black/20' : 'border-[#2e2924]'}`}>
                                     <span className="text-xs font-black uppercase tracking-wider">
                                         Slides ({slides.length})
                                     </span>
@@ -571,7 +579,7 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                         className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase flex items-center gap-1 cursor-pointer ${
                                             isBento
                                                 ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#a3e635]'
-                                                : 'bg-indigo-600 hover:bg-indigo-500 text-white'
+                                                : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908]'
                                         }`}
                                     >
                                         <Plus className="w-3.5 h-3.5" />
@@ -590,10 +598,10 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                                     isSelected
                                                         ? isBento
                                                             ? 'bg-[#fde047] text-black border-2 border-black shadow-[3px_3px_0px_#000]'
-                                                            : 'bg-indigo-600/15 border-2 border-indigo-500'
+                                                            : 'bg-[#1c2317] border-2 border-[#bef264] text-[#f5f3ec]'
                                                         : isBento
                                                             ? 'bg-white text-black border-2 border-black/40 hover:border-black'
-                                                            : 'bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 hover:border-indigo-400'
+                                                            : 'bg-[#1a1714] border border-[#2e2924] hover:border-[#bef264]/50 text-[#f5f3ec]'
                                                 }`}
                                             >
                                                 <div className="flex items-start justify-between gap-2">
@@ -606,7 +614,7 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                                                 className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase ${
                                                                     isBento
                                                                         ? 'bg-white border border-black text-black'
-                                                                        : 'bg-indigo-500/15 text-indigo-500'
+                                                                        : 'bg-[#24201c] border border-[#3a332c] text-[#fde047]'
                                                                 }`}
                                                             >
                                                                 {s.layout}
@@ -627,7 +635,7 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                                         onClick={() => handleMoveSlide(idx, -1)}
                                                         disabled={idx === 0}
                                                         title="Move Up"
-                                                        className="p-1 rounded-lg hover:bg-black/10 disabled:opacity-30 cursor-pointer"
+                                                        className="p-1 rounded-lg hover:bg-black/15 dark:hover:bg-white/10 disabled:opacity-30 cursor-pointer"
                                                     >
                                                         <ArrowUp className="w-3 h-3" />
                                                     </button>
@@ -636,7 +644,7 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                                         onClick={() => handleMoveSlide(idx, 1)}
                                                         disabled={idx === slides.length - 1}
                                                         title="Move Down"
-                                                        className="p-1 rounded-lg hover:bg-black/10 disabled:opacity-30 cursor-pointer"
+                                                        className="p-1 rounded-lg hover:bg-black/15 dark:hover:bg-white/10 disabled:opacity-30 cursor-pointer"
                                                     >
                                                         <ArrowDown className="w-3 h-3" />
                                                     </button>
@@ -644,7 +652,7 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                                         type="button"
                                                         onClick={() => handleDuplicateSlide(idx)}
                                                         title="Duplicate Slide"
-                                                        className="p-1 rounded-lg hover:bg-black/10 cursor-pointer"
+                                                        className="p-1 rounded-lg hover:bg-black/15 dark:hover:bg-white/10 cursor-pointer"
                                                     >
                                                         <Copy className="w-3 h-3" />
                                                     </button>
@@ -653,7 +661,7 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                                         onClick={() => handleDeleteSlide(idx)}
                                                         disabled={slides.length <= 1}
                                                         title="Delete Slide"
-                                                        className="p-1 rounded-lg text-rose-600 hover:bg-rose-500/15 disabled:opacity-30 cursor-pointer"
+                                                        className="p-1 rounded-lg text-[#fb7185] hover:bg-[#fb7185]/15 disabled:opacity-30 cursor-pointer"
                                                     >
                                                         <Trash2 className="w-3 h-3" />
                                                     </button>
@@ -683,10 +691,10 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                         <select
                                             value={currentSlide?.layout || 'bullets'}
                                             onChange={e => updateCurrentSlide({ layout: e.target.value as SlideLayout })}
-                                            className={`w-full px-3 py-2 rounded-xl text-xs font-bold cursor-pointer ${
+                                            className={`w-full px-3 py-2 rounded-xl text-xs font-bold cursor-pointer outline-none ${
                                                 isBento
                                                     ? 'bg-white text-black border-2 border-black'
-                                                    : 'bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10'
+                                                    : 'bg-[#0e0d0b] text-[#f5f3ec] border border-[#2e2924] focus:border-[#bef264]'
                                             }`}
                                         >
                                             {SLIDE_LAYOUTS.map(l => (
@@ -703,10 +711,10 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                         <select
                                             value={currentSlide?.motion || 'fade-up'}
                                             onChange={e => updateCurrentSlide({ motion: e.target.value as SlideMotion })}
-                                            className={`w-full px-3 py-2 rounded-xl text-xs font-bold cursor-pointer ${
+                                            className={`w-full px-3 py-2 rounded-xl text-xs font-bold cursor-pointer outline-none ${
                                                 isBento
                                                     ? 'bg-white text-black border-2 border-black'
-                                                    : 'bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10'
+                                                    : 'bg-[#0e0d0b] text-[#f5f3ec] border border-[#2e2924] focus:border-[#bef264]'
                                             }`}
                                         >
                                             {SLIDE_MOTIONS.map(m => (
@@ -729,7 +737,7 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                         className={`w-full px-3.5 py-2 rounded-xl text-sm font-bold outline-none ${
                                             isBento
                                                 ? 'bg-white text-black border-2 border-black'
-                                                : 'bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10'
+                                                : 'bg-[#0e0d0b] text-[#f5f3ec] border border-[#2e2924] focus:border-[#bef264]'
                                         }`}
                                     />
                                 </div>
@@ -746,7 +754,7 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                         className={`w-full px-3.5 py-2 rounded-xl text-xs font-semibold outline-none ${
                                             isBento
                                                 ? 'bg-white text-black border-2 border-black'
-                                                : 'bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10'
+                                                : 'bg-[#0e0d0b] text-[#f5f3ec] border border-[#2e2924] focus:border-[#bef264]'
                                         }`}
                                     />
                                 </div>
@@ -763,7 +771,7 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                         className={`w-full px-3.5 py-2 rounded-xl text-xs font-medium outline-none ${
                                             isBento
                                                 ? 'bg-white text-black border-2 border-black'
-                                                : 'bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10'
+                                                : 'bg-[#0e0d0b] text-[#f5f3ec] border border-[#2e2924] focus:border-[#bef264]'
                                         }`}
                                     />
                                 </div>
@@ -784,7 +792,7 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                             className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase flex items-center gap-1 cursor-pointer ${
                                                 isBento
                                                     ? 'bg-[#bef264] text-black border border-black'
-                                                    : 'bg-indigo-500/15 text-indigo-500'
+                                                    : 'bg-[#1c2317] text-[#bef264] border border-[#bef264]/35 hover:bg-[#242e1e]'
                                             }`}
                                         >
                                             <Plus className="w-3 h-3" /> Add Bullet
@@ -804,7 +812,7 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                                     className={`flex-1 px-3 py-1.5 rounded-xl text-xs font-semibold outline-none ${
                                                         isBento
                                                             ? 'bg-white text-black border-2 border-black'
-                                                            : 'bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10'
+                                                            : 'bg-[#0e0d0b] text-[#f5f3ec] border border-[#2e2924] focus:border-[#bef264]'
                                                     }`}
                                                 />
                                                 <button
@@ -814,7 +822,7 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                                             bullets: currentBullets.filter((_, i) => i !== bIdx)
                                                         })
                                                     }
-                                                    className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-500/15 cursor-pointer"
+                                                    className="p-1.5 rounded-lg text-[#fb7185] hover:bg-[#fb7185]/15 cursor-pointer"
                                                     aria-label="Remove bullet"
                                                 >
                                                     <Trash2 className="w-3.5 h-3.5" />
@@ -825,7 +833,7 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                 </div>
 
                                 {/* Code Snippet Editor */}
-                                <div className="space-y-2 pt-2 border-t border-black/10 dark:border-white/10">
+                                <div className={`space-y-2 pt-2 border-t ${isBento ? 'border-black/20' : 'border-[#2e2924]'}`}>
                                     <div className="flex items-center justify-between">
                                         <label className="text-[10px] font-black uppercase opacity-70 flex items-center gap-1">
                                             <Code2 className="w-3.5 h-3.5" /> Code Snippet
@@ -834,7 +842,7 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                             <button
                                                 type="button"
                                                 onClick={() => updateCurrentSlide({ codeSnippet: undefined })}
-                                                className="text-[10px] font-black uppercase text-rose-500 cursor-pointer hover:underline"
+                                                className="text-[10px] font-black uppercase text-[#fb7185] cursor-pointer hover:underline"
                                             >
                                                 Remove Code
                                             </button>
@@ -846,7 +854,7 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                                         codeSnippet: { language: 'html', code: '<div>Hello World</div>' }
                                                     })
                                                 }
-                                                className="text-[10px] font-black uppercase text-indigo-500 cursor-pointer hover:underline"
+                                                className={`text-[10px] font-black uppercase cursor-pointer hover:underline ${isBento ? 'text-black' : 'text-[#bef264]'}`}
                                             >
                                                 + Add Code Snippet
                                             </button>
@@ -869,7 +877,7 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                                 className={`w-full px-3 py-1.5 rounded-xl text-xs font-mono font-bold outline-none ${
                                                     isBento
                                                         ? 'bg-white text-black border-2 border-black'
-                                                        : 'bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10'
+                                                        : 'bg-[#0e0d0b] text-[#f5f3ec] border border-[#2e2924] focus:border-[#bef264]'
                                                 }`}
                                             />
                                             <textarea
@@ -885,8 +893,8 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                                 }
                                                 className={`w-full px-3 py-2 rounded-xl font-mono text-xs outline-none ${
                                                     isBento
-                                                        ? 'bg-slate-50 text-black border-2 border-black'
-                                                        : 'bg-slate-950 text-emerald-300 border border-white/10'
+                                                        ? 'bg-[#f5f3ec] text-black border-2 border-black'
+                                                        : 'bg-[#0e0d0b] text-[#bef264] border border-[#2e2924] focus:border-[#bef264]'
                                                 }`}
                                             />
                                         </div>
@@ -894,7 +902,7 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                 </div>
 
                                 {/* Callout & Notes */}
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-black/10 dark:border-white/10">
+                                <div className={`grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t ${isBento ? 'border-black/20' : 'border-[#2e2924]'}`}>
                                     <div>
                                         <label className="text-[10px] font-black uppercase opacity-70 block mb-1">
                                             Callout Box
@@ -907,7 +915,7 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                             className={`w-full px-3 py-1.5 rounded-xl text-xs font-semibold outline-none ${
                                                 isBento
                                                     ? 'bg-white text-black border-2 border-black'
-                                                    : 'bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10'
+                                                    : 'bg-[#0e0d0b] text-[#f5f3ec] border border-[#2e2924] focus:border-[#bef264]'
                                             }`}
                                         />
                                     </div>
@@ -923,14 +931,14 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                             className={`w-full px-3 py-1.5 rounded-xl text-xs font-semibold outline-none ${
                                                 isBento
                                                     ? 'bg-white text-black border-2 border-black'
-                                                    : 'bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10'
+                                                    : 'bg-[#0e0d0b] text-[#f5f3ec] border border-[#2e2924] focus:border-[#bef264]'
                                             }`}
                                         />
                                     </div>
                                 </div>
 
                                 {/* Check-Up Poll Question Editor */}
-                                <div className="space-y-2 pt-2 border-t border-black/10 dark:border-white/10">
+                                <div className={`space-y-2 pt-2 border-t ${isBento ? 'border-black/20' : 'border-[#2e2924]'}`}>
                                     <div className="flex items-center justify-between">
                                         <label className="text-[10px] font-black uppercase opacity-70 flex items-center gap-1">
                                             <HelpCircle className="w-3.5 h-3.5" /> Live Check-Up Quiz
@@ -939,7 +947,7 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                             <button
                                                 type="button"
                                                 onClick={() => updateCurrentSlide({ checkupQuestion: undefined })}
-                                                className="text-[10px] font-black uppercase text-rose-500 cursor-pointer hover:underline"
+                                                className="text-[10px] font-black uppercase text-[#fb7185] cursor-pointer hover:underline"
                                             >
                                                 Remove Check-Up
                                             </button>
@@ -956,14 +964,14 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                                         }
                                                     })
                                                 }
-                                                className="text-[10px] font-black uppercase text-indigo-500 cursor-pointer hover:underline"
+                                                className={`text-[10px] font-black uppercase cursor-pointer hover:underline ${isBento ? 'text-black' : 'text-[#bef264]'}`}
                                             >
                                                 + Add Check-Up Poll
                                             </button>
                                         )}
                                     </div>
                                     {currentCheckup && (
-                                        <div className="space-y-2 p-3 rounded-xl bg-black/[0.03] dark:bg-white/[0.03] border border-black/10 dark:border-white/10">
+                                        <div className={`space-y-2 p-3 rounded-xl border ${isBento ? 'bg-[#f5f3ec] border-black/25' : 'bg-[#1a1714] border-[#2e2924]'}`}>
                                             <input
                                                 type="text"
                                                 value={currentCheckup.question}
@@ -979,7 +987,7 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                                 className={`w-full px-3 py-1.5 rounded-xl text-xs font-bold outline-none ${
                                                     isBento
                                                         ? 'bg-white text-black border-2 border-black'
-                                                        : 'bg-white dark:bg-black/30 border border-slate-200 dark:border-white/10'
+                                                        : 'bg-[#0e0d0b] text-[#f5f3ec] border border-[#2e2924] focus:border-[#bef264]'
                                                 }`}
                                             />
                                             <div className="space-y-1.5">
@@ -998,7 +1006,7 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                                                 })
                                                             }
                                                             title="Mark as correct option"
-                                                            className="cursor-pointer accent-emerald-600"
+                                                            className={`cursor-pointer ${isBento ? 'accent-black' : 'accent-[#bef264]'}`}
                                                         />
                                                         <input
                                                             type="text"
@@ -1016,7 +1024,7 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                                             className={`flex-1 px-2.5 py-1 rounded-lg text-xs font-semibold outline-none ${
                                                                 isBento
                                                                     ? 'bg-white text-black border border-black'
-                                                                    : 'bg-white dark:bg-black/30 border border-slate-200 dark:border-white/10'
+                                                                    : 'bg-[#0e0d0b] text-[#f5f3ec] border border-[#2e2924] focus:border-[#bef264]'
                                                             }`}
                                                         />
                                                         {currentCheckup.options.length > 2 && (
@@ -1032,7 +1040,7 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                                                     };
                                                                     updateCurrentSlide({ checkupQuestion: updated });
                                                                 }}
-                                                                className="p-1 text-rose-500 cursor-pointer"
+                                                                className="p-1 text-[#fb7185] cursor-pointer"
                                                             >
                                                                 <Trash2 className="w-3 h-3" />
                                                             </button>
@@ -1052,7 +1060,7 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                                             }
                                                         })
                                                     }
-                                                    className="text-[10px] font-black uppercase text-indigo-500 cursor-pointer"
+                                                    className={`text-[10px] font-black uppercase cursor-pointer ${isBento ? 'text-black' : 'text-[#bef264]'}`}
                                                 >
                                                     + Add Option
                                                 </button>
@@ -1066,13 +1074,13 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                             <section
                                 className={`lg:col-span-4 min-h-0 overflow-y-auto p-4 sm:p-5 flex flex-col gap-3 ${
                                     isBento
-                                        ? 'bg-slate-50 border-t-2 lg:border-t-0 lg:border-l-2 border-black'
-                                        : 'bg-slate-50/70 dark:bg-black/25 border-t lg:border-t-0 lg:border-l border-slate-200 dark:border-white/10'
+                                        ? 'bg-[#f5f3ec] border-t-2 lg:border-t-0 lg:border-l-2 border-black'
+                                        : 'bg-[#11100e] border-t lg:border-t-0 lg:border-l border-[#2e2924]'
                                 }`}
                             >
                                 <div className="flex items-center justify-between">
                                     <span className="text-xs font-black uppercase tracking-wider flex items-center gap-1.5">
-                                        <Eye className="w-4 h-4 text-indigo-500" />
+                                        <Eye className={`w-4 h-4 ${isBento ? 'text-black' : 'text-[#bef264]'}`} />
                                         Live Board Preview
                                     </span>
                                     <span className="text-[10px] font-black uppercase opacity-60">
@@ -1083,7 +1091,7 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                 <div className={`rounded-2xl p-5 flex-1 min-h-[280px] flex flex-col justify-between gap-4 ${previewThemeBg}`}>
                                     <div className="space-y-3">
                                         <div className="flex items-center justify-between gap-2">
-                                            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-indigo-500/20 border border-current/20">
+                                            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-[#bef264]/20 border border-current/20">
                                                 Slide {safeSelectedIdx + 1} / {slides.length}
                                             </span>
                                             <span className="text-[10px] font-mono opacity-70 uppercase">
@@ -1112,7 +1120,7 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                             <ul className="space-y-1.5 pt-1">
                                                 {currentBullets.map((b, idx) => (
                                                     <li key={idx} className="text-xs font-semibold flex items-start gap-2">
-                                                        <Sparkles className="w-3.5 h-3.5 shrink-0 mt-0.5 text-amber-400" />
+                                                        <Sparkles className="w-3.5 h-3.5 shrink-0 mt-0.5 text-[#fde047]" />
                                                         <span>{b}</span>
                                                     </li>
                                                 ))}
@@ -1120,13 +1128,13 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                         )}
 
                                         {currentSlide?.codeSnippet?.code && (
-                                            <pre className="p-3 rounded-xl bg-black/85 text-emerald-300 text-[11px] font-mono overflow-x-auto border border-white/10">
+                                            <pre className="p-3 rounded-xl bg-[#0e0d0b] text-[#bef264] text-[11px] font-mono overflow-x-auto border border-[#2e2924]">
                                                 <code>{currentSlide.codeSnippet.code}</code>
                                             </pre>
                                         )}
 
                                         {currentCheckup && (
-                                            <div className="p-3 rounded-xl bg-black/15 dark:bg-white/10 border border-current/20 space-y-2">
+                                            <div className="p-3 rounded-xl bg-black/20 border border-current/20 space-y-2">
                                                 <div className="text-[11px] font-black">{currentCheckup.question}</div>
                                                 <div className="space-y-1">
                                                     {currentCheckup.options.map((opt, idx) => (
@@ -1134,13 +1142,13 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                                             key={idx}
                                                             className={`px-2.5 py-1 rounded-lg text-[11px] font-bold flex items-center justify-between ${
                                                                 idx === currentCheckup.correctAnswer
-                                                                    ? 'bg-emerald-500/25 border border-emerald-400'
-                                                                    : 'bg-black/10'
+                                                                    ? 'bg-[#bef264]/20 border border-[#bef264]'
+                                                                    : 'bg-black/15'
                                                             }`}
                                                         >
                                                             <span>{opt}</span>
                                                             {idx === currentCheckup.correctAnswer && (
-                                                                <Check className="w-3 h-3 text-emerald-400" />
+                                                                <Check className="w-3 h-3 text-[#bef264]" />
                                                             )}
                                                         </div>
                                                     ))}
@@ -1150,7 +1158,7 @@ export const PresentationVisualBoardModal: React.FC<PresentationVisualBoardModal
                                     </div>
 
                                     {currentSlide?.callout && (
-                                        <div className="p-3 rounded-xl bg-amber-400/20 border border-amber-400/40 text-xs font-bold">
+                                        <div className="p-3 rounded-xl bg-[#fde047]/20 border border-[#fde047]/40 text-xs font-bold">
                                             💡 {currentSlide.callout}
                                         </div>
                                     )}

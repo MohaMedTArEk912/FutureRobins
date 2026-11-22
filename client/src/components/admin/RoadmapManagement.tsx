@@ -1482,21 +1482,31 @@ const RoadmapManagement: React.FC<RoadmapManagementProps> = ({
             {/* Module Details Dialog */}
             {isModuleDetailsOpen && selectedModuleForDetails && (
                 <div className="app-dialog-overlay fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setIsModuleDetailsOpen(false)}>
-                    <div className="app-dialog-panel app-dialog-panel--structured flex flex-col bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-[#f5f3ec]/16 max-w-2xl w-full max-h-[80vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
+                    <div className={`app-dialog-panel app-dialog-panel--structured flex flex-col rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden ${
+                        isBento
+                            ? 'bg-white text-black border-[3px] border-black shadow-[8px_8px_0px_#000]'
+                            : 'bg-[#141210] text-[#f5f3ec] border-[1.5px] border-[#2e2924] shadow-[0_8px_0_#050504]'
+                    }`} onClick={(e) => e.stopPropagation()}>
                         {/* Header */}
-                        <div className="app-dialog-header px-6 py-4 border-b border-gray-200 dark:border-[#f5f3ec]/16 flex items-center justify-between">
+                        <div className={`app-dialog-header px-6 py-4 border-b flex items-center justify-between ${
+                            isBento ? 'bg-white border-b-[2.5px] border-black' : 'bg-[#1a1714] border-[#2e2924]'
+                        }`}>
                             <div className="flex items-center gap-3">
-                                <div className={`w-3 h-3 rounded-full ${selectedModuleForDetails.type === 'optional' ? 'bg-emerald-500' :
-                                    selectedModuleForDetails.type === 'achievement' ? 'bg-amber-500' :
-                                        'bg-indigo-500'
+                                <div className={`w-3 h-3 rounded-full ${selectedModuleForDetails.type === 'optional' ? 'bg-[#bef264]' :
+                                    selectedModuleForDetails.type === 'achievement' ? 'bg-[#fde047]' :
+                                        'bg-[#bae6fd]'
                                     }`} />
-                                <h3 className="text-xl font-bold text-white">{selectedModuleForDetails.title}</h3>
+                                <h3 className={`text-xl font-black ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>{selectedModuleForDetails.title}</h3>
                             </div>
                             <button
                                 onClick={() => setIsModuleDetailsOpen(false)}
-                                className="text-slate-400 hover:text-white transition-colors p-1"
+                                className={`p-1.5 rounded-xl transition-colors cursor-pointer ${
+                                    isBento
+                                        ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#fde047]'
+                                        : 'bg-[#1c1917] border border-[#2e2924] text-[#a8a29e] hover:border-[#bef264] hover:text-[#f5f3ec]'
+                                }`}
                             >
-                                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                 </svg>
                             </button>
@@ -1506,30 +1516,30 @@ const RoadmapManagement: React.FC<RoadmapManagementProps> = ({
                         <div className="app-dialog-body app-dialog-body-spaced px-6 py-4 overflow-y-auto max-h-[calc(80vh-140px)]">
                             {/* Description */}
                             <div className="mb-6">
-                                <p className="text-gray-700 dark:text-slate-300 leading-relaxed">{selectedModuleForDetails.description || 'No description available.'}</p>
+                                <p className={`leading-relaxed ${isBento ? 'text-slate-700 font-medium' : 'text-[#d6d0c7]'}`}>{selectedModuleForDetails.description || 'No description available.'}</p>
                             </div>
 
                             {/* Info Cards */}
                             <div className="grid grid-cols-3 gap-3 mb-6">
-                                <div className="bg-gray-100 dark:bg-[#1c1917]/50 rounded-lg p-3 border border-gray-200 dark:border-[#f5f3ec]/12">
-                                    <div className="text-xs text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-1">Level</div>
-                                    <div className="text-lg font-bold text-gray-900 dark:text-white">{(selectedModuleForDetails.level ?? 0) + 1}</div>
+                                <div className={`rounded-xl p-3 border ${isBento ? 'bg-[#f5f3ec] border-2 border-black shadow-[2px_2px_0px_#000]' : 'bg-[#1a1714] border-[#2e2924]'}`}>
+                                    <div className={`text-xs uppercase font-black tracking-wider mb-1 ${isBento ? 'text-slate-600' : 'text-[#a8a29e]'}`}>Level</div>
+                                    <div className={`text-lg font-black ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>{(selectedModuleForDetails.level ?? 0) + 1}</div>
                                 </div>
-                                <div className="bg-gray-100 dark:bg-[#1c1917]/50 rounded-lg p-3 border border-gray-200 dark:border-[#f5f3ec]/12">
-                                    <div className="text-xs text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-1">Type</div>
-                                    <div className="text-lg font-bold text-gray-900 dark:text-white capitalize">{selectedModuleForDetails.type || 'core'}</div>
+                                <div className={`rounded-xl p-3 border ${isBento ? 'bg-[#f5f3ec] border-2 border-black shadow-[2px_2px_0px_#000]' : 'bg-[#1a1714] border-[#2e2924]'}`}>
+                                    <div className={`text-xs uppercase font-black tracking-wider mb-1 ${isBento ? 'text-slate-600' : 'text-[#a8a29e]'}`}>Type</div>
+                                    <div className={`text-lg font-black capitalize ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>{selectedModuleForDetails.type || 'core'}</div>
                                 </div>
-                                <div className="bg-gray-100 dark:bg-[#1c1917]/50 rounded-lg p-3 border border-gray-200 dark:border-[#f5f3ec]/12">
-                                    <div className="text-xs text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-1">XP Reward</div>
-                                    <div className="text-lg font-bold text-amber-600 dark:text-amber-400">{selectedModuleForDetails.xpReward || 0}</div>
+                                <div className={`rounded-xl p-3 border ${isBento ? 'bg-[#fef08a] border-2 border-black shadow-[2px_2px_0px_#000]' : 'bg-[#1a1714] border-[#fde047]/35'}`}>
+                                    <div className={`text-xs uppercase font-black tracking-wider mb-1 ${isBento ? 'text-black/70' : 'text-[#a8a29e]'}`}>XP Reward</div>
+                                    <div className={`text-lg font-black ${isBento ? 'text-black' : 'text-[#fde047]'}`}>{selectedModuleForDetails.xpReward || 0}</div>
                                 </div>
                             </div>
 
                             {/* Quizzes Section */}
                             {selectedModuleForDetails.quizIds && selectedModuleForDetails.quizIds.length > 0 && (
                                 <div className="mb-6">
-                                    <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                                        <svg className="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <h4 className={`text-sm font-black uppercase tracking-wider mb-3 flex items-center gap-2 ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>
+                                        <svg className={`w-4 h-4 ${isBento ? 'text-black' : 'text-[#bae6fd]'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                         </svg>
                                         Quizzes to Complete
@@ -1537,27 +1547,28 @@ const RoadmapManagement: React.FC<RoadmapManagementProps> = ({
                                     <div className="space-y-2">
                                         {selectedModuleForDetails.quizIds.map((quizId) => {
                                             const quiz = quizzes.find(q => q._id === quizId);
-                                            // Check if quiz is completed (you may need to adjust this logic based on your data structure)
                                             const isQuizCompleted = userProgress?.completedModules?.includes(quizId) || false;
                                             
                                             return (
-                                                <div key={quizId} className={`bg-gray-100 dark:bg-[#1c1917]/50 rounded-lg p-3 border transition-all ${
-                                                    isQuizCompleted ? 'border-emerald-500/40 bg-emerald-50 dark:bg-emerald-900/10' : 'border-gray-200 dark:border-[#f5f3ec]/12'
+                                                <div key={quizId} className={`rounded-xl p-3 border transition-all ${
+                                                    isBento
+                                                        ? isQuizCompleted ? 'border-2 border-black bg-[#dcfce7] shadow-[2px_2px_0px_#000]' : 'border-2 border-black bg-white shadow-[2px_2px_0px_#000]'
+                                                        : isQuizCompleted ? 'border-[#bef264]/40 bg-[#171d14]' : 'border-[#2e2924] bg-[#1a1714]'
                                                 }`}>
                                                     <div className="flex items-center gap-3">
-                                                        <div className={`w-2 h-2 rounded-full ${isQuizCompleted ? 'bg-emerald-500' : 'bg-indigo-500'}`} />
+                                                        <div className={`w-2 h-2 rounded-full ${isQuizCompleted ? 'bg-[#bef264]' : 'bg-[#bae6fd]'}`} />
                                                         <div className="flex-1">
-                                                            <div className={`text-sm font-medium ${isQuizCompleted ? 'text-emerald-600 dark:text-emerald-400 line-through' : 'text-gray-900 dark:text-white'}`}>
+                                                            <div className={`text-sm font-bold ${isQuizCompleted ? (isBento ? 'text-black line-through' : 'text-[#bef264] line-through') : (isBento ? 'text-black' : 'text-[#f5f3ec]')}`}>
                                                                 {quiz?.title || quizId}
                                                             </div>
                                                             {quiz?.description && (
-                                                                <div className="text-xs text-gray-600 dark:text-slate-400 mt-0.5">{quiz.description}</div>
+                                                                <div className={`text-xs mt-0.5 ${isBento ? 'text-slate-600' : 'text-[#a8a29e]'}`}>{quiz.description}</div>
                                                             )}
                                                         </div>
-                                                        <div className={`px-2 py-1 rounded text-xs font-semibold whitespace-nowrap ${
-                                                            isQuizCompleted 
-                                                                ? 'bg-emerald-500/20 text-emerald-400' 
-                                                                : 'bg-amber-500/20 text-amber-400'
+                                                        <div className={`px-2 py-1 rounded text-xs font-black whitespace-nowrap ${
+                                                            isBento
+                                                                ? isQuizCompleted ? 'bg-[#bef264] text-black border border-black' : 'bg-[#fef08a] text-black border border-black'
+                                                                : isQuizCompleted ? 'bg-[#bef264]/15 text-[#bef264]' : 'bg-[#fde047]/15 text-[#fde047]'
                                                         }`}>
                                                             {isQuizCompleted ? '✓ Done' : '⚠ Not Done'}
                                                         </div>
@@ -1572,15 +1583,14 @@ const RoadmapManagement: React.FC<RoadmapManagementProps> = ({
                             {/* Sub-Modules Section */}
                             {selectedModuleForDetails.subModules && selectedModuleForDetails.subModules.length > 0 && (
                                 <div>
-                                    <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                                        <svg className="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <h4 className={`text-sm font-black uppercase tracking-wider mb-3 flex items-center gap-2 ${isBento ? 'text-black' : 'text-[#f5f3ec]'}`}>
+                                        <svg className={`w-4 h-4 ${isBento ? 'text-black' : 'text-[#bef264]'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                                         </svg>
                                         Sub-Modules
                                     </h4>
                                     <div className="space-y-2">
                                         {selectedModuleForDetails.subModules.map((subModule) => {
-                                            // Use the correct key format: "moduleId:subModuleId"
                                             const subModuleKey = `${selectedModuleForDetails.moduleId}:${subModule.id}`;
                                             const isCompleted = localCompletedSubModules.includes(subModuleKey);
                                             const isSaving = savingSubModuleId === subModule.id;
@@ -1588,8 +1598,11 @@ const RoadmapManagement: React.FC<RoadmapManagementProps> = ({
                                             return (
                                                 <div
                                                     key={subModule.id}
-                                                    className={`bg-gray-100 dark:bg-[#1c1917]/50 rounded-lg p-3 border transition-all ${isCompleted ? 'border-emerald-500/40 bg-emerald-50 dark:bg-emerald-900/10' : 'border-gray-200 dark:border-[#f5f3ec]/12'
-                                                        } ${isSaving ? 'opacity-70' : ''}`}
+                                                    className={`rounded-xl p-3 border transition-all ${
+                                                        isBento
+                                                            ? isCompleted ? 'border-2 border-black bg-[#dcfce7]' : 'border-2 border-black bg-white'
+                                                            : isCompleted ? 'border-[#bef264]/40 bg-[#171d14]' : 'border-[#2e2924] bg-[#1a1714]'
+                                                    } ${isSaving ? 'opacity-70' : ''}`}
                                                 >
                                                     <div className="flex items-center gap-3">
                                                         <button
@@ -1597,26 +1610,26 @@ const RoadmapManagement: React.FC<RoadmapManagementProps> = ({
                                                             disabled={isSaving || isCompleted}
                                                             aria-label={isCompleted ? `${subModule.title} completed` : `Mark ${subModule.title} as complete`}
                                                             className={`flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${isCompleted
-                                                                ? 'bg-emerald-500 border-emerald-500 cursor-default'
+                                                                ? isBento ? 'bg-[#bef264] border-black text-black cursor-default' : 'bg-[#bef264] border-[#bef264] text-[#0a0908] cursor-default'
                                                                 : isSaving
-                                                                    ? 'border-amber-400 animate-pulse cursor-wait'
-                                                                    : 'border-slate-600 hover:border-emerald-500 hover:bg-emerald-500/10 cursor-pointer'
+                                                                    ? 'border-[#fde047] animate-pulse cursor-wait'
+                                                                    : isBento ? 'border-black hover:bg-[#bef264]/40 cursor-pointer' : 'border-[#3a342e] hover:border-[#bef264] cursor-pointer'
                                                                 }`}
                                                         >
                                                             {isSaving ? (
-                                                                <Loader2 className="w-3 h-3 text-amber-400 animate-spin" />
+                                                                <Loader2 className="w-3 h-3 text-[#fde047] animate-spin" />
                                                             ) : isCompleted ? (
-                                                                <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                                                                 </svg>
                                                             ) : null}
                                                         </button>
                                                         <div className="flex-1">
-                                                            <div className={`text-sm font-medium ${isCompleted ? 'text-emerald-400 line-through' : 'text-white'}`}>
+                                                            <div className={`text-sm font-bold ${isCompleted ? (isBento ? 'text-black line-through' : 'text-[#bef264] line-through') : (isBento ? 'text-black' : 'text-[#f5f3ec]')}`}>
                                                                 {subModule.title}
                                                             </div>
                                                         </div>
-                                                        <div className={`text-xs font-semibold ${isCompleted ? 'text-emerald-400' : 'text-amber-400'}`}>
+                                                        <div className={`text-xs font-black ${isCompleted ? (isBento ? 'text-black' : 'text-[#bef264]') : (isBento ? 'text-black' : 'text-[#fde047]')}`}>
                                                             {isCompleted ? '✓' : '+'}{subModule.xp} XP
                                                         </div>
                                                     </div>
@@ -1630,7 +1643,7 @@ const RoadmapManagement: React.FC<RoadmapManagementProps> = ({
                             {/* Empty State */}
                             {(!selectedModuleForDetails.quizIds || selectedModuleForDetails.quizIds.length === 0) &&
                                 (!selectedModuleForDetails.subModules || selectedModuleForDetails.subModules.length === 0) && (
-                                    <div className="text-center py-8 text-slate-400">
+                                    <div className={`text-center py-8 ${isBento ? 'text-slate-600' : 'text-[#a8a29e]'}`}>
                                         <svg className="w-12 h-12 mx-auto mb-2 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                                         </svg>
@@ -1640,10 +1653,16 @@ const RoadmapManagement: React.FC<RoadmapManagementProps> = ({
                         </div>
 
                         {/* Footer */}
-                        <div className="app-dialog-footer px-6 py-4 border-t border-slate-700 flex justify-end">
+                        <div className={`app-dialog-footer px-6 py-4 border-t flex justify-end ${
+                            isBento ? 'bg-white border-t-[2.5px] border-black' : 'bg-[#11100e] border-[#2e2924]'
+                        }`}>
                             <button
                                 onClick={() => setIsModuleDetailsOpen(false)}
-                                className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg font-medium transition-colors"
+                                className={`px-5 py-2 rounded-xl font-black text-xs uppercase tracking-wider transition-all cursor-pointer ${
+                                    isBento
+                                        ? 'bg-[#bef264] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#a3e635]'
+                                        : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908] shadow-[0_2px_0_#050504]'
+                                }`}
                             >
                                 Close
                             </button>
