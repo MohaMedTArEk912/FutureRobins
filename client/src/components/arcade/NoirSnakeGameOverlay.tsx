@@ -1450,7 +1450,9 @@ export const NoirSnakeGameOverlay: React.FC = () => {
                         dir="ltr"
                         onTouchStart={(e) => e.stopPropagation()}
                         onTouchMove={(e) => e.stopPropagation()}
-                        className="absolute inset-x-0 bottom-0 z-20 px-4 pb-3 pt-2 flex items-end justify-between pointer-events-none"
+                        className={`absolute inset-x-0 bottom-0 z-20 px-4 pb-3 pt-2 flex items-end pointer-events-none ${
+                            hud.mode === 'harvest' ? 'justify-center' : 'justify-between'
+                        }`}
                         style={{ paddingBottom: 'max(10px, env(safe-area-inset-bottom))' }}
                     >
                         {/* Left/Center Ergonomic D-Pad */}

@@ -114,6 +114,8 @@ export class NoirSnakeEngine {
     private harvestLastWarningBeepStep = 0;
     private harvestRenderZoom = 1.42;
     private harvestTargetZoom = 1.42;
+    private harvestCamCenterX = 0;
+    private harvestCamCenterY = 0;
     private harvestMorphFlashMs = 0;
 
     // Entities
@@ -265,6 +267,23 @@ export class NoirSnakeEngine {
         this.harvestNormMaxY = this.harvestNormMinY + this.harvestNormalRows - 1;
 
         this.updateHarvestTargetZoom();
+        const targetCenter = this.getHarvestShapeTargetCenter();
+        this.harvestCamCenterX = targetCenter.x;
+        this.harvestCamCenterY = targetCenter.y;
+    }
+
+    private getHarvestShapeTargetCenter(): { x: number; y: number } {
+        const cell = this.cellSize;
+        if (this.harvestShape.id === 'megagrid') {
+            return {
+                x: (this.boardCols * cell) / 2,
+                y: (this.boardRows * cell) / 2
+            };
+        }
+        return {
+            x: ((this.harvestNormMinX + this.harvestNormMaxX + 1) * cell) / 2,
+            y: ((this.harvestNormMinY + this.harvestNormMaxY + 1) * cell) / 2
+        };
     }
 
     private updateHarvestTargetZoom() {
@@ -508,6 +527,9 @@ export class NoirSnakeEngine {
         this.harvestLastWarningBeepStep = 0;
         this.updateHarvestTargetZoom();
         this.harvestRenderZoom = this.harvestTargetZoom;
+        const targetCenter = this.getHarvestShapeTargetCenter();
+        this.harvestCamCenterX = targetCenter.x;
+        this.harvestCamCenterY = targetCenter.y;
         this.harvestMorphFlashMs = 0;
     }
 
@@ -2189,9 +2211,14 @@ export class NoirSnakeEngine {
             this.harvestMorphFlashMs = Math.max(0, this.harvestMorphFlashMs - dt);
         }
 
-        // Smooth camera zoom interpolation
+        // Smooth camera zoom & active sector center interpolation
         const zoomLerp = 1 - Math.exp(-6.5 * (dt / 1000));
         this.harvestRenderZoom += (this.harvestTargetZoom - this.harvestRenderZoom) * zoomLerp;
+
+        const targetCenter = this.getHarvestShapeTargetCenter();
+        const camLerp = 1 - Math.exp(-8 * (dt / 1000));
+        this.harvestCamCenterX += (targetCenter.x - this.harvestCamCenterX) * camLerp;
+        this.harvestCamCenterY += (targetCenter.y - this.harvestCamCenterY) * camLerp;
 
         // Countdown active shape timer
         this.harvestShapeRemainingMs = Math.max(0, this.harvestShapeRemainingMs - dt);
@@ -2465,28 +2492,34 @@ export class NoirSnakeEngine {
         const cell = this.cellSize;
         const bw = this.boardCols * cell;
         const bh = this.boardRows * cell;
-        const padTop = this.width < 520 ? 12 : 20;
-        const padBottom = (this.width < 520 ? 12 : 20) + this.bottomSafeInset;
-        const availH = Math.max(280, this.height - padTop - padBottom);
+        const padTop = this.width < 520 ? 10 : 20;
+        const padBottom = (this.width < 520 ? 10 : 20) + this.bottomSafeInset;
+        const availH = Math.max(240, this.height - padTop - padBottom);
 
         // Subtle dark outer frame fill
         ctx.fillStyle = '#060504';
         ctx.fillRect(0, 0, this.width, this.height);
 
-        // Smooth camera centering and dynamic zoom scale
-        const screenCenterX = Math.floor(this.width / 2);
-        const screenCenterY = Math.floor(padTop + availH / 2);
-        const arenaCenterLocalX = bw / 2;
-        const arenaCenterLocalY = bh / 2;
+        // Smooth camera centering on the active sector's true geometric center
+        const screenCenterX = this.width / 2;
+        const screenCenterY = padTop + availH / 2;
+        const targetCenter = this.getHarvestShapeTargetCenter();
+        const camX = this.harvestCamCenterX || targetCenter.x;
+        const camY = this.harvestCamCenterY || targetCenter.y;
 
         ctx.save();
         ctx.translate(screenCenterX, screenCenterY);
         ctx.scale(this.harvestRenderZoom, this.harvestRenderZoom);
-        ctx.translate(-arenaCenterLocalX, -arenaCenterLocalY);
+        ctx.translate(-camX, -camY);
 
-        // 1. Playable Arena Floor & Voided Sector Cells
-        for (let y = 0; y < this.boardRows; y++) {
-            for (let x = 0; x < this.boardCols; x++) {
+        const activeMinX = this.harvestShape.id === 'megagrid' ? 0 : this.harvestNormMinX;
+        const activeMaxX = this.harvestShape.id === 'megagrid' ? this.boardCols - 1 : this.harvestNormMaxX;
+        const activeMinY = this.harvestShape.id === 'megagrid' ? 0 : this.harvestNormMinY;
+        const activeMaxY = this.harvestShape.id === 'megagrid' ? this.boardRows - 1 : this.harvestNormMaxY;
+
+        // 1. Playable Arena Floor & Voided Sector Cells (scoped to active sector envelope)
+        for (let y = activeMinY; y <= activeMaxY; y++) {
+            for (let x = activeMinX; x <= activeMaxX; x++) {
                 const isWalkable = this.isHarvestCellWalkable(x, y);
                 const px = x * cell;
                 const py = y * cell;
@@ -2501,8 +2534,8 @@ export class NoirSnakeEngine {
                     ctx.lineWidth = 1;
                     ctx.strokeRect(px + 0.5, py + 0.5, cell - 1, cell - 1);
 
-                    // Crosshairs on even coordinates
-                    if (x % 2 === 0 && y % 2 === 0) {
+                    // Crosshairs on even relative coordinates
+                    if ((x - activeMinX) % 2 === 0 && (y - activeMinY) % 2 === 0) {
                         ctx.strokeStyle = CROSSHAIR;
                         ctx.beginPath();
                         ctx.moveTo(px - 3, py);
@@ -2528,11 +2561,11 @@ export class NoirSnakeEngine {
                         ctx.stroke();
                     }
                 } else {
-                    // Void / Barrier tile: Deep dark with subtle architectural diagonal hatch
+                    // Void / Barrier tile inside active sector envelope: subtle diagonal hatch
                     ctx.fillStyle = '#050404';
                     ctx.fillRect(px, py, cell, cell);
 
-                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.035)';
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
                     ctx.lineWidth = 1;
                     ctx.beginPath();
                     ctx.moveTo(px, py + cell);
@@ -2547,8 +2580,8 @@ export class NoirSnakeEngine {
         const shapeAccent = this.harvestShape.accentColor;
 
         ctx.lineWidth = 2.5;
-        for (let y = 0; y < this.boardRows; y++) {
-            for (let x = 0; x < this.boardCols; x++) {
+        for (let y = activeMinY; y <= activeMaxY; y++) {
+            for (let x = activeMinX; x <= activeMaxX; x++) {
                 if (!this.isHarvestCellWalkable(x, y)) continue;
 
                 const px = x * cell;
@@ -2591,27 +2624,31 @@ export class NoirSnakeEngine {
             }
         }
 
-        // Corner architectural brackets on outer master frame
-        const brk = 14;
+        // Corner architectural brackets on active sector outer envelope
+        const envLeft = activeMinX * cell;
+        const envTop = activeMinY * cell;
+        const envRight = (activeMaxX + 1) * cell;
+        const envBottom = (activeMaxY + 1) * cell;
+        const brk = 12;
         ctx.strokeStyle = shapeAccent;
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 2.5;
         ctx.beginPath();
         // Top-left
-        ctx.moveTo(0, brk);
-        ctx.lineTo(0, 0);
-        ctx.lineTo(brk, 0);
+        ctx.moveTo(envLeft - 2, envTop + brk);
+        ctx.lineTo(envLeft - 2, envTop - 2);
+        ctx.lineTo(envLeft + brk, envTop - 2);
         // Top-right
-        ctx.moveTo(bw - brk, 0);
-        ctx.lineTo(bw, 0);
-        ctx.lineTo(bw, brk);
+        ctx.moveTo(envRight - brk, envTop - 2);
+        ctx.lineTo(envRight + 2, envTop - 2);
+        ctx.lineTo(envRight + 2, envTop + brk);
         // Bottom-left
-        ctx.moveTo(0, bh - brk);
-        ctx.lineTo(0, bh);
-        ctx.lineTo(brk, bh);
+        ctx.moveTo(envLeft - 2, envBottom - brk);
+        ctx.lineTo(envLeft - 2, envBottom + 2);
+        ctx.lineTo(envLeft + brk, envBottom + 2);
         // Bottom-right
-        ctx.moveTo(bw - brk, bh);
-        ctx.lineTo(bw, bh);
-        ctx.lineTo(bw, bh - brk);
+        ctx.moveTo(envRight - brk, envBottom + 2);
+        ctx.lineTo(envRight + 2, envBottom + 2);
+        ctx.lineTo(envRight + 2, envBottom - brk);
         ctx.stroke();
 
         // 3. Draw Entities in Arena Local Coordinates
@@ -2646,10 +2683,11 @@ export class NoirSnakeEngine {
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
 
-            const bannerY = 16;
-            const bannerW = Math.min(bw - 24, 300);
+            const activeW = envRight - envLeft;
+            const bannerY = envTop + 12;
+            const bannerW = Math.min(activeW - 16, 280);
             const bannerH = 34;
-            const bannerX = arenaCenterLocalX - bannerW / 2;
+            const bannerX = camX - bannerW / 2;
 
             ctx.fillStyle = 'rgba(10, 9, 8, 0.90)';
             ctx.strokeStyle = this.harvestNextShape.accentColor;
@@ -2659,11 +2697,11 @@ export class NoirSnakeEngine {
             ctx.strokeRect(bannerX, bannerY, bannerW, bannerH);
 
             ctx.fillStyle = this.harvestNextShape.accentColor;
-            ctx.fillText(warningText, arenaCenterLocalX, bannerY + 11);
+            ctx.fillText(warningText, camX, bannerY + 11);
 
             ctx.font = '700 10px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace';
             ctx.fillStyle = '#f5f3ec';
-            ctx.fillText(nextText, arenaCenterLocalX, bannerY + 23);
+            ctx.fillText(nextText, camX, bannerY + 23);
 
             ctx.restore();
         }
