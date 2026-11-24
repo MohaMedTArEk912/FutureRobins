@@ -81,7 +81,7 @@ const DailyChallengeManagement: React.FC<DailyChallengeManagementProps> = ({ cur
         const qTitle = todayChallenge?.compilerQuestion?.title || 'Weekly Algorithmic Challenge';
         setBroadcastData({
             title: qTitle,
-            description: todayChallenge?.compilerQuestion?.description?.substring(0, 150) || 'New weekly coding challenge dropped on Quiz Platform. Solve it to earn streak rewards and climb the rankings!',
+            description: todayChallenge?.compilerQuestion?.description?.substring(0, 150) || 'New weekly coding challenge dropped on Future Robins. Solve it to earn streak rewards and climb the rankings!',
             category: 'Algorithmic Challenge'
         });
         setShowBroadcastModal(true);

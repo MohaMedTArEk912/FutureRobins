@@ -54,6 +54,20 @@ export const updateUser = async (req, res) => {
       }
     }
 
+    if (updates.gender !== undefined) {
+      if (!['male', 'female'].includes(updates.gender)) {
+        return res.status(400).json({ message: 'Invalid gender specified' });
+      }
+      if (updates.avatar && typeof updates.avatar === 'object') {
+        updates.avatar = { ...updates.avatar, gender: updates.gender };
+      } else {
+        updates['avatar.gender'] = updates.gender;
+      }
+      delete updates.gender;
+    } else if (updates.avatar?.gender !== undefined && !['male', 'female'].includes(updates.avatar.gender)) {
+      return res.status(400).json({ message: 'Invalid avatar gender specified' });
+    }
+
     const query = {
       $or: [
         { userId },
@@ -567,7 +581,7 @@ export const getPublicUserProfile = async (req, res) => {
 };
 
 /**
- * Awards capped real Quiz Platform XP for completed Secret Arcade runs.
+ * Awards capped real Future Robins XP for completed Secret Arcade runs.
  * Guarded by per-run (max 150 XP) and per-day (max 500 XP) anti-abuse limits.
  */
 export const claimArcadeXp = async (req, res) => {

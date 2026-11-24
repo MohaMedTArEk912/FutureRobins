@@ -350,7 +350,7 @@ export const getAiMistakeAnalysis = async (req, res) => {
       `- ${t.topic} (${t.category}, quizId: ${t.quizId}): ${t.wrongCount}/${t.totalAnswered} wrong (${t.errorRate}% error rate)`
     )).join('\n');
 
-    const prompt = `You are an expert AI Learning Coach & Diagnostic Tutor for a programming and technology Quiz Platform.
+    const prompt = `You are an expert AI Learning Coach & Diagnostic Tutor for a programming and technology learning platform, Future Robins.
 Analyze this student's actual wrong answers and weak topics, then return a strictly valid JSON object to help them improve.
 
 Student Overview:

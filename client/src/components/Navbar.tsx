@@ -44,7 +44,7 @@ const Navbar: React.FC<NavbarProps> = ({
     onViewLeaderboard,
     onLogout,
     showBack,
-    title = "Quiz Platform",
+    title = "Future Robins",
     showActions = true
 }) => {
     const { isBento } = useTheme();
@@ -142,7 +142,7 @@ const Navbar: React.FC<NavbarProps> = ({
                 }}
                 aria-haspopup="menu"
                 aria-expanded={isBrandOpen}
-                aria-label={tx('Switch between Quiz Platform and Arcade', 'التبديل بين منصة الكويزات والأركيد')}
+                aria-label={tx('Switch between Future Robins and Arcade', 'التبديل بين فيوتشر روبينز والأركيد')}
                 className={`btn-unstyled flex items-center gap-1.5 px-2.5 py-1.5 -ms-2 rounded-xl min-w-0 cursor-pointer transition-all text-start select-none ${
                     isBento
                         ? isBrandOpen
@@ -154,9 +154,9 @@ const Navbar: React.FC<NavbarProps> = ({
                 }`}
             >
                 <span className="text-sm sm:text-base font-black tracking-tight whitespace-nowrap truncate">
-                    {tx('Quiz Platform', 'منصة الكويزات')}
+                    {tx('Future Robins', 'فيوتشر روبينز')}
                 </span>
-                {showStatusDot && (isRoot || !title || title === 'Quiz Platform') && (
+                {showStatusDot && (isRoot || !title || title === 'Future Robins' || title === 'Quiz Platform') && (
                     <span className={`w-1.5 h-1.5 rounded-full animate-pulse hidden sm:inline-block shrink-0 ${isBento ? 'bg-black' : 'bg-[#fde047]'}`} />
                 )}
                 <ChevronDown
@@ -181,7 +181,7 @@ const Navbar: React.FC<NavbarProps> = ({
                         {tx('Switch Space', 'اختار الوضع')}
                     </div>
 
-                    {/* Option 1: Quiz Platform */}
+                    {/* Option 1: Future Robins */}
                     <button
                         type="button"
                         role="menuitem"
@@ -204,7 +204,7 @@ const Navbar: React.FC<NavbarProps> = ({
                         </div>
                         <div className="min-w-0 flex-1">
                             <div className="text-xs font-black leading-tight truncate">
-                                {tx('Quiz Platform', 'منصة الكويزات')}
+                                {tx('Future Robins', 'فيوتشر روبينز')}
                             </div>
                             <div className={`text-[10px] font-bold mt-0.5 truncate ${
                                 isBento ? 'text-black/70' : 'text-[#a8a29e]'

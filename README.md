@@ -1,10 +1,10 @@
-# Quiz Platform
+# Future Robins
 
-Quiz Platform is a learning and assessment app for students, teachers, and learning communities. It combines structured quizzes and exams with guided skill tracks, classroom tools, social competition, and progress rewards. Learners can practice independently, join a teacher-led class, or challenge other players; educators can organize learning material and follow student progress.
+Future Robins is a learning and assessment app for students, teachers, and learning communities. It combines structured quizzes and exams with guided skill tracks, classroom tools, social competition, and progress rewards. Learners can practice independently, join a teacher-led class, or challenge other players; educators can organize learning material and follow student progress.
 
 ## The story
 
-Learning often gets split between static course material, disconnected tests, and progress reports that arrive too late to help. Quiz Platform brings those pieces into one place. A learner starts with a subject or skill track, works through quizzes and challenges, reviews results, and sees progress build over time through experience points, levels, streaks, badges, and leaderboard standing. Teachers can organize classes, assign work, and use the same activity and progress data to guide the next lesson. Live classrooms and head-to-head games add a shared, real-time way to practice.
+Learning often gets split between static course material, disconnected tests, and progress reports that arrive too late to help. Future Robins brings those pieces into one place. A learner starts with a subject or skill track, works through quizzes and challenges, reviews results, and sees progress build over time through experience points, levels, streaks, badges, and leaderboard standing. Teachers can organize classes, assign work, and use the same activity and progress data to guide the next lesson. Live classrooms and head-to-head games add a shared, real-time way to practice.
 
 The goal is to make assessment part of the learning journey: practice, understand the result, identify what to work on next, and keep going.
 

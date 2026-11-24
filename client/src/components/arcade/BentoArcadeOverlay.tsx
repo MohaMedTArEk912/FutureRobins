@@ -740,7 +740,7 @@ export const BentoArcadeOverlay: React.FC = () => {
                                     </h2>
                                     <p className="text-xs font-semibold text-black/70 mt-0.5">
                                         {tx(
-                                            'Level up in both modes and sync bonus XP straight to your Quiz Platform account.',
+                                            'Level up in both modes and sync bonus XP straight to your Future Robins account.',
                                             'ارفع مستواك في الوضعين واكسب نقاط XP حقيقية تضاف لحسابك على المنصة.'
                                         )}
                                     </p>
@@ -923,7 +923,7 @@ export const BentoArcadeOverlay: React.FC = () => {
                                     onClick={exitSecretGame}
                                     className="h-9 text-xs font-black text-black/65 hover:text-black cursor-pointer"
                                 >
-                                    {tx('Return to Quiz Platform', 'العودة للمنصة')}
+                                    {tx('Return to Future Robins', 'العودة لفيوتشر روبينز')}
                                 </button>
                             </div>
                         </div>

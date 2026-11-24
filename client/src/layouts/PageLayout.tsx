@@ -46,7 +46,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children, title, showBack, onBa
                 onViewProfile={() => navigate('/profile')}
                 onViewLeaderboard={() => navigate('/leaderboard')}
                 onLogout={handleLogout}
-                title={title || "Quiz Platform"}
+                title={title || "Future Robins"}
                 showBack={showBack}
                 onBack={onBack}
                 showActions={true}

@@ -65,7 +65,7 @@ export const createAndSendNotification = async (appOrIo, data) => {
         await sendGeneralAlertEmail({
           email: recipient.email,
           recipientName: recipient.name || recipientId,
-          senderName: newNotification.senderName || 'Quiz Platform',
+          senderName: newNotification.senderName || 'Future Robins',
           title: newNotification.title,
           message: newNotification.message,
           link: newNotification.link || '/'

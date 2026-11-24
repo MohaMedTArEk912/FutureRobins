@@ -1166,7 +1166,7 @@ export const NoirSnakeGameOverlay: React.FC = () => {
                                     </h2>
                                     <p className="text-xs text-[#a8a29e] mt-0.5">
                                         {tx(
-                                            'Earn Arcade XP, level up mid-run, and sync bonus XP to your Quiz Platform profile.',
+                                            'Earn Arcade XP, level up mid-run, and sync bonus XP to your Future Robins profile.',
                                             'اجمع نقاط XP وارفع مستواك في كل الأوضاع مع مكافآت XP حقيقية لحسابك على المنصة.'
                                         )}
                                     </p>
@@ -1387,7 +1387,7 @@ export const NoirSnakeGameOverlay: React.FC = () => {
                                     onClick={exitSecretGame}
                                     className="h-9 rounded-xl text-xs font-mono font-bold text-[#a8a29e] hover:text-[#fda4af] transition-colors cursor-pointer"
                                 >
-                                    {tx('Return to Quiz Platform', 'العودة للمنصة')}
+                                    {tx('Return to Future Robins', 'العودة لفيوتشر روبينز')}
                                 </button>
                             </div>
                         </div>

@@ -321,13 +321,13 @@ const Footer: React.FC = () => {
                                 type="button"
                                 onClick={() => handleFooterNav('/')}
                                 className="logo-btn inline-flex items-center gap-2.5 group cursor-pointer text-start outline-none focus:outline-none border-0"
-                                aria-label={tx('Quiz Platform Home', 'الصفحة الرئيسية لمنصة Quiz Platform')}
+                                aria-label={tx('Future Robins Home', 'الصفحة الرئيسية لفيوتشر روبينز')}
                             >
                                 <div className="flex flex-col leading-tight">
                                     <span className={`text-base font-black tracking-tight ${
                                         isBento ? 'text-black font-mono' : 'text-white dark:text-[#f5f3ec]'
                                     }`}>
-                                        Quiz Platform
+                                        Future Robins
                                     </span>
                                     <span className={`text-[10px] uppercase font-extrabold tracking-[0.14em] ${
                                         isBento ? 'text-black/65 font-mono' : 'text-indigo-400 dark:text-[#fde047]'
@@ -555,7 +555,7 @@ const Footer: React.FC = () => {
                             : 'border-slate-800 dark:border-[#23201c] text-slate-400 dark:text-[#888177]'
                     }`}>
                         <div className="flex flex-wrap items-center justify-center sm:justify-start gap-1.5 sm:gap-2">
-                            <span>&copy; {currentYear} Quiz Platform</span>
+                            <span>&copy; {currentYear} Future Robins</span>
                             <span className="opacity-40">·</span>
                             <span>
                                 {tx('Made by', 'تطوير')}{' '}
@@ -671,8 +671,8 @@ const Footer: React.FC = () => {
                     <p className="font-bold text-slate-900 dark:text-white">{tx(`Last updated: ${currentYear}`, `آخر تحديث: ${currentYear}`)}</p>
                     <p>
                         {tx(
-                            'At Quiz Platform, your privacy is our core priority. We only collect the minimal information necessary to deliver our educational experience, track learning progress, and facilitate multiplayer challenges.',
-                            'في Quiz Platform خصوصيتك أولوية أساسية. بنجمع فقط الحد الأدنى من البيانات اللازمة لتقديم التجربة التعليمية ومتابعة تقدمك وتشغيل التحديات الجماعية.'
+                            'At Future Robins, your privacy is our core priority. We only collect the minimal information necessary to deliver our educational experience, track learning progress, and facilitate multiplayer challenges.',
+                            'في فيوتشر روبينز خصوصيتك أولوية أساسية. بنجمع فقط الحد الأدنى من البيانات اللازمة لتقديم التجربة التعليمية ومتابعة تقدمك وتشغيل التحديات الجماعية.'
                         )}
                     </p>
                     <h4 className="font-bold text-slate-900 dark:text-white text-sm">{tx('1. Information We Collect', '1. البيانات اللي بنجمعها')}</h4>
@@ -710,8 +710,8 @@ const Footer: React.FC = () => {
                     <p className="font-bold text-slate-900 dark:text-white">{tx(`Effective Date: ${currentYear}`, `تاريخ السريان: ${currentYear}`)}</p>
                     <p>
                         {tx(
-                            'By using Quiz Platform, you agree to treat fellow learners respectfully, refrain from automated bot scraping, and maintain fair play during competitive multiplayer tournaments and duels.',
-                            'باستخدامك Quiz Platform بتوافق على احترام باقي المتعلمين، والامتناع عن استخدام البوتات أو السكربتات الآلية، والالتزام باللعب النظيف في البطولات والمواجهات.'
+                            'By using Future Robins, you agree to treat fellow learners respectfully, refrain from automated bot scraping, and maintain fair play during competitive multiplayer tournaments and duels.',
+                            'باستخدامك فيوتشر روبينز بتوافق على احترام باقي المتعلمين، والامتناع عن استخدام البوتات أو السكربتات الآلية، والالتزام باللعب النظيف في البطولات والمواجهات.'
                         )}
                     </p>
                     <h4 className="font-bold text-slate-900 dark:text-white text-sm">{tx('1. Fair Play & Academic Integrity', '1. اللعب النظيف والنزاهة')}</h4>
@@ -845,7 +845,7 @@ const Footer: React.FC = () => {
                                     required
                                     value={supportEmail}
                                     onChange={(e) => setSupportEmail(e.target.value)}
-                                    placeholder="alex.dev@quizplatform.com"
+                                    placeholder="wilbur@futurerobins.com"
                                     className={`w-full py-2.5 px-3.5 rounded-xl text-xs outline-none transition-all ${
                                         isBento
                                             ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] focus:shadow-[4px_4px_0px_#000] focus:border-black placeholder:text-neutral-500 font-medium'

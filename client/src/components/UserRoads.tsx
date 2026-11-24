@@ -43,6 +43,7 @@ import {
 import Navbar from './Navbar.tsx';
 import Footer from './Footer.tsx';
 import UserRoadmapView from './UserRoadmapView';
+import { AnimatedCharacter } from './AnimatedCharacter.tsx';
 import InitialTrackSelectionModal from './tracks/InitialTrackSelectionModal';
 import RequestTrackAccessModal from './tracks/RequestTrackAccessModal';
 import StreakRewardModal from './gamification/StreakRewardModal';
@@ -633,7 +634,7 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                     onViewProfile={onViewProfile}
                     onViewLeaderboard={onViewLeaderboard}
                     onLogout={onLogout}
-                    title="Quiz Platform"
+                    title="Future Robins"
                     showActions={true}
                 />
             )}
@@ -721,12 +722,23 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                     </div>
                                 </div>
                             </div>
-                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${
-                                isBento
-                                    ? 'bg-[#fde047] text-black border-2 border-black shadow-[2.5px_2.5px_0px_#000]'
-                                    : 'bg-[#231e0f] text-[#fde047] border border-[#fde047]/35'
-                            }`}>
-                                <Flame className="w-6 h-6 animate-pulse" />
+                            <div className="flex items-center gap-2.5 shrink-0">
+                                <div
+                                    className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center p-1 overflow-hidden ${
+                                        isBento
+                                            ? 'bg-[#bae6fd] border-2 border-black shadow-[2.5px_2.5px_0px_#000]'
+                                            : 'bg-[#0b1628] border border-[#00e5ff]/35'
+                                    }`}
+                                >
+                                    <AnimatedCharacter isEmailFocused={false} isPasswordFocused={false} compact />
+                                </div>
+                                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${
+                                    isBento
+                                        ? 'bg-[#fde047] text-black border-2 border-black shadow-[2.5px_2.5px_0px_#000]'
+                                        : 'bg-[#231e0f] text-[#fde047] border border-[#fde047]/35'
+                                }`}>
+                                    <Flame className="w-6 h-6 animate-pulse" />
+                                </div>
                             </div>
                         </div>
 

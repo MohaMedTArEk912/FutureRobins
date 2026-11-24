@@ -91,14 +91,14 @@ export const getDailyChallenge = async (req, res) => {
     const hasPassedAnyToday = passedQuestionIds.length > 0;
 
     // Step 4: Fetch challenge from DB
-    let challenge = await DailyChallenge.findOne({ 
-      date: { $gte: targetDate, $lt: nextDay } 
+    let challenge = await DailyChallenge.findOne({
+      date: { $gte: targetDate, $lt: nextDay }
     }).lean();
 
     // Step 5: If no challenge exists
     if (!challenge) {
       if (isSpecificDate) {
-        return res.status(404).json({ 
+        return res.status(404).json({
           message: 'No challenge found for the selected date.',
           reason: 'not_found'
         });
@@ -107,7 +107,7 @@ export const getDailyChallenge = async (req, res) => {
       // Auto-create only for today if missing
       const eligibleQuestion = await CompilerQuestion.findEligibleQuestion();
       if (!eligibleQuestion) {
-        return res.status(404).json({ 
+        return res.status(404).json({
           message: 'No compiler questions available. Please ask admin to add questions.',
           reason: 'no_questions'
         });
@@ -119,7 +119,7 @@ export const getDailyChallenge = async (req, res) => {
           { $setOnInsert: { date: targetDate, compilerQuestionId: eligibleQuestion.questionId } },
           { upsert: true, new: true }
         ).lean();
-        await CompilerQuestion.markAsUsed(eligibleQuestion.questionId).catch(() => {});
+        await CompilerQuestion.markAsUsed(eligibleQuestion.questionId).catch(() => { });
       } catch (createErr) {
         challenge = await DailyChallenge.findOne({ date: { $gte: targetDate, $lt: nextDay } }).lean() || await DailyChallenge.findOne().sort({ date: -1 }).lean();
         if (!challenge) throw createErr;
@@ -173,7 +173,7 @@ export const getDailyChallenge = async (req, res) => {
       sanitizeQuestionForUser(questionsMap.get(challenge.compilerQuestionId));
 
     if (!primaryQuestion && !hasMultiTiers) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         message: 'Challenge question not found',
         reason: 'question_missing'
       });
@@ -231,13 +231,13 @@ export const getDailyChallenge = async (req, res) => {
       completed: hasPassedAnyToday,
       passThreshold: getPassThreshold()
     };
-    
+
     res.json(response);
 
   } catch (error) {
     console.error('Daily Challenge Error:', error);
-    res.status(500).json({ 
-      message: 'Failed to process daily challenge request', 
+    res.status(500).json({
+      message: 'Failed to process daily challenge request',
       error: error.message
     });
   }
@@ -404,8 +404,8 @@ export const submitCompilerAnswer = async (req, res) => {
     const isToday = challengeDate.getTime() === todayMidnight.getTime();
 
     // Step 4: Get challenge for this date
-    const challenge = await DailyChallenge.findOne({ 
-      date: { $gte: challengeDate, $lt: nextDay } 
+    const challenge = await DailyChallenge.findOne({
+      date: { $gte: challengeDate, $lt: nextDay }
     }).lean();
 
     if (!challenge) {
@@ -435,7 +435,7 @@ export const submitCompilerAnswer = async (req, res) => {
     // Step 6: Check if user already completed THIS specific question on challengeDate
     const alreadyPassedThisQuestion = await CompilerSubmission.hasPassedQuestionToday(userId, challengeDate, targetQuestionId);
     if (alreadyPassedThisQuestion) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         message: `You have already completed this ${resolvedTier ? resolvedTier.toUpperCase() + ' ' : ''}challenge!`,
         alreadyCompleted: true,
         tier: resolvedTier,
@@ -444,8 +444,8 @@ export const submitCompilerAnswer = async (req, res) => {
     }
 
     // Step 7: Get the question with reference code
-    const question = await CompilerQuestion.findOne({ 
-      questionId: targetQuestionId 
+    const question = await CompilerQuestion.findOne({
+      questionId: targetQuestionId
     }).lean();
 
     if (!question) {
@@ -458,7 +458,7 @@ export const submitCompilerAnswer = async (req, res) => {
       evaluationResult = await evaluateSubmission(question, code.trim());
     } catch (evalError) {
       console.error('AI Evaluation Error:', evalError);
-      return res.status(500).json({ 
+      return res.status(500).json({
         message: 'Failed to evaluate submission. Please try again.',
         error: evalError.message
       });
@@ -501,7 +501,7 @@ export const submitCompilerAnswer = async (req, res) => {
           const lastChallengeDate = user.dailyChallengeDate ? new Date(user.dailyChallengeDate) : null;
           const yesterday = new Date(todayMidnight);
           yesterday.setDate(yesterday.getDate() - 1);
-          
+
           if (lastChallengeDate && lastChallengeDate.getTime() === yesterday.getTime()) {
             newStreak = (user.dailyChallengeStreak || 0) + 1;
           } else if (lastChallengeDate && lastChallengeDate.getTime() === todayMidnight.getTime()) {
@@ -546,7 +546,7 @@ export const submitCompilerAnswer = async (req, res) => {
       // Update user balances
       user.coins = (user.coins || 0) + coinsAwarded;
       user.xp = (user.xp || 0) + xpAwarded;
-      
+
       if (user.clanId) {
         await syncClanXp(userId, xpAwarded, user.clanId);
       }
@@ -572,7 +572,7 @@ export const submitCompilerAnswer = async (req, res) => {
         tier: resolvedTier,
         allTiersCompleted
       });
-      await evaluateAndAwardBadges(userId).catch(() => {});
+      await evaluateAndAwardBadges(userId).catch(() => { });
     }
 
     // Step 11: Send response
@@ -596,8 +596,8 @@ export const submitCompilerAnswer = async (req, res) => {
 
   } catch (error) {
     console.error('Submit Compiler Answer Error:', error);
-    res.status(500).json({ 
-      message: 'Failed to process submission', 
+    res.status(500).json({
+      message: 'Failed to process submission',
       error: error.message
     });
   }
@@ -617,17 +617,17 @@ export const completeDailyChallenge = async (req, res) => {
     const user = req.user;
 
     const hasPassedToday = await CompilerSubmission.hasPassedToday(user.userId, today);
-    
+
     if (hasPassedToday) {
-      return res.json({ 
-        message: 'Challenge completed', 
+      return res.json({
+        message: 'Challenge completed',
         streak: user.dailyChallengeStreak,
         coins: user.coins,
         xp: user.xp
       });
     }
 
-    return res.status(400).json({ 
+    return res.status(400).json({
       message: 'Please submit your code solution first',
       completed: false
     });
@@ -647,7 +647,7 @@ export const getCompilerQuestionsAdmin = async (req, res) => {
     const questions = await CompilerQuestion.find({})
       .sort({ createdAt: -1 })
       .lean();
-    
+
     // Add stats to each question
     const questionsWithStats = await Promise.all(
       questions.map(async (q) => {
@@ -783,7 +783,7 @@ export const deleteCompilerQuestion = async (req, res) => {
     const { id } = req.params;
 
     let result = await CompilerQuestion.deleteOne({ questionId: id });
-    
+
     if (result.deletedCount === 0) {
       // Try by _id
       result = await CompilerQuestion.deleteOne({ _id: id });
@@ -808,7 +808,7 @@ export const deleteCompilerQuestion = async (req, res) => {
 export const createDailyChallenge = async (req, res) => {
   try {
     const { date, compilerQuestionId, rewardCoins, rewardXP, rewardBadgeId, rewardItemId } = req.body;
-    
+
     if (!date || !compilerQuestionId) {
       return res.status(400).json({ message: 'Date and compilerQuestionId are required' });
     }
@@ -953,7 +953,7 @@ export const updateDailyChallenge = async (req, res) => {
 export const getDailyChallengesAdmin = async (req, res) => {
   try {
     const challenges = await DailyChallenge.find({}).sort({ date: -1 }).limit(40).lean();
-    
+
     // OPTIMIZATION: Bulk fetch all questions in one query instead of N+1
     const questionIds = new Set();
     challenges.forEach(c => {
@@ -965,7 +965,7 @@ export const getDailyChallengesAdmin = async (req, res) => {
 
     const questions = await CompilerQuestion.find({ questionId: { $in: Array.from(questionIds) } }).lean();
     const questionMap = new Map(questions.map(q => [q.questionId, q]));
-    
+
     // Populate using the map
     const populated = challenges.map(c => {
       const primaryQ = questionMap.get(c.compilerQuestionId) || null;
@@ -1060,7 +1060,7 @@ export const getSkillTracks = async (req, res) => {
     };
 
     if (req.query.subjectId) {
-        query.subjectId = req.query.subjectId;
+      query.subjectId = req.query.subjectId;
     }
     const tracks = await SkillTrack.find(query).lean();
     res.json(tracks);
@@ -1078,23 +1078,23 @@ export const completeSkillModule = async (req, res) => {
     // Use the unified logic from service
     // This updates both SkillTrackProgress and User models
     const progressUpdated = await completeSpecificModule(req.user.userId, trackId, moduleId);
-    
+
     // Legacy Code Removal: The service now handles User model sync.
     // However, we need to check if we trigger badges here or if that should move to service too.
     // The service handles data, badge logic is separate.
-    
+
     // We can refetch user to get latest state for badge check if needed, 
     // or trust the service did its job.
-    
+
     // Check for badges (using existing logic)
     const newBadges = await checkAndUnlockBadges(req.user.userId, 'module_completion', {
       moduleId,
       trackId
     });
 
-    res.json({ 
-        message: 'Module completed',
-        newBadges: newBadges || []
+    res.json({
+      message: 'Module completed',
+      newBadges: newBadges || []
     });
   } catch (error) {
     res.status(500).json({ message: 'Error updating track progress', error: error.message });
@@ -1134,11 +1134,11 @@ export const createSkillTrack = async (req, res) => {
   try {
     const trackData = req.body;
     if (!trackData.trackId || !trackData.title) {
-        return res.status(400).json({ message: 'trackId and title are required' });
+      return res.status(400).json({ message: 'trackId and title are required' });
     }
     const existing = await SkillTrack.findOne({ trackId: trackData.trackId });
     if (existing) {
-        return res.status(409).json({ message: 'Track with this ID already exists' });
+      return res.status(409).json({ message: 'Track with this ID already exists' });
     }
     const track = new SkillTrack(trackData);
     await track.save();
@@ -1152,10 +1152,10 @@ export const updateSkillTrack = async (req, res) => {
   try {
     const { trackId } = req.params;
     const updates = req.body;
-    
+
     console.log('📝 Updating track:', trackId);
     console.log('📦 Payload modules count:', updates.modules?.length || 0);
-    
+
     const track = await SkillTrack.findOne({ trackId });
     if (!track) {
       console.log('❌ Track not found:', trackId);
@@ -1169,10 +1169,10 @@ export const updateSkillTrack = async (req, res) => {
     if (updates.icon) track.icon = updates.icon;
     if (updates.subjectId) track.subjectId = updates.subjectId;
     if (updates.modules) track.modules = updates.modules; // This includes subModules, coordinates, etc.
-    
+
     // Mark modules as modified to ensure nested objects are saved
     track.markModified('modules');
-    
+
     try {
       await track.save();
       console.log('✅ Track saved successfully');
@@ -1185,7 +1185,7 @@ export const updateSkillTrack = async (req, res) => {
       }
       throw saveError;
     }
-    
+
     res.json(track);
   } catch (error) {
     console.error('❌ Error updating track:', error.message);
@@ -1945,7 +1945,7 @@ export const claimDailyStreak = async (req, res) => {
     // Mark as claimed today
     user.lastStreakClaimDate = new Date();
     await user.save();
-    await evaluateAndAwardBadges(user.userId).catch(() => {});
+    await evaluateAndAwardBadges(user.userId).catch(() => { });
 
     res.json({
       success: true,
@@ -2143,7 +2143,7 @@ export const getTournamentInvitePreview = async (req, res) => {
 
     const proto = (req.headers['x-forwarded-proto'] || req.protocol || 'https').split(',')[0].trim();
     const host = (req.headers['x-forwarded-host'] || req.headers.host || '').split(',')[0].trim();
-    const fallbackOrigin = (process.env.CLIENT_URL || 'https://quiz-platform-dun.vercel.app').replace(/\/+$/, '');
+    const fallbackOrigin = (process.env.CLIENT_URL || 'https://futurerobins.vercel.app').replace(/\/+$/, '');
     const origin = host ? `${proto}://${host}` : fallbackOrigin;
 
     const tournament = await Tournament.findOne({ tournamentId: id }).lean();
@@ -2152,21 +2152,21 @@ export const getTournamentInvitePreview = async (req, res) => {
     const previewUrl = `${origin}/t/${encodeURIComponent(id)}`;
     const imageUrl = `${origin}/og-image.png`;
 
-    let title = '🏆 Tournament Invite — Quiz Platform';
-    let description = 'You are invited to compete in a live Quiz Platform tournament arena!';
+    let title = '🏆 Tournament Invite — Future Robins';
+    let description = 'You are invited to compete in a live Future Robins tournament arena!';
 
     if (tournament) {
       title = `🏆 ${tournament.name} — Quiz Tournament`;
       const prize = tournament.rewardCoins ? `${tournament.rewardCoins} Coins Prize` : 'Competitive Arena';
       const kickoff = tournament.startsAt
         ? new Date(tournament.startsAt).toLocaleString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            timeZone: 'UTC',
-            timeZoneName: 'short'
-          })
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          timeZone: 'UTC',
+          timeZoneName: 'short'
+        })
         : 'Scheduled';
       const shortDesc = tournament.description
         ? tournament.description.replace(/\s+/g, ' ').trim().slice(0, 110)
@@ -2191,17 +2191,17 @@ export const getTournamentInvitePreview = async (req, res) => {
   <meta name="description" content="${safeDesc}" />
   <meta name="robots" content="noindex" />
   <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="Quiz Platform" />
+  <meta property="og:site_name" content="Future Robins" />
   <meta property="og:title" content="${safeTitle}" />
   <meta property="og:description" content="${safeDesc}" />
   <meta property="og:url" content="${safePreviewUrl}" />
   <meta property="og:image" content="${safeImageUrl}" />
-  <meta property="og:image:alt" content="Quiz Platform — Practice computer science" />
+  <meta property="og:image:alt" content="Future Robins — Practice computer science" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="${safeTitle}" />
   <meta name="twitter:description" content="${safeDesc}" />
   <meta name="twitter:image" content="${safeImageUrl}" />
-  <meta name="twitter:image:alt" content="Quiz Platform — Practice computer science" />
+  <meta name="twitter:image:alt" content="Future Robins — Practice computer science" />
   <meta http-equiv="refresh" content="0;url=${safeTargetPath}" />
   <script>window.location.replace(${JSON.stringify(targetUrl)});</script>
 </head>

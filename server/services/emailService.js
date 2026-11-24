@@ -69,11 +69,11 @@ export function resolveFromAddress(customDisplayName) {
     return process.env.EMAIL_FROM.trim();
   }
   const user = process.env.GMAIL_USER?.trim() || process.env.SMTP_USER?.trim();
-  const displayName = customDisplayName || 'Quiz Platform';
+  const displayName = customDisplayName || 'Future Robins';
   if (user) {
     return `"${displayName}" <${user}>`;
   }
-  return `"${displayName}" <support@quizplatform.com>`;
+  return `"${displayName}" <support@futurerobins.com>`;
 }
 
 /**
@@ -271,7 +271,7 @@ export async function sendSupportEmail({
   const safeMessage = escapeHtml(message).replace(/\n/g, '<br/>');
   const dateFormatted = new Date().toUTCString();
 
-  const fromAddress = resolveFromAddress('Quiz Platform Support');
+  const fromAddress = resolveFromAddress('Future Robins Support');
 
   const htmlContent = `
     <!DOCTYPE html>
@@ -332,7 +332,7 @@ export async function sendSupportEmail({
             </div>
           </div>
           <div class="footer">
-            Quiz Platform Enterprise Support Desk • Automated Dispatch to ${escapeHtml(targetRecipient)}
+            Future Robins Enterprise Support Desk • Automated Dispatch to ${escapeHtml(targetRecipient)}
           </div>
         </div>
       </body>
@@ -480,7 +480,7 @@ export async function dispatchMail({ to, subject, html, text }) {
 export async function sendWelcomeEmail({ email, name, userId }) {
   const safeName = escapeHtml(name || 'Champion');
   const safeUserId = escapeHtml(userId || '');
-  const subject = `Welcome to Quiz Platform, ${safeName}! 🚀`;
+  const subject = `Welcome to Future Robins, ${safeName}! 🚀`;
 
   const html = `
     <!DOCTYPE html>
@@ -502,7 +502,7 @@ export async function sendWelcomeEmail({ email, name, userId }) {
         <div class="card">
           <div class="header">
             <span class="badge">ACCOUNT READY</span>
-            <h1 style="margin: 10px 0 0 0; font-size: 24px; font-weight: 900;">Welcome to Quiz Platform! ⚡</h1>
+            <h1 style="margin: 10px 0 0 0; font-size: 24px; font-weight: 900;">Welcome to Future Robins! ⚡</h1>
           </div>
           <div class="content">
             <p>Hey <strong>${safeName}</strong>,</p>
@@ -520,11 +520,11 @@ export async function sendWelcomeEmail({ email, name, userId }) {
             </div>
 
             <div style="text-align: center;">
-              <a href="${process.env.APP_URL || 'http://localhost:5173'}" class="cta-btn">Enter Quiz Platform →</a>
+              <a href="${process.env.APP_URL || 'http://localhost:5173'}" class="cta-btn">Enter Future Robins →</a>
             </div>
           </div>
           <div class="footer">
-            Quiz Platform • Happy Learning & Quiz Taking!
+            Future Robins • Keep Moving Forward!
           </div>
         </div>
       </body>
@@ -534,7 +534,7 @@ export async function sendWelcomeEmail({ email, name, userId }) {
   return dispatchMail({
     to: email,
     subject,
-    text: `Welcome to Quiz Platform, ${safeName}!\n\nYour account has been created. Start taking quizzes, earning XP, and climbing the leaderboard today at ${process.env.APP_URL || 'http://localhost:5173'}.`,
+    text: `Welcome to Future Robins, ${safeName}!\n\nYour account has been created. Start taking quizzes, earning XP, and climbing the leaderboard today at ${process.env.APP_URL || 'http://localhost:5173'}.`,
     html
   });
 }
@@ -570,7 +570,7 @@ export async function sendPasswordResetEmail({ email, name, resetCode }) {
           </div>
           <div class="content">
             <p>Hello <strong>${safeName}</strong>,</p>
-            <p>We received a request to reset the password for your Quiz Platform account. Enter the 6-digit verification code below or click the button to reset right away:</p>
+            <p>We received a request to reset the password for your Future Robins account. Enter the 6-digit verification code below or click the button to reset right away:</p>
             
             <div class="code-box">${safeCode}</div>
 
@@ -584,7 +584,7 @@ export async function sendPasswordResetEmail({ email, name, resetCode }) {
             </p>
           </div>
           <div class="footer">
-            Quiz Platform Security Desk • Keep your credentials safe
+            Future Robins Security Desk • Keep your credentials safe
           </div>
         </div>
       </body>
@@ -594,7 +594,7 @@ export async function sendPasswordResetEmail({ email, name, resetCode }) {
   return dispatchMail({
     to: email,
     subject,
-    text: `Hello ${safeName},\n\nYour Quiz Platform password reset code is: ${safeCode}\n\nOr open this link directly: ${resetUrl}\n\nThis code is valid for 15 minutes. If you did not request this, please ignore this email.`,
+    text: `Hello ${safeName},\n\nYour Future Robins password reset code is: ${safeCode}\n\nOr open this link directly: ${resetUrl}\n\nThis code is valid for 15 minutes. If you did not request this, please ignore this email.`,
     html
   });
 }
@@ -626,13 +626,13 @@ export async function sendPasswordChangedEmail({ email, name }) {
           </div>
           <div class="content">
             <p>Hello <strong>${safeName}</strong>,</p>
-            <p>This is a confirmation that the password for your Quiz Platform account has been successfully updated on ${new Date().toUTCString()}.</p>
+            <p>This is a confirmation that the password for your Future Robins account has been successfully updated on ${new Date().toUTCString()}.</p>
             <p style="background: #fef2f2; border: 1.5px solid #ef4444; border-radius: 8px; padding: 12px; font-size: 13px; color: #991b1b;">
               ⚠️ <strong>Did not make this change?</strong> Please contact support immediately through the platform support form to secure your account.
             </p>
           </div>
           <div class="footer">
-            Quiz Platform Security Team
+            Future Robins Security Team
           </div>
         </div>
       </body>
@@ -642,7 +642,7 @@ export async function sendPasswordChangedEmail({ email, name }) {
   return dispatchMail({
     to: email,
     subject,
-    text: `Hello ${safeName},\n\nYour Quiz Platform account password was changed on ${new Date().toUTCString()}.\n\nIf you did not make this change, please contact support immediately.`,
+    text: `Hello ${safeName},\n\nYour Future Robins account password was changed on ${new Date().toUTCString()}.\n\nIf you did not make this change, please contact support immediately.`,
     html
   });
 }
@@ -688,7 +688,7 @@ export async function sendTrackApprovalEmail({ email, name, subjectTitle, adminN
             </div>
           </div>
           <div class="footer">
-            Quiz Platform Track Management
+            Future Robins Track Management
           </div>
         </div>
       </body>
@@ -745,7 +745,7 @@ export async function sendTrackRejectionEmail({ email, name, subjectTitle, admin
             </p>
           </div>
           <div class="footer">
-            Quiz Platform Track Management
+            Future Robins Track Management
           </div>
         </div>
       </body>
@@ -755,7 +755,7 @@ export async function sendTrackRejectionEmail({ email, name, subjectTitle, admin
   return dispatchMail({
     to: email,
     subject,
-    text: `Hello ${safeName},\n\nYour request for access to "${safeTrack}" was declined.\nAdmin Feedback: ${safeNote}\n\nQuiz Platform Team`,
+    text: `Hello ${safeName},\n\nYour request for access to "${safeTrack}" was declined.\nAdmin Feedback: ${safeNote}\n\nFuture Robins Team`,
     html
   });
 }
@@ -807,7 +807,7 @@ export async function sendClanInviteEmail({ email, recipientName, inviterName, c
             </div>
           </div>
           <div class="footer">
-            Quiz Platform Clan Hub
+            Future Robins Clan Hub
           </div>
         </div>
       </body>
@@ -877,7 +877,7 @@ export async function sendTournamentInviteEmail({
             </div>
           </div>
           <div class="footer">
-            Quiz Platform Competitive Arenas
+            Future Robins Competitive Arenas
           </div>
         </div>
       </body>
@@ -962,7 +962,7 @@ export async function sendQuizResultEmail({
             </p>
           </div>
           <div class="footer">
-            Quiz Platform Results System
+            Future Robins Results System
           </div>
         </div>
       </body>
@@ -993,7 +993,7 @@ async function sendConfirmationReceipt(mailTransporter, fromAddress, userEmail, 
           <p>Hello,</p>
           <p>We've received your support request regarding <strong>"${safeSubject}"</strong>.</p>
           <p>Our engineering and support team will review your inquiry and respond directly to this email address within 24 hours.</p>
-          <p style="margin-top: 24px; font-size: 13px; color: #64748b;">— The Quiz Platform Team</p>
+          <p style="margin-top: 24px; font-size: 13px; color: #64748b;">— The Future Robins Team</p>
         </div>
       </body>
     </html>
@@ -1003,7 +1003,7 @@ async function sendConfirmationReceipt(mailTransporter, fromAddress, userEmail, 
     from: fromAddress,
     to: userEmail,
     subject: `Ticket Received: #${ticketId} - ${subject}`,
-    text: `Hello,\n\nWe have received your support request regarding "${subject}". Our team will review it and reply within 24 hours.\n\nTicket Reference: #${ticketId}\nQuiz Platform Team`,
+    text: `Hello,\n\nWe have received your support request regarding "${subject}". Our team will review it and reply within 24 hours.\n\nTicket Reference: #${ticketId}\nFuture Robins Team`,
     html: receiptHtml
   });
 }
@@ -1044,7 +1044,7 @@ export async function sendWeeklyChallengeWelcomeEmail({ email, name, unsubscribe
           </div>
           <div class="content">
             <p style="font-size: 15px;">Hey <strong>${safeName}</strong>,</p>
-            <p>You're officially on the priority alert list for <strong>Quiz Platform Weekly Challenges & Learning Track Drops</strong>.</p>
+            <p>You're officially on the priority alert list for <strong>Future Robins Weekly Challenges & Learning Track Drops</strong>.</p>
             
             <p>Every week, our algorithms drop fresh coding puzzles, technical deep dives, and competitive duels directly onto the platform.</p>
 
@@ -1067,7 +1067,7 @@ export async function sendWeeklyChallengeWelcomeEmail({ email, name, unsubscribe
             </div>
           </div>
           <div class="footer">
-            <p style="margin: 0 0 8px 0;">Quiz Platform • Powered by Real-Time Code Execution & Gamified Learning</p>
+            <p style="margin: 0 0 8px 0;">Future Robins • Powered by Real-Time Code Execution & Gamified Learning</p>
             <p style="margin: 0;">Subscribed as ${safeEmail}. <a href="${unsubscribeUrl}" class="unsubscribe-link">Unsubscribe at any time</a></p>
           </div>
         </div>
@@ -1120,7 +1120,7 @@ export async function sendChallengeDropBroadcastEmail({ email, name, challengeTi
           </div>
           <div class="content">
             <p>Hey <strong>${safeName}</strong>,</p>
-            <p>A fresh algorithmic challenge has landed on Quiz Platform! Ready to test your logic and solve it?</p>
+            <p>A fresh algorithmic challenge has landed on Future Robins! Ready to test your logic and solve it?</p>
 
             <div class="challenge-card">
               <h2 style="margin: 0 0 8px 0; font-size: 18px; font-weight: 900;">${safeTitle}</h2>
@@ -1132,7 +1132,7 @@ export async function sendChallengeDropBroadcastEmail({ email, name, challengeTi
             </div>
           </div>
           <div class="footer">
-            <p style="margin: 0 0 6px 0;">Quiz Platform Weekly Challenges Notification</p>
+            <p style="margin: 0 0 6px 0;">Future Robins Weekly Challenges Notification</p>
             <a href="${unsubscribeUrl}" style="color: #94a3b8; font-size: 11px;">Unsubscribe from challenge drops</a>
           </div>
         </div>
@@ -1199,7 +1199,7 @@ export async function sendRegistrationVerificationEmail({ email, name, otp, veri
     accentBg: '#bae6fd',
     headerColor: '#000000',
     badgeText: 'EMAIL VERIFICATION',
-    heading: 'Confirm Your Quiz Platform Account',
+    heading: 'Confirm Your Future Robins Account',
     greetingName: safeName,
     introHtml: '<p>To make sure your email address works and activate your account, enter this <strong>6-digit verification code</strong> on the registration page — or click the button below to verify directly:</p>',
     calloutHtml: `
@@ -1210,13 +1210,13 @@ export async function sendRegistrationVerificationEmail({ email, name, otp, veri
     `,
     ctaHref: safeUrl,
     ctaLabel: 'Verify Email & Complete Sign Up →',
-    footerNote: 'Quiz Platform Account Security • Ignore this email if you did not request registration'
+    footerNote: 'Future Robins Account Security • Ignore this email if you did not request registration'
   });
 
   return dispatchMail({
     to: email,
     subject,
-    text: `Hello ${safeName},\n\nVerify your Quiz Platform email using this 6-digit OTP code: ${safeOtp}\n\nOr click this link to verify automatically: ${verifyUrl}\n\nThis code and link expire in 15 minutes.`,
+    text: `Hello ${safeName},\n\nVerify your Future Robins email using this 6-digit OTP code: ${safeOtp}\n\nOr click this link to verify automatically: ${verifyUrl}\n\nThis code and link expire in 15 minutes.`,
     html
   });
 }
@@ -1247,7 +1247,7 @@ export async function sendHomeworkAlertEmail({
   const safeModule = escapeHtml(moduleTitle || 'Session Homework');
   const safeTitle = escapeHtml(alertTitle || 'Homework Reminder');
   const safeMessage = escapeHtml(message || `Please complete your assigned work for ${moduleTitle || 'class'}.`).replace(/\n/g, '<br/>');
-  const subject = `${alertTitle || 'Homework Reminder'} — ${className || 'Quiz Platform'}`;
+  const subject = `${alertTitle || 'Homework Reminder'} — ${className || 'Future Robins'}`;
 
   const html = renderAlertCardHtml({
     accentBg: '#fde047',
@@ -1259,7 +1259,7 @@ export async function sendHomeworkAlertEmail({
     calloutHtml: `<div class="callout">${safeMessage}</div>`,
     ctaHref: escapeHtml(targetUrl),
     ctaLabel: 'Open Homework & Start →',
-    footerNote: `Quiz Platform Classroom Alerts • ${safeClass}`
+    footerNote: `Future Robins Classroom Alerts • ${safeClass}`
   });
 
   return dispatchMail({
@@ -1291,9 +1291,9 @@ export async function sendGeneralAlertEmail({
     ? rawLink
     : `${baseUrl}${rawLink.startsWith('/') ? rawLink : `/${rawLink}`}`;
   const safeName = escapeHtml(recipientName || 'Learner');
-  const safeSender = escapeHtml(senderName || 'Quiz Platform');
+  const safeSender = escapeHtml(senderName || 'Future Robins');
   const safeTitle = escapeHtml(title || 'New Alert');
-  const safeMessage = escapeHtml(message || 'You have a new notification on Quiz Platform.').replace(/\n/g, '<br/>');
+  const safeMessage = escapeHtml(message || 'You have a new notification on Future Robins.').replace(/\n/g, '<br/>');
 
   const html = renderAlertCardHtml({
     accentBg: '#8b5cf6',
@@ -1305,13 +1305,13 @@ export async function sendGeneralAlertEmail({
     calloutHtml: `<div class="callout">${safeMessage}</div>`,
     ctaHref: escapeHtml(targetUrl),
     ctaLabel: 'Open Alert →',
-    footerNote: 'Quiz Platform Notifications'
+    footerNote: 'Future Robins Notifications'
   });
 
   return dispatchMail({
     to: email,
-    subject: `${title || 'New Alert'} — Quiz Platform`,
-    text: `Hello ${safeName},\n\n${title}\n${message}\n\nView on Quiz Platform: ${targetUrl}`,
+    subject: `${title || 'New Alert'} — Future Robins`,
+    text: `Hello ${safeName},\n\n${title}\n${message}\n\nView on Future Robins: ${targetUrl}`,
     html
   });
 }

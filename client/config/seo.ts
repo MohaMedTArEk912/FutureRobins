@@ -5,7 +5,7 @@ import {
 } from '../src/seo';
 import type { PublicPath } from '../src/seo';
 
-const DEFAULT_SITE_URL = 'https://quiz-platform-dun.vercel.app';
+const DEFAULT_SITE_URL = 'https://futurerobins.vercel.app';
 const METADATA = '<!-- page metadata -->';
 
 function escapeHtml(value: string): string {
@@ -69,7 +69,7 @@ export function seo(siteUrl: string | undefined, indexable: boolean): Plugin {
     }
 
     return {
-        name: 'quiz-platform-seo',
+        name: 'future-robins-seo',
         transformIndexHtml(html, { server, path, originalUrl }) {
             if (!server) return html;
             const pathname = (originalUrl ?? path).split('?')[0];

@@ -9,6 +9,7 @@ import {
 import { AVATAR_OPTIONS, DEFAULT_AVATAR_CONFIG } from '../constants/avatarDefaults';
 import { api } from '../lib/api';
 import { useTheme } from '../context/ThemeContext';
+import { setStoredMascotGender } from '../utils/mascotGenderStorage';
 
 interface AvatarEditorProps {
     user: UserData;
@@ -80,6 +81,7 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
         setSaving(true);
         try {
             await api.updateUser(user.userId, { avatar: config });
+            setStoredMascotGender(config.gender);
             const updatedUser = { ...user, avatar: config };
             onUpdate(updatedUser);
             await new Promise(resolve => setTimeout(resolve, 400));

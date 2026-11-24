@@ -157,7 +157,7 @@ export const exportAttemptToPDF = async (attempt: DetailedAttemptData): Promise<
             doc.setTextColor(255, 255, 255);
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(14);
-            doc.text('QUIZ PLATFORM — OFFICIAL ASSESSMENT REPORT', margin + 6, y + 8);
+            doc.text('FUTURE ROBINS — OFFICIAL ASSESSMENT REPORT', margin + 6, y + 8);
 
             doc.setFontSize(9);
             doc.setFont('helvetica', 'normal');
@@ -318,7 +318,7 @@ export const exportAttemptToPDF = async (attempt: DetailedAttemptData): Promise<
         doc.setFontSize(8);
         doc.setTextColor(156, 163, 175);
         doc.text(
-            `Page ${i} of ${totalPages} — Quiz Platform Inspector Report`,
+            `Page ${i} of ${totalPages} — Future Robins Inspector Report`,
             pageWidth / 2,
             pageHeight - 6,
             { align: 'center' }
@@ -589,7 +589,7 @@ export const exportQuizToPDF = async (quiz: Quiz): Promise<void> => {
         doc.setFontSize(8);
         doc.setTextColor(156, 163, 175);
         doc.text(
-            `Page ${i} of ${totalPages} — Quiz Platform Study Sheet`,
+            `Page ${i} of ${totalPages} — Future Robins Study Sheet`,
             pageWidth / 2,
             pageHeight - 6,
             { align: 'center' }
@@ -610,7 +610,7 @@ export const exportQuizHistoryToCSV = (attempts: AttemptData[], user?: UserData 
     lines.push('\uFEFF');
 
     // Section 1: User Profile & History Summary
-    lines.push('QUIZ PLATFORM — COMPLETE ASSESSMENT HISTORY');
+    lines.push('FUTURE ROBINS — COMPLETE ASSESSMENT HISTORY');
     lines.push(`Export Date,${escapeCSV(new Date().toLocaleString())}`);
     if (user) {
         lines.push(`Student Name,${escapeCSV(user.name)}`);

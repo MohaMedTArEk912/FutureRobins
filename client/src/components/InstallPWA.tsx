@@ -279,8 +279,8 @@ const InstallPWA: React.FC<InstallPWAProps> = ({ inline = false }) => {
                                   </span>
                                   <p className="pt-0.5 font-semibold leading-relaxed">
                                       {tx(
-                                          'Tap Add in the top right corner to install Quiz Platform!',
-                                          'اضغط إضافة (Add) فوق لتثبيت Quiz Platform!'
+                                          'Tap Add in the top right corner to install Future Robins!',
+                                          'اضغط إضافة (Add) فوق لتثبيت فيوتشر روبينز!'
                                       )}
                                   </p>
                               </div>
@@ -308,7 +308,7 @@ const InstallPWA: React.FC<InstallPWAProps> = ({ inline = false }) => {
             {/* Floating Install Prompt Banner */}
             {supportsPWA && !isDismissed && !isBusyRoute && (
                 <aside
-                    aria-label={tx('Install Quiz Platform App', 'تثبيت تطبيق Quiz Platform')}
+                    aria-label={tx('Install Future Robins App', 'تثبيت تطبيق فيوتشر روبينز')}
                     className={
                         inline
                             ? 'pointer-events-auto w-full sm:w-auto'

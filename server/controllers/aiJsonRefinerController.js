@@ -526,7 +526,7 @@ export const refineExistingJson = async (req, res) => {
         : ''
     ].filter(Boolean).join('\n');
 
-    const prompt = `You are a Principal Curriculum Engineer, Platform Schema Auditor, and Strict JSON Refiner for "Quiz Platform".
+    const prompt = `You are a Principal Curriculum Engineer, Platform Schema Auditor, and Strict JSON Refiner for "Future Robins".
 Your job is to carefully audit an existing "${detectedType}" JSON document, fix all schema/UI bugs, upgrade its educational depth & platform features, AND strictly obey every user constraint on what MUST remain unchanged.
 
 ### PRE-DETECTED SCHEMA & UI ISSUES

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
 import { api } from '../lib/api';
 import type { UserData } from '../lib/api';
+import { setStoredMascotGender } from '../utils/mascotGenderStorage';
 
 interface AuthContextType {
     currentUser: UserData | null;
@@ -81,6 +82,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
         verifyAndLoadSession();
     }, []);
+
+    useEffect(() => {
+        setStoredMascotGender(currentUser?.avatar?.gender);
+    }, [currentUser?.avatar?.gender]);
 
     const refreshUser = useCallback(async () => {
         const savedSession = sessionStorage.getItem('userSession') || localStorage.getItem('userSession');

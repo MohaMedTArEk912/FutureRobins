@@ -139,7 +139,7 @@ export const Certificate = forwardRef<HTMLDivElement, CertificateProps>(({
                             textTransform: 'uppercase',
                             color: '#0F172A'
                         }}>
-                            Quiz Platform Academy
+                            Future Robins Academy
                         </span>
                         <Award size={40} color="#D4AF37" />
                     </div>
@@ -268,7 +268,7 @@ export const Certificate = forwardRef<HTMLDivElement, CertificateProps>(({
                             color: '#0F172A'
                         }}
                         >
-                            Quiz Master
+                            Future Robins
                         </div>
                         <div style={{ height: '1px', width: '160px', backgroundColor: '#9CA3AF', marginBottom: '8px' }}></div>
                         <div style={{

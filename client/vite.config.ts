@@ -19,9 +19,9 @@ export default defineConfig(({ command, mode }) => ({
       registerType: 'autoUpdate',
       manifest: {
         id: '/',
-        name: 'Quiz Platform',
-        short_name: 'Quiz Platform',
-        description: 'Test your computer science knowledge, master skill tracks, and compete on the leaderboard.',
+        name: 'Future Robins',
+        short_name: 'Future Robins',
+        description: 'Future Robins — Master computer science, guided skill tracks, live arenas, and daily coding challenges.',
         theme_color: '#0a0908',
         background_color: '#0a0908',
         display: 'standalone',

@@ -13,13 +13,13 @@ import {
     ArrowLeft,
     ShieldCheck
 } from 'lucide-react';
-import TransparentLogo from './TransparentLogo.tsx';
 import { AmbientBackground } from './AmbientBackground';
 import { AnimatedCharacter } from './AnimatedCharacter.tsx';
 import { api, type UserData } from '../lib/api';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 import { AuthThemeButton } from './common/AuthThemeButton';
+import { getStoredMascotGender, setStoredMascotGender, type MascotGender } from '../utils/mascotGenderStorage';
 
 interface RegisterScreenProps {
     onVerified: (user: UserData, token: string) => void;
@@ -36,7 +36,13 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onVerified, onSwitchToL
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [gender, setGender] = useState<MascotGender>(() => getStoredMascotGender());
     const [showPassword, setShowPassword] = useState(false);
+
+    const handleGenderChange = (nextGender: MascotGender) => {
+        setGender(nextGender);
+        setStoredMascotGender(nextGender);
+    };
 
     const [otp, setOtp] = useState('');
     const [error, setError] = useState<string | null>(null);
@@ -144,7 +150,8 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onVerified, onSwitchToL
                 userId,
                 name: trimmedName,
                 email: normalizedEmail,
-                password
+                password,
+                gender
             });
             setEmail(res.email || normalizedEmail);
             setStep('verify');
@@ -284,16 +291,53 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onVerified, onSwitchToL
                 )}
 
                 <div className="w-full max-w-lg flex flex-col items-center relative z-10">
-                    <div className={`w-[340px] sm:w-[380px] h-[340px] sm:h-[380px] flex items-center justify-center mb-6 mascot-card-wrapper transition-all ${
+                    <div className={`w-[340px] sm:w-[380px] h-[340px] sm:h-[380px] flex items-center justify-center mb-4 mascot-card-wrapper transition-all ${
                         isBento
-                            ? 'bg-white rounded-[2rem] border-[3px] border-black shadow-[7px_7px_0px_#000] p-6 relative'
+                            ? 'bg-white rounded-[2rem] border-[3px] border-black shadow-[7px_7px_0px_#000] p-5 relative'
                             : ''
                     }`}>
                         <AnimatedCharacter
                             isEmailFocused={isEmailFocused || step === 'verify'}
                             isPasswordFocused={isPasswordFocused}
                             showPassword={showPassword}
+                            gender={gender}
                         />
+                    </div>
+
+                    {/* Interactive Boy / Girl Character Switcher */}
+                    <div className={`inline-flex items-center gap-1.5 p-1.5 rounded-2xl mb-5 ${
+                        isBento
+                            ? 'bg-white border-[2.5px] border-black shadow-[4px_4px_0px_#000]'
+                            : 'bg-[#141210]/90 border border-[#2e2924] backdrop-blur-md'
+                    }`}>
+                        {(['male', 'female'] as const).map((g) => {
+                            const active = gender === g;
+                            const label = g === 'male'
+                                ? (isBento ? tx('Boy (Lewis)', 'ولد (لويس)') : tx('Boy (Wilbur)', 'ولد (ويلبور)'))
+                                : (isBento ? tx('Girl (Robin)', 'بنت (روبين)') : tx('Girl (Franny)', 'بنت (فراني)'));
+                            return (
+                                <button
+                                    key={g}
+                                    type="button"
+                                    onClick={() => handleGenderChange(g)}
+                                    className={`btn-unstyled px-3.5 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                                        active
+                                            ? isBento
+                                                ? g === 'male'
+                                                    ? 'bg-[#fde047] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                                    : 'bg-[#bae6fd] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                                : g === 'male'
+                                                    ? 'bg-[#00e5ff] text-[#071122] shadow-sm'
+                                                    : 'bg-[#f43f5e] text-white shadow-sm'
+                                            : isBento
+                                                ? 'text-black/70 hover:text-black border-2 border-transparent'
+                                                : 'text-[#a8a29e] hover:text-[#f5f3ec]'
+                                    }`}
+                                >
+                                    {label}
+                                </button>
+                            );
+                        })}
                     </div>
 
                     <div className="text-center space-y-2">
@@ -334,15 +378,25 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onVerified, onSwitchToL
                             : 'bg-[#141210] border-[1.5px] border-[#2e2924] rounded-3xl p-6 sm:p-8 shadow-[0_6px_0_#050504]'
                     }`}
                 >
-                    {/* Mobile Logo & Heading */}
+                    {/* Mobile Mascot & Heading */}
                     <div className="lg:hidden text-center mb-2 pt-6">
                         <button
                             type="button"
                             onClick={() => navigate('/')}
-                            className="btn-unstyled w-16 h-16 mx-auto mb-3 relative flex items-center justify-center cursor-pointer active:scale-95 transition-transform bg-transparent border-0 p-0"
+                            className={`btn-unstyled w-24 h-24 mx-auto mb-2.5 rounded-2xl relative flex items-center justify-center cursor-pointer active:scale-95 transition-transform p-1.5 ${
+                                isBento
+                                    ? 'bg-[#bef264] border-[2.5px] border-black shadow-[4px_4px_0px_#000]'
+                                    : 'bg-[#0b1628]/80 border border-[#00e5ff]/30'
+                            }`}
                             aria-label={tx('Return to Home', 'الرجوع للرئيسية')}
                         >
-                            <TransparentLogo src="/icon.png" className="w-full h-full object-contain" threshold={40} />
+                            <AnimatedCharacter
+                                isEmailFocused={isEmailFocused || step === 'verify'}
+                                isPasswordFocused={isPasswordFocused}
+                                showPassword={showPassword}
+                                gender={gender}
+                                compact
+                            />
                         </button>
                         <h1 className={`text-2xl font-extrabold tracking-tight ${
                             isBento ? 'text-black' : 'text-[#f5f3ec]'
@@ -418,6 +472,41 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onVerified, onSwitchToL
 
                     {step === 'details' ? (
                         <form onSubmit={handleRequestSubmit} className="space-y-4">
+                            <div>
+                                <label className={labelClass}>{tx('Character Companion', 'الشخصية المرافقة')}</label>
+                                <div className="grid grid-cols-2 gap-2.5">
+                                    {(['male', 'female'] as const).map((g) => {
+                                        const active = gender === g;
+                                        return (
+                                            <button
+                                                key={g}
+                                                type="button"
+                                                onClick={() => handleGenderChange(g)}
+                                                disabled={isSubmitting}
+                                                className={`btn-unstyled py-2.5 px-3 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-2 ${
+                                                    active
+                                                        ? isBento
+                                                            ? g === 'male'
+                                                                ? 'bg-[#fde047] text-black border-[2.5px] border-black shadow-[3px_3px_0px_#000]'
+                                                                : 'bg-[#bae6fd] text-black border-[2.5px] border-black shadow-[3px_3px_0px_#000]'
+                                                            : g === 'male'
+                                                                ? 'bg-[#0b2538] text-[#67e8f9] border border-[#00e5ff]'
+                                                                : 'bg-[#2a131d] text-[#fda4af] border border-[#f43f5e]'
+                                                        : isBento
+                                                            ? 'bg-white text-black/75 border-2 border-black/30 hover:border-black'
+                                                            : 'bg-[#1a1714] text-[#a8a29e] border border-[#2e2924] hover:border-[#f5f3ec]/40'
+                                                }`}
+                                            >
+                                                <span>{g === 'male' ? tx('Boy', 'ولد') : tx('Girl', 'بنت')}</span>
+                                                <span className="opacity-65 text-[10px]">
+                                                    ({g === 'male' ? (isBento ? 'Lewis' : 'Wilbur') : (isBento ? 'Robin' : 'Franny')})
+                                                </span>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
                             <div className="group">
                                 <label className={labelClass}>{tx('Full Name', 'الاسم بالكامل')}</label>
                                 <div className="relative">
@@ -445,7 +534,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onVerified, onSwitchToL
                                         onChange={(e) => setEmail(e.target.value)}
                                         onFocus={() => setIsEmailFocused(true)}
                                         onBlur={() => setIsEmailFocused(false)}
-                                        placeholder="alex.dev@quizplatform.com"
+                                        placeholder="lewis@futurerobins.com"
                                         disabled={isSubmitting}
                                         className={inputClass}
                                         autoComplete="email"

@@ -14,10 +14,13 @@ const userSchema = new mongoose.Schema({
   streak: { type: Number, default: 0 },
   lastLoginDate: { type: Date, default: Date.now },
   avatar: {
+    gender: { type: String, enum: ['male', 'female'], default: 'male' },
     skinColor: { type: String },
     hairStyle: { type: String },
     hairColor: { type: String },
+    clothing: { type: String },
     accessory: { type: String },
+    frame: { type: String },
     backgroundColor: { type: String },
     mood: { type: String }
   },

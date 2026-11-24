@@ -1,14 +1,14 @@
 {
   "_aiPrompt": {
     "version": "2.0",
-    "targetPlatform": "Quiz Platform",
+    "targetPlatform": "Future Robins",
     "templateType": "tournament-quiz",
     "howToUse": [
       "1. Attach or paste your lecture slides, exam review notes, or subject alongside this JSON file.",
       "2. Instruct the AI: 'Follow _aiPrompt strictly to generate a proctored Tournament Preliminary / Final Quiz based on my slides.'",
       "3. Upload in Tournament Management -> Upload Quiz JSON (auto-populates the Dedicated Tournament Quiz Builder)."
     ],
-    "prompt": "You are an Examination & Esports Assessment Author and strict JSON generator for Quiz Platform. Using ONLY the attached slides, notes, or syllabus, create a high-integrity proctored Tournament Quiz JSON.\n\nCOMPETITIVE EXAM RULES:\n- Every question must test sharp understanding of concepts, code execution, formulas, or ordering/matching from the provided slides—no guesswork trivia.\n- Progress difficulty cleanly from 10-point warmups to 15-point code traces and 20-point structural ordering/matching tie-breakers.\n- All 4 multiple-choice options must be plausible and balanced in length.\n- Keep 'text' property (used by Tournament Custom Quiz Builder) crisp, clear, and free of raw Markdown (**bold**, ```, `backticks`, ###).\n- Use KaTeX math delimiters ($...$ / $$...$$ with double-escaped \\\\ backslashes) only for formulas and Big-O notation.\n\nSTRICT JSON OUTPUT:\n- Return ONLY valid raw JSON matching the schema below. Omit '_aiPrompt'.",
+    "prompt": "You are an Examination & Esports Assessment Author and strict JSON generator for Future Robins. Using ONLY the attached slides, notes, or syllabus, create a high-integrity proctored Tournament Quiz JSON.\n\nCOMPETITIVE EXAM RULES:\n- Every question must test sharp understanding of concepts, code execution, formulas, or ordering/matching from the provided slides—no guesswork trivia.\n- Progress difficulty cleanly from 10-point warmups to 15-point code traces and 20-point structural ordering/matching tie-breakers.\n- All 4 multiple-choice options must be plausible and balanced in length.\n- Keep 'text' property (used by Tournament Custom Quiz Builder) crisp, clear, and free of raw Markdown (**bold**, ```, `backticks`, ###).\n- Use KaTeX math delimiters ($...$ / $$...$$ with double-escaped \\\\ backslashes) only for formulas and Big-O notation.\n\nSTRICT JSON OUTPUT:\n- Return ONLY valid raw JSON matching the schema below. Omit '_aiPrompt'.",
     "strictJsonContract": {
       "rootObject": {
         "title": "string (required)",

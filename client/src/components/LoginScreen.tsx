@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react';
-import TransparentLogo from './TransparentLogo.tsx';
 import { AmbientBackground } from './AmbientBackground';
 import { AnimatedCharacter } from './AnimatedCharacter.tsx';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useLanguage } from '../context/LanguageContext.tsx';
 import { AuthThemeButton } from './common/AuthThemeButton';
+import { getStoredMascotGender, setStoredMascotGender, type MascotGender } from '../utils/mascotGenderStorage';
 
 interface LoginScreenProps {
     onLogin: (email: string, password: string) => Promise<void>;
@@ -22,12 +22,18 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSwitchToRegister, 
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [mascotGender, setMascotGender] = useState<MascotGender>(() => getStoredMascotGender());
     const { isBento } = useTheme();
     const { isArabic, tx } = useLanguage();
 
     // Focus states for the mascot "living" feel
     const [isEmailFocused, setIsEmailFocused] = useState(false);
     const [isPasswordFocused, setIsPasswordFocused] = useState(false);
+
+    const handleGenderChange = (nextGender: MascotGender) => {
+        setMascotGender(nextGender);
+        setStoredMascotGender(nextGender);
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -120,16 +126,53 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSwitchToRegister, 
 
                 <div className="w-full max-w-lg flex flex-col items-center relative z-10">
                     {/* Character/Mascot Container */}
-                    <div className={`w-[340px] sm:w-[380px] h-[340px] sm:h-[380px] flex items-center justify-center mb-6 mascot-card-wrapper transition-all ${
+                    <div className={`w-[340px] sm:w-[380px] h-[340px] sm:h-[380px] flex flex-col items-center justify-center mb-4 mascot-card-wrapper transition-all ${
                         isBento
-                            ? 'bg-white rounded-[2rem] border-[3px] border-black shadow-[7px_7px_0px_#000] p-6 relative'
+                            ? 'bg-white rounded-[2rem] border-[3px] border-black shadow-[7px_7px_0px_#000] p-5 relative'
                             : ''
                     }`}>
                         <AnimatedCharacter 
                             isEmailFocused={isEmailFocused} 
                             isPasswordFocused={isPasswordFocused} 
-                            showPassword={showPassword} 
+                            showPassword={showPassword}
+                            gender={mascotGender}
                         />
+                    </div>
+
+                    {/* Interactive Boy / Girl Character Switcher */}
+                    <div className={`inline-flex items-center gap-1.5 p-1.5 rounded-2xl mb-5 ${
+                        isBento
+                            ? 'bg-white border-[2.5px] border-black shadow-[4px_4px_0px_#000]'
+                            : 'bg-[#141210]/90 border border-[#2e2924] backdrop-blur-md'
+                    }`}>
+                        {(['male', 'female'] as const).map((g) => {
+                            const active = mascotGender === g;
+                            const label = g === 'male'
+                                ? (isBento ? tx('Boy (Lewis)', 'ولد (لويس)') : tx('Boy (Wilbur)', 'ولد (ويلبور)'))
+                                : (isBento ? tx('Girl (Robin)', 'بنت (روبين)') : tx('Girl (Franny)', 'بنت (فراني)'));
+                            return (
+                                <button
+                                    key={g}
+                                    type="button"
+                                    onClick={() => handleGenderChange(g)}
+                                    className={`btn-unstyled px-3.5 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                                        active
+                                            ? isBento
+                                                ? g === 'male'
+                                                    ? 'bg-[#fde047] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                                    : 'bg-[#bae6fd] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                                : g === 'male'
+                                                    ? 'bg-[#00e5ff] text-[#071122] shadow-sm'
+                                                    : 'bg-[#f43f5e] text-white shadow-sm'
+                                            : isBento
+                                                ? 'text-black/70 hover:text-black border-2 border-transparent'
+                                                : 'text-[#a8a29e] hover:text-[#f5f3ec]'
+                                    }`}
+                                >
+                                    {label}
+                                </button>
+                            );
+                        })}
                     </div>
                     
                     <div className="text-center space-y-2">
@@ -169,16 +212,48 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSwitchToRegister, 
                             : 'bg-white dark:bg-[#141210] border border-slate-200 dark:border-[1.5px] dark:border-[#2e2924] rounded-3xl p-6 sm:p-8 shadow-xl dark:shadow-[0_6px_0_#050504]'
                     }`}
                 >
-                    {/* Mobile Logo & Heading (Visible only when Mascot is hidden) */}
+                    {/* Mobile Mascot & Heading (Visible when Desktop Mascot Column is hidden) */}
                     <div className="lg:hidden text-center mb-4">
                         <button
                             type="button"
                             onClick={() => navigate('/')}
-                            className="w-16 h-16 mx-auto mb-3 relative flex items-center justify-center cursor-pointer active:scale-95 transition-transform bg-transparent border-0 p-0"
+                            className={`btn-unstyled w-24 h-24 mx-auto mb-2.5 rounded-2xl relative flex items-center justify-center cursor-pointer active:scale-95 transition-transform p-1.5 ${
+                                isBento
+                                    ? 'bg-[#bef264] border-[2.5px] border-black shadow-[4px_4px_0px_#000]'
+                                    : 'bg-[#0b1628]/80 border border-[#00e5ff]/30'
+                            }`}
                             aria-label={tx('Return to Home', 'الرجوع للرئيسية')}
                         >
-                            <TransparentLogo src="/icon.png" className="w-full h-full object-contain" threshold={40} />
+                            <AnimatedCharacter
+                                isEmailFocused={isEmailFocused}
+                                isPasswordFocused={isPasswordFocused}
+                                showPassword={showPassword}
+                                gender={mascotGender}
+                                compact
+                            />
                         </button>
+                        <div className="flex items-center justify-center gap-1.5 mb-2.5">
+                            {(['male', 'female'] as const).map((g) => (
+                                <button
+                                    key={g}
+                                    type="button"
+                                    onClick={() => handleGenderChange(g)}
+                                    className={`btn-unstyled px-3 py-1 rounded-full text-[11px] font-black transition-all cursor-pointer ${
+                                        mascotGender === g
+                                            ? isBento
+                                                ? 'bg-[#fde047] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                                : g === 'male'
+                                                    ? 'bg-[#00e5ff] text-[#071122]'
+                                                    : 'bg-[#f43f5e] text-white'
+                                            : isBento
+                                                ? 'bg-white text-black/70 border-2 border-black/30'
+                                                : 'bg-[#1c1917] text-[#a8a29e] border border-[#2e2924]'
+                                    }`}
+                                >
+                                    {g === 'male' ? tx('Boy', 'ولد') : tx('Girl', 'بنت')}
+                                </button>
+                            ))}
+                        </div>
                         <h1 className={`text-2xl font-extrabold tracking-tight ${
                             isBento ? 'text-black' : 'text-slate-900 dark:text-white'
                         }`}>
@@ -227,7 +302,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSwitchToRegister, 
                                     onChange={(e) => setEmail(e.target.value)}
                                     onFocus={() => setIsEmailFocused(true)}
                                     onBlur={() => setIsEmailFocused(false)}
-                                    placeholder="alex.dev@quizplatform.com"
+                                    placeholder="wilbur@futurerobins.com"
                                     disabled={isLoading}
                                     className={`w-full ps-11 pe-4 py-3 text-sm font-medium disabled:opacity-50 transition-all ${
                                         isBento

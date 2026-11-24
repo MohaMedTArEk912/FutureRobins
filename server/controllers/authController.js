@@ -62,6 +62,9 @@ const resolveLoginEmail = (email) => {
   const [localPart, domainPart] = normalizedEmail.split('@');
   if (!localPart || !domainPart) return normalizedEmail;
 
+  if (domainPart === 'futurerobins') {
+    return `${localPart}@futurerobins.local`;
+  }
   if (domainPart === 'quizplatform') {
     return `${localPart}@quizplatform.local`;
   }
@@ -69,12 +72,14 @@ const resolveLoginEmail = (email) => {
   return normalizedEmail;
 };
 
-async function finalizeVerifiedUser({ userId, name, email, passwordHash }) {
+async function finalizeVerifiedUser({ userId, name, email, passwordHash, gender }) {
+  const resolvedGender = gender === 'female' ? 'female' : 'male';
   const newUser = new User({
     userId,
     name,
     email,
     password: passwordHash,
+    avatar: { gender: resolvedGender },
     emailVerified: true,
     createdAt: new Date()
   });
@@ -99,7 +104,8 @@ async function finalizeVerifiedUser({ userId, name, email, passwordHash }) {
 
 export const requestRegistrationVerification = async (req, res) => {
   try {
-    const { userId, name, email, password } = req.body || {};
+    const { userId, name, email, password, gender } = req.body || {};
+    const resolvedGender = gender === 'female' ? 'female' : 'male';
     const normalizedEmail = (email || '').toLowerCase().trim();
     const trimmedName = (name || '').trim();
 
@@ -139,6 +145,7 @@ export const requestRegistrationVerification = async (req, res) => {
         userId: resolvedUserId,
         name: trimmedName,
         passwordHash,
+        gender: resolvedGender,
         otp,
         verificationToken,
         attempts: 0,
@@ -268,7 +275,8 @@ export const verifyRegistration = async (req, res) => {
       userId: consumed.userId,
       name: consumed.name,
       email: consumed.email,
-      passwordHash: consumed.passwordHash
+      passwordHash: consumed.passwordHash,
+      gender: consumed.gender
     });
 
     return res.status(201).json({

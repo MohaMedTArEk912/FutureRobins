@@ -167,7 +167,7 @@ export async function unsubscribe(req, res) {
             <body style="font-family: sans-serif; text-align: center; padding: 40px; background: #f8fafc;">
               <h2>Subscriber Not Found</h2>
               <p>The requested email (${normalizedEmail}) was not found or is already unsubscribed.</p>
-              <a href="/" style="display:inline-block; margin-top: 16px; padding: 10px 20px; background: #000; color: #fff; text-decoration: none; border-radius: 8px;">Back to Quiz Platform</a>
+              <a href="/" style="display:inline-block; margin-top: 16px; padding: 10px 20px; background: #000; color: #fff; text-decoration: none; border-radius: 8px;">Back to Future Robins</a>
             </body>
           </html>
         `);
@@ -192,7 +192,7 @@ export async function unsubscribe(req, res) {
             <div style="max-width: 480px; margin: 0 auto; background: #fff; border: 2.5px solid #000; border-radius: 16px; box-shadow: 5px 5px 0px #000; padding: 32px;">
               <h2 style="margin-top: 0; font-size: 22px;">You've Been Unsubscribed</h2>
               <p>You will no longer receive weekly challenge drop notifications for <strong>${normalizedEmail}</strong>.</p>
-              <p style="font-size: 13px; color: #64748b;">Changed your mind? You can re-subscribe at any time in the Quiz Platform footer.</p>
+              <p style="font-size: 13px; color: #64748b;">Changed your mind? You can re-subscribe at any time in the Future Robins footer.</p>
               <a href="/" style="display:inline-block; margin-top: 16px; padding: 12px 24px; background: #bef264; color: #000; text-decoration: none; font-weight: bold; border: 2px solid #000; border-radius: 10px;">Return to Platform</a>
             </div>
           </body>

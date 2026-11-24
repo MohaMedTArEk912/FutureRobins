@@ -5,6 +5,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 import { AmbientBackground } from './AmbientBackground';
 import { AuthThemeButton } from './common/AuthThemeButton';
+import { AnimatedCharacter } from './AnimatedCharacter.tsx';
 
 interface ForgotPasswordProps {
     onBack: () => void;
@@ -27,6 +28,8 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
     const [confirmPassword, setConfirmPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [isEmailFocused, setIsEmailFocused] = useState(false);
+    const [isPasswordFocused, setIsPasswordFocused] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
@@ -298,12 +301,17 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
                     </div>
 
                     <div className="flex md:flex-col items-center md:items-start gap-3.5 md:gap-4">
-                        <div className={`w-12 h-12 sm:w-14 sm:h-14 shrink-0 rounded-2xl flex items-center justify-center ${
+                        <div className={`w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-2xl flex items-center justify-center p-1 overflow-hidden ${
                             isBento
-                                ? 'bg-[#fde047] text-black border-[2.5px] border-black shadow-[4px_4px_0px_#000]'
-                                : 'bg-indigo-500/15 border border-indigo-200 dark:border-indigo-500/25 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                                ? 'bg-[#fde047] border-[2.5px] border-black shadow-[4px_4px_0px_#000]'
+                                : 'bg-[#0b1628] border border-[#00e5ff]/35 shadow-sm'
                         }`}>
-                            {step === 'email' ? <Mail className="w-6 h-6" /> : <Lock className="w-6 h-6" />}
+                            <AnimatedCharacter
+                                isEmailFocused={isEmailFocused}
+                                isPasswordFocused={isPasswordFocused}
+                                showPassword={showPassword || showConfirmPassword}
+                                compact
+                            />
                         </div>
                         <div className="min-w-0">
                             <h1 className={`text-xl sm:text-2xl md:text-[1.75rem] font-black tracking-tight leading-tight ${
@@ -411,7 +419,9 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
                                         type="email"
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
-                                        placeholder="alex.dev@quizplatform.com"
+                                        onFocus={() => setIsEmailFocused(true)}
+                                        onBlur={() => setIsEmailFocused(false)}
+                                        placeholder="wilbur@futurerobins.com"
                                         className={getInputClass('ps-11 pe-4 py-3')}
                                         required
                                         autoComplete="email"
@@ -494,6 +504,8 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
                                             type={showPassword ? 'text' : 'password'}
                                             value={newPassword}
                                             onChange={(e) => setNewPassword(e.target.value)}
+                                            onFocus={() => setIsPasswordFocused(true)}
+                                            onBlur={() => setIsPasswordFocused(false)}
                                             placeholder={tx('New password', 'كلمة السر الجديدة')}
                                             className={getInputClass('ps-9 pe-10 py-2.5')}
                                             required
@@ -518,6 +530,8 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
                                             type={showConfirmPassword ? 'text' : 'password'}
                                             value={confirmPassword}
                                             onChange={(e) => setConfirmPassword(e.target.value)}
+                                            onFocus={() => setIsPasswordFocused(true)}
+                                            onBlur={() => setIsPasswordFocused(false)}
                                             placeholder={tx('Confirm password', 'أكّد كلمة السر')}
                                             className={getInputClass('ps-9 pe-10 py-2.5', passwordsMatch)}
                                             required

@@ -1,14 +1,14 @@
 {
   "_aiPrompt": {
     "version": "2.0",
-    "targetPlatform": "Quiz Platform",
+    "targetPlatform": "Future Robins",
     "templateType": "badge-collection",
     "howToUse": [
       "1. Provide your course name, skill track milestones, or topic themes along with this JSON template.",
       "2. Instruct the AI: 'Follow _aiPrompt strictly to generate a progression set of achievement badges using exact platform enums.'",
       "3. Upload the returned JSON in Badge Management -> Upload Badges JSON (1 badge opens in the editor; multiple badges bulk-import directly!)."
     ],
-    "prompt": "You are a Gamification System Designer and strict JSON generator for Quiz Platform. Using the provided course, track, or theme, design a cohesive progression of achievement badges with balanced rewards and valid unlock rules.\n\nDESIGN & PROGRESSION RULES:\n- Span multiple rarities ('common' -> 'rare' -> 'epic' -> 'legendary' -> 'mythic') with scaling XP, coins, and strategic powerUps.\n- Give every badge a unique kebab-case 'badgeId', evocative 'name', equippable 'title' honorific, crisp 1-sentence 'description', matching single emoji 'icon', and distinct vibrant hex 'color'.\n- Pick 'category' from the exact allowed enum list and pick 'unlockCriteria[].type' STRICTLY from the allowed enum list in strictJsonContract.\n- NEVER put raw Markdown syntax (**bold**, ```) inside descriptions or titles.\n\nSTRICT JSON OUTPUT:\n- Return ONLY valid raw JSON matching { \"badges\": [ ... ] }. Omit '_aiPrompt'.",
+    "prompt": "You are a Gamification System Designer and strict JSON generator for Future Robins. Using the provided course, track, or theme, design a cohesive progression of achievement badges with balanced rewards and valid unlock rules.\n\nDESIGN & PROGRESSION RULES:\n- Span multiple rarities ('common' -> 'rare' -> 'epic' -> 'legendary' -> 'mythic') with scaling XP, coins, and strategic powerUps.\n- Give every badge a unique kebab-case 'badgeId', evocative 'name', equippable 'title' honorific, crisp 1-sentence 'description', matching single emoji 'icon', and distinct vibrant hex 'color'.\n- Pick 'category' from the exact allowed enum list and pick 'unlockCriteria[].type' STRICTLY from the allowed enum list in strictJsonContract.\n- NEVER put raw Markdown syntax (**bold**, ```) inside descriptions or titles.\n\nSTRICT JSON OUTPUT:\n- Return ONLY valid raw JSON matching { \"badges\": [ ... ] }. Omit '_aiPrompt'.",
     "strictJsonContract": {
       "rootObject": {
         "badges": "BadgeNode[] (omit _aiPrompt)"

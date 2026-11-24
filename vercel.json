@@ -11,6 +11,19 @@
   },
   "routes": [
     {
+      "src": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "quiz-platform-dun.vercel.app"
+        }
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "https://futurerobins.vercel.app/$1"
+      }
+    },
+    {
       "src": "/(?:index\\.html)?$",
       "dest": "/index.html",
       "headers": {
@@ -138,6 +151,6 @@
   "env": {
     "NODE_ENV": "production",
     "VITE_API_URL": "/api",
-    "CLIENT_URL": "https://quiz-platform-dun.vercel.app"
+    "CLIENT_URL": "https://futurerobins.vercel.app"
   }
 }

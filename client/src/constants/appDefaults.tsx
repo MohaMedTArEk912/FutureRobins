@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import type { UserData } from '../types';
 
-export const APP_NAME = "Quiz Platform";
+export const APP_NAME = "Future Robins";
 
 export const NAV_ITEMS = [
     { path: '/', icon: Home, label: 'Home', color: 'bg-sky-500' },

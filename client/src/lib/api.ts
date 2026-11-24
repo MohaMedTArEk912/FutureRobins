@@ -160,7 +160,7 @@ export const api = {
         return data;
     },
 
-    async requestRegistrationVerification(userData: { userId: string; name: string; email: string; password: string }): Promise<{
+    async requestRegistrationVerification(userData: { userId: string; name: string; email: string; password: string; gender?: 'male' | 'female' }): Promise<{
         requiresVerification: boolean;
         email: string;
         message: string;

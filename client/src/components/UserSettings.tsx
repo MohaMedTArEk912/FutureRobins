@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Eye, EyeOff, Mail, User as UserIcon, Lock, Check, AlertCircle, Sliders, Globe, Download, RefreshCw, Smartphone, Palette } from 'lucide-react';
+import { X, Eye, EyeOff, Mail, User as UserIcon, Lock, Check, AlertCircle, Sliders, Globe, Download, RefreshCw, Smartphone, Palette, Sparkles } from 'lucide-react';
 import type { UserData } from '../types/index.ts';
+import { DEFAULT_AVATAR_CONFIG } from '../constants/avatarDefaults';
 import { api } from '../lib/api.ts';
 import { pwaUpdater, type PwaUpdateState } from '../lib/pwaUpdater.ts';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useLanguage } from '../context/LanguageContext.tsx';
 import { useNavArrangement } from '../context/NavArrangementContext';
+import { AnimatedCharacter } from './AnimatedCharacter.tsx';
+import { getStoredMascotGender, setStoredMascotGender, type MascotGender } from '../utils/mascotGenderStorage';
 
 interface UserSettingsProps {
     user: UserData;
@@ -21,6 +24,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
     const { openCustomizer, config } = useNavArrangement();
     const [name, setName] = useState(user.name);
     const [email, setEmail] = useState(user.email);
+    const [gender, setGender] = useState<MascotGender>(() => user.avatar?.gender || getStoredMascotGender());
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -29,6 +33,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isSavingLang, setIsSavingLang] = useState(false);
+    const [isSavingGender, setIsSavingGender] = useState(false);
     const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
     const [pwaState, setPwaState] = useState<PwaUpdateState>(() => pwaUpdater.getState());
     const [updateCheckStatus, setUpdateCheckStatus] = useState<'idle' | 'up_to_date' | 'update_found' | 'offline'>('idle');
@@ -62,7 +67,65 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
     useEffect(() => {
         setName(user.name || '');
         setEmail(user.email || '');
-    }, [user.name, user.email]);
+        const resolved = user.avatar?.gender;
+        if (resolved === 'male' || resolved === 'female') {
+            setGender(resolved);
+            setStoredMascotGender(resolved);
+        }
+    }, [user.name, user.email, user.avatar?.gender]);
+
+    const handleGenderSelect = async (nextGender: MascotGender) => {
+        setGender(nextGender);
+        setStoredMascotGender(nextGender);
+        setNotification(null);
+
+        const nextAvatar = {
+            ...DEFAULT_AVATAR_CONFIG,
+            ...(user.avatar || {}),
+            gender: nextGender
+        };
+        const updatedUser: UserData = {
+            ...user,
+            avatar: nextAvatar
+        };
+
+        const charName = nextGender === 'male'
+            ? (isBento ? tx('Lewis', 'لويس') : tx('Wilbur', 'ويلبور'))
+            : (isBento ? tx('Inventor Robin', 'روبين') : tx('Franny', 'فراني'));
+
+        if (!user.userId || user.userId === 'guest') {
+            onUpdate(updatedUser);
+            setNotification({
+                type: 'success',
+                message: tx(
+                    `Companion updated to ${charName} (saved locally).`,
+                    `تم تغيير الشخصية المرافقة إلى ${charName} (محفوظ محلياً).`
+                )
+            });
+            return;
+        }
+
+        setIsSavingGender(true);
+        try {
+            await api.updateUser(user.userId, { avatar: nextAvatar });
+            onUpdate(updatedUser);
+            setNotification({
+                type: 'success',
+                message: tx(
+                    `Saved ${charName} as your companion character across all future sessions!`,
+                    `تم حفظ ${charName} كشخصيتك المرافقة في حسابك وعلى هذا الجهاز!`
+                )
+            });
+        } catch (err) {
+            console.error('Failed to save gender preference:', err);
+            setNotification({
+                type: 'error',
+                message: tx('Saved locally, but could not sync to server. Please try again.', 'تم الحفظ محلياً، لكن تعذرت المزامنة مع السيرفر. جرب تاني.')
+            });
+        } finally {
+            setIsSavingGender(false);
+        }
+    };
 
     const handleLanguageSelect = async (nextLang: 'en' | 'ar-EG') => {
         if (nextLang === language && user.preferredLanguage === nextLang) return;
@@ -286,6 +349,134 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
     const compactThemeLabel = theme === 'bento'
         ? tx('Bento', 'بينتو')
         : tx('Noir Studio', 'نوار ستوديو');
+
+    const activeCharacterName = gender === 'male'
+        ? (isBento ? tx('Lewis', 'لويس') : tx('Wilbur', 'ويلبور'))
+        : (isBento ? tx('Inventor Robin', 'روبين') : tx('Franny', 'فراني'));
+
+    const renderCharacterButtons = (gridClass: string, minHClass: string) => (
+        <div className={gridClass}>
+            {(['male', 'female'] as const).map((g) => {
+                const selected = gender === g;
+                const label = g === 'male' ? tx('Boy / Male', 'ولد / ذكر') : tx('Girl / Female', 'بنت / أنثى');
+                const charHint = g === 'male'
+                    ? (isBento ? tx('Lewis (Bento)', 'لويس (بينتو)') : tx('Wilbur (Dark)', 'ويلبور (داكن)'))
+                    : (isBento ? tx('Inventor Robin (Bento)', 'روبين (بينتو)') : tx('Franny (Dark)', 'فراني (داكن)'));
+                return (
+                    <button
+                        key={g}
+                        type="button"
+                        aria-pressed={selected}
+                        disabled={isSavingGender}
+                        onClick={() => void handleGenderSelect(g)}
+                        className={`btn-unstyled ${minHClass} px-3.5 py-2 rounded-xl text-start transition-all cursor-pointer flex items-center justify-between gap-2 disabled:opacity-60 ${
+                            selected
+                                ? isBento
+                                    ? g === 'male'
+                                        ? 'bg-[#fde047] text-black border-2 border-black shadow-[3px_3px_0px_#000]'
+                                        : 'bg-[#bae6fd] text-black border-2 border-black shadow-[3px_3px_0px_#000]'
+                                    : g === 'male'
+                                        ? 'bg-[#00e5ff] text-[#071122] shadow-md'
+                                        : 'bg-[#f43f5e] text-white shadow-md'
+                                : isBento
+                                    ? 'bg-white hover:bg-[#fef9c3] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                    : 'bg-white dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-white/10'
+                        }`}
+                    >
+                        <span className="min-w-0">
+                            <span className="block text-xs font-black truncate">{label}</span>
+                            <span className={`block text-[10px] font-semibold truncate ${
+                                selected
+                                    ? isBento
+                                        ? 'text-black/75'
+                                        : g === 'male'
+                                            ? 'text-[#071122]/80'
+                                            : 'text-white/85'
+                                    : 'text-gray-500 dark:text-[#a8a29e]'
+                            }`}>
+                                {charHint}
+                            </span>
+                        </span>
+                        {selected && <Check className="w-4 h-4 shrink-0" />}
+                    </button>
+                );
+            })}
+        </div>
+    );
+
+    const characterHeaderBadge = (
+        <span className={`text-[10px] sm:text-[11px] font-black px-2.5 py-0.5 rounded-full whitespace-nowrap shrink-0 ${
+            isBento
+                ? 'bg-[#bae6fd] text-black border border-black'
+                : gender === 'male'
+                    ? 'bg-[#0b2538] text-[#67e8f9] border border-[#00e5ff]/35'
+                    : 'bg-[#2a131d] text-[#fda4af] border border-[#f43f5e]/35'
+        }`}>
+            {activeCharacterName}
+        </span>
+    );
+
+    const characterSection = embedded ? (
+        <section className={`p-5 sm:p-6 rounded-2xl mb-6 ${
+            isBento
+                ? 'bg-slate-50 border-2 border-black shadow-[3px_3px_0px_#000]'
+                : 'bg-gray-50/70 dark:bg-white/[0.02] border border-gray-200 dark:border-white/10'
+        }`}>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6">
+                <div className="flex items-center gap-4 min-w-0">
+                    <div className={`w-20 h-20 sm:w-[88px] sm:h-[88px] shrink-0 rounded-2xl p-1.5 flex items-center justify-center overflow-hidden ${
+                        isBento
+                            ? 'bg-[#bef264] border-2 border-black shadow-[3px_3px_0px_#000]'
+                            : 'bg-[#0b1628] border border-[#00e5ff]/35'
+                    }`}>
+                        <AnimatedCharacter isEmailFocused={false} isPasswordFocused={false} gender={gender} compact />
+                    </div>
+                    <div className="min-w-0 space-y-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                            <h3 className={`flex items-center gap-2 text-xs sm:text-sm font-black uppercase tracking-wider ${isBento ? 'text-black' : 'text-gray-500 dark:text-gray-400'}`}>
+                                <Sparkles className={`size-3.5 sm:size-4 shrink-0 ${isBento ? 'text-black' : 'text-cyan-500 dark:text-[#00e5ff]'}`} />
+                                <span>{tx('Companion & Gender', 'الشخصية والنوع')}</span>
+                            </h3>
+                            {characterHeaderBadge}
+                        </div>
+                        <p className={`text-[11px] sm:text-xs leading-snug ${isBento ? 'text-gray-700 font-semibold' : 'text-gray-500 dark:text-gray-400'}`}>
+                            {tx(
+                                'Set your gender to save your interactive Future Robins companion to your account and device.',
+                                'حدد نوعك لحفظ شخصيتك المرافقة في فيوتشر روبينز داخل حسابك وعلى جهازك.'
+                            )}
+                        </p>
+                    </div>
+                </div>
+                {renderCharacterButtons('grid grid-cols-2 gap-2.5 w-full md:w-[340px] lg:w-[380px] shrink-0', 'min-h-[54px]')}
+            </div>
+        </section>
+    ) : (
+        <section className={`space-y-3 border-t pt-4 sm:pt-5 ${isBento ? 'border-black/20' : 'border-gray-200 dark:border-white/5'}`}>
+            <div className="flex items-center justify-between gap-2">
+                <h3 className={`flex items-center gap-2 text-xs sm:text-sm font-black uppercase tracking-wider truncate ${isBento ? 'text-black' : 'text-gray-500 dark:text-gray-400'}`}>
+                    <Sparkles className={`size-3.5 sm:size-4 shrink-0 ${isBento ? 'text-black' : 'text-cyan-500 dark:text-[#00e5ff]'}`} />
+                    <span className="truncate">{tx('Companion & Gender', 'الشخصية والنوع')}</span>
+                </h3>
+                {characterHeaderBadge}
+            </div>
+            <p className={`text-[11px] sm:text-xs leading-snug ${isBento ? 'text-gray-700 font-semibold' : 'text-gray-500 dark:text-gray-400'}`}>
+                {tx(
+                    'Set your gender to save your interactive Future Robins companion to your account and device.',
+                    'حدد نوعك لحفظ شخصيتك المرافقة في فيوتشر روبينز داخل حسابك وعلى جهازك.'
+                )}
+            </p>
+            <div className="flex flex-col sm:flex-row items-center gap-3.5">
+                <div className={`w-24 h-24 shrink-0 rounded-2xl p-1.5 flex items-center justify-center overflow-hidden ${
+                    isBento
+                        ? 'bg-[#bef264] border-2 border-black shadow-[3px_3px_0px_#000]'
+                        : 'bg-[#0b1628] border border-[#00e5ff]/35'
+                }`}>
+                    <AnimatedCharacter isEmailFocused={false} isPasswordFocused={false} gender={gender} compact />
+                </div>
+                {renderCharacterButtons('grid grid-cols-2 sm:grid-cols-1 gap-2 flex-1 w-full', 'min-h-[44px]')}
+            </div>
+        </section>
+    );
 
     const appearanceSection = (
         <section className={`space-y-2.5 sm:space-y-3 border-t pt-4 sm:pt-5 ${isBento ? 'border-black/20' : 'border-gray-200 dark:border-white/5'}`}>
@@ -720,6 +911,8 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
                 <div className="p-6 sm:p-8">
                     {alertBanner}
 
+                    {characterSection}
+
                     {/* Symmetrical Half-and-Half Split Grid (3 matched rows per column) */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
                         {/* Left Column: Profile Info (3 rows) + Platform Language (2 buttons) + Appearance & Theme (1 button) */}
@@ -797,6 +990,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
                     {alertBanner}
                     <div className="space-y-6">
                         {profileInfoSection}
+                        {characterSection}
                         {appearanceSection}
                         {languageSection}
                         {appAndUpdatesSection}

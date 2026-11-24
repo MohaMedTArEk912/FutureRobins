@@ -68,7 +68,7 @@ const PwaUpdatePrompt: React.FC<PwaUpdatePromptProps> = ({ inline = false }) => 
                             </span>
                         </div>
                         <p className="text-[11px] sm:text-xs text-gray-600 dark:text-gray-300 font-medium leading-tight mt-0.5">
-                            Quiz Platform has been improved with new features and performance fixes.
+                            Future Robins has been improved with new features and performance fixes.
                         </p>
                     </div>
 
