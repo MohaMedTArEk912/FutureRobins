@@ -23,7 +23,7 @@ interface FlexibleDateTimePickerProps {
 
 const pad2 = (n: number) => n.toString().padStart(2, '0');
 
-export const formatToReadableDateTime = (isoString?: string): string => {
+const formatToReadableDateTime = (isoString?: string): string => {
     if (!isoString) return '';
     const d = new Date(isoString);
     if (isNaN(d.getTime())) return '';
@@ -37,12 +37,12 @@ export const formatToReadableDateTime = (isoString?: string): string => {
     return `${m}/${day}/${y} ${pad2(h)}:${min} ${ampm}`;
 };
 
-export const parseFlexibleDateTime = (text: string): Date | null => {
+const parseFlexibleDateTime = (text: string): Date | null => {
     if (!text || !text.trim()) return null;
     const str = text.trim();
 
     // 1. Pattern: MM/DD/YYYY hh:mm AM/PM (e.g. 11/12/2026 04:12 PM)
-    const usMatch = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(am|pm)?$/i);
+    const usMatch = str.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(am|pm)?$/i);
     if (usMatch) {
         const [, m, day, y, h, min, , ampm] = usMatch;
         let hour = parseInt(h, 10);
@@ -55,7 +55,7 @@ export const parseFlexibleDateTime = (text: string): Date | null => {
     }
 
     // 2. Pattern: YYYY-MM-DD HH:mm or YYYY-MM-DDTHH:mm
-    const isoMatch = str.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})[T\s](\d{1,2}):(\d{2})(?::(\d{2}))?$/i);
+    const isoMatch = str.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})[T\s](\d{1,2}):(\d{2})(?::(\d{2}))?$/i);
     if (isoMatch) {
         const [, y, m, day, h, min] = isoMatch;
         const d = new Date(parseInt(y, 10), parseInt(m, 10) - 1, parseInt(day, 10), parseInt(h, 10), parseInt(min, 10));
