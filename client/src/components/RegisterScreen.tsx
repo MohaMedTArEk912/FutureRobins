@@ -201,15 +201,15 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onVerified, onSwitchToL
         }
     };
 
-    const inputClass = `w-full ps-11 pe-4 py-3 text-sm font-medium disabled:opacity-50 transition-all ${
+    const inputClass = `w-full ps-11 pe-4 py-2.5 sm:py-3 text-base sm:text-sm font-medium disabled:opacity-50 transition-all ${
         isBento
             ? 'bg-white border-[2.5px] border-black rounded-xl text-black placeholder-gray-500 focus:outline-none focus:shadow-[4px_4px_0px_#000] shadow-[2px_2px_0px_#000]'
             : 'bg-[#141210] border border-[#f5f3ec]/14 rounded-2xl text-[#f5f3ec] placeholder-[#78716c] focus:outline-none focus:border-[#bef264] focus:ring-3 focus:ring-[#bef264]/15 shadow-sm'
     }`;
 
     const primaryBtnClass = isBento
-        ? 'btn-unstyled w-full py-3.5 bg-[#bef264] text-black rounded-xl border-[2.5px] border-black shadow-[4px_4px_0px_#000] hover:shadow-[5px_5px_0px_#000] hover:-translate-y-0.5 active:shadow-[1px_1px_0px_#000] active:translate-y-0.5 font-black text-sm uppercase tracking-wider flex justify-center items-center gap-2 cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed'
-        : 'w-full py-3.5 bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908] font-black text-sm rounded-2xl shadow-[0_10px_28px_-6px_rgba(190,242,100,0.35)] active:scale-[0.985] disabled:opacity-50 flex justify-center items-center gap-2 cursor-pointer transition-all';
+        ? 'btn-unstyled w-full py-3 sm:py-3.5 bg-[#bef264] text-black rounded-xl border-[2.5px] border-black shadow-[4px_4px_0px_#000] hover:shadow-[5px_5px_0px_#000] hover:-translate-y-0.5 active:shadow-[1px_1px_0px_#000] active:translate-y-0.5 font-black text-sm uppercase tracking-wider flex justify-center items-center gap-2 cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed'
+        : 'w-full py-3 sm:py-3.5 bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908] font-black text-sm rounded-2xl shadow-[0_10px_28px_-6px_rgba(190,242,100,0.35)] active:scale-[0.985] disabled:opacity-50 flex justify-center items-center gap-2 cursor-pointer transition-all';
 
     const labelClass = `block text-xs ms-1 mb-1.5 transition-colors ${
         isBento
@@ -222,7 +222,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onVerified, onSwitchToL
     }`;
 
     return (
-        <div className={`min-h-dvh flex relative overflow-hidden selection:bg-[#bef264]/28 ${
+        <div className={`min-h-dvh flex relative overflow-x-hidden selection:bg-[#bef264]/28 ${
             isBento
                 ? 'bg-[#f5f3ec] text-black'
                 : 'bg-[#0a0908] text-[#f5f3ec]'
@@ -243,12 +243,12 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onVerified, onSwitchToL
                 />
             )}
 
-            {/* Top Start Back to Home */}
-            <div className="absolute top-6 start-6 z-50 mt-safe ms-safe">
+            {/* Top Start Back to Home (Desktop) */}
+            <div className="hidden lg:block absolute top-6 start-6 z-50 mt-safe ms-safe">
                 <button
                     type="button"
                     onClick={() => navigate('/')}
-                    className={`btn-unstyled flex items-center gap-1.5 px-3 py-2 rounded-xl transition-all cursor-pointer active:scale-95 ${
+                    className={`btn-unstyled h-9 flex items-center gap-1.5 px-3 rounded-xl transition-all cursor-pointer active:scale-95 ${
                         isBento
                             ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#fde047] font-black'
                             : 'bg-[#1c1917] border border-[#2e2924] hover:border-[#bef264]/60 hover:bg-[#24201c] text-[#f5f3ec] font-bold'
@@ -261,8 +261,8 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onVerified, onSwitchToL
                 </button>
             </div>
 
-            {/* Top End Change Theme */}
-            <AuthThemeButton />
+            {/* Top End Change Theme (Desktop) */}
+            <AuthThemeButton className="hidden lg:block" />
 
             {/* Left Column - Mascot & Branding (Matches LoginScreen 1:1) */}
             <div className={`hidden lg:flex flex-col flex-[1.2] relative z-10 items-center justify-center p-12 login-mascot-col ${
@@ -367,47 +367,67 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onVerified, onSwitchToL
             </div>
 
             {/* Right Column - Form (Exact LoginScreen 2-Half Layout) */}
-            <div className={`flex-1 flex flex-col justify-center items-center p-6 lg:p-10 relative z-10 w-full animate-in fade-in duration-500 ${
-                isBento ? 'bg-white' : ''
+            <div className={`flex-1 flex flex-col items-center px-4 pt-3 pb-5 sm:px-6 sm:py-6 lg:p-10 lg:justify-center relative z-10 w-full animate-in fade-in duration-500 pt-safe pb-safe ${
+                isBento ? 'lg:bg-white' : ''
             }`}>
-                <div
-                    data-snake-wall="card"
-                    className={`w-full max-w-md space-y-5 ${
-                        isBento
-                            ? ''
-                            : 'bg-[#141210] border-[1.5px] border-[#2e2924] rounded-3xl p-6 sm:p-8 shadow-[0_6px_0_#050504]'
-                    }`}
-                >
-                    {/* Mobile Mascot & Heading */}
-                    <div className="lg:hidden text-center mb-2 pt-6">
+                <div className="w-full max-w-md my-auto">
+                    {/* Aligned Mobile Top Bar */}
+                    <div className="flex items-center justify-between gap-2 mb-3 lg:hidden">
                         <button
                             type="button"
                             onClick={() => navigate('/')}
-                            className={`btn-unstyled w-24 h-24 mx-auto mb-2.5 rounded-2xl relative flex items-center justify-center cursor-pointer active:scale-95 transition-transform p-1.5 ${
+                            className={`btn-unstyled h-9 flex items-center gap-1.5 px-3 rounded-xl transition-all cursor-pointer active:scale-95 ${
                                 isBento
-                                    ? 'bg-[#bef264] border-[2.5px] border-black shadow-[4px_4px_0px_#000]'
-                                    : 'bg-[#0b1628]/80 border border-[#00e5ff]/30'
+                                    ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:bg-[#fde047] font-black'
+                                    : 'bg-[#1c1917] border border-[#2e2924] hover:border-[#bef264]/60 hover:bg-[#24201c] text-[#f5f3ec] font-bold'
                             }`}
+                            title={tx('Return to Home', 'الرجوع للرئيسية')}
                             aria-label={tx('Return to Home', 'الرجوع للرئيسية')}
                         >
-                            <AnimatedCharacter
-                                isEmailFocused={isEmailFocused || step === 'verify'}
-                                isPasswordFocused={isPasswordFocused}
-                                showPassword={showPassword}
-                                gender={gender}
-                                compact
-                            />
+                            <ArrowLeft className={`w-4 h-4 shrink-0 ${isArabic ? 'rotate-180' : ''}`} />
+                            <span className="text-xs">{tx('Home', 'الرئيسية')}</span>
                         </button>
-                        <h1 className={`text-2xl font-extrabold tracking-tight ${
-                            isBento ? 'text-black' : 'text-[#f5f3ec]'
-                        }`}>
-                            {step === 'verify' ? tx('Verify Your Email', 'تفعيل الإيميل') : tx('Create Account', 'إنشاء حساب جديد')}
-                        </h1>
+                        <AuthThemeButton inline />
                     </div>
 
-                    {/* Step Indicator + Heading */}
-                    <div className="text-start space-y-1.5">
-                        <div className="flex items-center gap-2">
+                    <div
+                        data-snake-wall="card"
+                        className={`w-full space-y-4 sm:space-y-5 ${
+                            isBento
+                                ? 'bg-white border-[2.5px] border-black rounded-3xl p-5 sm:p-7 shadow-[6px_6px_0px_#000] lg:bg-transparent lg:border-0 lg:rounded-none lg:p-0 lg:shadow-none'
+                                : 'bg-[#141210] border-[1.5px] border-[#2e2924] rounded-3xl p-5 sm:p-8 shadow-[0_6px_0_#050504]'
+                        }`}
+                    >
+                        {/* Mobile Mascot & Heading */}
+                        <div className="lg:hidden text-center">
+                            <button
+                                type="button"
+                                onClick={() => navigate('/')}
+                                className={`btn-unstyled w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-2 rounded-2xl relative flex items-center justify-center cursor-pointer active:scale-95 transition-transform p-1.5 ${
+                                    isBento
+                                        ? 'bg-[#bef264] border-[2.5px] border-black shadow-[4px_4px_0px_#000]'
+                                        : 'bg-[#0b1628]/80 border border-[#00e5ff]/30'
+                                }`}
+                                aria-label={tx('Return to Home', 'الرجوع للرئيسية')}
+                            >
+                                <AnimatedCharacter
+                                    isEmailFocused={isEmailFocused || step === 'verify'}
+                                    isPasswordFocused={isPasswordFocused}
+                                    showPassword={showPassword}
+                                    gender={gender}
+                                    compact
+                                />
+                            </button>
+                            <h1 className={`text-xl sm:text-2xl font-extrabold tracking-tight ${
+                                isBento ? 'text-black' : 'text-[#f5f3ec]'
+                            }`}>
+                                {step === 'verify' ? tx('Verify Your Email', 'تفعيل الإيميل') : tx('Create Account', 'إنشاء حساب جديد')}
+                            </h1>
+                        </div>
+
+                        {/* Step Indicator + Heading */}
+                        <div className="text-start space-y-1.5">
+                            <div className="flex items-center justify-center lg:justify-start gap-2">
                             <span className={`inline-flex items-center gap-1.5 text-[11px] px-2.5 py-0.5 rounded-full ${
                                 isBento
                                     ? 'bg-[#bae6fd] text-black border-2 border-black font-black uppercase shadow-[2px_2px_0px_#000]'
@@ -471,7 +491,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onVerified, onSwitchToL
                     )}
 
                     {step === 'details' ? (
-                        <form onSubmit={handleRequestSubmit} className="space-y-4">
+                        <form onSubmit={handleRequestSubmit} className="space-y-3 sm:space-y-4">
                             <div>
                                 <label className={labelClass}>{tx('Character Companion', 'الشخصية المرافقة')}</label>
                                 <div className="grid grid-cols-2 gap-2.5">
@@ -555,7 +575,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onVerified, onSwitchToL
                                         onBlur={() => setIsPasswordFocused(false)}
                                         placeholder={tx('At least 6 characters', 'على الأقل 6 حروف أو أرقام')}
                                         disabled={isSubmitting}
-                                        className={`${inputClass} pe-11`}
+                                        className={`${inputClass} pe-12`}
                                         autoComplete="new-password"
                                         required
                                     />
@@ -563,8 +583,8 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onVerified, onSwitchToL
                                         type="button"
                                         onClick={() => setShowPassword(!showPassword)}
                                         disabled={isSubmitting}
-                                        className={`btn-unstyled absolute end-4 top-1/2 -translate-y-1/2 p-1 transition-colors bg-transparent border-0 ${
-                                            isBento ? 'text-black hover:text-gray-600' : 'text-[#888177] hover:text-[#f5f3ec]'
+                                        className={`btn-unstyled absolute end-2.5 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center rounded-xl transition-colors bg-transparent border-0 cursor-pointer ${
+                                            isBento ? 'text-black hover:bg-black/5' : 'text-[#888177] hover:text-[#f5f3ec] hover:bg-white/5'
                                         }`}
                                         title={showPassword ? tx('Hide password', 'إخفاء كلمة السر') : tx('Show password', 'إظهار كلمة السر')}
                                     >
@@ -709,6 +729,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onVerified, onSwitchToL
                             {tx('Sign In', 'سجل دخول')}
                         </button>
                     </p>
+                    </div>
                 </div>
             </div>
         </div>

@@ -233,7 +233,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
             const borderColor =
                 matchState === null ? 'border-black' :
                 matchState ? 'border-green-600' : 'border-red-600';
-            return `w-full ${spacingClass} text-sm rounded-xl transition-all border-2 ${borderColor} bg-white text-black font-semibold placeholder:font-medium placeholder-slate-400 shadow-[3px_3px_0px_#000] focus:outline-none focus:shadow-[4px_4px_0px_#000]`;
+            return `w-full ${spacingClass} text-base sm:text-sm rounded-xl transition-all border-2 ${borderColor} bg-white text-black font-semibold placeholder:font-medium placeholder-slate-400 shadow-[3px_3px_0px_#000] focus:outline-none focus:shadow-[4px_4px_0px_#000]`;
         }
         const borderColor =
             matchState === null
@@ -241,7 +241,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
                 : matchState
                     ? 'border-green-500 dark:border-green-500 focus:border-green-500'
                     : 'border-red-500 dark:border-red-500 focus:border-red-500';
-        return `w-full ${spacingClass} text-sm rounded-xl transition-all border-2 ${borderColor} focus:outline-none focus:ring-4 focus:ring-indigo-500/10 bg-white dark:bg-[#0a0908]/70 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500`;
+        return `w-full ${spacingClass} text-base sm:text-sm rounded-xl transition-all border-2 ${borderColor} focus:outline-none focus:ring-4 focus:ring-indigo-500/10 bg-white dark:bg-[#0a0908]/70 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500`;
     };
 
     const renderSpinnerLabel = (label: string) => (
@@ -255,7 +255,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
     );
 
     return (
-        <div className={`min-h-dvh flex items-center justify-center p-3 pt-16 sm:p-5 relative overflow-x-hidden transition-colors duration-300 p-safe ${
+        <div className={`min-h-dvh flex flex-col items-center px-4 pt-3 pb-6 sm:p-6 relative overflow-x-hidden transition-colors duration-300 pt-safe pb-safe ${
             isBento
                 ? 'bg-[#f5f3ec]'
                 : 'bg-slate-50 dark:bg-[#0a0908]'
@@ -263,14 +263,19 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
             {/* Ambient Background */}
             <AmbientBackground />
 
-            {/* Top End Change Theme */}
-            <AuthThemeButton />
+            {/* Top End Change Theme (Desktop) */}
+            <AuthThemeButton className="hidden md:block" />
 
-            <div className={`forgot-password-card relative z-10 w-full max-w-4xl overflow-hidden grid grid-cols-1 md:grid-cols-12 transition-all duration-300 ${
-                isBento
-                    ? 'bg-white border-[3px] border-black rounded-3xl shadow-[8px_8px_0px_#000]'
-                    : 'bg-white/95 dark:bg-[#141210]/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-200/90 dark:border-white/10'
-            }`}>
+            <div className="w-full max-w-4xl my-auto relative z-10">
+                <div className="flex items-center justify-end mb-3 md:hidden">
+                    <AuthThemeButton inline />
+                </div>
+
+                <div className={`forgot-password-card relative w-full overflow-hidden grid grid-cols-1 md:grid-cols-12 transition-all duration-300 ${
+                    isBento
+                        ? 'bg-white border-[3px] border-black rounded-3xl shadow-[8px_8px_0px_#000]'
+                        : 'bg-white/95 dark:bg-[#141210]/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-200/90 dark:border-white/10'
+                }`}>
                 {/* Left Identity & Progress Column */}
                 <div className={`md:col-span-5 p-5 sm:p-6 md:p-7 flex flex-col justify-between gap-4 md:gap-6 ${
                     isBento
@@ -444,7 +449,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
                     ) : (
                         <form onSubmit={handleResetPassword} className="space-y-3.5">
                             <div>
-                                <div className="flex items-center justify-between gap-2 mb-1.5">
+                                <div className="flex flex-wrap items-center justify-between gap-2 mb-1.5">
                                     <label className={`block text-xs ms-0.5 ${isBento ? 'font-black uppercase tracking-wider text-black' : 'font-semibold text-slate-700 dark:text-slate-300'}`}>
                                         {tx('6-Digit Verification Code', 'كود التحقق (6 أرقام)')}
                                     </label>
@@ -631,6 +636,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack, onSuccess }) =>
                         </form>
                     )}
                 </div>
+            </div>
             </div>
         </div>
     );
