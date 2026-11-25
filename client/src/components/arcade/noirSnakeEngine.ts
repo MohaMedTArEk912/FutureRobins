@@ -210,18 +210,37 @@ export class NoirSnakeEngine {
     public resize(cssWidth: number, cssHeight: number, bottomSafeInset = 0) {
         const w = Math.max(280, Math.floor(cssWidth));
         const h = Math.max(280, Math.floor(cssHeight));
+        const nextInset = Math.max(0, Math.floor(bottomSafeInset));
+        const nextDpr = Math.min(window.devicePixelRatio || 1, 2);
+
+        if (
+            w === this.width &&
+            h === this.height &&
+            nextInset === this.bottomSafeInset &&
+            nextDpr === this.dpr
+        ) {
+            return;
+        }
+
         const prevW = this.width;
         const prevH = this.height;
+        const insetChanged = nextInset !== this.bottomSafeInset;
+        const prevBoardCols = this.boardCols;
+        const prevBoardRows = this.boardRows;
 
         this.width = w;
         this.height = h;
-        this.bottomSafeInset = Math.max(0, bottomSafeInset);
-        this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+        this.bottomSafeInset = nextInset;
+        this.dpr = nextDpr;
 
-        this.canvas.width = Math.floor(w * this.dpr);
-        this.canvas.height = Math.floor(h * this.dpr);
-        this.canvas.style.width = `${w}px`;
-        this.canvas.style.height = `${h}px`;
+        const targetPxW = Math.floor(w * this.dpr);
+        const targetPxH = Math.floor(h * this.dpr);
+        if (this.canvas.width !== targetPxW || this.canvas.height !== targetPxH) {
+            this.canvas.width = targetPxW;
+            this.canvas.height = targetPxH;
+            this.canvas.style.width = `${w}px`;
+            this.canvas.style.height = `${h}px`;
+        }
 
         const minDim = Math.min(w, h);
         this.cellSize = minDim < 440 ? 24 : minDim < 680 ? 32 : 44;
@@ -231,16 +250,41 @@ export class NoirSnakeEngine {
             this.pause('resize');
         }
 
-        this.recalculateHarvestBoard();
+        this.recalculateHarvestBoard(insetChanged);
+
+        // If the Harvest grid resized mid-run (e.g. toggling the mobile D-pad), re-center active
+        // snake & food coordinates so closing/opening the pad never leaves food or snake off-grid.
+        if (
+            this.mode === 'harvest' &&
+            (this.status === 'playing' || this.status === 'paused') &&
+            (this.boardCols !== prevBoardCols || this.boardRows !== prevBoardRows)
+        ) {
+            const dx = Math.floor((this.boardCols - prevBoardCols) / 2);
+            const dy = Math.floor((this.boardRows - prevBoardRows) / 2);
+            if (dx !== 0 || dy !== 0) {
+                const shiftPoint = (pt: GridPoint) => ({
+                    x: Math.max(0, Math.min(this.boardCols - 1, pt.x + dx)),
+                    y: Math.max(0, Math.min(this.boardRows - 1, pt.y + dy))
+                });
+                this.playerSegments = this.playerSegments.map(shiftPoint);
+                this.playerPrevSegments = this.playerPrevSegments.map(shiftPoint);
+                this.foods = this.foods
+                    .map((f) => ({ ...f, ...shiftPoint(f) }))
+                    .filter((f) => this.isHarvestCellWalkable(f.x, f.y));
+                if (this.foods.length === 0) {
+                    this.spawnHarvestFood('standard', performance.now());
+                }
+            }
+        }
     }
 
-    private recalculateHarvestBoard() {
+    private recalculateHarvestBoard(snapZoom = false) {
         const padX = this.width < 520 ? 12 : 24;
         const padTop = this.width < 520 ? 12 : 20;
         const padBottom = (this.width < 520 ? 12 : 20) + this.bottomSafeInset;
 
         const availW = Math.max(280, this.width - padX * 2);
-        const availH = Math.max(280, this.height - padTop - padBottom);
+        const availH = Math.max(240, this.height - padTop - padBottom);
 
         const minDim = Math.min(this.width, this.height);
         const baseCell = minDim < 440 ? 24 : minDim < 680 ? 32 : 44;
@@ -267,6 +311,9 @@ export class NoirSnakeEngine {
         this.harvestNormMaxY = this.harvestNormMinY + this.harvestNormalRows - 1;
 
         this.updateHarvestTargetZoom();
+        if (snapZoom) {
+            this.harvestRenderZoom = this.harvestTargetZoom;
+        }
         const targetCenter = this.getHarvestShapeTargetCenter();
         this.harvestCamCenterX = targetCenter.x;
         this.harvestCamCenterY = targetCenter.y;
@@ -2517,7 +2564,15 @@ export class NoirSnakeEngine {
         const activeMinY = this.harvestShape.id === 'megagrid' ? 0 : this.harvestNormMinY;
         const activeMaxY = this.harvestShape.id === 'megagrid' ? this.boardRows - 1 : this.harvestNormMaxY;
 
-        // 1. Playable Arena Floor & Voided Sector Cells (scoped to active sector envelope)
+        // 1. Batched Playable Arena Floor, Grid Lines, Crosshairs & Void Hatches
+        // (Replaces ~1,400 per-tile draw calls/frame with ~6 batched paths for locked 60fps on mobile)
+        const walkableFloorPath = new Path2D();
+        const gridPath = new Path2D();
+        const crosshairPath = new Path2D();
+        const voidFillPath = new Path2D();
+        const voidHatchPath = new Path2D();
+        const dangerTiles: Array<{ x: number; y: number; px: number; py: number }> = [];
+
         for (let y = activeMinY; y <= activeMaxY; y++) {
             for (let x = activeMinX; x <= activeMaxX; x++) {
                 const isWalkable = this.isHarvestCellWalkable(x, y);
@@ -2525,61 +2580,71 @@ export class NoirSnakeEngine {
                 const py = y * cell;
 
                 if (isWalkable) {
-                    // Playable obsidian floor
-                    ctx.fillStyle = NOIR_BG;
-                    ctx.fillRect(px, py, cell, cell);
+                    walkableFloorPath.rect(px, py, cell, cell);
+                    gridPath.rect(px + 0.5, py + 0.5, cell - 1, cell - 1);
 
-                    // Grid line
-                    ctx.strokeStyle = GRID_LINE;
-                    ctx.lineWidth = 1;
-                    ctx.strokeRect(px + 0.5, py + 0.5, cell - 1, cell - 1);
-
-                    // Crosshairs on even relative coordinates
                     if ((x - activeMinX) % 2 === 0 && (y - activeMinY) % 2 === 0) {
-                        ctx.strokeStyle = CROSSHAIR;
-                        ctx.beginPath();
-                        ctx.moveTo(px - 3, py);
-                        ctx.lineTo(px + 3, py);
-                        ctx.moveTo(px, py - 3);
-                        ctx.lineTo(px, py + 3);
-                        ctx.stroke();
+                        crosshairPath.moveTo(px - 3, py);
+                        crosshairPath.lineTo(px + 3, py);
+                        crosshairPath.moveTo(px, py - 3);
+                        crosshairPath.lineTo(px, py + 3);
                     }
 
-                    // Shift telegraph: if this tile will soon become VOID in nextShape, flash danger hatch!
                     if (this.harvestIsShiftWarning && !this.isHarvestCellWalkable(x, y, this.harvestNextShape)) {
-                        const pulse = 0.35 + 0.25 * Math.sin(now * 0.012 + (x + y) * 0.3);
-                        ctx.fillStyle = `rgba(251, 113, 133, ${pulse * 0.38})`;
-                        ctx.fillRect(px, py, cell, cell);
-
-                        ctx.strokeStyle = `rgba(251, 113, 133, ${pulse})`;
-                        ctx.lineWidth = 1.5;
-                        ctx.beginPath();
-                        ctx.moveTo(px, py);
-                        ctx.lineTo(px + cell, py + cell);
-                        ctx.moveTo(px, py + cell);
-                        ctx.lineTo(px + cell, py);
-                        ctx.stroke();
+                        dangerTiles.push({ x, y, px, py });
                     }
                 } else {
-                    // Void / Barrier tile inside active sector envelope: subtle diagonal hatch
-                    ctx.fillStyle = '#050404';
-                    ctx.fillRect(px, py, cell, cell);
-
-                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
-                    ctx.lineWidth = 1;
-                    ctx.beginPath();
-                    ctx.moveTo(px, py + cell);
-                    ctx.lineTo(px + cell, py);
-                    ctx.stroke();
+                    voidFillPath.rect(px, py, cell, cell);
+                    voidHatchPath.moveTo(px, py + cell);
+                    voidHatchPath.lineTo(px + cell, py);
                 }
             }
         }
 
-        // 2. Active Shape Perimeter Rails & Head Proximity Warnings
+        ctx.fillStyle = NOIR_BG;
+        ctx.fill(walkableFloorPath);
+
+        ctx.fillStyle = '#050404';
+        ctx.fill(voidFillPath);
+
+        ctx.strokeStyle = GRID_LINE;
+        ctx.lineWidth = 1;
+        ctx.stroke(gridPath);
+
+        ctx.strokeStyle = CROSSHAIR;
+        ctx.lineWidth = 1;
+        ctx.stroke(crosshairPath);
+
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+        ctx.lineWidth = 1;
+        ctx.stroke(voidHatchPath);
+
+        // Shift telegraph overlay (only active during the final warning seconds)
+        if (dangerTiles.length > 0) {
+            const pulse = 0.35 + 0.25 * Math.sin(now * 0.012);
+            const dangerFillPath = new Path2D();
+            const dangerCrossPath = new Path2D();
+            for (let i = 0; i < dangerTiles.length; i++) {
+                const { px, py } = dangerTiles[i];
+                dangerFillPath.rect(px, py, cell, cell);
+                dangerCrossPath.moveTo(px, py);
+                dangerCrossPath.lineTo(px + cell, py + cell);
+                dangerCrossPath.moveTo(px, py + cell);
+                dangerCrossPath.lineTo(px + cell, py);
+            }
+            ctx.fillStyle = `rgba(251, 113, 133, ${(pulse * 0.38).toFixed(3)})`;
+            ctx.fill(dangerFillPath);
+            ctx.strokeStyle = `rgba(251, 113, 133, ${pulse.toFixed(3)})`;
+            ctx.lineWidth = 1.5;
+            ctx.stroke(dangerCrossPath);
+        }
+
+        // 2. Batched Active Shape Perimeter Rails & Head Proximity Warnings
         const head = this.playerSegments[0];
         const shapeAccent = this.harvestShape.accentColor;
+        const normalRailPath = new Path2D();
+        const alertRailPath = new Path2D();
 
-        ctx.lineWidth = 2.5;
         for (let y = activeMinY; y <= activeMaxY; y++) {
             for (let x = activeMinX; x <= activeMaxX; x++) {
                 if (!this.isHarvestCellWalkable(x, y)) continue;
@@ -2587,42 +2652,32 @@ export class NoirSnakeEngine {
                 const px = x * cell;
                 const py = y * cell;
                 const isNearHead = head && Math.abs(head.x - x) <= 1 && Math.abs(head.y - y) <= 1;
-                const railColor = isNearHead ? ROSE_ACCENT : shapeAccent;
+                const targetPath = isNearHead ? alertRailPath : normalRailPath;
 
-                // Top rail
                 if (!this.isHarvestCellWalkable(x, y - 1)) {
-                    ctx.strokeStyle = railColor;
-                    ctx.beginPath();
-                    ctx.moveTo(px, py + 0.5);
-                    ctx.lineTo(px + cell, py + 0.5);
-                    ctx.stroke();
+                    targetPath.moveTo(px, py + 0.5);
+                    targetPath.lineTo(px + cell, py + 0.5);
                 }
-                // Bottom rail
                 if (!this.isHarvestCellWalkable(x, y + 1)) {
-                    ctx.strokeStyle = railColor;
-                    ctx.beginPath();
-                    ctx.moveTo(px, py + cell - 0.5);
-                    ctx.lineTo(px + cell, py + cell - 0.5);
-                    ctx.stroke();
+                    targetPath.moveTo(px, py + cell - 0.5);
+                    targetPath.lineTo(px + cell, py + cell - 0.5);
                 }
-                // Left rail
                 if (!this.isHarvestCellWalkable(x - 1, y)) {
-                    ctx.strokeStyle = railColor;
-                    ctx.beginPath();
-                    ctx.moveTo(px + 0.5, py);
-                    ctx.lineTo(px + 0.5, py + cell);
-                    ctx.stroke();
+                    targetPath.moveTo(px + 0.5, py);
+                    targetPath.lineTo(px + 0.5, py + cell);
                 }
-                // Right rail
                 if (!this.isHarvestCellWalkable(x + 1, y)) {
-                    ctx.strokeStyle = railColor;
-                    ctx.beginPath();
-                    ctx.moveTo(px + cell - 0.5, py);
-                    ctx.lineTo(px + cell - 0.5, py + cell);
-                    ctx.stroke();
+                    targetPath.moveTo(px + cell - 0.5, py);
+                    targetPath.lineTo(px + cell - 0.5, py + cell);
                 }
             }
         }
+
+        ctx.lineWidth = 2.5;
+        ctx.strokeStyle = shapeAccent;
+        ctx.stroke(normalRailPath);
+        ctx.strokeStyle = ROSE_ACCENT;
+        ctx.stroke(alertRailPath);
 
         // Corner architectural brackets on active sector outer envelope
         const envLeft = activeMinX * cell;

@@ -107,6 +107,12 @@ export const NoirSnakeGameOverlay: React.FC = () => {
         if (typeof window === 'undefined') return false;
         return window.matchMedia('(pointer: coarse)').matches || window.innerWidth < 768;
     });
+    const showTouchPadRef = useRef<boolean>(showTouchPad);
+    const lastResizeRef = useRef<{ w: number; h: number; inset: number }>({ w: 0, h: 0, inset: -1 });
+
+    useEffect(() => {
+        showTouchPadRef.current = showTouchPad;
+    }, [showTouchPad]);
 
     const stageRef = useRef<HTMLDivElement | null>(null);
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -293,13 +299,27 @@ export const NoirSnakeGameOverlay: React.FC = () => {
             const width = stageRef.current.clientWidth;
             const height = stageRef.current.clientHeight;
             if (width <= 0 || height <= 0) return;
-            const dpadInset = showTouchPad ? 148 : 0;
+            const dpadInset = showTouchPadRef.current ? 148 : 0;
+            const prev = lastResizeRef.current;
+            if (prev.w === width && prev.h === height && prev.inset === dpadInset) return;
+            lastResizeRef.current = { w: width, h: height, inset: dpadInset };
             engineRef.current.resize(width, height, dpadInset);
         };
 
         syncSize();
         const ro = new ResizeObserver(syncSize);
         ro.observe(stage);
+
+        // Non-passive touchmove guard on the game stage so mobile browsers (iOS Safari / Brave / Chrome)
+        // never scroll, rubber-band, or toggle the address bar while swiping to steer.
+        const preventStageTouchScroll = (e: TouchEvent) => {
+            const target = e.target as HTMLElement | null;
+            if (target?.closest('[data-arcade-scrollable="true"]')) return;
+            if (e.cancelable) {
+                e.preventDefault();
+            }
+        };
+        stage.addEventListener('touchmove', preventStageTouchScroll, { passive: false });
 
         const onVisChange = () => {
             if (document.hidden) {
@@ -309,6 +329,7 @@ export const NoirSnakeGameOverlay: React.FC = () => {
         document.addEventListener('visibilitychange', onVisChange);
 
         return () => {
+            stage.removeEventListener('touchmove', preventStageTouchScroll);
             document.removeEventListener('visibilitychange', onVisChange);
             ro.disconnect();
             if (levelBannerTimerRef.current !== null) {
@@ -328,11 +349,13 @@ export const NoirSnakeGameOverlay: React.FC = () => {
 
     // Recompute canvas bottom safe inset whenever touch D-pad visibility toggles
     useEffect(() => {
+        showTouchPadRef.current = showTouchPad;
         if (!stageRef.current || !engineRef.current) return;
         const width = stageRef.current.clientWidth;
         const height = stageRef.current.clientHeight;
         if (width <= 0 || height <= 0) return;
         const dpadInset = showTouchPad ? 148 : 0;
+        lastResizeRef.current = { w: width, h: height, inset: dpadInset };
         engineRef.current.resize(width, height, dpadInset);
     }, [showTouchPad, isTouchDevice]);
 
@@ -343,6 +366,15 @@ export const NoirSnakeGameOverlay: React.FC = () => {
         setShowLockdownAlert(null);
         setSummary(null);
         setPlatformSync({ status: 'idle', awarded: 0 });
+        if (stageRef.current && engineRef.current) {
+            const width = stageRef.current.clientWidth;
+            const height = stageRef.current.clientHeight;
+            if (width > 0 && height > 0) {
+                const dpadInset = showTouchPadRef.current ? 148 : 0;
+                lastResizeRef.current = { w: width, h: height, inset: dpadInset };
+                engineRef.current.resize(width, height, dpadInset);
+            }
+        }
         engineRef.current?.startRun(mode);
     }, []);
 
@@ -574,7 +606,7 @@ export const NoirSnakeGameOverlay: React.FC = () => {
             role="dialog"
             aria-modal="true"
             aria-label={tx('Noir Secret Snake Arcade', 'لعبة الثعبان السرية')}
-            className={`secret-arcade-shell fixed inset-0 h-dvh z-[120] flex flex-col bg-[#0a0908] text-[#f5f3ec] select-none will-change-[opacity,transform] transition-[opacity,transform] duration-[780ms] ease-[cubic-bezier(0.22,0.86,0.24,1)] ${
+            className={`secret-arcade-shell fixed inset-0 h-dvh z-[120] flex flex-col bg-[#0a0908] text-[#f5f3ec] select-none overflow-hidden overscroll-none will-change-[opacity,transform] transition-[opacity,transform] duration-[780ms] ease-[cubic-bezier(0.22,0.86,0.24,1)] ${
                 isRevealed
                     ? 'opacity-100 scale-100'
                     : isExiting
@@ -1146,7 +1178,8 @@ export const NoirSnakeGameOverlay: React.FC = () => {
                 {hud.status === 'menu' && (
                     <div
                         dir="auto"
-                        className="absolute inset-0 z-20 flex items-start sm:items-center justify-center p-3 sm:p-5 overflow-y-auto"
+                        data-arcade-scrollable="true"
+                        className="absolute inset-0 z-20 flex items-start sm:items-center justify-center p-3 sm:p-5 overflow-y-auto touch-pan-y overscroll-contain"
                     >
                         <div
                             className={`w-full max-w-3xl bg-[#141210]/95 border-[1.5px] border-[#2e2924] rounded-2xl p-4 sm:p-5 shadow-[0_10px_0_#050504] my-auto will-change-[opacity,transform] transition-[opacity,transform] duration-[720ms] ease-[cubic-bezier(0.22,0.86,0.24,1)] ${
@@ -1396,7 +1429,7 @@ export const NoirSnakeGameOverlay: React.FC = () => {
 
                 {/* GAME OVER SUMMARY MODAL */}
                 {hud.status === 'gameover' && summary && (
-                    <div dir="auto" className="absolute inset-0 z-20 flex items-center justify-center p-4 bg-[#0a0908]/80 overflow-y-auto">
+                    <div dir="auto" data-arcade-scrollable="true" className="absolute inset-0 z-20 flex items-center justify-center p-4 bg-[#0a0908]/80 overflow-y-auto touch-pan-y overscroll-contain">
                         <div className="w-full max-w-md bg-[#141210] border-[1.5px] border-[#2e2924] rounded-2xl p-5 shadow-[0_10px_0_#050504] my-auto animate-in zoom-in-95 fade-in duration-200">
                             <div className="flex items-start justify-between gap-3 mb-4">
                                 <div>

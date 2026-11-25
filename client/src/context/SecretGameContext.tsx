@@ -45,9 +45,11 @@ export const SecretGameProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     const restoreBodyScroll = useCallback(() => {
         const body = document.body;
         const html = document.documentElement;
+        html.style.overflow = '';
         body.style.overflow = '';
         body.style.overscrollBehavior = '';
         html.style.overscrollBehavior = '';
+        body.style.touchAction = '';
         const y = savedScrollYRef.current;
         if (y > 0) {
             window.requestAnimationFrame(() => {
@@ -60,9 +62,11 @@ export const SecretGameProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         savedScrollYRef.current = window.scrollY || window.pageYOffset || 0;
         const body = document.body;
         const html = document.documentElement;
+        html.style.overflow = 'hidden';
         body.style.overflow = 'hidden';
         body.style.overscrollBehavior = 'none';
         html.style.overscrollBehavior = 'none';
+        body.style.touchAction = 'none';
     }, []);
 
     const launchGame = useCallback(
@@ -125,9 +129,11 @@ export const SecretGameProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     useEffect(() => {
         return () => {
             clearPendingTimer();
+            document.documentElement.style.overflow = '';
             document.body.style.overflow = '';
             document.body.style.overscrollBehavior = '';
             document.documentElement.style.overscrollBehavior = '';
+            document.body.style.touchAction = '';
         };
     }, []);
 
