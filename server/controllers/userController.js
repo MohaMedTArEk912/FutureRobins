@@ -86,6 +86,16 @@ export const updateUser = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
+    const updatedGender = user.avatar?.gender;
+    if (updatedGender === 'male' || updatedGender === 'female') {
+      res.cookie('fr_mascot_gender', updatedGender, {
+        maxAge: 365 * 24 * 60 * 60 * 1000,
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+        path: '/'
+      });
+    }
+
     if (updates.role !== undefined) {
       const io = req.app?.get?.('io');
       if (io) {

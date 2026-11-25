@@ -13,6 +13,7 @@ const userSchema = new mongoose.Schema({
   level: { type: Number, default: 1 },
   streak: { type: Number, default: 0 },
   lastLoginDate: { type: Date, default: Date.now },
+  lastLoginMethod: { type: String, enum: ['email', 'google'], default: null },
   avatar: {
     gender: { type: String, enum: ['male', 'female'], default: 'male' },
     skinColor: { type: String },

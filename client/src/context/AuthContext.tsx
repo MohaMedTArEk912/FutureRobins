@@ -1,7 +1,11 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef, type ReactNode } from 'react';
 import { api } from '../lib/api';
 import type { UserData } from '../lib/api';
-import { setStoredMascotGender } from '../utils/mascotGenderStorage';
+import {
+    setLastLoginEmail,
+    setLastLoginMethod,
+    syncAuthPreferencesFromUser
+} from '../utils/authPreferenceCookies';
 
 interface AuthContextType {
     currentUser: UserData | null;
@@ -42,6 +46,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const [isAdmin, setIsAdmin] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [token, setToken] = useState<string | null>(null);
+    const lastDeviceSyncRef = useRef<number>(0);
 
     // Load session on mount
     useEffect(() => {
@@ -65,6 +70,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                         setCurrentUser(user);
                         setIsAdmin(user.role === 'admin');
                         setToken(sessionToken ?? null);
+                        syncAuthPreferencesFromUser(user);
+                        lastDeviceSyncRef.current = Date.now();
                     } else {
                         throw new Error('Invalid session');
                     }
@@ -84,8 +91,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }, []);
 
     useEffect(() => {
-        setStoredMascotGender(currentUser?.avatar?.gender);
-    }, [currentUser?.avatar?.gender]);
+        syncAuthPreferencesFromUser(currentUser);
+    }, [currentUser]);
 
     const refreshUser = useCallback(async () => {
         const savedSession = sessionStorage.getItem('userSession') || localStorage.getItem('userSession');
@@ -109,6 +116,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 }
                 return user;
             });
+            syncAuthPreferencesFromUser(user);
             const isAdminUser = user.role === 'admin';
             setIsAdmin(isAdminUser);
             const updatedSession = JSON.stringify({ user, token: currentToken, isAdmin: isAdminUser });
@@ -119,11 +127,31 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
     }, [currentUser?.userId, token]);
 
+    // Sync preferences (gender, lastLoginMethod, profile) across devices on tab focus/visibility
+    useEffect(() => {
+        if (!currentUser?.userId) return;
+        const syncOnFocus = () => {
+            if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
+            const now = Date.now();
+            if (now - lastDeviceSyncRef.current < 30000) return;
+            lastDeviceSyncRef.current = now;
+            void refreshUser();
+        };
+        window.addEventListener('focus', syncOnFocus);
+        document.addEventListener('visibilitychange', syncOnFocus);
+        return () => {
+            window.removeEventListener('focus', syncOnFocus);
+            document.removeEventListener('visibilitychange', syncOnFocus);
+        };
+    }, [currentUser?.userId, refreshUser]);
+
     const completeAuthSession = useCallback((user: UserData, jwt: string) => {
         const isAdminUser = user.role === 'admin';
         setCurrentUser(user);
         setIsAdmin(isAdminUser);
         setToken(jwt);
+        syncAuthPreferencesFromUser(user);
+        lastDeviceSyncRef.current = Date.now();
         const sessionPayload = JSON.stringify({ user, token: jwt, isAdmin: isAdminUser });
         sessionStorage.setItem('userSession', sessionPayload);
         localStorage.setItem('userSession', sessionPayload);
@@ -133,6 +161,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const login = async (email: string, password: string) => {
         const normalizedEmail = email.toLowerCase().trim();
         const { user, token: jwt } = await api.login({ email: normalizedEmail, password });
+        setLastLoginMethod('email');
+        setLastLoginEmail(normalizedEmail);
         return completeAuthSession(user, jwt);
     };
 
@@ -156,11 +186,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
         const registrationData: Partial<UserData> & { password: string } = { ...baseUserData, password };
         const { user, token: jwt } = await api.register(registrationData);
+        setLastLoginMethod('email');
+        setLastLoginEmail(normalizedEmail);
         return completeAuthSession(user, jwt);
     };
 
     const googleLogin = async (profile: { email: string; name: string; googleId: string }) => {
         const { user, token: jwt } = await api.googleLogin(profile);
+        setLastLoginMethod('google');
+        setLastLoginEmail(profile.email);
         return completeAuthSession(user, jwt);
     };
 
@@ -170,6 +204,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }, [completeAuthSession]);
 
     const logout = () => {
+        // Persist chosen gender & last-login method in cookies/localStorage so logout keeps them
+        syncAuthPreferencesFromUser(currentUser);
         sessionStorage.setItem('suppressRedirectAfterLogin', 'true');
         sessionStorage.removeItem('redirectAfterLogin');
         sessionStorage.removeItem('demoVisitorName');
@@ -187,6 +223,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setCurrentUser(prev => {
             if (!prev) return null;
             const newState = { ...prev, ...updates };
+            syncAuthPreferencesFromUser(newState);
             const nextIsAdmin = newState.role === 'admin';
             setIsAdmin(nextIsAdmin);
             const updatedSession = JSON.stringify({ user: newState, token, isAdmin: nextIsAdmin });

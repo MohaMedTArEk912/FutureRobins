@@ -120,6 +120,7 @@ export interface UserData {
     level: number;
     streak: number;
     lastLoginDate: string;
+    lastLoginMethod?: 'email' | 'google' | null;
     lastStreakClaimDate?: string;
     badges: Badge[];
     equippedBadgeId?: string | null;

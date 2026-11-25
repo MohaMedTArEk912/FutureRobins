@@ -72,6 +72,23 @@ const resolveLoginEmail = (email) => {
   return normalizedEmail;
 };
 
+const setAuthPreferenceCookies = (res, user, method) => {
+  const cookieOpts = {
+    maxAge: 365 * 24 * 60 * 60 * 1000,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    path: '/'
+  };
+  const gender = user?.avatar?.gender;
+  if (gender === 'male' || gender === 'female') {
+    res.cookie('fr_mascot_gender', gender, cookieOpts);
+  }
+  const resolvedMethod = method || user?.lastLoginMethod;
+  if (resolvedMethod === 'email' || resolvedMethod === 'google') {
+    res.cookie('fr_last_login_method', resolvedMethod, cookieOpts);
+  }
+};
+
 async function finalizeVerifiedUser({ userId, name, email, passwordHash, gender }) {
   const resolvedGender = gender === 'female' ? 'female' : 'male';
   const newUser = new User({
@@ -79,6 +96,7 @@ async function finalizeVerifiedUser({ userId, name, email, passwordHash, gender 
     name,
     email,
     password: passwordHash,
+    lastLoginMethod: 'email',
     avatar: { gender: resolvedGender },
     emailVerified: true,
     createdAt: new Date()
@@ -279,6 +297,7 @@ export const verifyRegistration = async (req, res) => {
       gender: consumed.gender
     });
 
+    setAuthPreferenceCookies(res, user, 'email');
     return res.status(201).json({
       user,
       token: authToken,
@@ -337,6 +356,7 @@ export const login = async (req, res) => {
     const newStreak = calculateStreak(user.lastLoginDate, user.streak);
     user.streak = newStreak;
     user.lastLoginDate = new Date();
+    user.lastLoginMethod = 'email';
     await user.save();
 
     // Trigger badge evaluation on login
@@ -349,6 +369,7 @@ export const login = async (req, res) => {
     const enrichedUser = await getEnrichedUser(user.userId);
     const { password: _pw, ...safeUser } = enrichedUser || user.toObject();
 
+    setAuthPreferenceCookies(res, safeUser, 'email');
     res.json({ user: safeUser, token });
   } catch (error) {
     console.error('Login Error:', error);
@@ -380,6 +401,7 @@ export const googleAuth = async (req, res) => {
         level: 1,
         streak: 1, // First login
         lastLoginDate: new Date(),
+        lastLoginMethod: 'google',
         badges: []
       });
       await user.save();
@@ -388,6 +410,7 @@ export const googleAuth = async (req, res) => {
       const newStreak = calculateStreak(user.lastLoginDate, user.streak);
       user.streak = newStreak;
       user.lastLoginDate = new Date();
+      user.lastLoginMethod = 'google';
       if (!user.emailVerified) {
         user.emailVerified = true;
       }
@@ -404,6 +427,7 @@ export const googleAuth = async (req, res) => {
     const enrichedUser = await getEnrichedUser(user.userId);
     const { password: _pw, ...safeUser } = enrichedUser || user.toObject();
     
+    setAuthPreferenceCookies(res, safeUser, 'google');
     res.json({ user: safeUser, token });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
