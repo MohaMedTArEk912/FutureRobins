@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Flame, Check } from 'lucide-react';
 import Modal from '../common/Modal';
+import { BoltSvg, BulbSvg, CoinSvg, FlameSvg, GiftSvg, HourglassSvg } from '../common/BrandIcons';
 import { MysteryLootBox, type LootReward } from './MysteryLootBox';
 import { sounds } from '../../lib/soundEffects';
 import { api } from '../../lib/api';
@@ -15,13 +16,13 @@ interface StreakRewardModalProps {
 }
 
 const STREAK_DAYS = [
-    { day: 1, label: '+25 Coins', icon: '🪙', coins: 25, xp: 0 },
-    { day: 2, label: '+50 Coins & 50 XP', icon: '⚡', coins: 50, xp: 50 },
-    { day: 3, label: '1x Hint Power-Up', icon: '💡', coins: 30, powerUp: 'hint' },
-    { day: 4, label: '+100 Coins & 100 XP', icon: '🪙', coins: 100, xp: 100 },
-    { day: 5, label: '1x Time Freeze', icon: '⏳', coins: 50, powerUp: 'time_freeze' },
-    { day: 6, label: '+150 Coins & 250 XP', icon: '🔥', coins: 150, xp: 250 },
-    { day: 7, label: 'Mystery Loot Box', icon: '🎁', isLootBox: true }
+    { day: 1, label: '+25 Coins', icon: <CoinSvg className="w-7 h-7" />, coins: 25, xp: 0 },
+    { day: 2, label: '+50 Coins & 50 XP', icon: <BoltSvg className="w-7 h-7" />, coins: 50, xp: 50 },
+    { day: 3, label: '1x Hint Power-Up', icon: <BulbSvg className="w-7 h-7" />, coins: 30, powerUp: 'hint' },
+    { day: 4, label: '+100 Coins & 100 XP', icon: <CoinSvg className="w-7 h-7" />, coins: 100, xp: 100 },
+    { day: 5, label: '1x Time Freeze', icon: <HourglassSvg className="w-7 h-7" />, coins: 50, powerUp: 'time_freeze' },
+    { day: 6, label: '+150 Coins & 250 XP', icon: <FlameSvg className="w-7 h-7" />, coins: 150, xp: 250 },
+    { day: 7, label: 'Mystery Loot Box', icon: <GiftSvg className="w-7 h-7" />, isLootBox: true }
 ];
 
 export const StreakRewardModal: React.FC<StreakRewardModalProps> = ({
@@ -163,7 +164,7 @@ export const StreakRewardModal: React.FC<StreakRewardModalProps> = ({
                                     ? 'bg-[#fed7aa] border-2 border-black text-black shadow-[1.5px_1.5px_0px_#000]'
                                     : 'bg-[#fde047]/15 border border-[#fde047]/35 text-[#fde047]'
                             }`}>
-                                🔥
+                                <FlameSvg className="w-6 h-6" />
                             </div>
                             <div>
                                 <h3 className={`text-sm sm:text-base font-black uppercase tracking-tight ${
@@ -236,8 +237,8 @@ export const StreakRewardModal: React.FC<StreakRewardModalProps> = ({
                                     )}
 
                                     {isToday && (
-                                        <div className={`mt-1 text-[9px] font-black uppercase ${isBento ? 'text-black' : 'text-[#fde047]'}`}>
-                                            {isClaimedToday ? '✓ Done' : '🎁 Today'}
+                                        <div className={`mt-1 inline-flex items-center gap-1 text-[9px] font-black uppercase ${isBento ? 'text-black' : 'text-[#fde047]'}`}>
+                                            {isClaimedToday ? '✓ Done' : <><GiftSvg className="w-3 h-3" /> Today</>}
                                         </div>
                                     )}
                                 </div>

@@ -6,6 +6,7 @@ import type {
   TournamentHistoryItem
 } from '../../types';
 import { api } from '../../lib/api';
+import { FlameSvg } from '../common/BrandIcons';
 import { 
   Trophy, 
   Users, 
@@ -1043,7 +1044,7 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
                         onClick={() => handleStartTournamentQuiz(tournament)}
                         className="w-full py-4 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/30 cursor-pointer animate-pulse transition-all active:scale-95"
                       >
-                        <Swords className="w-5 h-5" /> 🔥 ENTER ARENA / START QUIZ NOW
+                        <Swords className="w-5 h-5" /> <FlameSvg className="w-5 h-5" /> ENTER ARENA / START QUIZ NOW
                       </button>
                     )}
 

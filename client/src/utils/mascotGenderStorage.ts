@@ -1,4 +1,5 @@
 export {
+    hasStoredMascotGender,
     getStoredMascotGender,
     setStoredMascotGender,
     type MascotGender

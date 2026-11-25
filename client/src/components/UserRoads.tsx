@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AmbientBackground } from './AmbientBackground';
+import { FlameSvg, GamepadSvg } from './common/BrandIcons';
 import type { Quiz, UserData, AttemptData, Subject, SkillTrack, SkillModule, TrackRequest } from '../types/index.ts';
 import { DIFFICULTY_COLORS } from '../constants/quizDefaults.ts';
 import {
@@ -861,7 +862,7 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                         ? 'bg-[#192211] text-[#bef264] border border-[#bef264]/35'
                                         : 'bg-[#231e0f] text-[#fde047] border border-[#fde047]/35'
                             }`}>
-                                {isStreakClaimedToday ? '✓' : '🔥'}
+                                {isStreakClaimedToday ? '✓' : <FlameSvg className="w-6 h-6" />}
                             </div>
                             <div className="min-w-0">
                                 <div className="flex items-center gap-1.5">
@@ -914,7 +915,7 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                     ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
                                     : 'bg-[#111c22] text-[#bae6fd] border border-[#bae6fd]/35'
                             }`}>
-                                🎮
+                                <GamepadSvg className="w-6 h-6" />
                             </div>
                             <div className="min-w-0">
                                 <div className="flex items-center gap-1.5">
@@ -2172,7 +2173,7 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                                                     }`}
                                                                     title="Host a Live Classroom Arena game for this quiz"
                                                                 >
-                                                                    🎮
+                                                                    <GamepadSvg className="w-5 h-5" />
                                                                 </button>
 
                                                                 <button
@@ -2472,7 +2473,7 @@ const UserRoads: React.FC<UserRoadsProps> = ({ quizzes: quizzesProp, subjects: s
                                                                      }`}
                                                                      title="Host a Live Classroom Arena game for this exam"
                                                                  >
-                                                                     🎮
+                                                                     <GamepadSvg className="w-5 h-5" />
                                                                  </button>
 
                                                                  <button

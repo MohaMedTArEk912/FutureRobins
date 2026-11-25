@@ -19,6 +19,7 @@ import { api, type UserData } from '../lib/api';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 import { AuthThemeButton } from './common/AuthThemeButton';
+import { BoltSvg } from './common/BrandIcons';
 import { getStoredMascotGender, setStoredMascotGender, type MascotGender } from '../utils/mascotGenderStorage';
 
 interface RegisterScreenProps {
@@ -600,7 +601,10 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onVerified, onSwitchToL
                                         <span>{tx('Sending Verification Email...', 'بنبعتلك إيميل التحقق...')}</span>
                                     </>
                                 ) : (
-                                    <span>{isBento ? tx('⚡ VERIFY EMAIL & CONTINUE', '⚡ تحقق من الإيميل وكمل') : tx('Verify Email & Continue', 'تحقق من الإيميل وكمل')}</span>
+                                    <span className="inline-flex items-center gap-1.5">
+                                        {isBento && <BoltSvg className="w-4 h-4 shrink-0" />}
+                                        {isBento ? tx('VERIFY EMAIL & CONTINUE', 'تحقق من الإيميل وكمل') : tx('Verify Email & Continue', 'تحقق من الإيميل وكمل')}
+                                    </span>
                                 )}
                             </button>
                         </form>
@@ -701,7 +705,10 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onVerified, onSwitchToL
                                                 <span>{tx('Verifying & Creating Account...', 'بنفعل الحساب ونجهزه...')}</span>
                                             </>
                                         ) : (
-                                            <span>{isBento ? tx('⚡ VERIFY & CREATE ACCOUNT', '⚡ تفعيل وإنشاء الحساب') : tx('Verify & Create Account', 'تفعيل وإنشاء الحساب')}</span>
+                                            <span className="inline-flex items-center gap-1.5">
+                                                {isBento && <BoltSvg className="w-4 h-4 shrink-0" />}
+                                                {isBento ? tx('VERIFY & CREATE ACCOUNT', 'تفعيل وإنشاء الحساب') : tx('Verify & Create Account', 'تفعيل وإنشاء الحساب')}
+                                            </span>
                                         )}
                                     </button>
                                 </>

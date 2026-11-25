@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
+import { BoltSvg, FlameSvg, SparkleSvg, TargetSvg } from '../common/BrandIcons';
 
 interface AnalyticsPanelProps {
   user: UserData;
@@ -358,8 +359,12 @@ const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({ user }) => {
           </div>
           <div>
             <div className="text-3xl sm:text-4xl font-black font-tabular tracking-tight mb-0.5">{avgScore}%</div>
-            <div className={`text-xs font-bold ${isBento ? 'text-black/80' : 'text-slate-500 dark:text-slate-400'}`}>
-              {avgScore >= 80 ? '🎯 Sharpshooter' : avgScore >= 60 ? '🔥 On Track' : '⚡ Needs Review'}
+            <div className={`inline-flex items-center gap-1.5 text-xs font-bold ${isBento ? 'text-black/80' : 'text-slate-500 dark:text-slate-400'}`}>
+              {avgScore >= 80
+                ? <><TargetSvg className="w-3.5 h-3.5" /> Sharpshooter</>
+                : avgScore >= 60
+                  ? <><FlameSvg className="w-3.5 h-3.5" /> On Track</>
+                  : <><BoltSvg className="w-3.5 h-3.5" /> Needs Review</>}
             </div>
           </div>
         </div>
@@ -454,13 +459,13 @@ const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({ user }) => {
                   AI Coach: Wrong-Answer Autopsy &amp; Study Plan
                 </h2>
                 <span
-                  className={`px-2.5 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider ${
+                  className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider ${
                     isBento
                       ? 'bg-[#fde047] text-black border border-black shadow-[1px_1px_0px_#000]'
                       : 'bg-teal-500/20 text-teal-600 dark:text-teal-300'
                   }`}
                 >
-                  {aiAnalysis?.generatedByAi ? '✨ Groq AI Powered' : 'Smart Diagnostics'}
+                  {aiAnalysis?.generatedByAi ? <><SparkleSvg className="w-3 h-3" /> Groq AI Powered</> : 'Smart Diagnostics'}
                 </span>
               </div>
               <p className={`text-xs mt-0.5 ${isBento ? 'text-black/70 font-semibold' : 'text-slate-500 dark:text-slate-400'}`}>
@@ -544,7 +549,7 @@ const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({ user }) => {
                     <div>
                       <div className="flex items-center justify-between gap-2 mb-2.5">
                         <span
-                          className={`px-2.5 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider ${
+                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider ${
                             isHigh
                               ? isBento
                                 ? 'bg-[#fecdd3] text-black border border-black shadow-[1px_1px_0px_#000]'
@@ -554,7 +559,7 @@ const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({ user }) => {
                               : 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30'
                           }`}
                         >
-                          {isHigh ? '🔥 High Priority Study' : '⚡ Recommended Review'}
+                          {isHigh ? <><FlameSvg className="w-3 h-3" /> High Priority Study</> : <><BoltSvg className="w-3 h-3" /> Recommended Review</>}
                         </span>
                         <span className="text-[11px] font-black uppercase tracking-wider opacity-70">
                           {topic.category}

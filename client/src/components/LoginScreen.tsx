@@ -6,7 +6,8 @@ import { AnimatedCharacter } from './AnimatedCharacter.tsx';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useLanguage } from '../context/LanguageContext.tsx';
 import { AuthThemeButton } from './common/AuthThemeButton';
-import { getStoredMascotGender, setStoredMascotGender, type MascotGender } from '../utils/mascotGenderStorage';
+import { BoltSvg } from './common/BrandIcons';
+import { getStoredMascotGender, hasStoredMascotGender, setStoredMascotGender, type MascotGender } from '../utils/mascotGenderStorage';
 import { getLastLoginEmail, getLastLoginMethod, type LastLoginMethod } from '../utils/authPreferenceCookies';
 
 interface LoginScreenProps {
@@ -19,6 +20,7 @@ interface LoginScreenProps {
 const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSwitchToRegister, onSwitchToForgotPassword, onGoogleSignIn }) => {
     const navigate = useNavigate();
     const [lastLoginMethod] = useState<LastLoginMethod | null>(() => getLastLoginMethod());
+    const [hasSavedGender] = useState<boolean>(() => hasStoredMascotGender());
     const [email, setEmail] = useState(() => (getLastLoginMethod() === 'email' ? getLastLoginEmail() || '' : ''));
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
@@ -141,41 +143,43 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSwitchToRegister, 
                         />
                     </div>
 
-                    {/* Interactive Boy / Girl Character Switcher */}
-                    <div className={`inline-flex items-center gap-1.5 p-1.5 rounded-2xl mb-5 ${
-                        isBento
-                            ? 'bg-white border-[2.5px] border-black shadow-[4px_4px_0px_#000]'
-                            : 'bg-[#141210]/90 border border-[#2e2924] backdrop-blur-md'
-                    }`}>
-                        {(['male', 'female'] as const).map((g) => {
-                            const active = mascotGender === g;
-                            const label = g === 'male'
-                                ? (isBento ? tx('Boy (Lewis)', 'ولد (لويس)') : tx('Boy (Wilbur)', 'ولد (ويلبور)'))
-                                : (isBento ? tx('Girl (Robin)', 'بنت (روبين)') : tx('Girl (Franny)', 'بنت (فراني)'));
-                            return (
-                                <button
-                                    key={g}
-                                    type="button"
-                                    onClick={() => handleGenderChange(g)}
-                                    className={`btn-unstyled px-3.5 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
-                                        active
-                                            ? isBento
-                                                ? g === 'male'
-                                                    ? 'bg-[#fde047] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                                    : 'bg-[#bae6fd] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                                : g === 'male'
-                                                    ? 'bg-[#00e5ff] text-[#071122] shadow-sm'
-                                                    : 'bg-[#f43f5e] text-white shadow-sm'
-                                            : isBento
-                                                ? 'text-black/70 hover:text-black border-2 border-transparent'
-                                                : 'text-[#a8a29e] hover:text-[#f5f3ec]'
-                                    }`}
-                                >
-                                    {label}
-                                </button>
-                            );
-                        })}
-                    </div>
+                    {/* Interactive Boy / Girl Character Switcher (hidden once user has a saved gender) */}
+                    {!hasSavedGender && (
+                        <div className={`inline-flex items-center gap-1.5 p-1.5 rounded-2xl mb-5 ${
+                            isBento
+                                ? 'bg-white border-[2.5px] border-black shadow-[4px_4px_0px_#000]'
+                                : 'bg-[#141210]/90 border border-[#2e2924] backdrop-blur-md'
+                        }`}>
+                            {(['male', 'female'] as const).map((g) => {
+                                const active = mascotGender === g;
+                                const label = g === 'male'
+                                    ? (isBento ? tx('Boy (Lewis)', 'ولد (لويس)') : tx('Boy (Wilbur)', 'ولد (ويلبور)'))
+                                    : (isBento ? tx('Girl (Robin)', 'بنت (روبين)') : tx('Girl (Franny)', 'بنت (فراني)'));
+                                return (
+                                    <button
+                                        key={g}
+                                        type="button"
+                                        onClick={() => handleGenderChange(g)}
+                                        className={`btn-unstyled px-3.5 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                                            active
+                                                ? isBento
+                                                    ? g === 'male'
+                                                        ? 'bg-[#fde047] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                                        : 'bg-[#bae6fd] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                                    : g === 'male'
+                                                        ? 'bg-[#00e5ff] text-[#071122] shadow-sm'
+                                                        : 'bg-[#f43f5e] text-white shadow-sm'
+                                                : isBento
+                                                    ? 'text-black/70 hover:text-black border-2 border-transparent'
+                                                    : 'text-[#a8a29e] hover:text-[#f5f3ec]'
+                                        }`}
+                                    >
+                                        {label}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    )}
                     
                     <div className="text-center space-y-2">
                         <h1 className={`text-4xl font-extrabold tracking-tight ${
@@ -254,32 +258,34 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSwitchToRegister, 
                                     compact
                                 />
                             </button>
-                            <div className={`inline-flex items-center gap-1 p-1 rounded-full mb-2.5 ${
-                                isBento
-                                    ? 'bg-[#f5f3ec] border-2 border-black shadow-[2px_2px_0px_#000]'
-                                    : 'bg-[#1c1917] border border-[#2e2924]'
-                            }`}>
-                                {(['male', 'female'] as const).map((g) => (
-                                    <button
-                                        key={g}
-                                        type="button"
-                                        onClick={() => handleGenderChange(g)}
-                                        className={`btn-unstyled px-3.5 py-1 rounded-full text-[11px] font-black transition-all cursor-pointer ${
-                                            mascotGender === g
-                                                ? isBento
-                                                    ? 'bg-[#fde047] text-black border border-black shadow-[1px_1px_0px_#000]'
-                                                    : g === 'male'
-                                                        ? 'bg-[#00e5ff] text-[#071122]'
-                                                        : 'bg-[#f43f5e] text-white'
-                                                : isBento
-                                                    ? 'text-black/70 hover:text-black'
-                                                    : 'text-[#a8a29e] hover:text-[#f5f3ec]'
-                                        }`}
-                                    >
-                                        {g === 'male' ? tx('Boy', 'ولد') : tx('Girl', 'بنت')}
-                                    </button>
-                                ))}
-                            </div>
+                            {!hasSavedGender && (
+                                <div className={`inline-flex items-center gap-1 p-1 rounded-full mb-2.5 ${
+                                    isBento
+                                        ? 'bg-[#f5f3ec] border-2 border-black shadow-[2px_2px_0px_#000]'
+                                        : 'bg-[#1c1917] border border-[#2e2924]'
+                                }`}>
+                                    {(['male', 'female'] as const).map((g) => (
+                                        <button
+                                            key={g}
+                                            type="button"
+                                            onClick={() => handleGenderChange(g)}
+                                            className={`btn-unstyled px-3.5 py-1 rounded-full text-[11px] font-black transition-all cursor-pointer ${
+                                                mascotGender === g
+                                                    ? isBento
+                                                        ? 'bg-[#fde047] text-black border border-black shadow-[1px_1px_0px_#000]'
+                                                        : g === 'male'
+                                                            ? 'bg-[#00e5ff] text-[#071122]'
+                                                            : 'bg-[#f43f5e] text-white'
+                                                    : isBento
+                                                        ? 'text-black/70 hover:text-black'
+                                                        : 'text-[#a8a29e] hover:text-[#f5f3ec]'
+                                            }`}
+                                        >
+                                            {g === 'male' ? tx('Boy', 'ولد') : tx('Girl', 'بنت')}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
                             <h1 className={`text-xl sm:text-2xl font-extrabold tracking-tight ${
                                 isBento ? 'text-black' : 'text-slate-900 dark:text-white'
                             }`}>
@@ -430,7 +436,10 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSwitchToRegister, 
                                 </svg>
                             ) : (
                                 <>
-                                    <span>{isBento ? tx('⚡ SIGN IN', '⚡ تسجيل الدخول') : tx('Sign In', 'تسجيل الدخول')}</span>
+                                    <span className="inline-flex items-center gap-1.5">
+                                        {isBento && <BoltSvg className="w-4 h-4 shrink-0" />}
+                                        {isBento ? tx('SIGN IN', 'تسجيل الدخول') : tx('Sign In', 'تسجيل الدخول')}
+                                    </span>
                                     {lastLoginMethod === 'email' && (
                                         <span
                                             className={`px-2 py-0.5 rounded-full text-[10px] font-black tracking-wide uppercase ${

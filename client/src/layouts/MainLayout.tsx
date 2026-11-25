@@ -20,6 +20,7 @@ import InstallPWA from '../components/InstallPWA';
 import PwaUpdatePrompt from '../components/PwaUpdatePrompt';
 import { GlobalChatDrawer } from '../components/chat/GlobalChatDrawer';
 import { NavbarCustomizerModal } from '../components/nav/NavbarCustomizerModal';
+import { SwordsSvg } from '../components/common/BrandIcons';
 import { prefetchPrimaryRoutes } from '../lib/routePrefetch';
 
 const NoirSnakeGameOverlay = lazy(() => import('../components/arcade/NoirSnakeGameOverlay'));
@@ -362,7 +363,7 @@ const MainLayout: React.FC = () => {
                 <div className="app-dialog-overlay fixed inset-0 z-[200] flex items-center justify-center bg-black/30 dark:bg-black/65 backdrop-blur-md p-4 animate-in fade-in duration-200">
                     <div className="app-dialog-panel app-dialog-panel--padded bg-white dark:bg-[#161411] border border-gray-200 dark:border-[#f5f3ec]/12 p-6 rounded-2xl shadow-2xl max-w-sm w-full animate-in zoom-in-95 duration-200">
                         <div className="w-12 h-12 rounded-xl bg-orange-500 dark:bg-[#fde047] flex items-center justify-center text-white dark:text-[#0a0908] text-2xl mb-4 shadow-lg shadow-orange-500/25 dark:shadow-[0_8px_24px_rgba(251,113,133,0.22)]">
-                            ⚔️
+                            <SwordsSvg className="w-6 h-6" />
                         </div>
                         <h3 className="text-lg font-black tracking-tight mb-1 text-gray-900 dark:text-[#f5f3ec] uppercase">
                             Quiz Challenge!

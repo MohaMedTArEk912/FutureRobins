@@ -24,6 +24,7 @@ import UserSettings from './UserSettings.tsx';
 import Avatar from './Avatar';
 import AvatarEditor from './AvatarEditor';
 import { StreakRewardModal } from './gamification/StreakRewardModal';
+import { BoltSvg, BulbSvg, CoinSvg, FlameSvg, GiftSvg, HourglassSvg, ShieldSvg, StarSvg, TrophySvg } from './common/BrandIcons';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useLanguage } from '../context/LanguageContext.tsx';
 import { usePersistentShell } from '../context/PersistentShellContext';
@@ -1001,7 +1002,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                     <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-2xl bg-amber-500 dark:bg-[#fde047] text-white dark:text-[#0a0908] flex items-center justify-center font-black text-xl shadow-sm">
-                                🔥
+                                <FlameSvg className="w-6 h-6" />
                             </div>
                             <div>
                                 <h3 className="text-lg sm:text-2xl font-black text-gray-900 dark:text-[#f5f3ec]">Streak & Activity Tracking</h3>
@@ -1161,13 +1162,13 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
 
                         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
                             {[
-                                { day: 1, label: '+25 Coins', icon: '🪙', bg: 'bg-[#fef08a]', text: 'text-amber-950' },
-                                { day: 2, label: '+50 Coins & 50 XP', icon: '⚡', bg: 'bg-[#bef264]', text: 'text-lime-950' },
-                                { day: 3, label: '1x Hint Power-Up', icon: '💡', bg: 'bg-[#bae6fd]', text: 'text-sky-950' },
-                                { day: 4, label: '+100 Coins & 100 XP', icon: '🪙', bg: 'bg-[#fdba74]', text: 'text-teal-950' },
-                                { day: 5, label: '1x Time Freeze', icon: '⏳', bg: 'bg-[#67e8f9]', text: 'text-cyan-950' },
-                                { day: 6, label: '+150 Coins & 250 XP', icon: '🔥', bg: 'bg-[#fdba74]', text: 'text-orange-950' },
-                                { day: 7, label: 'Mystery Loot Box', icon: '🎁', bg: 'bg-[#f472b6]', text: 'text-pink-950' }
+                                { day: 1, label: '+25 Coins', icon: <CoinSvg className="w-7 h-7" />, bg: 'bg-[#fef08a]', text: 'text-amber-950' },
+                                { day: 2, label: '+50 Coins & 50 XP', icon: <BoltSvg className="w-7 h-7" />, bg: 'bg-[#bef264]', text: 'text-lime-950' },
+                                { day: 3, label: '1x Hint Power-Up', icon: <BulbSvg className="w-7 h-7" />, bg: 'bg-[#bae6fd]', text: 'text-sky-950' },
+                                { day: 4, label: '+100 Coins & 100 XP', icon: <CoinSvg className="w-7 h-7" />, bg: 'bg-[#fdba74]', text: 'text-teal-950' },
+                                { day: 5, label: '1x Time Freeze', icon: <HourglassSvg className="w-7 h-7" />, bg: 'bg-[#67e8f9]', text: 'text-cyan-950' },
+                                { day: 6, label: '+150 Coins & 250 XP', icon: <FlameSvg className="w-7 h-7" />, bg: 'bg-[#fdba74]', text: 'text-orange-950' },
+                                { day: 7, label: 'Mystery Loot Box', icon: <GiftSvg className="w-7 h-7" />, bg: 'bg-[#f472b6]', text: 'text-pink-950' }
                             ].map((milestone) => {
                                 const isPast = milestone.day < currentStreakDay;
                                 const isToday = milestone.day === currentStreakDay;
@@ -1191,12 +1192,12 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                                         className={`p-3.5 rounded-xl flex flex-col items-center justify-between text-center transition-all relative overflow-hidden group hover:-translate-y-1 ${cardClass}`}
                                     >
                                         {milestone.day === 7 && (
-                                            <span className={`absolute -top-0.5 right-1.5 text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md ${
+                                            <span className={`absolute -top-0.5 right-1.5 inline-flex items-center gap-0.5 text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md ${
                                                 isBento
                                                     ? 'bg-white border border-black shadow-[1px_1px_0px_#000] rotate-2 text-black'
                                                     : 'bg-amber-400 text-black font-extrabold shadow-xs'
                                             }`}>
-                                                ⭐ Grand
+                                                <StarSvg className="w-2.5 h-2.5" /> Grand
                                             </span>
                                         )}
                                         <div className="flex items-center justify-between w-full mb-1">
@@ -1221,7 +1222,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                                             )}
                                         </div>
 
-                                        <div className="text-3xl my-2 drop-shadow-sm transform group-hover:scale-110 transition-transform">
+                                        <div className="my-2 drop-shadow-sm transform group-hover:scale-110 transition-transform flex items-center justify-center">
                                             {milestone.icon}
                                         </div>
 
@@ -1239,12 +1240,12 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                                                     ✓ Claimed
                                                 </span>
                                             ) : isToday ? (
-                                                <span className={`inline-block w-full py-1 text-[9px] font-black uppercase tracking-wider rounded-lg ${
+                                                <span className={`inline-flex items-center justify-center gap-1 w-full py-1 text-[9px] font-black uppercase tracking-wider rounded-lg ${
                                                     isBento
                                                         ? 'bg-orange-500 text-white border border-black shadow-[1.5px_1.5px_0px_#000] animate-pulse'
                                                         : 'bg-orange-500 text-white shadow-sm shadow-orange-500/20'
                                                 }`}>
-                                                    {isStreakClaimedToday ? '✓ Done' : '🎁 Claim'}
+                                                    {isStreakClaimedToday ? '✓ Done' : <><GiftSvg className="w-3 h-3" /> Claim</>}
                                                 </span>
                                             ) : (
                                                 <span className={`inline-flex items-center justify-center gap-1 w-full py-1 text-[9px] font-black uppercase tracking-wider rounded-lg ${
@@ -1565,11 +1566,11 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                             </div>
 
                             <div className="flex flex-wrap items-center gap-3">
-                                <div className="px-3.5 py-1.5 rounded-xl bg-indigo-500/10 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 font-black text-xs uppercase tracking-wider border border-indigo-500/20">
-                                    🏆 {unlockedBadgesCount} / {combinedBadgeList.length} Unlocked
+                                <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-indigo-500/10 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 font-black text-xs uppercase tracking-wider border border-indigo-500/20">
+                                    <TrophySvg className="w-4 h-4" /> {unlockedBadgesCount} / {combinedBadgeList.length} Unlocked
                                 </div>
-                                <div className="px-3.5 py-1.5 rounded-xl bg-amber-500/10 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 font-black text-xs uppercase tracking-wider border border-amber-500/20">
-                                    ⚡ +{totalEarnedBadgeXp} XP Boost
+                                <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-500/10 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 font-black text-xs uppercase tracking-wider border border-amber-500/20">
+                                    <BoltSvg className="w-4 h-4" /> +{totalEarnedBadgeXp} XP Boost
                                 </div>
                                 <button
                                     onClick={handleSyncBadges}
@@ -2332,7 +2333,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                                                         : 'bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/15 text-gray-800 dark:text-white font-bold active:scale-95'
                                                 }`}
                                             >
-                                                ⚡ Daily Challenge
+                                                <span className="inline-flex items-center gap-1.5"><BoltSvg className="w-3.5 h-3.5" /> Daily Challenge</span>
                                             </button>
                                         </div>
                                     </div>
@@ -2512,7 +2513,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                                                                 : 'bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/15 text-gray-800 dark:text-white font-bold active:scale-95'
                                                         }`}
                                                     >
-                                                        ⚡ Daily Challenge
+                                                        <span className="inline-flex items-center gap-1.5"><BoltSvg className="w-3.5 h-3.5" /> Daily Challenge</span>
                                                     </button>
                                                 </div>
                                             </div>
@@ -2685,7 +2686,13 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                                         const isShield = lowerId.includes('shield');
                                         const isHint = lowerId.includes('hint') || lowerId.includes('50');
                                         const isFreeze = lowerId.includes('freeze') || lowerId.includes('time');
-                                        const emoji = isShield ? '🛡️' : isHint ? '💡' : isFreeze ? '⏳' : '🎁';
+                                        const itemIcon = isShield
+                                            ? <ShieldSvg className="w-6 h-6" />
+                                            : isHint
+                                                ? <BulbSvg className="w-6 h-6" />
+                                                : isFreeze
+                                                    ? <HourglassSvg className="w-6 h-6" />
+                                                    : <GiftSvg className="w-6 h-6" />;
 
                                         return (
                                             <div
@@ -2697,12 +2704,12 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
                                                 }`}
                                             >
                                                 <div className="flex items-start justify-between gap-3 mb-3">
-                                                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl ${
+                                                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
                                                         isBento
                                                             ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000]'
                                                             : 'bg-white dark:bg-white/10 shadow-sm'
                                                     }`}>
-                                                        {emoji}
+                                                        {itemIcon}
                                                     </div>
                                                     <span className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider ${
                                                         isBento

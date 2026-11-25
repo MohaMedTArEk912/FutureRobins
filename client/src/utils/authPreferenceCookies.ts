@@ -57,6 +57,16 @@ function writeLocal(key: string, value: string): void {
     }
 }
 
+export function hasStoredMascotGender(): boolean {
+    const cookieVal = readCookie(MASCOT_GENDER_COOKIE);
+    if (cookieVal === 'female' || cookieVal === 'male') {
+        return true;
+    }
+
+    const localVal = readLocal(MASCOT_GENDER_KEY);
+    return localVal === 'female' || localVal === 'male';
+}
+
 export function getStoredMascotGender(): MascotGender {
     const cookieVal = readCookie(MASCOT_GENDER_COOKIE);
     if (cookieVal === 'female' || cookieVal === 'male') {

@@ -8,6 +8,7 @@ import type {
 } from '../../types';
 import { api } from '../../lib/api';
 import { useTheme } from '../../context/ThemeContext';
+import { BoltSvg, CoinSvg, CrownSvg, FlameSvg, SparkleSvg, StarSvg, TrophySvg } from '../common/BrandIcons';
 import {
   Flame,
   Calendar,
@@ -408,10 +409,10 @@ const DailyChallenge: React.FC<DailyChallengeProps> = ({ user, onUserUpdate }) =
   };
 
   const getStreakLevel = (streakCount: number) => {
-    if (streakCount >= 30) return { level: 'LEGENDARY', color: 'bg-teal-600', icon: '👑' };
-    if (streakCount >= 14) return { level: 'MASTER', color: 'bg-rose-600', icon: '🔥' };
-    if (streakCount >= 7) return { level: 'ON FIRE', color: 'bg-amber-500', icon: '⚡' };
-    return { level: 'RISING', color: 'bg-sky-500', icon: '🌟' };
+    if (streakCount >= 30) return { level: 'LEGENDARY', color: 'bg-teal-600', icon: <CrownSvg className="w-3.5 h-3.5" /> };
+    if (streakCount >= 14) return { level: 'MASTER', color: 'bg-rose-600', icon: <FlameSvg className="w-3.5 h-3.5" /> };
+    if (streakCount >= 7) return { level: 'ON FIRE', color: 'bg-amber-500', icon: <BoltSvg className="w-3.5 h-3.5" /> };
+    return { level: 'RISING', color: 'bg-sky-500', icon: <StarSvg className="w-3.5 h-3.5" /> };
   };
 
   const streakInfo = getStreakLevel(streak);
@@ -813,7 +814,7 @@ const DailyChallenge: React.FC<DailyChallengeProps> = ({ user, onUserUpdate }) =
             <div className={`font-tabular text-4xl sm:text-5xl font-black tracking-tight mb-2 ${isBento ? 'text-black' : 'text-slate-900 dark:text-white'}`}>
               {streak} <span className={`text-lg font-black ${isBento ? 'text-black/60' : 'text-slate-400'}`}>DAYS</span>
             </div>
-            <div className={`inline-flex px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider ${
+            <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider ${
               isBento
                 ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]'
                 : 'bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300'
@@ -867,12 +868,12 @@ const DailyChallenge: React.FC<DailyChallengeProps> = ({ user, onUserUpdate }) =
               : 'bg-emerald-500/20 border-2 border-emerald-500/40 backdrop-blur-xl'
           }`}>
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-amber-400/30 flex items-center justify-center text-2xl shrink-0">
-                🏆
+              <div className="w-12 h-12 rounded-2xl bg-amber-400/30 flex items-center justify-center shrink-0">
+                <TrophySvg className="w-7 h-7" />
               </div>
               <div>
-                <h3 className={`font-black text-base sm:text-lg flex items-center gap-2 ${isBento ? 'text-black' : 'text-gray-900 dark:text-white'}`}>
-                  Triple Crown Mastery! <span className="text-amber-500">✨ All 3 Tiers Completed</span>
+                <h3 className={`font-black text-base sm:text-lg flex flex-wrap items-center gap-2 ${isBento ? 'text-black' : 'text-gray-900 dark:text-white'}`}>
+                  Triple Crown Mastery! <span className="text-amber-500 inline-flex items-center gap-1"><SparkleSvg className="w-4 h-4" /> All 3 Tiers Completed</span>
                 </h3>
                 <p className={`text-xs font-medium ${isBento ? 'text-black/80' : 'text-gray-600 dark:text-gray-300'}`}>
                   You solved Easy, Medium, and Hard puzzles for this challenge and claimed all 3 rewards!
@@ -965,8 +966,10 @@ const DailyChallenge: React.FC<DailyChallengeProps> = ({ user, onUserUpdate }) =
                         <span className="text-amber-500 flex items-center gap-1 text-xs">
                           <Gift className="w-3.5 h-3.5" /> {tierData.rewards?.giftLabel || 'Loot Gift'}
                         </span>
-                        <span className="text-gray-400 text-[11px]">
-                          🪙 {tierData.rewards?.coins} • ⚡ {tierData.rewards?.xp}
+                        <span className="text-gray-400 text-[11px] inline-flex items-center gap-1.5">
+                          <span className="inline-flex items-center gap-0.5"><CoinSvg className="w-3.5 h-3.5" /> {tierData.rewards?.coins}</span>
+                          <span>•</span>
+                          <span className="inline-flex items-center gap-0.5"><BoltSvg className="w-3.5 h-3.5" /> {tierData.rewards?.xp}</span>
                         </span>
                       </div>
                     </button>

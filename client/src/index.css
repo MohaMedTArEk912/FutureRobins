@@ -1352,7 +1352,7 @@ button:active {
 
 [data-layout="bento"] .mascot-card-wrapper::before,
 [data-theme="bento"] .mascot-card-wrapper::before {
-  content: "STUDY BUDDY 🐾";
+  content: "STUDY BUDDY";
   position: absolute;
   bottom: -14px;
   right: 24px;
