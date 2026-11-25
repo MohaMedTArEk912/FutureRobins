@@ -119,6 +119,61 @@ class BentoArcadeAudio {
         this.tone(260, 0.18, 'sawtooth', 0.065, 0, 140);
         this.tone(140, 0.28, 'sawtooth', 0.06, 0.14, 72);
     }
+
+    public playGravityFlip(inverted: boolean) {
+        if (inverted) {
+            this.tone(240, 0.2, 'sawtooth', 0.055, 0, 820);
+            this.tone(360, 0.18, 'triangle', 0.07, 0.02, 920);
+            this.tone(760, 0.15, 'sine', 0.05, 0.06, 1240);
+        } else {
+            this.tone(820, 0.2, 'sawtooth', 0.055, 0, 240);
+            this.tone(620, 0.18, 'triangle', 0.07, 0.02, 220);
+            this.tone(980, 0.14, 'sine', 0.045, 0.05, 380);
+        }
+    }
+
+    public playFlipLand() {
+        this.tone(155, 0.09, 'triangle', 0.085, 0, 68);
+        this.tone(620, 0.045, 'square', 0.04, 0.01, 420);
+    }
+
+    public playAbyssFall() {
+        this.tone(660, 0.52, 'triangle', 0.075, 0, 95);
+        this.tone(480, 0.45, 'sine', 0.055, 0.1, 75);
+    }
+
+    public playItemPickup() {
+        this.tone(660, 0.07, 'triangle', 0.07, 0);
+        this.tone(990, 0.11, 'triangle', 0.075, 0.05);
+    }
+
+    public playItemUse(kind: string) {
+        if (kind === 'shockwave') {
+            this.tone(180, 0.22, 'sawtooth', 0.08, 0, 720);
+            this.tone(920, 0.16, 'triangle', 0.06, 0.05, 220);
+        } else if (kind === 'rocket') {
+            this.tone(240, 0.24, 'sawtooth', 0.065, 0, 860);
+        } else if (kind === 'slowmo') {
+            this.tone(720, 0.22, 'sine', 0.07, 0, 260);
+        } else {
+            this.tone(523.25, 0.09, 'triangle', 0.07, 0, 783.99);
+        }
+    }
+
+    public playUltActivate() {
+        [392, 523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
+            this.tone(freq, 0.16, 'sawtooth', 0.055, i * 0.045, freq * 1.12);
+        });
+    }
+
+    public playEnemySmash() {
+        this.tone(220, 0.1, 'square', 0.065, 0, 520);
+        this.tone(440, 0.08, 'triangle', 0.06, 0.03, 180);
+    }
+
+    public playNearMiss() {
+        this.tone(880, 0.07, 'sine', 0.06, 0, 1320);
+    }
 }
 
 export const bentoArcadeAudio = new BentoArcadeAudio();

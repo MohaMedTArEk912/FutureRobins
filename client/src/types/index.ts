@@ -183,7 +183,12 @@ export interface AvatarConfig {
     backgroundColor: string;
     mood: 'happy' | 'neutral' | 'cool' | 'excited';
     gender: 'male' | 'female';
-    clothing: 'shirt' | 'hoodie' | 'blazer' | 'dress' | 'tshirt';
+    clothing: 'shirt' | 'hoodie' | 'blazer' | 'dress' | 'tshirt' | 'jacket' | 'sweater' | 'tank' | 'jersey' | 'kimono' | 'astronaut' | 'varsity';
+    outfitColor?: string;
+    bottoms?: 'jeans' | 'joggers' | 'shorts' | 'cargo' | 'skirt' | 'chinos';
+    bottomsColor?: string;
+    shoes?: 'sneakers' | 'high_tops' | 'boots' | 'cleats' | 'loafers' | 'slides';
+    shoesColor?: string;
     frame?: 'none' | 'gold' | 'diamond' | 'cyberpunk';
 }
 

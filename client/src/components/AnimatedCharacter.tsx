@@ -2,8 +2,10 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useOptionalAuth } from '../context/AuthContext.tsx';
 import { useOptionalLanguage } from '../context/LanguageContext.tsx';
-import { getStoredMascotGender, type MascotGender } from '../utils/mascotGenderStorage';
+import { getStoredMascotGender, getStoredAvatarConfig, type MascotGender } from '../utils/authPreferenceCookies';
+import { hasCustomizedAvatar, syncAvatarWithGender } from '../utils/avatarGenderSync';
 import { RobinCharactersSvg, type RobinMascotVariant } from './mascots/RobinCharactersSvg';
+import { BuddyAvatar } from './buddy/BuddyAvatar';
 
 export interface AnimatedCharacterProps {
     isEmailFocused: boolean;
@@ -36,6 +38,12 @@ export const AnimatedCharacter: React.FC<AnimatedCharacterProps> = ({
 
     const resolvedGender: MascotGender =
         gender ?? auth?.currentUser?.avatar?.gender ?? getStoredMascotGender();
+
+    const candidateAvatar = auth?.currentUser?.avatar ?? getStoredAvatarConfig();
+    const hasCustomAvatar = hasCustomizedAvatar(candidateAvatar);
+    const syncedCustomAvatar = hasCustomAvatar
+        ? syncAvatarWithGender(candidateAvatar, resolvedGender)
+        : null;
 
     const variant: RobinMascotVariant = isBento
         ? resolvedGender === 'female'
@@ -152,8 +160,9 @@ export const AnimatedCharacter: React.FC<AnimatedCharacterProps> = ({
                     ? 'Scanning coordinates...'
                     : 'Keep moving forward!';
 
-    const characterLabel =
-        variant === 'wilbur'
+    const characterLabel = syncedCustomAvatar
+        ? (auth?.currentUser?.name?.split(' ')[0]?.toUpperCase() || (isArabic ? 'رفيقك' : 'YOUR BUDDY'))
+        : variant === 'wilbur'
             ? 'WILBUR'
             : variant === 'lewis'
                 ? 'LEWIS'
@@ -169,22 +178,38 @@ export const AnimatedCharacter: React.FC<AnimatedCharacterProps> = ({
             } ${className}`}
         >
             <div
-                key={variant}
-                className={`relative animate-in fade-in zoom-in-95 duration-300 ${
+                key={syncedCustomAvatar ? `custom-${resolvedGender}` : variant}
+                className={`relative flex items-center justify-center animate-in fade-in zoom-in-95 duration-300 ${
                     compact ? 'w-full h-full' : 'w-[244px] h-[244px] sm:w-[272px] sm:h-[272px]'
                 }`}
                 style={{
                     animation: compact ? undefined : 'robinFloat 4.6s ease-in-out infinite'
                 }}
             >
-                <RobinCharactersSvg
-                    variant={variant}
-                    eyeOffset={mousePos}
-                    isBlinking={isBlinking}
-                    lookDown={lookDown}
-                    hideEyes={hideEyes}
-                    peekEyes={peekEyes}
-                />
+                {syncedCustomAvatar ? (
+                    <BuddyAvatar
+                        avatar={syncedCustomAvatar}
+                        gender={resolvedGender}
+                        moodOverride={peekEyes ? 'excited' : hideEyes ? 'cool' : lookDown ? 'neutral' : syncedCustomAvatar.mood}
+                        eyeOffset={mousePos}
+                        isBlinking={isBlinking}
+                        hideEyes={hideEyes}
+                        peekEyes={peekEyes}
+                        lookDown={lookDown}
+                        size={compact ? 'md' : 'xl'}
+                        animated={!compact}
+                        className={compact ? 'w-full h-full' : '!w-[216px] !h-[216px] sm:!w-[236px] sm:!h-[236px]'}
+                    />
+                ) : (
+                    <RobinCharactersSvg
+                        variant={variant}
+                        eyeOffset={mousePos}
+                        isBlinking={isBlinking}
+                        lookDown={lookDown}
+                        hideEyes={hideEyes}
+                        peekEyes={peekEyes}
+                    />
+                )}
             </div>
 
             {!compact && (

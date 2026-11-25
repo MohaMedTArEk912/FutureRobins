@@ -19,6 +19,7 @@ import SpatialRouteStage from '../components/SpatialRouteStage';
 import InstallPWA from '../components/InstallPWA';
 import PwaUpdatePrompt from '../components/PwaUpdatePrompt';
 import { GlobalChatDrawer } from '../components/chat/GlobalChatDrawer';
+import { RoamingStudyBuddy } from '../components/buddy/RoamingStudyBuddy';
 import { NavbarCustomizerModal } from '../components/nav/NavbarCustomizerModal';
 import { SwordsSvg } from '../components/common/BrandIcons';
 import { prefetchPrimaryRoutes } from '../lib/routePrefetch';
@@ -344,6 +345,9 @@ const MainLayout: React.FC = () => {
                 <InstallPWA inline />
             </div>
             <NavbarCustomizerModal /> {/* Global Nav Customizer */}
+            {currentUser && !isQuizOrGame && !isStandaloneViewport && !isChromeHidden && (
+                <RoamingStudyBuddy />
+            )}
             {!isQuizOrGame && !isChromeHidden && (
                 <GlobalChatDrawer />
             )}

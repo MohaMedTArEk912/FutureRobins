@@ -41,35 +41,61 @@ export const useOptionalAuth = () => {
     return useContext(AuthContext);
 };
 
+interface CachedSession {
+    user: UserData;
+    token: string;
+    isAdmin: boolean;
+}
+
+function readCachedSession(): CachedSession | null {
+    if (typeof window === 'undefined') return null;
+    try {
+        const raw = sessionStorage.getItem('userSession') || localStorage.getItem('userSession');
+        if (!raw) return null;
+        const parsed = JSON.parse(raw) as Partial<CachedSession>;
+        if (!parsed?.user?.userId || !parsed?.token) return null;
+        return {
+            user: parsed.user,
+            token: parsed.token,
+            isAdmin: parsed.user.role === 'admin'
+        };
+    } catch {
+        return null;
+    }
+}
+
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [currentUser, setCurrentUser] = useState<UserData | null>(null);
-    const [isAdmin, setIsAdmin] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
-    const [token, setToken] = useState<string | null>(null);
+    const initialSessionRef = useRef<CachedSession | null | undefined>(undefined);
+    if (initialSessionRef.current === undefined) {
+        initialSessionRef.current = readCachedSession();
+    }
+    const initialSession = initialSessionRef.current;
+
+    const [currentUser, setCurrentUser] = useState<UserData | null>(() => initialSession?.user ?? null);
+    const [isAdmin, setIsAdmin] = useState<boolean>(() => Boolean(initialSession?.isAdmin));
+    const [isLoading, setIsLoading] = useState<boolean>(() => !initialSession);
+    const [token, setToken] = useState<string | null>(() => initialSession?.token ?? null);
     const lastDeviceSyncRef = useRef<number>(0);
 
-    // Load session on mount
+    // Verify cached session on mount (keeping hydrated session intact during transient reload blips)
     useEffect(() => {
         const verifyAndLoadSession = async () => {
-            const savedSession = sessionStorage.getItem('userSession') || localStorage.getItem('userSession');
-            if (savedSession) {
+            const cached = readCachedSession();
+            if (cached) {
                 try {
-                    const session = JSON.parse(savedSession);
-                    const sessionToken = session.token as string | undefined;
-                    // Verify session with server using JWT
-                    const { valid, user } = await api.verifySession(sessionToken);
+                    const { valid, user } = await api.verifySession(cached.token);
 
-                    if (valid) {
+                    if (valid && user) {
                         const normalizedSession = JSON.stringify({
                             user,
-                            token: sessionToken,
+                            token: cached.token,
                             isAdmin: user.role === 'admin'
                         });
                         sessionStorage.setItem('userSession', normalizedSession);
                         localStorage.setItem('userSession', normalizedSession);
                         setCurrentUser(user);
                         setIsAdmin(user.role === 'admin');
-                        setToken(sessionToken ?? null);
+                        setToken(cached.token);
                         syncAuthPreferencesFromUser(user);
                         lastDeviceSyncRef.current = Date.now();
                     } else {
@@ -77,11 +103,24 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                     }
                 } catch (error) {
                     console.error('Session verification failed:', error);
-                    sessionStorage.removeItem('userSession');
-                    localStorage.removeItem('userSession');
-                    setCurrentUser(null);
-                    setIsAdmin(false);
-                    setToken(null);
+                    const msg = error instanceof Error ? error.message.toLowerCase() : '';
+                    const status =
+                        (error as { response?: { status?: number }; status?: number })?.response?.status ??
+                        (error as { status?: number })?.status;
+                    const isAuthInvalid =
+                        status === 401 ||
+                        status === 403 ||
+                        msg.includes('invalid session') ||
+                        msg.includes('invalid token') ||
+                        msg.includes('token expired') ||
+                        msg.includes('unauthorized');
+                    if (isAuthInvalid) {
+                        sessionStorage.removeItem('userSession');
+                        localStorage.removeItem('userSession');
+                        setCurrentUser(null);
+                        setIsAdmin(false);
+                        setToken(null);
+                    }
                 }
             }
             setIsLoading(false);

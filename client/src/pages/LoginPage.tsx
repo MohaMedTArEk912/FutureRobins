@@ -10,13 +10,20 @@ const LoginPage: React.FC = () => {
     const navigate = useNavigate();
     const { confirm, confirmState, handleCancel } = useConfirm();
 
-    // If user is already authenticated and visits /login, redirect directly based on role
+    // If user is already authenticated and visits /login, restore intended destination or role home
     useEffect(() => {
         if (currentUser) {
             if (currentUser.role === 'admin' || authIsAdmin) {
+                sessionStorage.removeItem('redirectAfterLogin');
                 navigate('/admin', { replace: true });
             } else {
-                navigate('/', { replace: true });
+                const redirect = sessionStorage.getItem('redirectAfterLogin');
+                if (redirect) {
+                    sessionStorage.removeItem('redirectAfterLogin');
+                    navigate(redirect, { replace: true });
+                } else {
+                    navigate('/', { replace: true });
+                }
             }
         }
     }, [currentUser, authIsAdmin, navigate]);

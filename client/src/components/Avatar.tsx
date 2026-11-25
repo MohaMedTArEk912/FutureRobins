@@ -5,6 +5,14 @@ interface AvatarProps {
     config?: AvatarConfig;
     size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl';
     className?: string;
+    eyeOffset?: { x: number; y: number };
+    isBlinking?: boolean;
+    lookDown?: boolean;
+    hideEyes?: boolean;
+    peekEyes?: boolean;
+    animated?: boolean;
+    bareHead?: boolean;
+    transparentBg?: boolean;
 }
 
 // Color manipulation helpers
@@ -20,7 +28,19 @@ const adjustColor = (hex: string, amount: number) => {
     return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
 };
 
-const Avatar: React.FC<AvatarProps> = ({ config, size = 'md', className = '' }) => {
+const Avatar: React.FC<AvatarProps> = ({
+    config,
+    size = 'md',
+    className = '',
+    eyeOffset,
+    isBlinking = false,
+    lookDown = false,
+    hideEyes = false,
+    peekEyes = false,
+    animated = false,
+    bareHead = false,
+    transparentBg = false,
+}) => {
     const uid = useId().replace(/:/g, '');
 
     const defaultConfig: AvatarConfig = {
@@ -79,9 +99,131 @@ const Avatar: React.FC<AvatarProps> = ({ config, size = 'md', className = '' }) 
     const hairGradId = `hairGrad-${uid}`;
     const softShadowId = `softShadow-${uid}`;
 
+    const lookX = hideEyes && !peekEyes
+        ? 0
+        : peekEyes
+            ? 1.8
+            : Math.max(-3.2, Math.min(3.2, (eyeOffset?.x ?? 0) * 0.65));
+    const lookY = hideEyes && !peekEyes
+        ? 0
+        : lookDown
+            ? 2.4
+            : peekEyes
+                ? 1.2
+                : Math.max(-2.6, Math.min(2.6, (eyeOffset?.y ?? 0) * 0.55));
+    const headShiftX = hideEyes ? 0 : lookX * 0.7;
+    const headShiftY = lookDown ? 3.5 : hideEyes ? (peekEyes ? 1 : 2) : lookY * 0.55;
+    const headRot = hideEyes ? (peekEyes ? 4 : -2) : lookX * 0.85;
+    const isNeckAccessory =
+        accessory === 'bowtie' ||
+        accessory === 'necklace' ||
+        accessory === 'scarf' ||
+        accessory === 'backpack';
+
+    const sharedDefs = (
+        <defs>
+            <linearGradient id={bodyGradId} x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor={skinColor} />
+                <stop offset="100%" stopColor={skinShadow} />
+            </linearGradient>
+            <linearGradient id={headGradId} x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor={adjustColor(skinColor, 8)} />
+                <stop offset="85%" stopColor={skinColor} />
+                <stop offset="100%" stopColor={skinShadow} />
+            </linearGradient>
+            <linearGradient id={hairGradId} x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor={hairHighlight} />
+                <stop offset="50%" stopColor={hairColor} />
+                <stop offset="100%" stopColor={hairShadow} />
+            </linearGradient>
+            <filter id={softShadowId} x="-15%" y="-15%" width="130%" height="130%">
+                <feDropShadow dx="0" dy="3" stdDeviation="2.5" floodColor="#0f172a" floodOpacity="0.16" />
+            </filter>
+        </defs>
+    );
+
+    const headParallaxContent = (
+        <g
+            style={{
+                transform: `translate3d(${headShiftX}px, ${headShiftY}px, 0) rotate(${headRot}deg)`,
+                transformOrigin: '100px 105px',
+                transition: 'transform 220ms cubic-bezier(0.22, 1, 0.36, 1)',
+            }}
+        >
+            {bareHead && renderHairBack(hairStyle, hairColor, hairShadow)}
+
+            {/* 4. EARS */}
+            <g stroke="none">
+                <ellipse cx={gender === 'male' ? 53 : 56} cy="97" rx="9" ry="13" fill={skinShadow} />
+                <ellipse cx={gender === 'male' ? 54 : 57} cy="97" rx="5" ry="8" fill={skinDeepShadow} opacity="0.35" />
+                <ellipse cx={gender === 'male' ? 147 : 144} cy="97" rx="9" ry="13" fill={skinShadow} />
+                <ellipse cx={gender === 'male' ? 146 : 143} cy="97" rx="5" ry="8" fill={skinDeepShadow} opacity="0.35" />
+            </g>
+
+            {/* 5. HEAD */}
+            <g filter={`url(#${softShadowId})`} stroke="none">
+                {gender === 'male' ? (
+                    <path
+                        d="M55,84 C55,44 74,36 100,36 C126,36 145,44 145,84 C145,118 126,142 100,142 C74,142 55,118 55,84 Z"
+                        fill={`url(#${headGradId})`}
+                    />
+                ) : (
+                    <path
+                        d="M58,84 C58,45 76,37 100,37 C124,37 142,45 142,84 C142,116 122,140 100,140 C78,140 58,116 58,84 Z"
+                        fill={`url(#${headGradId})`}
+                    />
+                )}
+            </g>
+
+            {/* 6. CHEEK BLUSH (Explicit stroke="none" so CSS never outlines them) */}
+            <g stroke="none" opacity={gender === 'female' ? 0.38 : 0.24}>
+                <ellipse cx="70" cy="106" rx="9" ry="5.5" fill="#fb7185" />
+                <ellipse cx="130" cy="106" rx="9" ry="5.5" fill="#fb7185" />
+            </g>
+
+            {/* 7. FACIAL FEATURES */}
+            {renderFace({
+                uid,
+                mood,
+                gender,
+                hairColor,
+                skinColor,
+                noseShadow: skinDeepShadow,
+                lookX,
+                lookY,
+                isBlinking,
+                hideEyes,
+                peekEyes,
+                lookDown,
+            })}
+
+            {/* 8. FRONT HAIR */}
+            {renderHairFront(hairStyle, `url(#${hairGradId})`, hairColor, hairHighlight, gender, accessory)}
+
+            {/* 9. HEAD ACCESSORIES */}
+            {!isNeckAccessory && renderAccessory(accessory)}
+        </g>
+    );
+
+    if (bareHead) {
+        return (
+            <svg
+                viewBox="24 6 152 146"
+                xmlns="http://www.w3.org/2000/svg"
+                className={`avatar-svg w-full h-full overflow-visible select-none ${className}`}
+                preserveAspectRatio="xMidYMid meet"
+            >
+                {sharedDefs}
+                {headParallaxContent}
+            </svg>
+        );
+    }
+
     return (
         <div
-            className={`avatar-root relative rounded-full overflow-hidden select-none shrink-0 ${sizeClasses[size]} ${finalConfig.backgroundColor} flex items-center justify-center ${getFrameStyle()} ${className}`}
+            className={`avatar-root relative rounded-full overflow-hidden select-none shrink-0 ${sizeClasses[size]} ${
+                transparentBg ? 'bg-transparent border-0 shadow-none' : `${finalConfig.backgroundColor} ${getFrameStyle()}`
+            } flex items-center justify-center ${className}`}
         >
             <svg
                 viewBox="0 0 200 200"
@@ -89,120 +231,183 @@ const Avatar: React.FC<AvatarProps> = ({ config, size = 'md', className = '' }) 
                 className="avatar-svg w-full h-full"
                 preserveAspectRatio="xMidYMid meet"
             >
-                <defs>
-                    <linearGradient id={bodyGradId} x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stopColor={skinColor} />
-                        <stop offset="100%" stopColor={skinShadow} />
-                    </linearGradient>
-                    <linearGradient id={headGradId} x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stopColor={adjustColor(skinColor, 8)} />
-                        <stop offset="85%" stopColor={skinColor} />
-                        <stop offset="100%" stopColor={skinShadow} />
-                    </linearGradient>
-                    <linearGradient id={hairGradId} x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor={hairHighlight} />
-                        <stop offset="50%" stopColor={hairColor} />
-                        <stop offset="100%" stopColor={hairShadow} />
-                    </linearGradient>
-                    <filter id={softShadowId} x="-15%" y="-15%" width="130%" height="130%">
-                        <feDropShadow dx="0" dy="3" stdDeviation="2.5" floodColor="#0f172a" floodOpacity="0.16" />
-                    </filter>
-                </defs>
+                {sharedDefs}
 
                 {/* Subtle ambient halo behind character */}
-                <circle cx="100" cy="105" r="72" fill="rgba(255,255,255,0.18)" stroke="none" />
+                {!transparentBg && (
+                    <circle cx="100" cy="105" r="72" fill="rgba(255,255,255,0.18)" stroke="none" />
+                )}
 
-                {/* 1. BACK HAIR */}
-                {renderHairBack(hairStyle, hairColor, hairShadow)}
+                <g
+                    style={
+                        animated
+                            ? {
+                                  animation: 'avatarBreathe 3.8s ease-in-out infinite',
+                                  transformOrigin: '100px 180px',
+                              }
+                            : undefined
+                    }
+                >
+                    {/* Back Hair inside head parallax group */}
+                    <g
+                        style={{
+                            transform: `translate3d(${headShiftX}px, ${headShiftY}px, 0) rotate(${headRot}deg)`,
+                            transformOrigin: '100px 105px',
+                            transition: 'transform 220ms cubic-bezier(0.22, 1, 0.36, 1)',
+                        }}
+                    >
+                        {renderHairBack(hairStyle, hairColor, hairShadow)}
+                    </g>
 
-                {/* 2. NECK & SHOULDERS BASE */}
-                <g filter={`url(#${softShadowId})`} stroke="none">
-                    {gender === 'male' ? (
-                        <path d="M40,198 C42,162 68,148 100,148 C132,148 158,162 160,198 L165,215 L35,215 Z" fill={`url(#${bodyGradId})`} />
-                    ) : (
-                        <path d="M48,198 C50,165 72,150 100,150 C128,150 150,165 152,198 L156,215 L44,215 Z" fill={`url(#${bodyGradId})`} />
-                    )}
-                    {/* Neck column */}
-                    {gender === 'male' ? (
-                        <rect x="81" y="122" width="38" height="36" rx="14" fill={`url(#${bodyGradId})`} />
-                    ) : (
-                        <rect x="85" y="124" width="30" height="34" rx="12" fill={`url(#${bodyGradId})`} />
-                    )}
-                    {/* Under-chin cast shadow */}
-                    <path
-                        d={gender === 'male' ? 'M81,130 Q100,147 119,130 L119,142 Q100,154 81,142 Z' : 'M85,131 Q100,145 115,131 L115,141 Q100,151 85,141 Z'}
-                        fill={skinDeepShadow}
-                        opacity="0.32"
-                    />
-                </g>
-
-                {/* 3. CLOTHING */}
-                {renderClothing(clothing, gender, skinColor)}
-
-                {/* 4. EARS */}
-                <g stroke="none">
-                    <ellipse cx={gender === 'male' ? 53 : 56} cy="97" rx="9" ry="13" fill={skinShadow} />
-                    <ellipse cx={gender === 'male' ? 54 : 57} cy="97" rx="5" ry="8" fill={skinDeepShadow} opacity="0.35" />
-                    <ellipse cx={gender === 'male' ? 147 : 144} cy="97" rx="9" ry="13" fill={skinShadow} />
-                    <ellipse cx={gender === 'male' ? 146 : 143} cy="97" rx="5" ry="8" fill={skinDeepShadow} opacity="0.35" />
-                </g>
-
-                {/* 5. HEAD */}
-                <g filter={`url(#${softShadowId})`} stroke="none">
-                    {gender === 'male' ? (
+                    {/* 2. NECK & SHOULDERS BASE */}
+                    <g filter={`url(#${softShadowId})`} stroke="none">
+                        {gender === 'male' ? (
+                            <path d="M40,198 C42,162 68,148 100,148 C132,148 158,162 160,198 L165,215 L35,215 Z" fill={`url(#${bodyGradId})`} />
+                        ) : (
+                            <path d="M48,198 C50,165 72,150 100,150 C128,150 150,165 152,198 L156,215 L44,215 Z" fill={`url(#${bodyGradId})`} />
+                        )}
+                        {/* Neck column */}
+                        {gender === 'male' ? (
+                            <rect x="81" y="122" width="38" height="36" rx="14" fill={`url(#${bodyGradId})`} />
+                        ) : (
+                            <rect x="85" y="124" width="30" height="34" rx="12" fill={`url(#${bodyGradId})`} />
+                        )}
+                        {/* Under-chin cast shadow */}
                         <path
-                            d="M55,84 C55,44 74,36 100,36 C126,36 145,44 145,84 C145,118 126,142 100,142 C74,142 55,118 55,84 Z"
-                            fill={`url(#${headGradId})`}
+                            d={gender === 'male' ? 'M81,130 Q100,147 119,130 L119,142 Q100,154 81,142 Z' : 'M85,131 Q100,145 115,131 L115,141 Q100,151 85,141 Z'}
+                            fill={skinDeepShadow}
+                            opacity="0.32"
                         />
-                    ) : (
-                        <path
-                            d="M58,84 C58,45 76,37 100,37 C124,37 142,45 142,84 C142,116 122,140 100,140 C78,140 58,116 58,84 Z"
-                            fill={`url(#${headGradId})`}
-                        />
-                    )}
+                    </g>
+
+                    {/* 3. CLOTHING */}
+                    {renderClothing(clothing, gender, skinColor, finalConfig.outfitColor)}
+                    {isNeckAccessory && renderAccessory(accessory)}
+
+                    {/* 4-9. HEAD PARALLAX GROUP (Ears, Head, Blush, Face, Front Hair, Head Accessories) */}
+                    {headParallaxContent}
+
+                    {/* 10. ARTICULATED ARMS & HANDS OVERLAY (Hide Eyes / Peek Eyes) */}
+                    {renderArmsOverlay({
+                        hideEyes,
+                        peekEyes,
+                        skinColor,
+                        skinShadow,
+                        clothing,
+                    })}
                 </g>
-
-                {/* 6. CHEEK BLUSH (Explicit stroke="none" so CSS never outlines them) */}
-                <g stroke="none" opacity={gender === 'female' ? 0.38 : 0.24}>
-                    <ellipse cx="70" cy="106" rx="9" ry="5.5" fill="#fb7185" />
-                    <ellipse cx="130" cy="106" rx="9" ry="5.5" fill="#fb7185" />
-                </g>
-
-                {/* 7. FACIAL FEATURES */}
-                {renderFace(mood, gender, hairColor, skinDeepShadow)}
-
-                {/* 8. FRONT HAIR (Hidden or adapted when full hat covers top) */}
-                {renderHairFront(hairStyle, `url(#${hairGradId})`, hairColor, hairHighlight, gender, accessory)}
-
-                {/* 9. ACCESSORIES */}
-                {renderAccessory(accessory)}
             </svg>
+            {animated && (
+                <style>{`
+                    @keyframes avatarBreathe {
+                        0%, 100% { transform: translate3d(0, 0, 0) scaleY(1); }
+                        50% { transform: translate3d(0, -1.5px, 0) scaleY(1.012); }
+                    }
+                `}</style>
+            )}
         </div>
     );
 };
 
 // --- RENDER HELPERS ---
 
-const renderFace = (mood: string, gender: string, hairColor: string, noseShadow: string) => {
+interface RenderFaceParams {
+    uid: string;
+    mood: string;
+    gender: string;
+    hairColor: string;
+    skinColor: string;
+    noseShadow: string;
+    lookX: number;
+    lookY: number;
+    isBlinking: boolean;
+    hideEyes: boolean;
+    peekEyes: boolean;
+    lookDown: boolean;
+}
+
+const renderFace = ({
+    uid,
+    mood,
+    gender,
+    hairColor,
+    skinColor,
+    noseShadow,
+    lookX,
+    lookY,
+    isBlinking,
+    hideEyes,
+    peekEyes,
+    lookDown,
+}: RenderFaceParams) => {
     const eyeY = 93;
     const eyeRx = gender === 'female' ? 5.8 : 5;
     const eyeRy = gender === 'female' ? 6.6 : 5.6;
     const browColor = adjustColor(hairColor, -20);
 
+    const leftClipId = `avatar-eye-l-${uid}`;
+    const rightClipId = `avatar-eye-r-${uid}`;
+    const leftBlink = isBlinking && !hideEyes;
+    const rightBlink = isBlinking && !(hideEyes && !peekEyes);
+    const browDy = peekEyes ? -2.2 : lookDown ? 1.4 : 0;
+
     return (
         <g>
+            <defs>
+                <clipPath id={leftClipId}>
+                    <ellipse cx="77" cy={eyeY} rx={eyeRx + 1.5} ry={eyeRy + 1} />
+                </clipPath>
+                <clipPath id={rightClipId}>
+                    <ellipse cx="123" cy={eyeY} rx={eyeRx + 1.5} ry={eyeRy + 1} />
+                </clipPath>
+            </defs>
+
             {/* Sclera / Eye base */}
             <g stroke="none">
-                <ellipse cx="77" cy={eyeY} rx={eyeRx + 1.5} ry={eyeRy + 1} fill="#ffffff" opacity="0.92" />
-                <ellipse cx="123" cy={eyeY} rx={eyeRx + 1.5} ry={eyeRy + 1} fill="#ffffff" opacity="0.92" />
-                {/* Iris & Pupil */}
-                <ellipse cx="77" cy={eyeY} rx={eyeRx} ry={eyeRy} fill="#1e293b" />
-                <ellipse cx="123" cy={eyeY} rx={eyeRx} ry={eyeRy} fill="#1e293b" />
-                {/* Primary & secondary catchlights */}
-                <circle cx="79" cy={eyeY - 2.2} r="2.1" fill="#ffffff" />
-                <circle cx="125" cy={eyeY - 2.2} r="2.1" fill="#ffffff" />
-                <circle cx="75.2" cy={eyeY + 2} r="1" fill="#ffffff" opacity="0.7" />
-                <circle cx="121.2" cy={eyeY + 2} r="1" fill="#ffffff" opacity="0.7" />
+                <ellipse cx="77" cy={eyeY} rx={eyeRx + 1.5} ry={eyeRy + 1} fill="#ffffff" opacity="0.94" />
+                <ellipse cx="123" cy={eyeY} rx={eyeRx + 1.5} ry={eyeRy + 1} fill="#ffffff" opacity="0.94" />
+
+                {/* Clipped Left Iris, Catchlights & Blink Curtain */}
+                <g clipPath={`url(#${leftClipId})`}>
+                    <g style={{ transform: `translate3d(${lookX}px, ${lookY}px, 0)` }}>
+                        <ellipse cx="77" cy={eyeY} rx={eyeRx} ry={eyeRy} fill="#1e293b" />
+                        <circle cx="79" cy={eyeY - 2.2} r="2.1" fill="#ffffff" />
+                        <circle cx="75.2" cy={eyeY + 2} r="1" fill="#ffffff" opacity="0.7" />
+                    </g>
+                    <rect
+                        x={77 - eyeRx - 3}
+                        y={eyeY - eyeRy - 2}
+                        width={(eyeRx + 3) * 2}
+                        height={(eyeRy + 2) * 2}
+                        fill={skinColor}
+                        style={{
+                            transform: `scaleY(${leftBlink ? 1 : 0})`,
+                            transformOrigin: '77px 85px',
+                            transition: 'transform 115ms ease-in-out',
+                        }}
+                    />
+                </g>
+
+                {/* Clipped Right Iris, Catchlights & Blink Curtain */}
+                <g clipPath={`url(#${rightClipId})`}>
+                    <g style={{ transform: `translate3d(${lookX}px, ${lookY}px, 0)` }}>
+                        <ellipse cx="123" cy={eyeY} rx={eyeRx} ry={eyeRy} fill="#1e293b" />
+                        <circle cx="125" cy={eyeY - 2.2} r="2.1" fill="#ffffff" />
+                        <circle cx="121.2" cy={eyeY + 2} r="1" fill="#ffffff" opacity="0.7" />
+                    </g>
+                    <rect
+                        x={123 - eyeRx - 3}
+                        y={eyeY - eyeRy - 2}
+                        width={(eyeRx + 3) * 2}
+                        height={(eyeRy + 2) * 2}
+                        fill={skinColor}
+                        style={{
+                            transform: `scaleY(${rightBlink ? 1 : 0})`,
+                            transformOrigin: '123px 85px',
+                            transition: 'transform 115ms ease-in-out',
+                        }}
+                    />
+                </g>
             </g>
 
             {/* Upper eyelid line & lashes */}
@@ -218,7 +423,16 @@ const renderFace = (mood: string, gender: string, hairColor: string, noseShadow:
             </g>
 
             {/* Eyebrows */}
-            <g stroke={browColor} strokeWidth={gender === 'female' ? 2.6 : 3.4} strokeLinecap="round" fill="none">
+            <g
+                stroke={browColor}
+                strokeWidth={gender === 'female' ? 2.6 : 3.4}
+                strokeLinecap="round"
+                fill="none"
+                style={{
+                    transform: `translate3d(0, ${browDy}px, 0)`,
+                    transition: 'transform 200ms ease-out',
+                }}
+            >
                 {mood === 'excited' ? (
                     <>
                         <path d="M67,79 Q77,73 86,79" />
@@ -251,6 +465,97 @@ const renderFace = (mood: string, gender: string, hairColor: string, noseShadow:
             {/* Mouth */}
             <g transform="translate(0, 3)">
                 {renderMouth(mood)}
+            </g>
+        </g>
+    );
+};
+
+const CLOTHING_SLEEVE_COLORS: Record<string, string> = {
+    shirt: '#3b82f6',
+    hoodie: '#4f46e5',
+    blazer: '#1e293b',
+    dress: '#ec4899',
+    tshirt: '#10b981',
+    jacket: '#334155',
+    sweater: '#f59e0b',
+};
+
+const renderArmsOverlay = ({
+    hideEyes,
+    peekEyes,
+    skinColor,
+    skinShadow,
+    clothing,
+}: {
+    hideEyes: boolean;
+    peekEyes: boolean;
+    skinColor: string;
+    skinShadow: string;
+    clothing: string;
+}) => {
+    const sleeveColor = CLOTHING_SLEEVE_COLORS[clothing] || skinColor;
+    const armTransition = 'transform 460ms cubic-bezier(0.22, 1.12, 0.36, 1), opacity 200ms ease-out';
+
+    const leftTransform = hideEyes
+        ? `translate3d(0px, 0px, 0) rotate(${peekEyes ? -2 : 0}deg) scale(1)`
+        : 'translate3d(-14px, 86px, 0) rotate(-32deg) scale(0.92)';
+
+    const rightTransform = hideEyes
+        ? peekEyes
+            ? 'translate3d(26px, 34px, 0) rotate(22deg) scale(0.96)'
+            : 'translate3d(0px, 0px, 0) rotate(0deg) scale(1)'
+        : 'translate3d(14px, 86px, 0) rotate(32deg) scale(0.92)';
+
+    return (
+        <g pointerEvents="none">
+            {/* Left Articulated Arm & Hand covering left eye (77, 93) */}
+            <g
+                style={{
+                    opacity: hideEyes ? 1 : 0,
+                    transform: leftTransform,
+                    transformOrigin: '60px 180px',
+                    transition: armTransition,
+                }}
+            >
+                <path
+                    d="M44,198 C46,158 52,126 62,102 L82,108 C76,136 72,168 68,200 Z"
+                    fill={sleeveColor}
+                    stroke="#0f172a"
+                    strokeWidth="2"
+                    strokeLinejoin="round"
+                />
+                <ellipse cx="76" cy="95" rx="16" ry="14" fill={skinShadow} opacity="0.22" />
+                <g stroke="#0f172a" strokeWidth="2.2" strokeLinejoin="round" fill={skinColor}>
+                    <rect x="61" y="79" width="29" height="26" rx="11" />
+                    <line x1="69" y1="81" x2="69" y2="96" strokeWidth="1.6" opacity="0.45" />
+                    <line x1="76" y1="80" x2="76" y2="96" strokeWidth="1.6" opacity="0.45" />
+                    <line x1="83" y1="81" x2="83" y2="96" strokeWidth="1.6" opacity="0.45" />
+                </g>
+            </g>
+
+            {/* Right Articulated Arm & Hand covering right eye (123, 93) or sweeping aside when peeking */}
+            <g
+                style={{
+                    opacity: hideEyes ? 1 : 0,
+                    transform: rightTransform,
+                    transformOrigin: '140px 180px',
+                    transition: armTransition,
+                }}
+            >
+                <path
+                    d="M156,198 C154,158 148,126 138,102 L118,108 C124,136 128,168 132,200 Z"
+                    fill={sleeveColor}
+                    stroke="#0f172a"
+                    strokeWidth="2"
+                    strokeLinejoin="round"
+                />
+                <ellipse cx="124" cy="95" rx="16" ry="14" fill={skinShadow} opacity="0.22" />
+                <g stroke="#0f172a" strokeWidth="2.2" strokeLinejoin="round" fill={skinColor}>
+                    <rect x="110" y="79" width="29" height="26" rx="11" />
+                    <line x1="117" y1="81" x2="117" y2="96" strokeWidth="1.6" opacity="0.45" />
+                    <line x1="124" y1="80" x2="124" y2="96" strokeWidth="1.6" opacity="0.45" />
+                    <line x1="131" y1="81" x2="131" y2="96" strokeWidth="1.6" opacity="0.45" />
+                </g>
             </g>
         </g>
     );
@@ -302,11 +607,12 @@ const renderMouth = (mood: string) => {
     }
 };
 
-const renderClothing = (type: string, gender: string, skinColor: string) => {
+const renderClothing = (type: string, gender: string, skinColor: string, outfitColor?: string) => {
     const isMale = gender === 'male';
     const leftX = isMale ? 36 : 44;
     const rightX = isMale ? 164 : 156;
     const shoulderY = 152;
+    const baseColor = outfitColor || undefined;
 
     const torsoShape = (fill: string) => (
         <path
@@ -317,12 +623,13 @@ const renderClothing = (type: string, gender: string, skinColor: string) => {
     );
 
     switch (type) {
-        case 'hoodie':
+        case 'hoodie': {
+            const c = baseColor || '#4f46e5';
             return (
                 <g stroke="none">
-                    {torsoShape('#4f46e5')}
+                    {torsoShape(c)}
                     {/* Hood rim around neck */}
-                    <path d="M68,154 Q100,174 132,154 Q124,144 100,146 Q76,144 68,154 Z" fill="#4338ca" />
+                    <path d="M68,154 Q100,174 132,154 Q124,144 100,146 Q76,144 68,154 Z" fill={adjustColor(c, -24)} />
                     <path d="M78,150 Q100,166 122,150 Z" fill={skinColor} />
                     {/* Drawstrings */}
                     <line x1="91" y1="162" x2="91" y2="192" stroke="#e0e7ff" strokeWidth="2.5" strokeLinecap="round" />
@@ -331,75 +638,130 @@ const renderClothing = (type: string, gender: string, skinColor: string) => {
                     <circle cx="109" cy="193" r="2.2" fill="#e0e7ff" />
                 </g>
             );
-        case 'jacket':
+        }
+        case 'jacket': {
+            const c = baseColor || '#1e293b';
             return (
                 <g stroke="none">
-                    {torsoShape('#1e293b')}
+                    {torsoShape(c)}
                     {/* Inner tee */}
                     <path d="M80,152 L100,195 L120,152 Z" fill="#f8fafc" />
                     {/* Lapels */}
-                    <path d="M74,152 L96,195 L82,195 L66,160 Z" fill="#0f172a" />
-                    <path d="M126,152 L104,195 L118,195 L134,160 Z" fill="#0f172a" />
+                    <path d="M74,152 L96,195 L82,195 L66,160 Z" fill={adjustColor(c, -22)} />
+                    <path d="M126,152 L104,195 L118,195 L134,160 Z" fill={adjustColor(c, -22)} />
                     <line x1="100" y1="185" x2="100" y2="210" stroke="#94a3b8" strokeWidth="2" />
                 </g>
             );
-        case 'sweater':
+        }
+        case 'sweater': {
+            const c = baseColor || '#0d9488';
             return (
                 <g stroke="none">
-                    {torsoShape('#0d9488')}
+                    {torsoShape(c)}
                     <path d="M76,152 Q100,172 124,152 Z" fill={skinColor} />
-                    <path d="M75,153 Q100,174 125,153" fill="none" stroke="#115e59" strokeWidth="4" strokeLinecap="round" />
+                    <path d="M75,153 Q100,174 125,153" fill="none" stroke={adjustColor(c, -28)} strokeWidth="4" strokeLinecap="round" />
                 </g>
             );
-        case 'tank':
+        }
+        case 'tank': {
+            const c = baseColor || '#f59e0b';
             return (
                 <g stroke="none">
-                    <path d="M66,154 L78,152 L82,210 L58,210 Z" fill="#f59e0b" />
-                    <path d="M134,154 L122,152 L118,210 L142,210 Z" fill="#f59e0b" />
-                    <path d="M68,168 Q100,182 132,168 L138,210 L62,210 Z" fill="#f59e0b" />
+                    <path d="M66,154 L78,152 L82,210 L58,210 Z" fill={c} />
+                    <path d="M134,154 L122,152 L118,210 L142,210 Z" fill={c} />
+                    <path d="M68,168 Q100,182 132,168 L138,210 L62,210 Z" fill={c} />
                 </g>
             );
-        case 'tshirt':
+        }
+        case 'tshirt': {
+            const c = baseColor || '#10b981';
             return (
                 <g stroke="none">
-                    {torsoShape('#10b981')}
+                    {torsoShape(c)}
                     <path d="M78,151 Q100,170 122,151 Z" fill={skinColor} />
-                    <path d="M77,152 Q100,171 123,152" fill="none" stroke="#059669" strokeWidth="3.5" strokeLinecap="round" />
+                    <path d="M77,152 Q100,171 123,152" fill="none" stroke={adjustColor(c, -24)} strokeWidth="3.5" strokeLinecap="round" />
                 </g>
             );
-        case 'blazer':
+        }
+        case 'blazer': {
+            const c = baseColor || '#0f172a';
             return (
                 <g stroke="none">
-                    {torsoShape('#0f172a')}
+                    {torsoShape(c)}
                     <path d="M78,152 L100,194 L122,152 Z" fill="#ffffff" />
-                    {/* Tie */}
                     <path d="M97,158 L103,158 L105,188 L100,194 L95,188 Z" fill="#dc2626" />
-                    {/* Lapels */}
-                    <path d="M74,152 L97,192 L84,185 Z" fill="#1e293b" />
-                    <path d="M126,152 L103,192 L116,185 Z" fill="#1e293b" />
+                    <path d="M74,152 L97,192 L84,185 Z" fill={adjustColor(c, 18)} />
+                    <path d="M126,152 L103,192 L116,185 Z" fill={adjustColor(c, 18)} />
                 </g>
             );
-        case 'dress':
+        }
+        case 'dress': {
+            const c = baseColor || '#ec4899';
             return (
                 <g stroke="none">
-                    <path d="M62,165 Q100,176 138,165 L152,210 L48,210 Z" fill="#ec4899" />
-                    <path d="M72,168 L78,150" stroke="#db2777" strokeWidth="5" strokeLinecap="round" />
-                    <path d="M128,168 L122,150" stroke="#db2777" strokeWidth="5" strokeLinecap="round" />
+                    <path d="M62,165 Q100,176 138,165 L152,210 L48,210 Z" fill={c} />
+                    <path d="M72,168 L78,150" stroke={adjustColor(c, -22)} strokeWidth="5" strokeLinecap="round" />
+                    <path d="M128,168 L122,150" stroke={adjustColor(c, -22)} strokeWidth="5" strokeLinecap="round" />
                 </g>
             );
+        }
+        case 'jersey': {
+            const c = baseColor || '#ef4444';
+            return (
+                <g stroke="none">
+                    {torsoShape(c)}
+                    <path d="M77,152 Q100,170 123,152" fill="none" stroke="#fde047" strokeWidth="3.5" strokeLinecap="round" />
+                    <rect x="64" y="178" width="72" height="7" fill="#ffffff" opacity="0.85" />
+                </g>
+            );
+        }
+        case 'varsity': {
+            const c = baseColor || '#6366f1';
+            return (
+                <g stroke="none">
+                    {torsoShape(c)}
+                    <path d={`M${leftX},210 C${leftX + 4},168 68,152 78,152 L72,210 Z`} fill="#f8fafc" />
+                    <path d={`M${rightX},210 C${rightX - 4},168 132,152 122,152 L128,210 Z`} fill="#f8fafc" />
+                    <line x1="100" y1="154" x2="100" y2="210" stroke="#ffffff" strokeWidth="3" />
+                </g>
+            );
+        }
+        case 'kimono': {
+            const c = baseColor || '#be185d';
+            return (
+                <g stroke="none">
+                    {torsoShape(c)}
+                    <path d="M75,152 L104,196 M125,152 L96,196" stroke="#fde047" strokeWidth="4" strokeLinecap="round" />
+                    <rect x="64" y="190" width="72" height="14" fill="#f59e0b" />
+                </g>
+            );
+        }
+        case 'astronaut': {
+            const c = baseColor || '#f8fafc';
+            return (
+                <g stroke="none">
+                    {torsoShape(c)}
+                    <rect x="76" y="172" width="48" height="24" rx="5" fill="#cbd5e1" />
+                    <circle cx="88" cy="184" r="4" fill="#ef4444" />
+                    <rect x="98" y="179" width="18" height="10" rx="2" fill="#38bdf8" />
+                </g>
+            );
+        }
         case 'shirt':
-        default:
+        default: {
+            const c = baseColor || '#3b82f6';
             return (
                 <g stroke="none">
-                    {torsoShape('#3b82f6')}
+                    {torsoShape(c)}
                     <path d="M78,151 L100,172 L122,151 Z" fill={skinColor} />
                     {/* Crisp polo collar */}
-                    <path d="M75,150 L96,172 L83,177 L69,156 Z" fill="#1d4ed8" />
-                    <path d="M125,150 L104,172 L117,177 L131,156 Z" fill="#1d4ed8" />
+                    <path d="M75,150 L96,172 L83,177 L69,156 Z" fill={adjustColor(c, -28)} />
+                    <path d="M125,150 L104,172 L117,177 L131,156 Z" fill={adjustColor(c, -28)} />
                     <circle cx="100" cy="182" r="2.2" fill="#eff6ff" />
                     <circle cx="100" cy="195" r="2.2" fill="#eff6ff" />
                 </g>
             );
+        }
     }
 };
 
@@ -715,6 +1077,73 @@ const renderAccessory = (type: string) => {
                     <path d="M100,100 L82,90 L82,110 Z" fill="#ef4444" />
                     <path d="M100,100 L118,90 L118,110 Z" fill="#ef4444" />
                     <circle cx="100" cy="100" r="4.5" fill="#b91c1c" />
+                </g>
+            );
+        case 'beanie':
+            return (
+                <g stroke="none">
+                    <circle cx="100" cy="20" r="9" fill="#f59e0b" />
+                    <path d="M52,64 C52,26 148,26 148,64 Z" fill="#0d9488" />
+                    <rect x="49" y="54" width="102" height="14" rx="6" fill="#0f766e" />
+                </g>
+            );
+        case 'bandana':
+            return (
+                <g stroke="none">
+                    <path d="M53,54 Q100,45 147,54 L145,67 Q100,59 55,67 Z" fill="#e11d48" />
+                    <path d="M144,58 L162,50 L156,64 Z" fill="#be123c" />
+                    <path d="M144,62 L164,68 L152,74 Z" fill="#e11d48" />
+                </g>
+            );
+        case 'vr_headset':
+            return (
+                <g stroke="none">
+                    <rect x="56" y="79" width="88" height="26" rx="9" fill="#0f172a" stroke="#38bdf8" strokeWidth="2.5" />
+                    <rect x="64" y="87" width="72" height="8" rx="4" fill="#38bdf8" opacity="0.85" />
+                    <rect x="68" y="89" width="22" height="3" rx="1.5" fill="#ffffff" opacity="0.7" />
+                </g>
+            );
+        case 'halo':
+            return (
+                <g stroke="none">
+                    <ellipse cx="100" cy="20" rx="34" ry="8" fill="none" stroke="#fbbf24" strokeWidth="5" />
+                    <ellipse cx="100" cy="20" rx="34" ry="8" fill="none" stroke="#fef08a" strokeWidth="2" opacity="0.8" />
+                </g>
+            );
+        case 'flower_crown':
+            return (
+                <g stroke="none">
+                    <path d="M55,58 Q100,48 145,58" fill="none" stroke="#16a34a" strokeWidth="4" strokeLinecap="round" />
+                    <circle cx="66" cy="56" r="6" fill="#f472b6" />
+                    <circle cx="66" cy="56" r="2.2" fill="#fde047" />
+                    <circle cx="88" cy="52" r="6.5" fill="#fde047" />
+                    <circle cx="88" cy="52" r="2.2" fill="#f97316" />
+                    <circle cx="112" cy="52" r="6.5" fill="#a78bfa" />
+                    <circle cx="112" cy="52" r="2.2" fill="#fde047" />
+                    <circle cx="134" cy="56" r="6" fill="#fb7185" />
+                    <circle cx="134" cy="56" r="2.2" fill="#fde047" />
+                </g>
+            );
+        case 'monocle':
+            return (
+                <g fill="none">
+                    <circle cx="123" cy="93" r="12" fill="rgba(255,255,255,0.22)" stroke="#f59e0b" strokeWidth="2.8" />
+                    <path d="M134,98 Q140,118 136,142" stroke="#f59e0b" strokeWidth="1.8" strokeDasharray="2 2" />
+                </g>
+            );
+        case 'scarf':
+            return (
+                <g stroke="none">
+                    <rect x="68" y="140" width="64" height="18" rx="9" fill="#ef4444" />
+                    <path d="M104,152 L118,194 L102,198 L93,154 Z" fill="#dc2626" />
+                    <line x1="98" y1="176" x2="113" y2="173" stroke="#fde047" strokeWidth="3" />
+                </g>
+            );
+        case 'backpack':
+            return (
+                <g stroke="none">
+                    <line x1="72" y1="152" x2="66" y2="206" stroke="#dc2626" strokeWidth="7" strokeLinecap="round" />
+                    <line x1="128" y1="152" x2="134" y2="206" stroke="#dc2626" strokeWidth="7" strokeLinecap="round" />
                 </g>
             );
         default:

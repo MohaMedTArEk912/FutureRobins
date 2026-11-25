@@ -40,6 +40,13 @@ export const useTeacherWorkspace = () => {
     return context;
 };
 
+const TEACHER_SECTION_STORAGE_KEY = 'fr_teacher_section';
+const TEACHER_CLASS_STORAGE_KEY = 'fr_teacher_class_id';
+const ALLOWED_TEACHER_SECTIONS: TeacherSectionId[] = [
+    'overview', 'my_classes', 'sessions', 'presentations',
+    'board_studio', 'analytics', 'ai_studio', 'students', 'chat', 'library'
+];
+
 export const TeacherWorkspaceProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const { currentUser } = useAuth();
     const { showNotification } = useNotification();
@@ -50,13 +57,46 @@ export const TeacherWorkspaceProvider: React.FC<{ children: ReactNode }> = ({ ch
     const userId = currentUser?.userId || '';
     const userClanId = currentUser?.clanId || '';
 
-    const [activeSection, setActiveSection] = useState<TeacherSectionId>('overview');
+    const [activeSection, setActiveSection] = useState<TeacherSectionId>(() => {
+        if (typeof window === 'undefined') return 'overview';
+        try {
+            const raw = sessionStorage.getItem(TEACHER_SECTION_STORAGE_KEY);
+            return raw && ALLOWED_TEACHER_SECTIONS.includes(raw as TeacherSectionId)
+                ? (raw as TeacherSectionId)
+                : 'overview';
+        } catch {
+            return 'overview';
+        }
+    });
+    useEffect(() => {
+        try {
+            sessionStorage.setItem(TEACHER_SECTION_STORAGE_KEY, activeSection);
+        } catch {
+            // ignore storage errors
+        }
+    }, [activeSection]);
+
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
     const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
 
     const [myClasses, setMyClasses] = useState<ClassSummary[]>([]);
     const [loadingClasses, setLoadingClasses] = useState(false);
-    const [selectedClassId, setSelectedClassId] = useState<string>('');
+    const [selectedClassId, setSelectedClassId] = useState<string>(() => {
+        if (typeof window === 'undefined') return '';
+        try {
+            return sessionStorage.getItem(TEACHER_CLASS_STORAGE_KEY) || '';
+        } catch {
+            return '';
+        }
+    });
+    useEffect(() => {
+        try {
+            if (selectedClassId) sessionStorage.setItem(TEACHER_CLASS_STORAGE_KEY, selectedClassId);
+            else sessionStorage.removeItem(TEACHER_CLASS_STORAGE_KEY);
+        } catch {
+            // ignore storage errors
+        }
+    }, [selectedClassId]);
     const [activeClan, setActiveClan] = useState<Clan | null>(null);
     const [loadingActiveClan, setLoadingActiveClan] = useState(false);
 

@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Bot, Sparkles, X, Lightbulb, RefreshCw } from 'lucide-react';
+import { Sparkles, X, Lightbulb, RefreshCw } from 'lucide-react';
 import { MathRenderer } from './MathRenderer';
 import { api } from '../../lib/api';
 import { sounds } from '../../lib/soundEffects';
 import { useTheme } from '../../context/ThemeContext';
+import { useOptionalAuth } from '../../context/AuthContext';
+import { BuddyAvatar } from '../buddy/BuddyAvatar';
 
 interface AICoachModalProps {
     isOpen: boolean;
@@ -29,6 +31,7 @@ export const AICoachModal: React.FC<AICoachModalProps> = ({
     onClose
 }) => {
     const { isBento } = useTheme();
+    const auth = useOptionalAuth();
     const [hint, setHint] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [clueLevel, setClueLevel] = useState<number>(1);
@@ -112,12 +115,17 @@ export const AICoachModal: React.FC<AICoachModalProps> = ({
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
+                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center overflow-hidden ${
                             isBento
                                 ? 'bg-[#bef264] border-2 border-black text-black shadow-[3px_3px_0px_#000]'
                                 : 'bg-[#bef264]/15 border border-[#bef264]/40 text-[#bef264]'
                         }`}>
-                            <Bot className="w-6 h-6" />
+                            <BuddyAvatar
+                                avatar={auth?.currentUser?.avatar}
+                                moodOverride={isLoading ? 'cool' : 'excited'}
+                                size="sm"
+                                animated
+                            />
                         </div>
                         <div>
                             <div className={`flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider ${

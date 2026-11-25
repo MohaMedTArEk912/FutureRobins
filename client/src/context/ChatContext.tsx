@@ -28,7 +28,7 @@ export interface OpenChatOptions {
 
 interface ChatContextType {
     isOpen: boolean;
-    activeTab: 'clan' | 'direct';
+    activeTab: 'clan' | 'direct' | 'buddy';
     activeFriend: UserData | null;
     unreadCount: number;
     unreadClanCount: number;
@@ -38,9 +38,12 @@ interface ChatContextType {
     clan: Clan | null;
     onlineUserIds: Set<string>;
     returnToLabel: string | null;
-    openChat: (tab?: 'clan' | 'direct', friend?: UserData | string, options?: OpenChatOptions) => void;
+    pendingBuddyPrompt: string | null;
+    openChat: (tab?: 'clan' | 'direct' | 'buddy', friend?: UserData | string, options?: OpenChatOptions) => void;
+    openBuddyChat: (initialPrompt?: string, options?: OpenChatOptions) => void;
+    clearPendingBuddyPrompt: () => void;
     closeChat: () => void;
-    setActiveTab: (tab: 'clan' | 'direct') => void;
+    setActiveTab: (tab: 'clan' | 'direct' | 'buddy') => void;
     setActiveFriend: (friend: UserData | null) => void;
     sendDirectMessage: (receiverId: string, content: string, type?: 'text' | 'challenge', challengeData?: ChallengeDataPayload) => void;
     sendClanMessage: (content: string) => Promise<void>;
@@ -71,9 +74,10 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const currentUserName = currentUser?.name;
 
     const [isOpen, setIsOpen] = useState(false);
-    const [activeTab, setActiveTab] = useState<'clan' | 'direct'>('direct');
+    const [activeTab, setActiveTab] = useState<'clan' | 'direct' | 'buddy'>('direct');
     const [activeFriend, setActiveFriend] = useState<UserData | null>(null);
     const [returnToLabel, setReturnToLabel] = useState<string | null>(null);
+    const [pendingBuddyPrompt, setPendingBuddyPrompt] = useState<string | null>(null);
 
     const [clan, setClan] = useState<Clan | null>(null);
     const currentClanId = clan?.clanId;
@@ -291,7 +295,7 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }, []);
 
     // Open chat helper
-    const openChat = useCallback((tab: 'clan' | 'direct' = 'direct', friend?: UserData | string, options?: OpenChatOptions) => {
+    const openChat = useCallback((tab: 'clan' | 'direct' | 'buddy' = 'direct', friend?: UserData | string, options?: OpenChatOptions) => {
         setReturnToLabel(options?.returnToLabel ?? null);
         setIsOpen(true);
         if (tab) {
@@ -331,6 +335,19 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             markClanAsRead();
         }
     }, [allUsers, markClanAsRead, markFriendAsRead]);
+
+    const openBuddyChat = useCallback((initialPrompt?: string, options?: OpenChatOptions) => {
+        setReturnToLabel(options?.returnToLabel ?? null);
+        setActiveTab('buddy');
+        setIsOpen(true);
+        if (initialPrompt && initialPrompt.trim()) {
+            setPendingBuddyPrompt(initialPrompt.trim());
+        }
+    }, []);
+
+    const clearPendingBuddyPrompt = useCallback(() => {
+        setPendingBuddyPrompt(null);
+    }, []);
 
     const closeChat = useCallback(() => {
         setIsOpen(false);
@@ -458,7 +475,10 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 clan,
                 onlineUserIds,
                 returnToLabel,
+                pendingBuddyPrompt,
                 openChat,
+                openBuddyChat,
+                clearPendingBuddyPrompt,
                 closeChat,
                 setActiveTab,
                 setActiveFriend,

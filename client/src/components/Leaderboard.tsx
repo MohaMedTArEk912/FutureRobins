@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import type { UserData } from '../types/index.ts';
 import { Trophy, Medal, Star, TrendingUp, Users, Crown, Shield } from 'lucide-react';
 import Navbar from './Navbar.tsx';
@@ -35,12 +35,24 @@ interface LeaderboardProps {
 
 const Leaderboard: React.FC<LeaderboardProps> = ({ users, currentUser, onBack }) => {
     const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
     const { logout } = useAuth();
     const { isBento } = useTheme();
     const { openUserProfile } = useUserProfileModal();
     const { tx } = useLanguage();
     const { inPersistentShell } = usePersistentShell();
-    const [activeTab, setActiveTab] = useState<'players' | 'clans'>('players');
+    const [activeTab, setActiveTabState] = useState<'players' | 'clans'>(() =>
+        searchParams.get('tab') === 'clans' ? 'clans' : 'players'
+    );
+    const setActiveTab = useCallback((nextTab: 'players' | 'clans') => {
+        setActiveTabState(nextTab);
+        setSearchParams((prev) => {
+            const next = new URLSearchParams(prev);
+            if (nextTab === 'players') next.delete('tab');
+            else next.set('tab', nextTab);
+            return next;
+        }, { replace: true });
+    }, [setSearchParams]);
     const [clanLeaderboard, setClanLeaderboard] = useState<ClanLeaderboardEntry[]>([]);
     const [loadingClans, setLoadingClans] = useState(false);
 

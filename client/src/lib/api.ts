@@ -2907,6 +2907,30 @@ export const api = {
             throw new Error(data.message || 'Failed to refine JSON with AI');
         }
         return data;
+    },
+
+    async chatWithStudyBuddy(payload: {
+        message: string;
+        history?: Array<{ role: 'user' | 'assistant'; content: string }>;
+        language?: 'en' | 'ar-EG';
+    }): Promise<{
+        success: boolean;
+        reply: string;
+        mood: 'happy' | 'excited' | 'cool' | 'neutral';
+        onTopic: boolean;
+        suggestedActions: Array<{ label: string; route: string }>;
+        blocked?: boolean;
+    }> {
+        const response = await fetchWithFallback('/ai/buddy-chat', {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify(payload),
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            throw new Error(data.message || 'Study Buddy is taking a quick breather. Try again shortly!');
+        }
+        return data;
     }
 };
 

@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import type { UserData, ShopItem } from '../../types';
 import { api } from '../../lib/api';
 import { useTheme } from '../../context/ThemeContext';
@@ -17,8 +18,20 @@ let cachedShopItemsList: ShopItem[] | null = null;
 const Shop: React.FC<ShopProps> = ({ user, onUserUpdate }) => {
   const { isBento } = useTheme();
   const { tx } = useLanguage();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [items, setItems] = useState<ShopItem[]>(() => cachedShopItemsList || []);
-  const [activeTab, setActiveTab] = useState<'powerups' | 'style'>('powerups');
+  const [activeTab, setActiveTabState] = useState<'powerups' | 'style'>(() =>
+    searchParams.get('tab') === 'style' ? 'style' : 'powerups'
+  );
+  const setActiveTab = useCallback((nextTab: 'powerups' | 'style') => {
+    setActiveTabState(nextTab);
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (nextTab === 'powerups') next.delete('tab');
+      else next.set('tab', nextTab);
+      return next;
+    }, { replace: true });
+  }, [setSearchParams]);
   const [loading, setLoading] = useState(() => !cachedShopItemsList);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);

@@ -2,14 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Eye, EyeOff, Mail, User as UserIcon, Lock, Check, AlertCircle, Sliders, Globe, Download, RefreshCw, Smartphone, Palette, Sparkles } from 'lucide-react';
 import type { UserData } from '../types/index.ts';
-import { DEFAULT_AVATAR_CONFIG } from '../constants/avatarDefaults';
 import { api } from '../lib/api.ts';
 import { pwaUpdater, type PwaUpdateState } from '../lib/pwaUpdater.ts';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { useLanguage } from '../context/LanguageContext.tsx';
 import { useNavArrangement } from '../context/NavArrangementContext';
-import { AnimatedCharacter } from './AnimatedCharacter.tsx';
-import { getStoredMascotGender, setStoredMascotGender, type MascotGender } from '../utils/mascotGenderStorage';
+import { BuddyAvatar } from './buddy/BuddyAvatar.tsx';
+import { getStoredMascotGender, setStoredMascotGender, setStoredAvatarConfig, type MascotGender } from '../utils/authPreferenceCookies';
+import { syncAvatarWithGender } from '../utils/avatarGenderSync';
 
 interface UserSettingsProps {
     user: UserData;
@@ -79,11 +79,8 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
         setStoredMascotGender(nextGender);
         setNotification(null);
 
-        const nextAvatar = {
-            ...DEFAULT_AVATAR_CONFIG,
-            ...(user.avatar || {}),
-            gender: nextGender
-        };
+        const nextAvatar = syncAvatarWithGender(user.avatar, nextGender);
+        setStoredAvatarConfig(nextAvatar);
         const updatedUser: UserData = {
             ...user,
             avatar: nextAvatar
@@ -429,7 +426,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
                             ? 'bg-[#bef264] border-2 border-black shadow-[3px_3px_0px_#000]'
                             : 'bg-[#0b1628] border border-[#00e5ff]/35'
                     }`}>
-                        <AnimatedCharacter isEmailFocused={false} isPasswordFocused={false} gender={gender} compact />
+                        <BuddyAvatar avatar={syncAvatarWithGender(user.avatar, gender)} gender={gender} size="lg" animated className="w-full h-full" />
                     </div>
                     <div className="min-w-0 space-y-1">
                         <div className="flex flex-wrap items-center gap-2">
@@ -471,7 +468,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user, onClose, onUpdate, em
                         ? 'bg-[#bef264] border-2 border-black shadow-[3px_3px_0px_#000]'
                         : 'bg-[#0b1628] border border-[#00e5ff]/35'
                 }`}>
-                    <AnimatedCharacter isEmailFocused={false} isPasswordFocused={false} gender={gender} compact />
+                    <BuddyAvatar avatar={syncAvatarWithGender(user.avatar, gender)} gender={gender} size="lg" animated className="w-full h-full" />
                 </div>
                 {renderCharacterButtons('grid grid-cols-2 sm:grid-cols-1 gap-2 flex-1 w-full', 'min-h-[44px]')}
             </div>

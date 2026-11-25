@@ -59,8 +59,20 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Navigation tab
-  const [activeTab, setActiveTab] = useState<TournamentTab>('arenas');
+  // Navigation tab synced to URL query param (?tab=) for refresh persistence
+  const [activeTab, setActiveTabState] = useState<TournamentTab>(() => {
+    const raw = searchParams.get('tab');
+    return raw === 'leaderboards' || raw === 'history' ? raw : 'arenas';
+  });
+  const setActiveTab = useCallback((nextTab: TournamentTab) => {
+    setActiveTabState(nextTab);
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (nextTab === 'arenas') next.delete('tab');
+      else next.set('tab', nextTab);
+      return next;
+    }, { replace: true });
+  }, [setSearchParams]);
 
   // Tournaments list (seeded from memory cache so route transitions render cards on Frame 0)
   const [items, setItems] = useState<Tournament[]>(() => cachedTournamentsList || []);
@@ -101,7 +113,7 @@ const Tournaments: React.FC<{ userId?: string }> = ({ userId }) => {
       }
     }, 150);
     return () => clearTimeout(timer);
-  }, [inviteParamId, items.length]);
+  }, [inviteParamId, items.length, setActiveTab]);
 
   // Leaderboards tab state
   const [selectedLeaderboardId, setSelectedLeaderboardId] = useState<string>('');

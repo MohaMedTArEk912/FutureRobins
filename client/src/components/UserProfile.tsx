@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useMemo } from 'react';
+import React, { useRef, useState, useEffect, useMemo, useCallback } from 'react';
 import type { UserData, AttemptData, BadgeDefinition, Tournament } from '../types/index.ts';
 import { formatLocalizedTournamentDateTime } from '../utils/timezoneUtils';
 import {
@@ -184,7 +184,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
     const certificateRef = useRef<HTMLDivElement>(null);
     const [downloadingAttemptId, setDownloadingAttemptId] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
     const initialTab = useMemo<ProfileTab>(() => {
         const t = searchParams.get('tab');
         if (t === 'appearance') return 'settings';
@@ -193,9 +193,29 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, attempts, allUsers, onB
         }
         return 'overview';
     }, [searchParams]);
-    const [activeTab, setActiveTab] = useState<ProfileTab>(initialTab);
+    const [activeTab, setActiveTabState] = useState<ProfileTab>(initialTab);
+    const setActiveTab = useCallback((nextTab: ProfileTab) => {
+        setActiveTabState(nextTab);
+        setSearchParams((prev) => {
+            const next = new URLSearchParams(prev);
+            if (nextTab === 'overview') next.delete('tab');
+            else next.set('tab', nextTab);
+            return next;
+        }, { replace: true });
+    }, [setSearchParams]);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-    const [isAvatarEditorOpen, setIsAvatarEditorOpen] = useState(false);
+    const [isAvatarEditorOpen, setIsAvatarEditorOpenState] = useState<boolean>(
+        () => searchParams.get('avatar') === '1'
+    );
+    const setIsAvatarEditorOpen = useCallback((open: boolean) => {
+        setIsAvatarEditorOpenState(open);
+        setSearchParams((prev) => {
+            const next = new URLSearchParams(prev);
+            if (open) next.set('avatar', '1');
+            else next.delete('avatar');
+            return next;
+        }, { replace: true });
+    }, [setSearchParams]);
     const [isStreakModalOpen, setIsStreakModalOpen] = useState(false);
     const [currentUser, setCurrentUser] = useState<UserData>(user);
     const [exportingAttemptId, setExportingAttemptId] = useState<string | null>(null);

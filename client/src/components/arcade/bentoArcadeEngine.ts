@@ -1,3 +1,4 @@
+import type { AvatarConfig } from '../../types';
 import {
     computeBentoRunLevel,
     type BentoGameMode,
@@ -5,6 +6,7 @@ import {
     type BentoPowerupKind
 } from './bentoArcadeTypes';
 import { bentoArcadeAudio } from './bentoArcadeAudio';
+import { PaperDash3DEngine } from './paperDash3dEngine';
 
 export interface BentoArcadeCallbacks {
     onHudUpdate: (hud: BentoHudSnapshot) => void;
@@ -52,36 +54,6 @@ interface SmashPowerup {
     w: number;
     h: number;
     kind: BentoPowerupKind;
-}
-
-// --- PAPER DASH ENTITIES ---
-interface DashPlatform {
-    id: number;
-    x: number;
-    y: number;
-    w: number;
-    h: number;
-    color: string;
-    hasSpring: boolean;
-    springX: number; // relative to platform x
-}
-
-interface DashObstacle {
-    id: number;
-    x: number;
-    y: number;
-    size: number;
-    aerial: boolean;
-    smashed: boolean;
-}
-
-interface DashCoin {
-    id: number;
-    x: number;
-    y: number;
-    size: number;
-    kind: 'coin' | 'shield';
-    collected: boolean;
 }
 
 // --- SHARED FX ---
@@ -174,7 +146,7 @@ export class BentoArcadeEngine {
     private mode: BentoGameMode = 'smash';
     private status: 'menu' | 'playing' | 'paused' | 'gameover' = 'menu';
     private pauseReason: 'manual' | 'resize' | 'blur' | null = null;
-    private deathReason: 'lives' | 'fall' | 'obstacle' | null = null;
+    private deathReason: 'lives' | 'fall' | 'obstacle' | 'enemy' | null = null;
 
     // Shared Score, XP, Level, FX
     private score = 0;
@@ -212,26 +184,8 @@ export class BentoArcadeEngine {
     private heavyBuffMs = 0;
     private smashRowDriftDir = 1;
 
-    // --- DASH STATE ---
-    private dashScrollX = 0;
-    private dashSpeed = 300;
-    private dashDistancePx = 0;
-    private dashLastMilestoneMeters = 0;
-    private dashCoinsCollected = 0;
-    private dashHasShield = false;
-    private mascotX = 130;
-    private mascotY = 260;
-    private mascotVy = 0;
-    private mascotSize = 40;
-    private mascotOnGround = false;
-    private mascotJumpsLeft = 2;
-    private mascotSquashX = 1;
-    private mascotSquashY = 1;
-    private mascotSlamming = false;
-    private dashPlatforms: DashPlatform[] = [];
-    private dashObstacles: DashObstacle[] = [];
-    private dashCoins: DashCoin[] = [];
-    private dashSpawnEdgeX = 0;
+    // --- DASH 3D ENGINE ---
+    private dash3d = new PaperDash3DEngine();
 
     constructor(canvas: HTMLCanvasElement, callbacks: BentoArcadeCallbacks) {
         this.canvas = canvas;
@@ -285,6 +239,7 @@ export class BentoArcadeEngine {
         this.canvasTopOffset = this.canvas.parentElement?.offsetTop || 0;
         this.ensureDotPattern();
         this.computeSmashArenaLayout();
+        this.dash3d.resize(w, h);
 
         const bigShift = Math.abs(prevW - w) > 64 || Math.abs(prevH - h) > 96;
         if (this.status === 'playing' && this.elapsedMs > 600 && bigShift) {
@@ -422,39 +377,46 @@ export class BentoArcadeEngine {
         }
     }
 
+    public setAvatarConfig(avatar?: Partial<AvatarConfig> | null) {
+        this.dash3d.setAvatarConfig(avatar);
+    }
+
+    public triggerDashLane(delta: -1 | 1) {
+        if (this.status !== 'playing' || this.mode !== 'dash') return;
+        this.dash3d.moveLane(delta);
+    }
+
     public triggerDashJump() {
         if (this.status !== 'playing' || this.mode !== 'dash') return;
-        if (this.mascotJumpsLeft <= 0) return;
-
-        const isDouble = !this.mascotOnGround;
-        this.mascotVy = isDouble ? -590 : -650;
-        this.mascotOnGround = false;
-        this.mascotSlamming = false;
-        this.mascotJumpsLeft -= 1;
-        this.mascotSquashX = 0.78;
-        this.mascotSquashY = 1.28;
-
-        bentoArcadeAudio.playJump(isDouble);
-        this.spawnParticles(
-            this.mascotX + this.mascotSize / 2,
-            this.mascotY + this.mascotSize,
-            isDouble ? SKY : WHITE,
-            isDouble ? 8 : 5
-        );
+        this.dash3d.jump();
     }
 
     public triggerDashSlam() {
         if (this.status !== 'playing' || this.mode !== 'dash') return;
-        if (this.mascotOnGround || this.mascotSlamming) return;
-        this.mascotSlamming = true;
-        this.mascotVy = Math.max(this.mascotVy, 860);
-        this.mascotSquashX = 0.72;
-        this.mascotSquashY = 1.35;
-        bentoArcadeAudio.playSlam();
+        this.dash3d.slideOrDrop();
+    }
+
+    public triggerDashGravityFlip() {
+        if (this.status !== 'playing' || this.mode !== 'dash') return;
+        this.dash3d.flipGravity();
+        this.emitHud(true);
+    }
+
+    public triggerDashUseItem(slotIndex = 0) {
+        if (this.status !== 'playing' || this.mode !== 'dash') return;
+        this.dash3d.useItem(slotIndex);
+        this.emitHud(true);
+    }
+
+    public triggerDashUlt() {
+        if (this.status !== 'playing' || this.mode !== 'dash') return;
+        this.dash3d.activateUlt();
+        this.emitHud(true);
     }
 
     public getSnapshot(): BentoHudSnapshot {
         const prog = computeBentoRunLevel(this.runXp);
+        const dashTelemetry = this.dash3d.getTelemetry();
         return {
             mode: this.mode,
             status: this.status,
@@ -472,10 +434,17 @@ export class BentoArcadeEngine {
                 wideSec: Math.ceil(this.wideBuffMs / 1000),
                 heavySec: Math.ceil(this.heavyBuffMs / 1000)
             },
-            distanceMeters: Math.floor(this.dashDistancePx / 18),
-            coinsCollected: this.dashCoinsCollected,
-            hasShield: this.dashHasShield,
-            speedMultiplier: Number((this.dashSpeed / 300).toFixed(1)),
+            distanceMeters: dashTelemetry.distanceMeters,
+            coinsCollected: dashTelemetry.coinsCollected,
+            hasShield: dashTelemetry.hasShield,
+            speedMultiplier: dashTelemetry.speedMultiplier,
+            gravityInverted: dashTelemetry.gravityInverted,
+            ultCharge: dashTelemetry.ultCharge,
+            ultActiveSec: dashTelemetry.ultActiveSec,
+            inventoryItems: dashTelemetry.inventoryItems,
+            activeDashBuffs: dashTelemetry.activeDashBuffs,
+            enemiesDefeated: dashTelemetry.enemiesDefeated,
+            nearMissCount: dashTelemetry.nearMissCount,
             comboCount: this.comboCount,
             comboMultiplier: this.getComboMultiplier(this.comboCount),
             levelUpNotice: this.levelUpNotice,
@@ -486,7 +455,7 @@ export class BentoArcadeEngine {
 
     private emitHud(force = false) {
         const now = performance.now();
-        if (!force && now - this.lastHudEmitMs < 85) return;
+        if (!force && now - this.lastHudEmitMs < 140) return;
         this.lastHudEmitMs = now;
         this.callbacks.onHudUpdate(this.getSnapshot());
     }
@@ -928,342 +897,36 @@ export class BentoArcadeEngine {
     // =========================================================================
 
     private initDashRun() {
-        const isPhone = this.width < 520;
-        this.dashScrollX = 0;
-        this.dashSpeed = isPhone ? 240 : this.width < 768 ? 275 : 320;
-        this.dashDistancePx = 0;
-        this.dashLastMilestoneMeters = 0;
-        this.dashCoinsCollected = 0;
-        this.dashHasShield = false;
-        this.mascotSize = isPhone ? 32 : this.width < 768 ? 36 : 42;
-        this.mascotX = Math.max(52, Math.min(165, Math.floor(this.width * 0.2)));
-
-        const playHeight = Math.max(260, this.height - this.bottomControlInset);
-        const startGroundY = Math.floor(playHeight * 0.68);
-        this.mascotY = startGroundY - this.mascotSize;
-        this.mascotVy = 0;
-        this.mascotOnGround = true;
-        this.mascotJumpsLeft = 2;
-        this.mascotSquashX = 1;
-        this.mascotSquashY = 1;
-        this.mascotSlamming = false;
-
-        this.dashPlatforms = [
-            {
-                id: this.nextId++,
-                x: 20,
-                y: startGroundY,
-                w: Math.max(isPhone ? 280 : 360, Math.floor(this.width * 0.68)),
-                h: 26,
-                color: WHITE,
-                hasSpring: false,
-                springX: 0
-            }
-        ];
-        this.dashObstacles = [];
-        this.dashCoins = [];
-        this.dashSpawnEdgeX = this.dashPlatforms[0].x + this.dashPlatforms[0].w;
-
-        // Pre-populate upcoming cards across screen
-        while (this.dashSpawnEdgeX < this.width + 480) {
-            this.spawnNextDashSegment();
-        }
-    }
-
-    private spawnNextDashSegment() {
-        const playHeight = Math.max(300, this.height - this.bottomControlInset);
-        const minY = Math.floor(playHeight * 0.34);
-        const maxY = Math.floor(playHeight * 0.78);
-        const lastPlat = this.dashPlatforms[this.dashPlatforms.length - 1];
-        const prevY = lastPlat ? lastPlat.y : Math.floor(playHeight * 0.68);
-
-        // Guaranteed fair jumpable horizontal gap scaled with current speed
-        const speedFactor = this.dashSpeed / 300;
-        const gap = Math.floor((68 + Math.random() * 88) * Math.min(1.45, speedFactor));
-        const deltaY = Math.floor((Math.random() * 2 - 1) * 95);
-        const nextY = Math.max(minY, Math.min(maxY, prevY + deltaY));
-        const platW = Math.floor(135 + Math.random() * 190);
-        const platColors = [WHITE, SKY, WHITE, PEACH, YELLOW];
-        const color = platColors[Math.floor(Math.random() * platColors.length)];
-
-        const platX = this.dashSpawnEdgeX + gap;
-        const hasSpring = platW >= 170 && Math.random() < 0.2;
-        const springX = hasSpring ? platW - 58 : 0;
-
-        this.dashPlatforms.push({
-            id: this.nextId++,
-            x: platX,
-            y: nextY,
-            w: platW,
-            h: 24,
-            color,
-            hasSpring,
-            springX
-        });
-
-        // Coin arc across the gap between platforms!
-        if (Math.random() < 0.72) {
-            const coinCount = 3;
-            const arcTopY = Math.min(prevY, nextY) - 66;
-            for (let i = 0; i < coinCount; i++) {
-                const t = (i + 1) / (coinCount + 1);
-                const cx = this.dashSpawnEdgeX + gap * t;
-                const arch = Math.sin(t * Math.PI);
-                const cy = Math.min(prevY, nextY) - 26 - arch * 54;
-                this.dashCoins.push({
-                    id: this.nextId++,
-                    x: cx,
-                    y: Math.max(46, Math.min(arcTopY + 34, cy)),
-                    size: 18,
-                    kind: 'coin',
-                    collected: false
-                });
-            }
-        }
-
-        // Place coral '!' obstacle on spacious platforms (never crowding edges or spring!)
-        const distMeters = this.dashDistancePx / 18;
-        const obsChance = Math.min(0.68, 0.34 + distMeters * 0.0012);
-        if (platW >= 190 && !hasSpring && Math.random() < obsChance) {
-            const obsSize = this.width < 560 ? 30 : 36;
-            const obsX = platX + Math.floor(platW * 0.45 + (Math.random() - 0.5) * (platW * 0.25));
-            this.dashObstacles.push({
-                id: this.nextId++,
-                x: obsX,
-                y: nextY - obsSize,
-                size: obsSize,
-                aerial: false,
-                smashed: false
-            });
-            // Rewarding high coin right over the obstacle!
-            this.dashCoins.push({
-                id: this.nextId++,
-                x: obsX + obsSize / 2,
-                y: nextY - obsSize - 46,
-                size: 18,
-                kind: 'coin',
-                collected: false
-            });
-        } else if (platW >= 150) {
-            // Line of XP coins or occasional Shield sticker on platform
-            const spawnShield = !this.dashHasShield && distMeters > 45 && Math.random() < 0.12;
-            if (spawnShield) {
-                this.dashCoins.push({
-                    id: this.nextId++,
-                    x: platX + platW * 0.5,
-                    y: nextY - 38,
-                    size: 22,
-                    kind: 'shield',
-                    collected: false
-                });
-            } else {
-                const count = Math.random() < 0.5 ? 2 : 3;
-                for (let i = 0; i < count; i++) {
-                    this.dashCoins.push({
-                        id: this.nextId++,
-                        x: platX + 44 + i * 34,
-                        y: nextY - 30,
-                        size: 18,
-                        kind: 'coin',
-                        collected: false
-                    });
-                }
-            }
-        }
-
-        // Occasional aerial '!' drone at higher speeds (always avoidable!)
-        if (distMeters > 90 && Math.random() < 0.22) {
-            this.dashObstacles.push({
-                id: this.nextId++,
-                x: platX + platW * 0.65,
-                y: Math.max(54, nextY - 122),
-                size: 30,
-                aerial: true,
-                smashed: false
-            });
-        }
-
-        this.dashSpawnEdgeX = platX + platW;
+        this.dash3d.reset(this.width, this.height);
     }
 
     private updateDash(dt: number) {
-        const dtSec = dt / 1000;
-
-        // Gentle speed acceleration with distance + run level
-        const distMeters = this.dashDistancePx / 18;
-        const targetSpeed = Math.min(540, (this.width < 560 ? 275 : 320) + distMeters * 0.35 + (this.runLevel - 1) * 14);
-        this.dashSpeed += (targetSpeed - this.dashSpeed) * Math.min(1, dtSec * 2.5);
-
-        const moveDx = this.dashSpeed * dtSec;
-        this.dashScrollX += moveDx;
-        this.dashDistancePx += moveDx;
-        this.score += moveDx * 0.15;
-
-        // Combo decay window
-        if (this.comboCount > 0) {
+        if (this.comboTimerMs > 0) {
             this.comboTimerMs -= dt;
-            if (this.comboTimerMs <= 0) {
-                this.comboCount = 0;
-            }
+            if (this.comboTimerMs <= 0) this.comboCount = 0;
         }
 
-        // Passive distance XP milestone every 25m
-        const currentMeters = Math.floor(this.dashDistancePx / 18);
-        if (currentMeters >= this.dashLastMilestoneMeters + 25) {
-            this.dashLastMilestoneMeters = Math.floor(currentMeters / 25) * 25;
-            this.awardXp(
-                18 + Math.min(20, this.runLevel * 2),
-                this.mascotX + this.mascotSize / 2,
-                this.mascotY - 10,
-                `${this.dashLastMilestoneMeters}M`,
-                SKY
-            );
+        const res = this.dash3d.update(dt / 1000);
+        this.score += res.scoreAdded;
+        if (res.comboIncrement > 0) {
+            this.comboCount += res.comboIncrement;
+            this.comboTimerMs = 2800;
         }
-
-        // Shift world entities left
-        this.dashSpawnEdgeX -= moveDx;
-        for (const p of this.dashPlatforms) p.x -= moveDx;
-        for (const o of this.dashObstacles) o.x -= moveDx;
-        for (const c of this.dashCoins) c.x -= moveDx;
-
-        // Cull passed entities & generate ahead
-        this.dashPlatforms = this.dashPlatforms.filter((p) => p.x + p.w > -120);
-        this.dashObstacles = this.dashObstacles.filter((o) => !o.smashed && o.x + o.size > -80);
-        this.dashCoins = this.dashCoins.filter((c) => !c.collected && c.x + c.size > -80);
-        while (this.dashSpawnEdgeX < this.width + 480) {
-            this.spawnNextDashSegment();
+        if (res.xpEarned > 0) {
+            const isCompact = this.width < 640;
+            const xpX = this.width - (isCompact ? 74 : 108);
+            const xpY = (isCompact ? 40 : 52) + Math.min(3, this.popups.length) * 24;
+            this.awardXp(res.xpEarned, xpX, xpY, res.xpLabel, res.xpColor || LIME);
         }
-
-        // Mascot vertical physics
-        const prevBottom = this.mascotY + this.mascotSize;
-        const gravity = this.mascotSlamming ? 3200 : 1720;
-        this.mascotVy += gravity * dtSec;
-        this.mascotY += this.mascotVy * dtSec;
-        this.mascotOnGround = false;
-
-        // Smooth squash-and-stretch recovery
-        this.mascotSquashX += (1 - this.mascotSquashX) * Math.min(1, dtSec * 14);
-        this.mascotSquashY += (1 - this.mascotSquashY) * Math.min(1, dtSec * 14);
-
-        // One-way platform landing collision
-        const mLeft = this.mascotX + 4;
-        const mRight = this.mascotX + this.mascotSize - 4;
-        const mBottom = this.mascotY + this.mascotSize;
-
-        if (this.mascotVy >= 0) {
-            for (const p of this.dashPlatforms) {
-                if (mRight > p.x && mLeft < p.x + p.w) {
-                    if (prevBottom <= p.y + 10 && mBottom >= p.y) {
-                        this.mascotY = p.y - this.mascotSize;
-                        const wasSlamming = this.mascotSlamming;
-                        this.mascotVy = 0;
-                        this.mascotOnGround = true;
-                        this.mascotJumpsLeft = 2;
-                        this.mascotSlamming = false;
-
-                        if (wasSlamming) {
-                            this.mascotSquashX = 1.32;
-                            this.mascotSquashY = 0.72;
-                            this.triggerShake(90, 4);
-                            this.spawnParticles(this.mascotX + this.mascotSize / 2, p.y, WHITE, 8);
-                        } else if (prevBottom < p.y - 2) {
-                            this.mascotSquashX = 1.18;
-                            this.mascotSquashY = 0.84;
-                        }
-
-                        // Check spring launch strip
-                        if (p.hasSpring) {
-                            const sx = p.x + p.springX;
-                            if (mRight >= sx && mLeft <= sx + 44) {
-                                this.mascotVy = -820;
-                                this.mascotOnGround = false;
-                                this.mascotJumpsLeft = 2;
-                                this.mascotSquashX = 0.7;
-                                this.mascotSquashY = 1.38;
-                                bentoArcadeAudio.playSpring();
-                                this.spawnParticles(sx + 22, p.y, LIME, 10);
-                                this.awardXp(15, sx + 22, p.y - 16, 'BOOST', LIME);
-                            }
-                        }
-                        break;
-                    }
-                }
-            }
+        if (res.shakeMs > 0) {
+            this.triggerShake(res.shakeMs, res.shakeMag);
         }
-
-        // Coin & Shield pickups
-        const mCx = this.mascotX + this.mascotSize / 2;
-        const mCy = this.mascotY + this.mascotSize / 2;
-        for (const c of this.dashCoins) {
-            if (c.collected) continue;
-            const dx = mCx - c.x;
-            const dy = mCy - c.y;
-            const hitR = this.mascotSize * 0.56 + c.size * 0.52;
-            if (dx * dx + dy * dy <= hitR * hitR) {
-                c.collected = true;
-                if (c.kind === 'shield') {
-                    this.dashHasShield = true;
-                    bentoArcadeAudio.playPowerup();
-                    this.popups.push({ x: c.x, y: c.y - 10, text: 'SHIELD!', bg: SKY, life: 0, maxLife: 900 });
-                    this.spawnParticles(c.x, c.y, SKY, 10);
-                } else {
-                    this.dashCoinsCollected += 1;
-                    this.comboCount += 1;
-                    this.comboTimerMs = 2600;
-                    const mult = this.getComboMultiplier(this.comboCount);
-                    this.score += Math.round(35 * mult);
-                    bentoArcadeAudio.playCoin(this.comboCount);
-                    this.awardXp(
-                        Math.round(12 * mult),
-                        c.x,
-                        c.y - 8,
-                        mult > 1 ? `×${mult}` : undefined,
-                        YELLOW
-                    );
-                    this.spawnParticles(c.x, c.y, YELLOW, 6);
-                }
-            }
-        }
-
-        // Obstacle collisions (forgiving 5px inner hitbox so near-misses feel awesome!)
-        const hitPad = 6;
-        for (const o of this.dashObstacles) {
-            if (o.smashed) continue;
-            const hit =
-                this.mascotX + this.mascotSize - hitPad > o.x + 3 &&
-                this.mascotX + hitPad < o.x + o.size - 3 &&
-                this.mascotY + this.mascotSize - hitPad > o.y + 3 &&
-                this.mascotY + hitPad < o.y + o.size - 3;
-
-            if (hit) {
-                if (this.dashHasShield || this.mascotSlamming) {
-                    o.smashed = true;
-                    if (!this.mascotSlamming) {
-                        this.dashHasShield = false;
-                    } else {
-                        // Slamming directly onto an obstacle bounces you up heroically!
-                        this.mascotVy = -520;
-                        this.mascotSlamming = false;
-                        this.mascotJumpsLeft = 1;
-                    }
-                    bentoArcadeAudio.playShieldBreak();
-                    this.triggerShake(150, 6);
-                    this.spawnParticles(o.x + o.size / 2, o.y + o.size / 2, CORAL, 14);
-                    this.awardXp(35, o.x + o.size / 2, o.y, 'SMASHED!', CORAL_SOFT);
-                } else {
-                    this.triggerGameOver('obstacle');
-                    return;
-                }
-            }
-        }
-
-        // Fell below bottom edge -> Game Over
-        if (this.mascotY > this.height + 36) {
-            this.triggerGameOver('fall');
+        if (res.gameOver && res.deathReason) {
+            this.triggerGameOver(res.deathReason);
         }
     }
 
-    private triggerGameOver(reason: 'lives' | 'fall' | 'obstacle') {
+    private triggerGameOver(reason: 'lives' | 'fall' | 'obstacle' | 'enemy') {
         this.status = 'gameover';
         this.deathReason = reason;
         this.paddleMoveLeft = false;
@@ -1350,7 +1013,7 @@ export class BentoArcadeEngine {
 
         // 1. Exact Site Bento Paper Background (#f5f3ec + solid #000 r=1.25 dot matrix every 24px)
         const dotStep = 24;
-        const dotOffsetX = this.mode === 'dash' && this.status !== 'menu' ? -(this.dashScrollX % dotStep) : 0;
+        const dotOffsetX = 0;
         const dotOffsetY = -((this.canvasTopOffset % dotStep) + dotStep) % dotStep;
 
         if (this.dotPattern) {
@@ -1390,7 +1053,7 @@ export class BentoArcadeEngine {
         if (this.mode === 'smash') {
             this.renderSmashScene();
         } else {
-            this.renderDashScene(now);
+            this.renderDashScene();
         }
 
         this.renderParticlesAndPopups();
@@ -1537,125 +1200,8 @@ export class BentoArcadeEngine {
         ctx.restore();
     }
 
-    private renderDashScene(now: number) {
-        const ctx = this.ctx;
-
-        // Floating Bento Card Platforms
-        for (const p of this.dashPlatforms) {
-            drawBrutalBox(ctx, p.x, p.y, p.w, p.h, 8, p.color, 5, 3);
-
-            // Subtle Bento card header dots on wider cards
-            if (p.w >= 160) {
-                ctx.fillStyle = 'rgba(0,0,0,0.22)';
-                ctx.fillRect(p.x + 12, p.y + 9, 6, 6);
-                ctx.fillRect(p.x + 22, p.y + 9, 20, 6);
-            }
-
-            // Lime spring jump strip
-            if (p.hasSpring) {
-                const sx = p.x + p.springX;
-                drawBrutalBox(ctx, sx, p.y - 7, 44, 10, 4, LIME, 2, 2);
-            }
-        }
-
-        // XP Coins & Shield Stickers
-        for (const c of this.dashCoins) {
-            if (c.collected) continue;
-            const bob = Math.sin(now * 0.006 + c.id) * 4;
-            const cy = c.y + bob;
-            if (c.kind === 'shield') {
-                drawBrutalBox(ctx, c.x - c.size / 2, cy - c.size / 2, c.size, c.size, 6, SKY, 3, 2.5);
-                ctx.fillStyle = INK_BLACK;
-                ctx.font = '900 11px ui-monospace, SFMono-Regular, Menlo, monospace';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText('S', c.x, cy + 0.5);
-            } else {
-                const w = c.size * 0.78;
-                const h = c.size * 1.05;
-                drawBrutalBox(ctx, c.x - w / 2, cy - h / 2, w, h, 4, YELLOW, 3, 2.5);
-            }
-        }
-
-        // Coral '!' Alert Obstacles
-        for (const o of this.dashObstacles) {
-            if (o.smashed) continue;
-            const bob = o.aerial ? Math.sin(now * 0.008 + o.id) * 5 : 0;
-            const oy = o.y + bob;
-            drawBrutalBox(ctx, o.x, oy, o.size, o.size, 7, CORAL, 4, 3);
-            ctx.fillStyle = INK_BLACK;
-            ctx.font = `900 ${Math.round(o.size * 0.62)}px Inter, system-ui, sans-serif`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('!', o.x + o.size / 2, oy + o.size / 2 + 1);
-        }
-
-        // Expressive Lime Square Mascot (Straight from Vision Board!)
-        const s = this.mascotSize;
-        const drawW = s * this.mascotSquashX;
-        const drawH = s * this.mascotSquashY;
-        const drawX = this.mascotX + (s - drawW) / 2;
-        const drawY = this.mascotY + (s - drawH);
-
-        // Speed motion lines behind mascot
-        ctx.strokeStyle = INK_BLACK;
-        ctx.lineWidth = 2.5;
-        ctx.lineCap = 'round';
-        const lineJitter = Math.sin(now * 0.02) * 3;
-        ctx.beginPath();
-        ctx.moveTo(drawX - 10, drawY + drawH * 0.35);
-        ctx.lineTo(drawX - 28 - lineJitter, drawY + drawH * 0.35);
-        ctx.moveTo(drawX - 8, drawY + drawH * 0.62);
-        ctx.lineTo(drawX - 22 + lineJitter, drawY + drawH * 0.62);
-        ctx.stroke();
-
-        // Shield halo frame if active
-        if (this.dashHasShield) {
-            drawRoundedRectPath(ctx, drawX - 6, drawY - 6, drawW + 12, drawH + 12, 12);
-            ctx.strokeStyle = SKY;
-            ctx.lineWidth = 4;
-            ctx.stroke();
-            ctx.strokeStyle = INK_BLACK;
-            ctx.lineWidth = 1.5;
-            ctx.stroke();
-        }
-
-        // Animated blocky little legs!
-        const legPhase = this.mascotOnGround ? Math.sin(now * 0.022) : 0.7;
-        ctx.strokeStyle = INK_BLACK;
-        ctx.lineWidth = 3.5;
-        ctx.lineCap = 'round';
-        const hipY = drawY + drawH - 1;
-        // Back leg
-        ctx.beginPath();
-        ctx.moveTo(drawX + drawW * 0.34, hipY);
-        ctx.lineTo(drawX + drawW * 0.34 - legPhase * 8, hipY + 9);
-        ctx.stroke();
-        // Front leg
-        ctx.beginPath();
-        ctx.moveTo(drawX + drawW * 0.68, hipY);
-        ctx.lineTo(drawX + drawW * 0.68 + legPhase * 8, hipY + 9);
-        ctx.stroke();
-
-        // Mascot tilted slightly forward when mid-air!
-        ctx.save();
-        const cx = drawX + drawW / 2;
-        const cy = drawY + drawH / 2;
-        ctx.translate(cx, cy);
-        const tilt = this.mascotOnGround ? 0 : Math.max(-0.22, Math.min(0.24, this.mascotVy * 0.00032));
-        ctx.rotate(tilt);
-
-        drawBrutalBox(ctx, -drawW / 2, -drawH / 2, drawW, drawH, 7, LIME, 4, 3);
-
-        // Crisp dot eyes tracking movement
-        const eyeOffsetY = this.mascotVy < -120 ? -3 : this.mascotVy > 220 ? 3 : 0;
-        ctx.fillStyle = INK_BLACK;
-        ctx.beginPath();
-        ctx.arc(drawW * 0.08, -2 + eyeOffsetY, 3, 0, Math.PI * 2);
-        ctx.arc(drawW * 0.28, -2 + eyeOffsetY, 3, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.restore();
+    private renderDashScene() {
+        this.dash3d.render(this.ctx, this.width, this.height);
     }
 
     private renderParticlesAndPopups() {
@@ -1686,11 +1232,12 @@ export class BentoArcadeEngine {
             const tw = ctx.measureText(pop.text).width;
             const bw = tw + 14;
             const bh = 20;
-            drawBrutalBox(ctx, pop.x - bw / 2, pop.y - bh / 2, bw, bh, 6, pop.bg, 2, 2);
+            const clampedX = Math.max(bw / 2 + 10, Math.min(this.width - bw / 2 - 10, pop.x));
+            drawBrutalBox(ctx, clampedX - bw / 2, pop.y - bh / 2, bw, bh, 6, pop.bg, 2, 2);
             ctx.fillStyle = INK_BLACK;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText(pop.text, pop.x, pop.y + 0.5);
+            ctx.fillText(pop.text, clampedX, pop.y + 0.5);
             ctx.restore();
         }
     }

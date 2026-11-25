@@ -21,10 +21,13 @@ import {
   Brain,
   XCircle,
   RefreshCw,
-  HelpCircle
+  HelpCircle,
+  MessageCircle
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
+import { useChat } from '../../context/ChatContext';
+import { BuddyAvatar } from '../buddy/BuddyAvatar';
 import { BoltSvg, FlameSvg, SparkleSvg, TargetSvg } from '../common/BrandIcons';
 
 interface AnalyticsPanelProps {
@@ -108,6 +111,7 @@ interface AiPracticeQuestion {
 
 interface AiMistakeAnalysisResponse {
   generatedByAi: boolean;
+  buddyQuip?: string;
   executiveSummary: string;
   topicsToStudy: AiTopicToStudy[];
   mistakeBreakdowns: AiMistakeBreakdown[];
@@ -135,6 +139,7 @@ const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({ user }) => {
   const [remedialAnswers, setRemedialAnswers] = useState<Record<string, number>>({});
   const navigate = useNavigate();
   const { isBento } = useTheme();
+  const { openBuddyChat } = useChat();
 
   const runAiAnalysis = useCallback(async () => {
     try {
@@ -445,13 +450,18 @@ const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({ user }) => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-black/15 dark:border-white/10">
           <div className="flex items-center gap-3">
             <div
-              className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 ${
+              className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 overflow-hidden ${
                 isBento
                   ? 'bg-[#fdba74] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                  : 'bg-teal-500/20 text-teal-600 dark:text-teal-400'
+                  : 'bg-teal-500/20 border border-teal-500/30'
               }`}
             >
-              <Brain className="w-6 h-6" />
+              <BuddyAvatar
+                avatar={user.avatar}
+                moodOverride={isAiLoading ? 'cool' : avgScore >= 80 ? 'excited' : avgScore >= 60 ? 'happy' : 'neutral'}
+                size="sm"
+                animated
+              />
             </div>
             <div>
               <div className="flex flex-wrap items-center gap-2">
@@ -503,21 +513,52 @@ const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({ user }) => {
               : 'bg-indigo-500/10 dark:bg-indigo-500/15 border border-indigo-500/25 text-slate-900 dark:text-white'
           }`}
         >
-          <div className="flex items-start gap-3">
-            <Sparkles className="w-5 h-5 shrink-0 mt-0.5 text-indigo-700 dark:text-indigo-400" />
-            <div>
-              <span className="text-[10px] font-black uppercase tracking-wider block mb-1 opacity-75">
-                AI Executive Learning Diagnosis
-              </span>
-              <p className="text-xs sm:text-sm font-bold leading-relaxed">
-                {isAiLoading
-                  ? 'Scanning your quiz attempts, wrong answer choices, and topic accuracy to build your personalized study diagnosis...'
-                  : aiAnalysis?.executiveSummary ||
-                    (rawWrongAnswers.length > 0
-                      ? `You have ${rawWrongAnswers.length} recent missed questions across ${rawWeakTopics.length} topics. Review the topic study roadmap and mistake breakdowns below to turn your weak spots into 100% mastery.`
-                      : 'Complete a quiz to unlock personalized AI mistake analysis and topic recommendations!')}
-              </p>
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+            <div className="flex items-start gap-3">
+              <Sparkles className="w-5 h-5 shrink-0 mt-0.5 text-indigo-700 dark:text-indigo-400" />
+              <div>
+                <span className="text-[10px] font-black uppercase tracking-wider block mb-1 opacity-75">
+                  AI Executive Learning Diagnosis
+                </span>
+                {aiAnalysis?.buddyQuip && !isAiLoading && (
+                  <p className={`text-xs font-black mb-1.5 px-2.5 py-1 rounded-xl inline-block ${
+                    isBento
+                      ? 'bg-white text-black border border-black'
+                      : 'bg-[#141210]/80 text-[#bef264] border border-[#bef264]/30'
+                  }`}>
+                    💬 &ldquo;{aiAnalysis.buddyQuip}&rdquo;
+                  </p>
+                )}
+                <p className="text-xs sm:text-sm font-bold leading-relaxed">
+                  {isAiLoading
+                    ? 'Scanning your quiz attempts, wrong answer choices, and topic accuracy to build your personalized study diagnosis...'
+                    : aiAnalysis?.executiveSummary ||
+                      (rawWrongAnswers.length > 0
+                        ? `You have ${rawWrongAnswers.length} recent missed questions across ${rawWeakTopics.length} topics. Review the topic study roadmap and mistake breakdowns below to turn your weak spots into 100% mastery.`
+                        : 'Complete a quiz to unlock personalized AI mistake analysis and topic recommendations!')}
+                </p>
+              </div>
             </div>
+            <button
+              type="button"
+              onClick={() => {
+                const weakList = displayedTopicsToStudy.slice(0, 3).map((t) => t.topic).join(', ');
+                openBuddyChat(
+                  weakList
+                    ? `Build me a focused study plan for my weak topics: ${weakList}. My current accuracy is ${avgScore}%.`
+                    : `Build me a study plan to level up from my current ${avgScore}% accuracy!`,
+                  { returnToLabel: 'Analytics' }
+                );
+              }}
+              className={`self-start shrink-0 px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider inline-flex items-center gap-1.5 transition-all cursor-pointer ${
+                isBento
+                  ? 'bg-[#bef264] hover:bg-[#a3e635] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                  : 'bg-[#bef264] hover:bg-[#d2fa8a] text-[#0a0908]'
+              }`}
+            >
+              <MessageCircle className="w-3.5 h-3.5" />
+              <span>Build Study Plan with Buddy</span>
+            </button>
           </div>
         </div>
 

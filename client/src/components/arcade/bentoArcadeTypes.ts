@@ -2,6 +2,8 @@ export type BentoGameMode = 'smash' | 'dash';
 
 export type BentoPowerupKind = 'xp' | 'wide' | 'multi' | 'heavy';
 
+export type DashItemKind = 'magnet' | 'shield' | 'rocket' | 'shockwave' | 'slowmo';
+
 export interface BentoHudSnapshot {
     mode: BentoGameMode;
     status: 'menu' | 'playing' | 'paused' | 'gameover';
@@ -21,16 +23,27 @@ export interface BentoHudSnapshot {
         wideSec: number;
         heavySec: number;
     };
-    // Dash-specific
+    // Dash 3D-specific
     distanceMeters: number;
     coinsCollected: number;
     hasShield: boolean;
     speedMultiplier: number;
+    gravityInverted: boolean;
+    ultCharge: number;
+    ultActiveSec: number;
+    inventoryItems: DashItemKind[];
+    activeDashBuffs: {
+        magnetSec: number;
+        rocketSec: number;
+        slowmoSec: number;
+    };
+    enemiesDefeated: number;
+    nearMissCount: number;
     // Shared combo / notices
     comboCount: number;
     comboMultiplier: number;
     levelUpNotice: { level: number; timestamp: number } | null;
-    deathReason: 'lives' | 'fall' | 'obstacle' | null;
+    deathReason: 'lives' | 'fall' | 'obstacle' | 'enemy' | null;
     pauseReason: 'manual' | 'resize' | 'blur' | null;
 }
 
@@ -54,7 +67,7 @@ export interface BentoRunSummary {
     runLevel: number;
     runXpEarned: number;
     isNewBest: boolean;
-    deathReason: 'lives' | 'fall' | 'obstacle' | null;
+    deathReason: 'lives' | 'fall' | 'obstacle' | 'enemy' | null;
 }
 
 export const BENTO_ARCADE_PROFILE_KEY = 'bento_arcade_profile_v1';

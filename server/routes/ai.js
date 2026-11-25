@@ -1,9 +1,10 @@
 import express from 'express';
+import rateLimit from 'express-rate-limit';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import os from 'os';
-import { generateQuiz, aiHealth, getAICoachHint, translateQuestionContent, getDailyQuote } from '../controllers/aiController.js';
+import { generateQuiz, aiHealth, getAICoachHint, translateQuestionContent, getDailyQuote, chatWithStudyBuddy } from '../controllers/aiController.js';
 import { refineExistingJson } from '../controllers/aiJsonRefinerController.js';
 import { verifyUser, verifyAdmin, verifyTeacher } from '../middleware/authMiddleware.js';
 
@@ -52,8 +53,24 @@ router.post('/generate', verifyUser, verifyAdmin, upload.fields([
 // AI JSON Refiner Studio (Staff: Teachers & Admins)
 router.post('/refine-json', verifyUser, verifyTeacher, upload.single('sourceFile'), refineExistingJson);
 
+const buddyChatLimiter = rateLimit({
+    windowMs: 10 * 60 * 1000,
+    max: 20,
+    keyGenerator: (req) => req.user?.userId || 'anon',
+    standardHeaders: true,
+    legacyHeaders: false,
+    validate: { xForwardedForHeader: false, keyGeneratorIpFallback: false },
+    message: {
+        success: false,
+        message: 'Too many Study Buddy messages. Take a quick breather and try again in a few minutes!',
+    },
+});
+
 // Socratic AI Study Coach Hint
 router.post('/coach-hint', verifyUser, getAICoachHint);
+
+// Hardened AI Study Buddy Chat
+router.post('/buddy-chat', verifyUser, buddyChatLimiter, chatWithStudyBuddy);
 
 // Real-time Question & Options Translation
 router.post('/translate', verifyUser, translateQuestionContent);

@@ -2,8 +2,11 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom';
 import {
     ArrowDown,
+    ArrowLeft,
+    ArrowRight,
     ArrowUp,
     Blocks,
+    FlipVertical,
     Footprints,
     Heart,
     Pause,
@@ -14,7 +17,8 @@ import {
     Trophy,
     Volume2,
     VolumeX,
-    X
+    X,
+    Zap
 } from 'lucide-react';
 import { useSecretGame } from '../../context/SecretGameContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -29,8 +33,17 @@ import {
     type BentoArcadeProfile,
     type BentoGameMode,
     type BentoHudSnapshot,
-    type BentoRunSummary
+    type BentoRunSummary,
+    type DashItemKind
 } from './bentoArcadeTypes';
+
+const ITEM_META: Record<DashItemKind, { emoji: string; label: string; bg: string }> = {
+    magnet: { emoji: '🧲', label: 'MAGNET', bg: 'bg-[#fde047]' },
+    shield: { emoji: '🛡️', label: 'SHIELD', bg: 'bg-[#bae6fd]' },
+    rocket: { emoji: '🚀', label: 'ROCKET', bg: 'bg-[#fed7aa]' },
+    shockwave: { emoji: '⚡', label: 'PULSE', bg: 'bg-[#bef264]' },
+    slowmo: { emoji: '⏱️', label: 'SLOW-MO', bg: 'bg-[#e9d5ff]' },
+};
 
 const INITIAL_HUD: BentoHudSnapshot = {
     mode: 'smash',
@@ -50,6 +63,13 @@ const INITIAL_HUD: BentoHudSnapshot = {
     coinsCollected: 0,
     hasShield: false,
     speedMultiplier: 1,
+    gravityInverted: false,
+    ultCharge: 0,
+    ultActiveSec: 0,
+    inventoryItems: [],
+    activeDashBuffs: { magnetSec: 0, rocketSec: 0, slowmoSec: 0 },
+    enemiesDefeated: 0,
+    nearMissCount: 0,
     comboCount: 0,
     comboMultiplier: 1,
     levelUpNotice: null,
@@ -83,7 +103,7 @@ export const BentoArcadeOverlay: React.FC = () => {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const engineRef = useRef<BentoArcadeEngine | null>(null);
     const keysRef = useRef<{ left: boolean; right: boolean }>({ left: false, right: false });
-    const touchStartYRef = useRef<number | null>(null);
+    const touchStartRef = useRef<{ x: number; y: number } | null>(null);
     const lastBannerLevelRef = useRef<number>(1);
     const bannerTimerRef = useRef<number | null>(null);
     const profileRef = useRef<BentoArcadeProfile>(profile);
@@ -218,11 +238,19 @@ export const BentoArcadeOverlay: React.FC = () => {
             if (width <= 0 || height <= 0) return;
             const coarse = window.matchMedia('(pointer: coarse)').matches || width < 768;
             setIsTouchViewport(coarse);
-            const controlInset = coarse ? 84 : 0;
+            const controlInset = coarse ? 96 : 0;
             engineRef.current.resize(width, height, controlInset);
         };
 
         syncSize();
+        try {
+            const savedMode = sessionStorage.getItem('fr_bento_arcade_mode');
+            if (savedMode === 'dash' || savedMode === 'smash') {
+                engine.startRun(savedMode);
+            }
+        } catch {
+            // ignore storage errors
+        }
         const ro = new ResizeObserver(syncSize);
         ro.observe(stage);
 
@@ -240,7 +268,16 @@ export const BentoArcadeOverlay: React.FC = () => {
         };
     }, []);
 
+    useEffect(() => {
+        engineRef.current?.setAvatarConfig(currentUser?.avatar);
+    }, [currentUser?.avatar]);
+
     const startMode = useCallback((mode: BentoGameMode) => {
+        try {
+            sessionStorage.setItem('fr_bento_arcade_mode', mode);
+        } catch {
+            // ignore storage errors
+        }
         lastBannerLevelRef.current = 1;
         setShowLevelBanner(null);
         setSummary(null);
@@ -249,6 +286,11 @@ export const BentoArcadeOverlay: React.FC = () => {
     }, []);
 
     const returnToMenu = useCallback(() => {
+        try {
+            sessionStorage.setItem('fr_bento_arcade_mode', 'menu');
+        } catch {
+            // ignore storage errors
+        }
         lastBannerLevelRef.current = 1;
         setShowLevelBanner(null);
         setSummary(null);
@@ -293,6 +335,16 @@ export const BentoArcadeOverlay: React.FC = () => {
             }
 
             if (hud.status === 'playing' && hud.mode === 'dash') {
+                if (key === 'ArrowLeft' || key === 'a' || key === 'A') {
+                    e.preventDefault();
+                    if (!e.repeat) engine.triggerDashLane(-1);
+                    return;
+                }
+                if (key === 'ArrowRight' || key === 'd' || key === 'D') {
+                    e.preventDefault();
+                    if (!e.repeat) engine.triggerDashLane(1);
+                    return;
+                }
                 if (key === ' ' || key === 'ArrowUp' || key === 'w' || key === 'W') {
                     e.preventDefault();
                     if (!e.repeat) engine.triggerDashJump();
@@ -300,7 +352,27 @@ export const BentoArcadeOverlay: React.FC = () => {
                 }
                 if (key === 'ArrowDown' || key === 's' || key === 'S') {
                     e.preventDefault();
-                    engine.triggerDashSlam();
+                    if (!e.repeat) engine.triggerDashSlam();
+                    return;
+                }
+                if (key === 'f' || key === 'F' || key === 'Shift') {
+                    e.preventDefault();
+                    if (!e.repeat) engine.triggerDashGravityFlip();
+                    return;
+                }
+                if (key === 'e' || key === 'E' || key === '1') {
+                    e.preventDefault();
+                    if (!e.repeat) engine.triggerDashUseItem(0);
+                    return;
+                }
+                if (key === '2') {
+                    e.preventDefault();
+                    if (!e.repeat) engine.triggerDashUseItem(1);
+                    return;
+                }
+                if (key === 'q' || key === 'Q' || key === 'r' || key === 'R') {
+                    e.preventDefault();
+                    if (!e.repeat) engine.triggerDashUlt();
                     return;
                 }
             }
@@ -345,9 +417,29 @@ export const BentoArcadeOverlay: React.FC = () => {
         };
     }, [hud.status, hud.mode, startMode, exitSecretGame]);
 
+    const processDashSwipeDelta = (dx: number, dy: number) => {
+        const threshold = isTouchViewport ? 22 : 34;
+        if (Math.abs(dx) > threshold && Math.abs(dx) > Math.abs(dy)) {
+            engineRef.current?.triggerDashLane(dx > 0 ? 1 : -1);
+            touchStartRef.current = null;
+        } else if (dy < -threshold) {
+            engineRef.current?.triggerDashJump();
+            touchStartRef.current = null;
+        } else if (dy > threshold) {
+            engineRef.current?.triggerDashSlam();
+            touchStartRef.current = null;
+        }
+    };
+
     // Pointer/Touch interaction on canvas
     const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-        if (hud.status !== 'playing' || hud.mode !== 'smash') return;
+        if (hud.status !== 'playing') return;
+        if (hud.mode === 'dash') {
+            if (touchStartRef.current) {
+                processDashSwipeDelta(e.clientX - touchStartRef.current.x, e.clientY - touchStartRef.current.y);
+            }
+            return;
+        }
         const rect = stageRef.current?.getBoundingClientRect();
         if (!rect || rect.width <= 0) return;
         const stageW = stageRef.current?.clientWidth || rect.width;
@@ -373,8 +465,17 @@ export const BentoArcadeOverlay: React.FC = () => {
                 engineRef.current?.launchSmashBall();
             }
         } else if (hud.mode === 'dash') {
-            touchStartYRef.current = e.clientY;
-            engineRef.current?.triggerDashJump();
+            touchStartRef.current = { x: e.clientX, y: e.clientY };
+        }
+    };
+
+    const handlePointerEnd = () => {
+        touchStartRef.current = null;
+    };
+
+    const handleTouchStartStage = (e: React.TouchEvent<HTMLDivElement>) => {
+        if (hud.status === 'playing' && hud.mode === 'dash' && e.touches.length > 0) {
+            touchStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
         }
     };
 
@@ -388,12 +489,11 @@ export const BentoArcadeOverlay: React.FC = () => {
             engineRef.current?.setPaddlePointerX(localX);
             return;
         }
-        if (hud.mode === 'dash' && touchStartYRef.current !== null) {
-            const dy = e.touches[0].clientY - touchStartYRef.current;
-            if (dy > 38) {
-                engineRef.current?.triggerDashSlam();
-                touchStartYRef.current = null;
-            }
+        if (hud.mode === 'dash' && touchStartRef.current !== null) {
+            processDashSwipeDelta(
+                e.touches[0].clientX - touchStartRef.current.x,
+                e.touches[0].clientY - touchStartRef.current.y
+            );
         }
     };
 
@@ -420,9 +520,11 @@ export const BentoArcadeOverlay: React.FC = () => {
     const deathLabel =
         summary?.deathReason === 'lives'
             ? tx('Out of Balls!', 'انتهت جميع الكرات!')
-            : summary?.deathReason === 'obstacle'
-                ? tx('Hit a Warning Block (!)', 'اصطدمت بمكعب تحذير (!)')
-                : tx('Fell Off the Bento Cards!', 'سقطت من فوق البطاقات!');
+            : summary?.deathReason === 'enemy'
+                ? tx('Smashed by an Enemy Drone!', 'اصطدمت بعدو على المسار!')
+                : summary?.deathReason === 'obstacle'
+                    ? tx('Hit a Warning Barrier (!)', 'اصطدمت بحاجز تحذير (!)')
+                    : tx('Fell Off the 3D Track!', 'سقطت من المسار ثلاثي الأبعاد!');
 
     return createPortal(
         <div
@@ -545,6 +647,14 @@ export const BentoArcadeOverlay: React.FC = () => {
                                             <Shield className="w-3 h-3" /> ON
                                         </span>
                                     )}
+                                    <span
+                                        className={`px-1.5 py-0.5 rounded border-2 border-black text-[9px] font-black inline-flex items-center gap-0.5 ${
+                                            hud.gravityInverted ? 'bg-[#e9d5ff]' : 'bg-white'
+                                        }`}
+                                    >
+                                        <FlipVertical className="w-3 h-3" />
+                                        {hud.gravityInverted ? 'INVERT 1.5×' : 'FLOOR'}
+                                    </span>
                                 </>
                             )}
 
@@ -659,6 +769,12 @@ export const BentoArcadeOverlay: React.FC = () => {
                                             <Shield className="w-2.5 h-2.5" />
                                         </span>
                                     )}
+                                    {hud.gravityInverted && (
+                                        <span className="px-1 py-0.5 rounded bg-[#e9d5ff] border border-black text-[8px] font-black inline-flex items-center gap-0.5 shrink-0">
+                                            <FlipVertical className="w-2.5 h-2.5" />
+                                            1.5×
+                                        </span>
+                                    )}
                                 </>
                             )}
 
@@ -691,17 +807,27 @@ export const BentoArcadeOverlay: React.FC = () => {
                 dir="ltr"
                 onPointerMove={handlePointerMove}
                 onPointerDown={handlePointerDown}
+                onPointerUp={handlePointerEnd}
+                onPointerCancel={handlePointerEnd}
+                onTouchStart={handleTouchStartStage}
                 onTouchMove={handleTouchMoveStage}
-                className="relative flex-1 min-h-0 w-full overflow-hidden touch-none"
+                onTouchEnd={handlePointerEnd}
+                className={`relative flex-1 min-h-0 w-full overflow-hidden ${
+                    hud.status === 'playing' ? 'touch-none' : 'touch-pan-y'
+                }`}
             >
                 <canvas ref={canvasRef} className="block w-full h-full" />
 
-                {/* Floating Level-Up Sticker Toast */}
+                {/* Floating Level-Up Sticker Toast (moved off center track in Dash 3D) */}
                 {showLevelBanner !== null && hud.status === 'playing' && (
-                    <div className="pointer-events-none absolute top-4 left-1/2 -translate-x-1/2 z-20 animate-in zoom-in-95 duration-200">
-                        <div className="px-4 py-1.5 rounded-xl bg-[#fde047] border-[3px] border-black shadow-[4px_4px_0px_#000] flex items-center gap-2">
-                            <Sparkles className="w-4 h-4 stroke-[2.5]" />
-                            <span className="font-black text-xs sm:text-sm uppercase tracking-wider">
+                    <div
+                        className={`pointer-events-none absolute top-3 z-20 animate-in zoom-in-95 duration-200 ${
+                            hud.mode === 'dash' ? 'end-3 sm:end-5' : 'left-1/2 -translate-x-1/2'
+                        }`}
+                    >
+                        <div className="px-3.5 py-1 rounded-xl bg-[#fde047] border-[3px] border-black shadow-[4px_4px_0px_#000] flex items-center gap-1.5">
+                            <Sparkles className="w-3.5 h-3.5 stroke-[2.5]" />
+                            <span className="font-black text-[11px] sm:text-xs uppercase tracking-wider">
                                 {tx(`LEVEL UP! LV.${showLevelBanner}`, `ترقية! مستوى ${showLevelBanner}`)}
                             </span>
                         </div>
@@ -721,7 +847,7 @@ export const BentoArcadeOverlay: React.FC = () => {
 
                 {/* MODE SELECTION OVERLAY */}
                 {hud.status === 'menu' && (
-                    <div dir="auto" className="absolute inset-0 z-20 flex items-start sm:items-center justify-center p-3 sm:p-5 overflow-y-auto">
+                    <div dir="auto" className="absolute inset-0 z-20 flex items-start sm:items-center justify-center p-2.5 sm:p-5 overflow-y-auto touch-pan-y overscroll-contain">
                         <div
                             className={`w-full max-w-3xl bg-white border-[3px] border-black rounded-2xl p-4 sm:p-5 shadow-[8px_8px_0px_#000] my-auto will-change-[opacity,transform] transition-[opacity,transform] duration-[720ms] ease-[cubic-bezier(0.22,0.86,0.24,1)] ${
                                 isRevealed
@@ -820,13 +946,13 @@ export const BentoArcadeOverlay: React.FC = () => {
                                         {/* Gameplay Preview Image */}
                                         <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden border-2 border-black shadow-[3px_3px_0px_#000] bg-[#f5f3ec] mb-3">
                                             <img
-                                                src="/images/arcade/paper-dash.jpg"
-                                                alt={tx('Paper Dash gameplay preview', 'معاينة لعبة الجري والقفز')}
+                                                src="/images/arcade/paper-dash-3d.jpg?v=3"
+                                                alt={tx('Paper Dash 3D gameplay preview', 'معاينة لعبة الجري ثلاثي الأبعاد')}
                                                 className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
                                                 loading="eager"
                                             />
-                                            <span className="absolute top-2 end-2 px-2 py-0.5 rounded-full bg-[#fde047] border-2 border-black shadow-[1.5px_1.5px_0px_#000] text-[9px] font-black uppercase">
-                                                {tx('CARD RUNNER', 'جري وقفز')}
+                                            <span className="absolute top-2 end-2 px-2 py-0.5 rounded-full bg-[#bef264] border-2 border-black shadow-[1.5px_1.5px_0px_#000] text-[9px] font-black uppercase">
+                                                {tx('3D GRAVITY RUNNER', 'جري ثلاثي الأبعاد')}
                                             </span>
                                         </div>
 
@@ -835,13 +961,13 @@ export const BentoArcadeOverlay: React.FC = () => {
                                                 <Footprints className="w-3.5 h-3.5 stroke-[2.5]" />
                                             </div>
                                             <h3 className="text-base sm:text-lg font-black tracking-tight">
-                                                PAPER DASH
+                                                PAPER DASH 3D
                                             </h3>
                                         </div>
                                         <p className="text-xs font-semibold text-black/75 leading-relaxed">
                                             {tx(
-                                                'Leap across floating Bento cards with double-jump & fast-slam, dodge coral "!" warning blocks, grab shields, and collect yellow XP coin arcs.',
-                                                'اقفز فوق بطاقات البينتو الطائرة مع القفز المزدوج والهبوط السريع، تفادى مكعبات التحذير (!)، والتقط الدروع والعملات الذهبية.'
+                                                'Sprint in 3rd-person with your custom Avatar! Flip gravity onto upside-down tracks (1.5×), dodge enemies, use collected items, and unleash Overdrive ULT.',
+                                                'اجرِ بشخصيتك في منظور ثلاثي الأبعاد! اقلب الجاذبية للمسار المقلوب (1.5×)، تفادى الأعداء، استخدم الأدوات، وفجّر قدرة الـ ULT.'
                                             )}
                                         </p>
                                     </div>
@@ -861,14 +987,14 @@ export const BentoArcadeOverlay: React.FC = () => {
                             <div className="mt-4 pt-3 border-t-2 border-black/15 flex flex-wrap items-center justify-between gap-2 text-[11px] font-bold text-black/70">
                                 <div className="flex flex-wrap items-center gap-1.5">
                                     <span className="px-1.5 py-0.5 rounded bg-[#faf8f2] border border-black font-mono text-[10px]">
-                                        MOUSE / DRAG / A-D
+                                        {isTouchViewport ? 'DRAG / TAP' : 'MOUSE / DRAG / A-D'}
                                     </span>
                                     <span>Smash</span>
                                     <span>·</span>
                                     <span className="px-1.5 py-0.5 rounded bg-[#faf8f2] border border-black font-mono text-[10px]">
-                                        SPACE / TAP / ↓ SLAM
+                                        {isTouchViewport ? 'SWIPE / TAP · FLIP · ITEMS · ULT' : 'A/D · SPACE · F FLIP · E ITEM · Q ULT'}
                                     </span>
-                                    <span>Dash</span>
+                                    <span>Dash 3D</span>
                                 </div>
                                 <span className="font-mono text-[10px]">ESC = {tx('Pause / Exit', 'إيقاف / خروج')}</span>
                             </div>
@@ -878,7 +1004,7 @@ export const BentoArcadeOverlay: React.FC = () => {
 
                 {/* PAUSE MODAL */}
                 {hud.status === 'paused' && (
-                    <div dir="auto" className="absolute inset-0 z-20 flex items-center justify-center p-4 bg-black/35">
+                    <div dir="auto" className="absolute inset-0 z-20 flex items-center justify-center p-4 bg-black/35 overflow-y-auto touch-pan-y overscroll-contain">
                         <div className="w-full max-w-sm bg-white border-[3px] border-black rounded-2xl p-5 shadow-[7px_7px_0px_#000] text-center animate-in zoom-in-95 duration-200">
                             <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-[#fde047] border-2 border-black shadow-[3px_3px_0px_#000] flex items-center justify-center">
                                 <Pause className="w-5 h-5 stroke-[2.5]" />
@@ -932,7 +1058,7 @@ export const BentoArcadeOverlay: React.FC = () => {
 
                 {/* GAME OVER SUMMARY MODAL */}
                 {hud.status === 'gameover' && summary && (
-                    <div dir="auto" className="absolute inset-0 z-20 flex items-center justify-center p-4 bg-black/40 overflow-y-auto">
+                    <div dir="auto" className="absolute inset-0 z-20 flex items-center justify-center p-3 sm:p-4 bg-black/40 overflow-y-auto touch-pan-y overscroll-contain">
                         <div className="w-full max-w-md bg-white border-[3px] border-black rounded-2xl p-5 shadow-[8px_8px_0px_#000] my-auto animate-in zoom-in-95 duration-200">
                             <div className="flex items-start justify-between gap-2 mb-4">
                                 <div>
@@ -1038,39 +1164,211 @@ export const BentoArcadeOverlay: React.FC = () => {
                     </div>
                 )}
 
-                {/* MOBILE TACTILE CONTROLS FOR PAPER DASH (JUMP + SLAM) */}
-                {hud.status === 'playing' && hud.mode === 'dash' && isTouchViewport && (
-                    <div
-                        dir="ltr"
-                        className="absolute inset-x-0 bottom-0 z-20 px-3.5 pt-2 flex items-center justify-between gap-3 pointer-events-none"
-                        style={{ paddingBottom: 'max(10px, env(safe-area-inset-bottom))' }}
-                    >
-                        <button
-                            type="button"
-                            onPointerDown={(e) => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                engineRef.current?.triggerDashSlam();
-                            }}
-                            className="pointer-events-auto h-14 px-5 rounded-2xl bg-[#fed7aa] active:bg-[#fdba74] border-[3px] border-black shadow-[4px_4px_0px_#000] active:translate-y-0.5 font-black text-xs uppercase flex items-center gap-1.5 touch-manipulation"
-                        >
-                            <ArrowDown className="w-5 h-5 stroke-[3]" />
-                            <span>SLAM</span>
-                        </button>
+                {/* PAPER DASH 3D HUD: ACTIVE BUFFS, 2-SLOT ITEM BELT & ULT BAR */}
+                {hud.status === 'playing' && hud.mode === 'dash' && (
+                    <>
+                        {/* Active Buff Pills */}
+                        <div className="pointer-events-none absolute top-3 left-3 z-20 flex flex-wrap gap-1.5">
+                            {hud.ultActiveSec > 0 && (
+                                <span className="px-2.5 py-1 rounded-xl bg-[#bef264] border-2 border-black shadow-[2px_2px_0px_#000] text-[10px] font-black animate-pulse">
+                                    ⚡ NOVA 2× · {hud.ultActiveSec}s
+                                </span>
+                            )}
+                            {hud.activeDashBuffs.magnetSec > 0 && (
+                                <span className="px-2 py-1 rounded-xl bg-[#fde047] border-2 border-black shadow-[2px_2px_0px_#000] text-[10px] font-black">
+                                    🧲 {hud.activeDashBuffs.magnetSec}s
+                                </span>
+                            )}
+                            {hud.activeDashBuffs.rocketSec > 0 && (
+                                <span className="px-2 py-1 rounded-xl bg-[#fed7aa] border-2 border-black shadow-[2px_2px_0px_#000] text-[10px] font-black">
+                                    🚀 {hud.activeDashBuffs.rocketSec}s
+                                </span>
+                            )}
+                            {hud.activeDashBuffs.slowmoSec > 0 && (
+                                <span className="px-2 py-1 rounded-xl bg-[#e9d5ff] border-2 border-black shadow-[2px_2px_0px_#000] text-[10px] font-black">
+                                    ⏱️ {hud.activeDashBuffs.slowmoSec}s
+                                </span>
+                            )}
+                        </div>
 
-                        <button
-                            type="button"
-                            onPointerDown={(e) => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                engineRef.current?.triggerDashJump();
-                            }}
-                            className="pointer-events-auto flex-1 max-w-[200px] h-14 rounded-2xl bg-[#bef264] active:bg-[#a3e635] border-[3px] border-black shadow-[4px_4px_0px_#000] active:translate-y-0.5 font-black text-sm uppercase flex items-center justify-center gap-2 touch-manipulation"
+                        {/* Interactive Action Strip (Compact Single Row on Mobile, Full Stack on Desktop) */}
+                        <div
+                            dir="ltr"
+                            className={`absolute z-20 flex ${
+                                isTouchViewport
+                                    ? 'bottom-[62px] right-2.5 flex-row items-center gap-1.5'
+                                    : 'bottom-4 right-3 flex-col items-end gap-2'
+                            }`}
                         >
-                            <ArrowUp className="w-5 h-5 stroke-[3]" />
-                            <span>JUMP ×2</span>
-                        </button>
-                    </div>
+                            {/* 2-Slot Usable Item Belt */}
+                            <div className="flex items-center gap-1.5">
+                                {[0, 1].map((slot) => {
+                                    const item = hud.inventoryItems[slot];
+                                    const meta = item ? ITEM_META[item] : null;
+                                    return (
+                                        <button
+                                            key={slot}
+                                            type="button"
+                                            disabled={!item}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                engineRef.current?.triggerDashUseItem(slot);
+                                            }}
+                                            className={`${
+                                                isTouchViewport
+                                                    ? meta
+                                                        ? 'h-9 px-2 rounded-xl text-[10px]'
+                                                        : 'h-9 w-9 justify-center rounded-xl text-[10px]'
+                                                    : 'h-11 px-2.5 rounded-xl text-[10px]'
+                                            } border-2 border-black font-black flex items-center gap-1 transition-all touch-manipulation ${
+                                                meta
+                                                    ? `${meta.bg} shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 cursor-pointer`
+                                                    : 'bg-white/75 text-black/40 cursor-default'
+                                            }`}
+                                            title={meta ? `Use ${meta.label} (Key ${slot + 1})` : `Empty Item Slot ${slot + 1}`}
+                                        >
+                                            {!isTouchViewport && (
+                                                <span className="font-mono text-[9px] opacity-65">[{slot + 1}]</span>
+                                            )}
+                                            <span>
+                                                {meta
+                                                    ? isTouchViewport
+                                                        ? meta.emoji
+                                                        : `${meta.emoji} ${meta.label}`
+                                                    : isTouchViewport
+                                                    ? '·'
+                                                    : 'EMPTY'}
+                                            </span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                                {!isTouchViewport && (
+                                    <button
+                                        type="button"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            engineRef.current?.triggerDashGravityFlip();
+                                        }}
+                                        className={`h-10 px-3 rounded-xl border-2 border-black shadow-[3px_3px_0px_#000] font-black text-[10px] uppercase flex items-center gap-1 cursor-pointer ${
+                                            hud.gravityInverted ? 'bg-[#e9d5ff]' : 'bg-white hover:bg-[#f1f5f9]'
+                                        }`}
+                                    >
+                                        <FlipVertical className="w-3.5 h-3.5" />
+                                        <span>FLIP [F]</span>
+                                    </button>
+                                )}
+
+                                {/* Overdrive Nova ULT Button */}
+                                <button
+                                    type="button"
+                                    disabled={hud.ultCharge < 100 || hud.ultActiveSec > 0}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        engineRef.current?.triggerDashUlt();
+                                    }}
+                                    className={`${
+                                        isTouchViewport ? 'h-9 px-2.5 min-w-[82px]' : 'h-10 min-w-[132px] px-3'
+                                    } rounded-xl border-2 border-black font-black text-[10px] uppercase flex items-center justify-between gap-1.5 transition-all touch-manipulation ${
+                                        hud.ultCharge >= 100 && hud.ultActiveSec === 0
+                                            ? 'bg-[#bef264] shadow-[3px_3px_0px_#000] animate-pulse cursor-pointer hover:bg-[#fde047]'
+                                            : 'bg-white shadow-[2px_2px_0px_#000] opacity-90 cursor-default'
+                                    }`}
+                                >
+                                    <span className="flex items-center gap-1">
+                                        <Zap className="w-3.5 h-3.5" />
+                                        {hud.ultActiveSec > 0
+                                            ? `${hud.ultActiveSec}s`
+                                            : hud.ultCharge >= 100
+                                            ? isTouchViewport
+                                                ? 'ULT!'
+                                                : 'ULT READY [Q]'
+                                            : 'ULT'}
+                                    </span>
+                                    <span className="font-mono">{hud.ultCharge}%</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* MOBILE TACTILE CONTROLS FOR PAPER DASH 3D */}
+                        {isTouchViewport && (
+                            <div
+                                dir="ltr"
+                                className="absolute inset-x-0 bottom-0 z-20 px-2.5 pt-1.5 flex items-center justify-between gap-1.5 pointer-events-none"
+                                style={{ paddingBottom: 'max(8px, env(safe-area-inset-bottom))' }}
+                            >
+                                <div className="flex items-center gap-1.5 pointer-events-auto">
+                                    <button
+                                        type="button"
+                                        aria-label="Move Left"
+                                        onPointerDown={(e) => {
+                                            e.stopPropagation();
+                                            e.preventDefault();
+                                            engineRef.current?.triggerDashLane(-1);
+                                        }}
+                                        className="h-11 w-11 rounded-2xl bg-white active:bg-[#fde047] border-[3px] border-black shadow-[2.5px_2.5px_0px_#000] flex items-center justify-center touch-manipulation"
+                                    >
+                                        <ArrowLeft className="w-4 h-4 stroke-[3]" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        aria-label="Move Right"
+                                        onPointerDown={(e) => {
+                                            e.stopPropagation();
+                                            e.preventDefault();
+                                            engineRef.current?.triggerDashLane(1);
+                                        }}
+                                        className="h-11 w-11 rounded-2xl bg-white active:bg-[#fde047] border-[3px] border-black shadow-[2.5px_2.5px_0px_#000] flex items-center justify-center touch-manipulation"
+                                    >
+                                        <ArrowRight className="w-4 h-4 stroke-[3]" />
+                                    </button>
+                                </div>
+
+                                <div className="flex items-center gap-1.5 pointer-events-auto min-w-0">
+                                    <button
+                                        type="button"
+                                        onPointerDown={(e) => {
+                                            e.stopPropagation();
+                                            e.preventDefault();
+                                            engineRef.current?.triggerDashSlam();
+                                        }}
+                                        className="h-11 px-2.5 rounded-2xl bg-[#fed7aa] active:bg-[#fdba74] border-[3px] border-black shadow-[2.5px_2.5px_0px_#000] font-black text-[10px] uppercase flex items-center gap-1 touch-manipulation"
+                                    >
+                                        <ArrowDown className="w-3.5 h-3.5 stroke-[3]" />
+                                        <span>SLIDE</span>
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onPointerDown={(e) => {
+                                            e.stopPropagation();
+                                            e.preventDefault();
+                                            engineRef.current?.triggerDashGravityFlip();
+                                        }}
+                                        className="h-11 px-2.5 rounded-2xl bg-[#e9d5ff] active:bg-[#d8b4fe] border-[3px] border-black shadow-[2.5px_2.5px_0px_#000] font-black text-[10px] uppercase flex items-center gap-1 touch-manipulation"
+                                    >
+                                        <FlipVertical className="w-3.5 h-3.5 stroke-[3]" />
+                                        <span>FLIP</span>
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onPointerDown={(e) => {
+                                            e.stopPropagation();
+                                            e.preventDefault();
+                                            engineRef.current?.triggerDashJump();
+                                        }}
+                                        className="h-11 px-3 rounded-2xl bg-[#bef264] active:bg-[#a3e635] border-[3px] border-black shadow-[2.5px_2.5px_0px_#000] font-black text-[11px] uppercase flex items-center justify-center gap-1 touch-manipulation"
+                                    >
+                                        <ArrowUp className="w-4 h-4 stroke-[3]" />
+                                        <span>JUMP</span>
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
         </div>,

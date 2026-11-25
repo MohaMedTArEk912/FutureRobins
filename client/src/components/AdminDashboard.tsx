@@ -30,7 +30,7 @@ import {
     ArrowUpRight,
     type LucideIcon
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import type { UserData, Quiz, AttemptData } from '../types/index.ts';
 import { api } from '../lib/api.ts';
@@ -90,6 +90,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
     onLogout
 }) => {
     const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
     const { isBento, theme, openThemeModal } = useTheme();
     const currentThemeLabel = theme === 'bento' ? 'Neo-Brutalist' : 'Noir Studio';
     const { skillTracks, platformStats } = useData();
@@ -97,7 +98,24 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
     // --- State ---
     const [isSettingsDropdownOpen, setIsSettingsDropdownOpen] = useState(false);
     const settingsDropdownRef = useRef<HTMLDivElement>(null);
-    const [selectedTab, setSelectedTab] = useState<AdminTab>('main');
+    const [selectedTab, setSelectedTabState] = useState<AdminTab>(() => {
+        const raw = searchParams.get('tab');
+        const allowed: AdminTab[] = [
+            'main', 'users', 'classes', 'presentations', 'quizzes', 'road',
+            'badges', 'daily', 'tournaments', 'reviews', 'track-requests',
+            'question-analytics', 'cohort-analytics', 'live-proctoring'
+        ];
+        return raw && allowed.includes(raw as AdminTab) ? (raw as AdminTab) : 'main';
+    });
+    const setSelectedTab = useCallback((nextTab: AdminTab) => {
+        setSelectedTabState(nextTab);
+        setSearchParams((prev) => {
+            const next = new URLSearchParams(prev);
+            if (nextTab === 'main') next.delete('tab');
+            else next.set('tab', nextTab);
+            return next;
+        }, { replace: true });
+    }, [setSearchParams]);
     const [pendingReviews, setPendingReviews] = useState<AttemptData[]>([]);
     const [pendingTrackRequests, setPendingTrackRequests] = useState<number>(0);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -175,7 +193,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
         await Promise.resolve(onRefresh());
         setSelectedTab(currentTab);
         loadPendingData();
-    }, [loadPendingData, onRefresh, selectedTab]);
+    }, [loadPendingData, onRefresh, selectedTab, setSelectedTab]);
 
     // --- Navigation Configuration ---
     const navItems: NavGroup[] = [

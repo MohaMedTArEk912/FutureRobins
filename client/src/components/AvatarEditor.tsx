@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import type { AvatarConfig, UserData } from '../types';
 import Avatar from './Avatar';
+import { FullBodyBuddy, type BuddyAction } from './buddy/FullBodyBuddy';
 import {
     Sparkles, Smile, User, Save, RefreshCw, Shirt, Crown, Lock,
     Check, RotateCcw, X, Palette
@@ -9,7 +10,8 @@ import {
 import { AVATAR_OPTIONS, DEFAULT_AVATAR_CONFIG } from '../constants/avatarDefaults';
 import { api } from '../lib/api';
 import { useTheme } from '../context/ThemeContext';
-import { setStoredMascotGender } from '../utils/mascotGenderStorage';
+import { setStoredMascotGender, setStoredAvatarConfig } from '../utils/authPreferenceCookies';
+import { syncAvatarWithGender } from '../utils/avatarGenderSync';
 
 interface AvatarEditorProps {
     user: UserData;
@@ -45,6 +47,8 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
     }));
 
     const [activeTab, setActiveTab] = useState<'base' | 'hair' | 'clothing' | 'style' | 'mood'>('base');
+    const [previewMode, setPreviewMode] = useState<'full' | 'portrait'>('full');
+    const [previewAction, setPreviewAction] = useState<BuddyAction>('idle');
     const [saving, setSaving] = useState(false);
 
     useEffect(() => {
@@ -60,11 +64,7 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
     }, [user.avatar, user.unlockedItems]);
 
     const handleGenderChange = (newGender: 'male' | 'female') => {
-        let newClothing = config.clothing;
-        if (newGender === 'male' && config.clothing === 'dress') {
-            newClothing = 'shirt';
-        }
-        setConfig({ ...config, gender: newGender, clothing: newClothing });
+        setConfig((prev) => syncAvatarWithGender(prev, newGender));
     };
 
     const handleReset = () => {
@@ -82,6 +82,7 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
         try {
             await api.updateUser(user.userId, { avatar: config });
             setStoredMascotGender(config.gender);
+            setStoredAvatarConfig(config);
             const updatedUser = { ...user, avatar: config };
             onUpdate(updatedUser);
             await new Promise(resolve => setTimeout(resolve, 400));
@@ -96,7 +97,7 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
     const tabs = [
         { id: 'base', icon: <User className="w-4 h-4 shrink-0" />, label: 'Base' },
         { id: 'hair', icon: <Sparkles className="w-4 h-4 shrink-0" />, label: 'Hair' },
-        { id: 'clothing', icon: <Shirt className="w-4 h-4 shrink-0" />, label: 'Clothing' },
+        { id: 'clothing', icon: <Shirt className="w-4 h-4 shrink-0" />, label: 'Outfit' },
         { id: 'style', icon: <Crown className="w-4 h-4 shrink-0" />, label: 'Accessory' },
         { id: 'mood', icon: <Smile className="w-4 h-4 shrink-0" />, label: 'Mood' },
     ] as const;
@@ -141,6 +142,13 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
         return AVATAR_OPTIONS.clothing.types;
     };
 
+    const getAvailableBottoms = () => {
+        if (config.gender === 'male') {
+            return AVATAR_OPTIONS.bottoms.types.filter((b) => b !== 'skirt');
+        }
+        return AVATAR_OPTIONS.bottoms.types;
+    };
+
     const getAvailableHairStyles = () => {
         const common = ['short', 'messy', 'buzz', 'mohawk'];
         if (config.gender === 'male') {
@@ -155,6 +163,10 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
             ? AVATAR_OPTIONS.clothing.types.filter(c => c !== 'dress')
             : AVATAR_OPTIONS.clothing.types
         ).filter(c => !isLocked(c));
+
+        const validBottoms = (randomGender === 'male'
+            ? AVATAR_OPTIONS.bottoms.types.filter((b) => b !== 'skirt')
+            : AVATAR_OPTIONS.bottoms.types);
 
         const commonHair = ['short', 'messy', 'buzz', 'mohawk'];
         const validHair = randomGender === 'male'
@@ -173,7 +185,12 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
             backgroundColor: unlockedBgs[Math.floor(Math.random() * unlockedBgs.length)],
             mood: AVATAR_OPTIONS.mood.moods[Math.floor(Math.random() * AVATAR_OPTIONS.mood.moods.length)] as AvatarConfig['mood'],
             gender: randomGender as AvatarConfig['gender'],
-            clothing: validClothing[Math.floor(Math.random() * validClothing.length)] as AvatarConfig['clothing']
+            clothing: validClothing[Math.floor(Math.random() * validClothing.length)] as AvatarConfig['clothing'],
+            outfitColor: AVATAR_OPTIONS.clothing.colors[Math.floor(Math.random() * AVATAR_OPTIONS.clothing.colors.length)],
+            bottoms: validBottoms[Math.floor(Math.random() * validBottoms.length)] as AvatarConfig['bottoms'],
+            bottomsColor: AVATAR_OPTIONS.bottoms.colors[Math.floor(Math.random() * AVATAR_OPTIONS.bottoms.colors.length)],
+            shoes: AVATAR_OPTIONS.shoes.types[Math.floor(Math.random() * AVATAR_OPTIONS.shoes.types.length)] as AvatarConfig['shoes'],
+            shoesColor: AVATAR_OPTIONS.shoes.colors[Math.floor(Math.random() * AVATAR_OPTIONS.shoes.colors.length)],
         }));
     };
 
@@ -202,7 +219,7 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
             >
                 {/* LEFT COLUMN: LIVE PREVIEW STAGE */}
                 <div
-                    className={`md:w-[300px] lg:w-[320px] shrink-0 p-4 sm:p-6 flex flex-col items-center justify-between relative ${
+                    className={`md:w-[300px] lg:w-[320px] shrink-0 p-2.5 sm:p-5 md:p-6 flex flex-col items-center justify-between relative ${
                         isBento
                             ? 'bg-[#f5f3ec] border-b-[2.5px] md:border-b-0 md:border-r-[2.5px] border-black'
                             : 'bg-[#11100e] border-b md:border-b-0 md:border-r border-[#2e2924]'
@@ -216,39 +233,116 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                             : undefined
                     }
                 >
-                    {/* Stage Header Pill */}
-                    <div className="w-full flex items-center justify-center">
+                    {/* Stage Header Toggle */}
+                    <div className="w-full flex items-center justify-between gap-2">
                         <span
-                            className={`inline-flex items-center gap-1.5 px-3 py-0.5 sm:px-3.5 sm:py-1 rounded-full text-[10px] sm:text-[11px] font-black uppercase tracking-widest ${
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest ${
                                 isBento
                                     ? 'bg-[#fde047] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
                                     : 'bg-[#1c2317] text-[#bef264] border border-[#bef264]/35'
                             }`}
                         >
                             <Sparkles className="w-3 h-3" />
-                            <span>Live Preview</span>
+                            <span>Live</span>
                         </span>
+
+                        <div
+                            className={`inline-flex p-0.5 rounded-xl text-[10px] font-black ${
+                                isBento
+                                    ? 'bg-white border-2 border-black'
+                                    : 'bg-[#0e0d0b] border border-[#2e2924]'
+                            }`}
+                        >
+                            {(['full', 'portrait'] as const).map((mode) => (
+                                <button
+                                    key={mode}
+                                    type="button"
+                                    onClick={() => setPreviewMode(mode)}
+                                    className={`btn-unstyled px-2.5 py-1 rounded-lg uppercase tracking-wider cursor-pointer transition-all ${
+                                        previewMode === mode
+                                            ? isBento
+                                                ? 'bg-[#bef264] text-black border border-black'
+                                                : 'bg-[#bef264] text-[#0a0908]'
+                                            : isBento
+                                            ? 'text-neutral-600'
+                                            : 'text-[#a8a29e]'
+                                    }`}
+                                >
+                                    {mode === 'full' ? 'Full Body' : 'Portrait'}
+                                </button>
+                            ))}
+                        </div>
                     </div>
 
                     {/* Avatar Pedestal */}
-                    <div className="my-2.5 sm:my-5 flex flex-col items-center">
-                        <div
-                            className={`p-2 rounded-full transition-transform duration-300 ${
-                                isBento
-                                    ? 'bg-white border-[3px] border-black shadow-[4px_4px_0px_#000] sm:shadow-[5px_5px_0px_#000]'
-                                    : 'bg-[#1a1714] ring-1 ring-[#2e2924]'
-                            }`}
-                        >
-                            <Avatar config={config} size="xl" className="sm:hidden" />
-                            <Avatar config={config} size="2xl" className="hidden sm:block" />
-                        </div>
+                    <div className="my-1.5 sm:my-3 flex flex-col items-center w-full">
+                        {previewMode === 'full' ? (
+                            <div className="flex flex-col items-center gap-1.5 w-full">
+                                <div
+                                    className={`w-full h-[124px] sm:h-[185px] md:h-[205px] rounded-2xl flex items-center justify-center overflow-hidden transition-all ${
+                                        isBento
+                                            ? 'bg-white/90 border-[2.5px] border-black shadow-[4px_4px_0px_#000]'
+                                            : 'bg-[#1a1714]/80 border border-[#2e2924]'
+                                    }`}
+                                >
+                                    <FullBodyBuddy
+                                        avatar={config}
+                                        action={previewAction}
+                                        facing="right"
+                                        className="scale-[0.88] sm:scale-[1.2] md:scale-[1.32]"
+                                    />
+                                </div>
+                                <div className="flex items-center gap-1 w-full overflow-x-auto scrollbar-none justify-start sm:flex-wrap sm:justify-center py-0.5">
+                                    {(
+                                        [
+                                            { id: 'idle', label: 'Idle' },
+                                            { id: 'wave', label: 'Wave' },
+                                            { id: 'play_football', label: '⚽' },
+                                            { id: 'sleep_bed', label: '🛏️' },
+                                            { id: 'skateboard', label: '🛹' },
+                                            { id: 'guitar_rock', label: '🎸' },
+                                            { id: 'jetpack_fly', label: '🚀' },
+                                        ] as Array<{ id: BuddyAction; label: string }>
+                                    ).map((act) => (
+                                        <button
+                                            key={act.id}
+                                            type="button"
+                                            onClick={() => setPreviewAction(act.id)}
+                                            className={`btn-unstyled shrink-0 px-2 py-0.5 rounded-lg text-[10px] font-black cursor-pointer transition-all ${
+                                                previewAction === act.id
+                                                    ? isBento
+                                                        ? 'bg-[#fde047] text-black border border-black shadow-[1px_1px_0px_#000]'
+                                                        : 'bg-[#bef264] text-[#0a0908]'
+                                                    : isBento
+                                                    ? 'bg-white text-black border border-black/40 hover:bg-[#fef9c3]'
+                                                    : 'bg-[#1a1714] text-[#a8a29e] border border-[#2e2924] hover:text-white'
+                                            }`}
+                                        >
+                                            {act.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        ) : (
+                            <div
+                                className={`p-2 rounded-full transition-transform duration-300 ${
+                                    isBento
+                                        ? 'bg-white border-[3px] border-black shadow-[4px_4px_0px_#000] sm:shadow-[5px_5px_0px_#000]'
+                                        : 'bg-[#1a1714] ring-1 ring-[#2e2924]'
+                                }`}
+                            >
+                                <Avatar config={config} size="lg" className="sm:hidden" />
+                                <Avatar config={config} size="2xl" className="hidden sm:block" />
+                            </div>
+                        )}
 
                         {/* Equipped Summary Pills (shown on sm+) */}
-                        <div className="hidden sm:flex mt-4 flex-wrap items-center justify-center gap-1.5 max-w-[240px]">
+                        <div className="hidden sm:flex mt-3 flex-wrap items-center justify-center gap-1.5 max-w-[260px]">
                             {[
                                 formatLabel(config.gender || 'male'),
-                                formatLabel(config.hairStyle || 'short'),
                                 formatLabel(config.clothing || 'shirt'),
+                                config.bottoms ? formatLabel(config.bottoms) : null,
+                                config.shoes ? formatLabel(config.shoes) : null,
                                 config.accessory && config.accessory !== 'none' ? formatLabel(config.accessory) : null
                             ]
                                 .filter(Boolean)
@@ -300,7 +394,7 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                 <div className={`flex-1 flex flex-col min-h-0 ${isBento ? 'bg-white' : 'bg-[#141210]'}`}>
                     {/* Modal Header */}
                     <div
-                        className={`px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between shrink-0 ${
+                        className={`px-4 sm:px-6 py-2.5 sm:py-4 flex items-center justify-between shrink-0 ${
                             isBento
                                 ? 'border-b-[2.5px] border-black bg-white'
                                 : 'border-b border-[#2e2924] bg-[#1a1714]'
@@ -610,49 +704,179 @@ const AvatarEditor: React.FC<AvatarEditorProps> = ({ user, onClose, onUpdate }) 
                         )}
 
                         {activeTab === 'clothing' && (
-                            <div>
-                                <h3 className={`text-xs font-black uppercase tracking-wider mb-3 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>
-                                    Outfit Selection ({config.gender})
-                                </h3>
-                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                    {getAvailableClothing().map(item => {
-                                        const locked = isLocked(item);
-                                        const isOwned = user.unlockedItems?.includes(PREMIUM_ITEMS[item] || '');
-                                        const selected = config.clothing === item;
-                                        return (
-                                            <button
-                                                key={item}
-                                                type="button"
-                                                disabled={locked}
-                                                onClick={() =>
-                                                    setConfig({ ...config, clothing: item as AvatarConfig['clothing'] })
-                                                }
-                                                title={locked ? 'Locked — Purchase in Reward Shop' : isOwned ? 'Owned' : ''}
-                                                className={`btn-unstyled h-12 px-3.5 rounded-xl text-xs font-black capitalize flex items-center justify-between relative transition-all ${
-                                                    selected
-                                                        ? isBento
-                                                            ? 'bg-[#bef264] text-black border-2 border-black shadow-[2.5px_2.5px_0px_#000]'
-                                                            : 'border-2 border-[#bef264] bg-[#1c2317] text-[#bef264]'
-                                                        : isBento
-                                                        ? 'bg-white text-black border-2 border-black hover:bg-[#f5f3ec]'
-                                                        : 'border border-[#2e2924] bg-[#1a1714] text-[#d6d0c7] hover:border-[#bef264]/50'
-                                                } ${locked ? 'opacity-55 cursor-not-allowed' : 'cursor-pointer'}`}
-                                            >
-                                                <span>{formatLabel(item)}</span>
-                                                {locked ? (
-                                                    <Lock className="w-3.5 h-3.5 text-[#78716c] shrink-0" />
-                                                ) : selected ? (
-                                                    <Check className="w-3.5 h-3.5 shrink-0" />
-                                                ) : null}
-                                                {isOwned && !locked && (
-                                                    <span
-                                                        className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-[#fde047] rounded-full border border-black"
-                                                        title="Shop Item Owned"
+                            <div className="space-y-6">
+                                <div>
+                                    <h3 className={`text-xs font-black uppercase tracking-wider mb-3 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>
+                                        Top &amp; Outfit ({config.gender})
+                                    </h3>
+                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                                        {getAvailableClothing().map(item => {
+                                            const locked = isLocked(item);
+                                            const isOwned = user.unlockedItems?.includes(PREMIUM_ITEMS[item] || '');
+                                            const selected = config.clothing === item;
+                                            return (
+                                                <button
+                                                    key={item}
+                                                    type="button"
+                                                    disabled={locked}
+                                                    onClick={() =>
+                                                        setConfig({ ...config, clothing: item as AvatarConfig['clothing'] })
+                                                    }
+                                                    title={locked ? 'Locked — Purchase in Reward Shop' : isOwned ? 'Owned' : ''}
+                                                    className={`btn-unstyled h-11 px-3 rounded-xl text-xs font-black capitalize flex items-center justify-between relative transition-all ${
+                                                        selected
+                                                            ? isBento
+                                                                ? 'bg-[#bef264] text-black border-2 border-black shadow-[2.5px_2.5px_0px_#000]'
+                                                                : 'border-2 border-[#bef264] bg-[#1c2317] text-[#bef264]'
+                                                            : isBento
+                                                            ? 'bg-white text-black border-2 border-black hover:bg-[#f5f3ec]'
+                                                            : 'border border-[#2e2924] bg-[#1a1714] text-[#d6d0c7] hover:border-[#bef264]/50'
+                                                    } ${locked ? 'opacity-55 cursor-not-allowed' : 'cursor-pointer'}`}
+                                                >
+                                                    <span className="truncate">{formatLabel(item)}</span>
+                                                    {locked ? (
+                                                        <Lock className="w-3.5 h-3.5 text-[#78716c] shrink-0" />
+                                                    ) : selected ? (
+                                                        <Check className="w-3.5 h-3.5 shrink-0" />
+                                                    ) : null}
+                                                    {isOwned && !locked && (
+                                                        <span
+                                                            className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-[#fde047] rounded-full border border-black"
+                                                            title="Shop Item Owned"
+                                                        />
+                                                    )}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                    <div className="mt-3">
+                                        <span className={`block text-[10px] font-black uppercase tracking-wider mb-2 ${isBento ? 'text-neutral-600' : 'text-[#a8a29e]'}`}>
+                                            Top Color
+                                        </span>
+                                        <div className="flex flex-wrap gap-2">
+                                            {AVATAR_OPTIONS.clothing.colors.map((c) => {
+                                                const selected = (config.outfitColor || DEFAULT_AVATAR_CONFIG.outfitColor) === c;
+                                                return (
+                                                    <button
+                                                        key={c}
+                                                        type="button"
+                                                        onClick={() => setConfig({ ...config, outfitColor: c })}
+                                                        className={`btn-unstyled w-7 h-7 rounded-full cursor-pointer transition-all ${
+                                                            selected
+                                                                ? isBento
+                                                                    ? 'border-[2.5px] border-black scale-110 ring-2 ring-[#bef264]'
+                                                                    : 'border-2 border-[#bef264] scale-110'
+                                                                : 'border border-black/40 hover:scale-105'
+                                                        }`}
+                                                        style={{ backgroundColor: c }}
+                                                        aria-label={`Top color ${c}`}
                                                     />
-                                                )}
-                                            </button>
-                                        );
-                                    })}
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h3 className={`text-xs font-black uppercase tracking-wider mb-3 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>
+                                        Bottoms (Full Body)
+                                    </h3>
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                                        {getAvailableBottoms().map((b) => {
+                                            const selected = (config.bottoms || 'jeans') === b;
+                                            return (
+                                                <button
+                                                    key={b}
+                                                    type="button"
+                                                    onClick={() => setConfig({ ...config, bottoms: b as AvatarConfig['bottoms'] })}
+                                                    className={`btn-unstyled h-10 px-3 rounded-xl text-xs font-black capitalize flex items-center justify-between cursor-pointer transition-all ${
+                                                        selected
+                                                            ? isBento
+                                                                ? 'bg-[#bae6fd] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                                                : 'border-2 border-[#bef264] bg-[#1c2317] text-[#bef264]'
+                                                            : isBento
+                                                            ? 'bg-white text-black border-2 border-black hover:bg-[#f5f3ec]'
+                                                            : 'border border-[#2e2924] bg-[#1a1714] text-[#d6d0c7] hover:border-[#bef264]/50'
+                                                    }`}
+                                                >
+                                                    <span>{formatLabel(b)}</span>
+                                                    {selected && <Check className="w-3.5 h-3.5 shrink-0" />}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                    <div className="mt-3 flex flex-wrap gap-2">
+                                        {AVATAR_OPTIONS.bottoms.colors.map((c) => {
+                                            const selected = (config.bottomsColor || DEFAULT_AVATAR_CONFIG.bottomsColor) === c;
+                                            return (
+                                                <button
+                                                    key={c}
+                                                    type="button"
+                                                    onClick={() => setConfig({ ...config, bottomsColor: c })}
+                                                    className={`btn-unstyled w-7 h-7 rounded-full cursor-pointer transition-all ${
+                                                        selected
+                                                            ? isBento
+                                                                ? 'border-[2.5px] border-black scale-110 ring-2 ring-[#bae6fd]'
+                                                                : 'border-2 border-[#bef264] scale-110'
+                                                            : 'border border-black/40 hover:scale-105'
+                                                    }`}
+                                                    style={{ backgroundColor: c }}
+                                                    aria-label={`Bottoms color ${c}`}
+                                                />
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h3 className={`text-xs font-black uppercase tracking-wider mb-3 ${isBento ? 'text-black' : 'text-[#a8a29e]'}`}>
+                                        Shoes &amp; Footwear (Full Body)
+                                    </h3>
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                                        {AVATAR_OPTIONS.shoes.types.map((s) => {
+                                            const selected = (config.shoes || 'sneakers') === s;
+                                            return (
+                                                <button
+                                                    key={s}
+                                                    type="button"
+                                                    onClick={() => setConfig({ ...config, shoes: s as AvatarConfig['shoes'] })}
+                                                    className={`btn-unstyled h-10 px-3 rounded-xl text-xs font-black capitalize flex items-center justify-between cursor-pointer transition-all ${
+                                                        selected
+                                                            ? isBento
+                                                                ? 'bg-[#fde047] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                                                : 'border-2 border-[#bef264] bg-[#1c2317] text-[#bef264]'
+                                                            : isBento
+                                                            ? 'bg-white text-black border-2 border-black hover:bg-[#f5f3ec]'
+                                                            : 'border border-[#2e2924] bg-[#1a1714] text-[#d6d0c7] hover:border-[#bef264]/50'
+                                                    }`}
+                                                >
+                                                    <span>{formatLabel(s)}</span>
+                                                    {selected && <Check className="w-3.5 h-3.5 shrink-0" />}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                    <div className="mt-3 flex flex-wrap gap-2">
+                                        {AVATAR_OPTIONS.shoes.colors.map((c) => {
+                                            const selected = (config.shoesColor || DEFAULT_AVATAR_CONFIG.shoesColor) === c;
+                                            return (
+                                                <button
+                                                    key={c}
+                                                    type="button"
+                                                    onClick={() => setConfig({ ...config, shoesColor: c })}
+                                                    className={`btn-unstyled w-7 h-7 rounded-full cursor-pointer transition-all ${
+                                                        selected
+                                                            ? isBento
+                                                                ? 'border-[2.5px] border-black scale-110 ring-2 ring-[#fde047]'
+                                                                : 'border-2 border-[#bef264] scale-110'
+                                                            : 'border border-black/40 hover:scale-105'
+                                                    }`}
+                                                    style={{ backgroundColor: c }}
+                                                    aria-label={`Shoes color ${c}`}
+                                                />
+                                            );
+                                        })}
+                                    </div>
                                 </div>
                             </div>
                         )}

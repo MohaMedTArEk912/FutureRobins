@@ -12,7 +12,8 @@ import {
     Edit2,
     ExternalLink,
     Maximize2,
-    Minimize2
+    Minimize2,
+    Sparkles
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useChat } from '../../context/ChatContext';
@@ -22,6 +23,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { useUserProfileModal } from '../../context/UserProfileModalContext';
 import Avatar from '../Avatar';
 import { ClanEmblem } from '../social/ClassEmblem';
+import { BuddyChatPanel } from './BuddyChatPanel';
 import type { UserData } from '../../types';
 
 export const GlobalChatDrawer: React.FC = () => {
@@ -663,6 +665,19 @@ export const GlobalChatDrawer: React.FC = () => {
                                 </span>
                             )}
                         </button>
+
+                        <button
+                            type="button"
+                            onClick={() => setActiveTab('buddy')}
+                            className={`flex-1 py-1.5 sm:py-2 px-2 sm:px-3 rounded-lg text-[11px] sm:text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1 sm:gap-1.5 transition-all cursor-pointer truncate ${
+                                activeTab === 'buddy'
+                                    ? (isBento ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_#000]' : 'bg-[#bef264] text-[#0a0908]')
+                                    : (isBento ? 'opacity-70 hover:opacity-100' : 'text-[#a8a29e] hover:text-[#f5f3ec] hover:bg-[#1a1714]')
+                            }`}
+                        >
+                            <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                            <span className="truncate">Buddy</span>
+                        </button>
                     </div>
                 </div>
 
@@ -846,6 +861,11 @@ export const GlobalChatDrawer: React.FC = () => {
                                 </button>
                             </div>
                         )
+                    )}
+
+                    {/* TAB: BUDDY AI */}
+                    {activeTab === 'buddy' && (
+                        <BuddyChatPanel isFullscreen={isFullscreen} />
                     )}
 
                     {/* TAB: DIRECT MESSAGES */}

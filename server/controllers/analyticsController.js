@@ -286,8 +286,14 @@ export const getAiMistakeAnalysis = async (req, res) => {
     // Build fallback in case user has no wrong answers or AI is unavailable
     const buildFallbackAnalysis = () => {
       const topWeak = weakTopics[0];
+      const buddyQuip = wrongAnswers.length > 0
+        ? (avgScore < 60
+            ? `Okay, ${avgScore}% means we have some gremlins in ${topWeak ? topWeak.topic : 'a few tricky topics'}—let's squish them together!`
+            : `${avgScore}% is a solid base! Patch up ${topWeak ? topWeak.topic : 'these few slips'} and you'll be cruising at 90%+.`)
+        : `Zero recorded mistakes and ${avgScore}% accuracy? Show-off! Go try a harder Skill Track!`;
       return {
         generatedByAi: false,
+        buddyQuip,
         executiveSummary: wrongAnswers.length > 0
           ? `Based on your ${totalAttempts} quiz attempts (${avgScore}% average accuracy), most of your missed points come from ${topWeak ? `"${topWeak.topic}" (${topWeak.category})` : 'detail-oriented conceptual questions'}. Reviewing the exact distinctions between your chosen answers and the correct rules below will quickly push your accuracy above 85%.`
           : `You have completed ${totalAttempts} quizzes with ${avgScore}% accuracy and no recent wrong answers recorded! Keep challenging yourself with harder tracks and daily coding problems.`,
@@ -365,6 +371,7 @@ ${mistakesSample}
 
 Return ONLY a valid JSON object matching this exact schema:
 {
+  "buddyQuip": "1 punchy, playful, motivating sentence from the student's Study Buddy reacting to their exact accuracy and weakest topic",
   "executiveSummary": "2-3 sentences of personalized, encouraging diagnostic insight explaining their specific mistake patterns (e.g., syntax mix-ups, conceptual gaps, edge cases) and what to focus on first.",
   "topicsToStudy": [
     {
@@ -442,6 +449,9 @@ Requirements:
 
     return res.json({
       generatedByAi: true,
+      buddyQuip: typeof aiResult.buddyQuip === 'string' && aiResult.buddyQuip.trim()
+        ? aiResult.buddyQuip.trim()
+        : buildFallbackAnalysis().buddyQuip,
       executiveSummary: aiResult.executiveSummary,
       topicsToStudy: Array.isArray(aiResult.topicsToStudy) ? aiResult.topicsToStudy : [],
       mistakeBreakdowns: Array.isArray(aiResult.mistakeBreakdowns) ? aiResult.mistakeBreakdowns : [],

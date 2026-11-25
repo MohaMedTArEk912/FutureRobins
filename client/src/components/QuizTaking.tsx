@@ -17,6 +17,7 @@ import TextQuestion from './question-types/TextQuestion';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 import { evaluateTextAnswer } from '../lib/stringSimilarity';
+import { BuddyAvatar } from './buddy/BuddyAvatar';
 
 const CompilerQuestion = React.lazy(() => import('./question-types/CompilerQuestion'));
 
@@ -2298,6 +2299,13 @@ const QuizTaking: React.FC<QuizTakingProps> = ({
                                             theme === 'bento' ? 'border-b-2 border-black/20' : 'border-b border-[#2e2924]'
                                         }`} onClick={(e) => e.stopPropagation()}>
                                             <div className="flex items-center gap-1.5 min-w-0">
+                                                <BuddyAvatar
+                                                    avatar={user.avatar}
+                                                    moodOverride={isInlineClueLoading ? 'cool' : 'happy'}
+                                                    size="xs"
+                                                    animated
+                                                    className="shrink-0"
+                                                />
                                                 <span className={`px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg text-[10px] sm:text-xs font-black uppercase tracking-wider truncate ${
                                                     theme === 'bento'
                                                         ? 'bg-[#fdba74] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000]'
